@@ -14,10 +14,13 @@ import System.FilePath
 -- | Wait for something to happen on one of the matching files in one of the
 -- supplied directories. TODO: Get rid of the twitchExtensions. Watch
 -- everything, except the public dir.
-waitForTwitch :: [FilePath] -> IO FilePath
-waitForTwitch directories = do
+waitForTwitch :: Bool -> [FilePath] -> IO FilePath
+waitForTwitch doPolling directories = do
+  print doPolling
   done <- newEmptyMVar
-  mgr <- startManager
+  mgr <- if doPolling
+    then startManagerConf (WatchConfig DebounceDefault 10000 True)
+    else startManager
   stops <- watchIt mgr done
   filepath <- takeMVar done
   sequence_ stops
@@ -43,10 +46,10 @@ twitchExtensions =
   iframeExtensions ++
   audioExtensions ++ videoExtensions ++ renderedCodeExtensions
 
-waitForTwitchPassive :: [FilePath] -> IO FilePath
-waitForTwitchPassive files = do
+waitForTwitchPassive :: Bool -> [FilePath] -> IO FilePath
+waitForTwitchPassive doPolling files = do
   let dirs = unique (map takeDirectory files)
-  waitForTwitch dirs
+  waitForTwitch doPolling dirs
 
 unique :: Ord a => [a] -> [a]
 unique = Set.toList . Set.fromList

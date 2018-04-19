@@ -79,7 +79,11 @@ main = do
     --
     phony "watch" $ do
       need ["html"]
-      allMarkdownA <++> metaA <++> allImagesA >>= watchFiles
+      allMarkdownA <++> metaA <++> allImagesA >>= watchFiles False
+      --
+    phony "watch-polling" $ do
+      need ["html"]
+      allMarkdownA <++> metaA <++> allImagesA >>= watchFiles True
     --
     phony "open" $ do
       need ["html"]
@@ -87,6 +91,10 @@ main = do
     --
     phony "server" $ do
       need ["watch"]
+      runHttpServer serverPort dirs Nothing
+    --
+    phony "server-polling" $ do
+      need ["watch-polling"]
       runHttpServer serverPort dirs Nothing
     --
     phony "example" writeExampleProject

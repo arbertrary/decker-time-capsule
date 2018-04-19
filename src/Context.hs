@@ -7,6 +7,8 @@ module Context
   , setActionContext
   , getFilesToWatch
   , setFilesToWatch
+  , getFilesToWatchUsingPolling
+  , setFilesToWatchUsingPolling
   , getServerHandle
   , setServerHandle
   , getProjectDirs
@@ -31,10 +33,11 @@ import System.FilePath.Posix
 
 data ActionContext = ActionContext
   { ctxFilesToWatch :: IORef [FilePath]
+  , ctxFilesToWatchUsingPolling  :: IORef [FilePath]
   , ctxServerHandle :: IORef (Maybe Server)
   , ctxDirs :: ProjectDirs
   , ctxPublicResource :: Shake.Resource
-  } deriving (Typeable, Show)
+   } deriving (Typeable, Show)
 
 instance Show (IORef a) where
   show _ = "IORef"
@@ -44,7 +47,7 @@ defaultActionContext = do
   files <- newIORef []
   server <- newIORef Nothing
   resource <- newResourceIO "PublicDir" 1
-  return $ ActionContext files server (ProjectDirs "" "" "" "" "" "") resource
+  return $ ActionContext files files server (ProjectDirs "" "" "" "" "" "") resource
 
 actionContextKey :: IO TypeRep
 actionContextKey = do
@@ -82,6 +85,16 @@ setFilesToWatch :: [FilePath] -> Action ()
 setFilesToWatch files = do
   ctx <- getActionContext
   liftIO $ writeIORef (ctxFilesToWatch ctx) files
+
+getFilesToWatchUsingPolling :: Action [FilePath]
+getFilesToWatchUsingPolling = do
+  ctx <- getActionContext
+  liftIO $ readIORef $ ctxFilesToWatchUsingPolling ctx
+
+setFilesToWatchUsingPolling  :: [FilePath] -> Action ()
+setFilesToWatchUsingPolling  files = do
+  ctx <- getActionContext
+  liftIO $ writeIORef (ctxFilesToWatchUsingPolling  ctx) files
 
 getServerHandle :: Action (Maybe Server)
 getServerHandle = do

@@ -81,16 +81,29 @@ runShakeInContext context options rules = do
       forM_ server stopHttpServer
     nothingToWatch = do
       files <- readIORef $ ctxFilesToWatch context
+      filesToPoll <- readIORef $ ctxFilesToWatchUsingPolling context
       if null files
-        then return True
+        then
+          if null filesToPoll
+            then return True
+          else do
+            server <- readIORef $ ctxServerHandle context
+            forM_ server reloadClients
+            _ <- waitForTwitchPassive True [public $ ctxDirs context]
+            return False
         else do
           server <- readIORef $ ctxServerHandle context
           forM_ server reloadClients
-          _ <- waitForTwitchPassive [public $ ctxDirs context]
+          _ <- waitForTwitchPassive False [public $ ctxDirs context]
           return False
 
-watchFiles :: [FilePath] -> Action ()
-watchFiles = setFilesToWatch
+watchFiles :: Bool -> [FilePath] -> Action ()
+watchFiles doPolling = do
+  if doPolling
+    then
+      setFilesToWatchUsingPolling
+    else
+      setFilesToWatch
 
 -- | Monadic version of list concatenation.
 (<++>) :: Monad m => m [a] -> m [a] -> m [a]
@@ -304,15 +317,15 @@ provisionMetaResource base _ (key, url)
 provisionMetaResource _ _ (_, url) = return url
 
 -- | Determines if a URL can be resolved to a local file. Absolute file URLs are
--- resolved against and copied or linked to public from 
---    1. the project root 
---    2. the local filesystem root 
+-- resolved against and copied or linked to public from
+--    1. the project root
+--    2. the local filesystem root
 --
--- Relative file URLs are resolved against and copied or linked to public from 
+-- Relative file URLs are resolved against and copied or linked to public from
 --
---    1. the directory path of the referencing file 
+--    1. the directory path of the referencing file
 --    2. the project root Copy and link operations target the public directory
---       in the project root and recreate the source directory structure. 
+--       in the project root and recreate the source directory structure.
 --
 -- This function is used to provision resources that are used at presentation
 --       time.
