@@ -91,10 +91,10 @@ getFilesToWatchUsingPolling = do
   ctx <- getActionContext
   liftIO $ readIORef $ ctxFilesToWatchUsingPolling ctx
 
-setFilesToWatchUsingPolling  :: [FilePath] -> Action ()
-setFilesToWatchUsingPolling  files = do
+setFilesToWatchUsingPolling :: [FilePath] -> Action ()
+setFilesToWatchUsingPolling files = do
   ctx <- getActionContext
-  liftIO $ writeIORef (ctxFilesToWatchUsingPolling  ctx) files
+  liftIO $ writeIORef (ctxFilesToWatchUsingPolling ctx) files
 
 getServerHandle :: Action (Maybe Server)
 getServerHandle = do

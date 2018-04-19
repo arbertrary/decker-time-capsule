@@ -16,7 +16,6 @@ import System.FilePath
 -- everything, except the public dir.
 waitForTwitch :: Bool -> [FilePath] -> IO FilePath
 waitForTwitch doPolling directories = do
-  print doPolling
   done <- newEmptyMVar
   mgr <- if doPolling
     then startManagerConf (WatchConfig DebounceDefault 10000 True)

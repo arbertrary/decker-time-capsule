@@ -82,19 +82,26 @@ runShakeInContext context options rules = do
     nothingToWatch = do
       files <- readIORef $ ctxFilesToWatch context
       filesToPoll <- readIORef $ ctxFilesToWatchUsingPolling context
+      putStrLn "Files:"
+      print files
+      putStrLn "Files to Poll:"
+      print filesToPoll
+      putStrLn "---"
       if null files
         then
           if null filesToPoll
             then return True
-          else do
-            server <- readIORef $ ctxServerHandle context
-            forM_ server reloadClients
-            _ <- waitForTwitchPassive True [public $ ctxDirs context]
-            return False
+            else do
+              server <- readIORef $ ctxServerHandle context
+              forM_ server reloadClients
+              _ <- waitForTwitchPassive True [public $ ctxDirs context]
+              putStrLn "Polling: True"
+              return False
         else do
           server <- readIORef $ ctxServerHandle context
           forM_ server reloadClients
           _ <- waitForTwitchPassive False [public $ ctxDirs context]
+          putStrLn "Polling: False"
           return False
 
 watchFiles :: Bool -> [FilePath] -> Action ()
