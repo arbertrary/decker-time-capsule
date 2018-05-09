@@ -11,7 +11,7 @@ import Distribution.PackageDescription
 import Distribution.Simple.LocalBuildInfo
 import Distribution.Simple.Setup
 import System.Directory
-import System.FilePath.Posix
+import System.FilePath
 import System.IO
 
 main = defaultMainWithHooks simpleUserHooks {postReg = appendResourcesHook}
