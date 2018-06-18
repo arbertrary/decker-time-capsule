@@ -1,8 +1,10 @@
 decker := $(shell stack path | grep local-install-root | sed "s/local-install-root: //")/bin/decker
 version := $(shell grep "version: " package.yaml | sed "s/version: *//")
+zip := $(shell mktemp -u)
 
 build:
 	stack build -j 8 --fast
+	@(cd resource; zip -qr $(zip) example support template; cat $(zip) >> $(decker); rm $(zip))
 
 dist: build
 	rm -rf dist
@@ -24,5 +26,9 @@ clean:
 install: build
 	stack exec -- decker clean
 	stack install
+
+info:
+	@echo "decker: $(decker)"
+	@echo "zip: $(zip)"
 
 .PHONY: build clean test install dist docs

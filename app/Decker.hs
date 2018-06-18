@@ -245,7 +245,7 @@ options :: FilePath -> ShakeOptions
 options projectDir =
   shakeOptions
   { shakeFiles = ".shake"
-  , shakeColor = True
+  -- , shakeColor = True -- TODO: needs at least shake-0.16.0
   , shakeThreads = numCapabilities
   , shakeAbbreviations = [(projectDir ++ "/", "")]
   }
