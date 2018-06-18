@@ -9,10 +9,8 @@ import Distribution.Simple.LocalBuildInfo
 import Distribution.Simple.Setup
 import System.Directory
 import System.FilePath
-<<<<<<< HEAD
-=======
+
 import System.FilePath.Glob
->>>>>>> master
 import System.IO
 import System.IO.Extra
 
