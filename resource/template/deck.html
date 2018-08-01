@@ -139,6 +139,8 @@ $body$
 
         for (let bundle of subsection_bundles) {
           let supersection = document.createElement("section");
+          supersection.classList.add("slide");
+          supersection.classList.add("level1"); 
           let section = bundle[0].previousElementSibling;
           section.parentNode.insertBefore(supersection, section);
           supersection.appendChild(section);
