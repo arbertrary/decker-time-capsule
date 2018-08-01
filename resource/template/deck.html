@@ -117,6 +117,39 @@ $body$
   <script src="$revealjs-url$/js/reveal.js"></script>
 
   <script>
+      // DOM reordering to support vertical slides
+      window.addEventListener('load', () => {
+        let subsections = document.getElementsByClassName("sub");
+        let subsection_bundles = [];
+        for (let i = 0; i < subsections.length; i++) {
+        let subsection = subsections[i];
+        if (subsection.nodeName !== "SECTION") {
+                continue;
+        }
+        let bundle = [subsection];
+        while (
+          i + 1 < subsections.length &&
+          subsection.nextElementSibling === subsections[i + 1]
+        ) {
+          i += 1;
+          bundle.push(subsections[i]);
+        }
+        subsection_bundles.push(bundle);
+        }
+
+        for (let bundle of subsection_bundles) {
+          let supersection = document.createElement("section");
+          let section = bundle[0].previousElementSibling;
+          section.parentNode.insertBefore(supersection, section);
+          supersection.appendChild(section);
+          for (let subsection of bundle) {
+                  supersection.appendChild(subsection);
+          }
+        }
+
+        Reveal.configure();
+      });
+
       // Full list of configuration options available at:
       // https://github.com/hakimel/reveal.js#configuration
       Reveal.initialize({
