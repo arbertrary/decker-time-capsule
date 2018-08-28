@@ -1,6 +1,5 @@
 stages:
-#   - build
-#   - test
+  - test
   - deploy
 
 dockerbuild:
@@ -15,6 +14,20 @@ dockerbuild:
     - docker build -t $CI_REGISTRY_IMAGE .
     - docker push $CI_REGISTRY_IMAGE
 
+
+macbuild:
+  tags:
+    - mac
+  stage: deploy
+  only:
+    - master
+  script:
+    - make
+    - cp $(stack path | grep "dist-dir" | awk '{printf "%s/build/decker/decker",$2}') decker
+  artifacts:
+    paths:
+      - decker
+      
 # stackbuild:
 #   tags: 
 #     - stack
@@ -28,6 +41,16 @@ dockerbuild:
 #     paths:
 #     - dist/decker.zip
 #     expire_in: 20 minutes
+
+stacktest:
+  stage: test
+  tags:
+    - docker
+  image:
+    name: gitlab2.informatik.uni-wuerzburg.de:4567/decker/decker/testcontainer:latest
+    entrypoint: [""]
+  script:
+    - make test
 
 # stacktest:
 #   tags: 
