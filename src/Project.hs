@@ -33,7 +33,8 @@ provisioningFromMeta meta =
   case lookupMeta "provisioning" meta of
     Just (MetaString s) -> read s
     Just (MetaInlines i) -> read $ stringify i
-    _ -> SymLink
+    -- Use "Copy" as standard provisioning method
+    _ -> Copy
 
 provisioningClasses :: [(String, Provisioning)]
 provisioningClasses =
@@ -151,8 +152,8 @@ fileIsNewer a b = do
            else return False
     else return aexists
 
--- | Express the second path argument as relative to the first. 
--- Both arguments are expected to be absolute pathes. 
+-- | Express the second path argument as relative to the first.
+-- Both arguments are expected to be absolute pathes.
 makeRelativeTo :: FilePath -> FilePath -> FilePath
 makeRelativeTo dir file =
   let (d, f) = removeCommonPrefix (dir, file)

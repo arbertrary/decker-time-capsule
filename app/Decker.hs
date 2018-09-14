@@ -221,7 +221,8 @@ main = do
             | value == show Copy ->
               rsync [(appDataDir </> "support/"), supportDir]
           Nothing ->
-            liftIO $ createFileLink (appDataDir </> "support") supportDir
+          -- Use "Copy" as standard provisioning method
+            rsync [(appDataDir </> "support/"), supportDir]
           _ -> return ()
     --
     phony "check" checkExternalPrograms
