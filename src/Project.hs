@@ -109,7 +109,7 @@ projectDirectories = do
   projectDir <- findProjectDirectory
   let publicDir = projectDir </> "public"
   let cacheDir = publicDir </> "cache"
-  let supportDir = publicDir </> ("support" ++ "-" ++ deckerVersion)
+  let supportDir = publicDir </> "support"
   appDataDir <- deckerResourceDir
   let logDir = projectDir </> "log"
   return
@@ -151,8 +151,8 @@ fileIsNewer a b = do
            else return False
     else return aexists
 
--- | Express the second path argument as relative to the first. 
--- Both arguments are expected to be absolute pathes. 
+-- | Express the second path argument as relative to the first.
+-- Both arguments are expected to be absolute pathes.
 makeRelativeTo :: FilePath -> FilePath -> FilePath
 makeRelativeTo dir file =
   let (d, f) = removeCommonPrefix (dir, file)

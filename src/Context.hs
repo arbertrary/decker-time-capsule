@@ -111,5 +111,5 @@ withShakeLock perform = do
 getRelativeSupportDir :: FilePath -> Action FilePath
 getRelativeSupportDir from = do
   pub <- public <$> getProjectDirs
-  let sup = pub </> ("support" ++ "-" ++ deckerVersion)
+  let sup = pub </> "support"
   return $ makeRelativeTo from sup
