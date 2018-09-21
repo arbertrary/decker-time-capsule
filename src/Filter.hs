@@ -422,12 +422,6 @@ classifyFilePath name =
 lazySrcAttr :: String -> Attribute
 lazySrcAttr url = customAttribute (stringTag "data-src") (toValue url)
 
-renderFigure :: Disposition -> MediaType -> Inline -> Action Inline
-renderFigure disp mediaType (Image attrs@(ident, cls, values) inlines (url, tit)) = do
-  let tag = case mediaType of
-    VideoMedia -> 
-
-
 -- images
 renderMediaTag :: Disposition -> Inline -> Action Inline
 renderMediaTag disp@(Disposition _ Html) (Image attrs@(ident, cls, values) inlines (url, tit))
