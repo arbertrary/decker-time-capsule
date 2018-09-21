@@ -38,9 +38,19 @@ import System.FilePath
 import Text.Blaze (customAttribute)
 import Text.Blaze.Html.Renderer.String
 import Text.Blaze.Html5 as H
-       ((!), audio, iframe, iframe, img, stringTag, toValue, video, Html, Attribute)
-import Text.Blaze.Internal (MarkupM(Append, Parent))
+  ( Attribute
+  , Html
+  , (!)
+  , audio
+  , iframe
+  , iframe
+  , img
+  , stringTag
+  , toValue
+  , video
+  )
 import Text.Blaze.Html5.Attributes as A (alt, class_, id, title)
+import Text.Blaze.Internal (MarkupM(Append, Parent))
 import Text.Pandoc
 import Text.Pandoc.Definition ()
 import Text.Pandoc.Shared
@@ -126,16 +136,16 @@ renderColumn :: (Int, [Block]) -> Block
 renderColumn (i, blocks) =
   let grow =
         fromMaybe (1 :: Int) $ lookup "grow" (blockKeyvals blocks) >>= readMaybe
-  in Div
-       ( ""
-       , ["grow-" ++ show grow, "column", "column-" ++ show i]
-       , blockKeyvals blocks)
-       blocks
+   in Div
+        ( ""
+        , ["grow-" ++ show grow, "column", "column-" ++ show i]
+        , blockKeyvals blocks)
+        blocks
 
 blockKeyvals :: [Block] -> [(String, String)]
 blockKeyvals (first:_) =
   let (_, _, kv) = blockAttribs first
-  in kv
+   in kv
 blockKeyvals [] = []
 
 renderLayout :: AreaMap -> RowLayout -> [Block]
@@ -152,7 +162,7 @@ layoutSlides slide@(header, body) =
     Just l ->
       let names = layoutAreas l
           areas = slideAreas names body
-      in (header, renderLayout areas l)
+       in (header, renderLayout areas l)
     Nothing -> slide
 
 hasAttrib :: String -> Block -> Maybe String
@@ -369,7 +379,6 @@ renderMediaTags pandoc = do
 -- renderMediaTags pandoc = do
 --   disp <- gets disposition
 --   return $ walk (renderImageAudioVideoTag disp) pandoc
-
 -- | File extensions that signify video content.
 videoExtensions :: [String]
 videoExtensions =
@@ -381,7 +390,7 @@ audioExtensions = [".m4a", ".mp3", ".ogg", ".wav"]
 
 -- | File extensions that signify images
 imageExtensions :: [String]
-imageExtensions = 
+imageExtensions =
   [".jpg", ".jpeg", ".png", ".gif", ".tif", ".tiff", ".bmp", ".svg"]
 
 -- | File extensions that signify iframe content.
@@ -413,113 +422,156 @@ classifyFilePath name =
 lazySrcAttr :: String -> Attribute
 lazySrcAttr url = customAttribute (stringTag "data-src") (toValue url)
 
+renderFigure :: Disposition -> MediaType -> Inline -> Action Inline
+renderFigure disp mediaType (Image attrs@(ident, cls, values) inlines (url, tit)) = do
+  let tag = case mediaType of
+    VideoMedia -> 
+
+
 -- images
 renderMediaTag :: Disposition -> Inline -> Action Inline
-renderMediaTag (Disposition _ Html) (Image attrs@(ident, cls, values) [] (url, tit))
-  | ident == "img" || (uriPathExtension url) `elem` imageExtensions
-  = do
-    return $ RawInline (Format "html") (renderHtml $ assembleToHtml (img ! (lazySrcAttr url)) (convertMediaAttributes attrs) [] tit)
-
-renderMediaTag (Disposition _ Html) (Image attrs@(ident, cls, values) inlines (url, tit))
-  | ident == "img" || (uriPathExtension url) `elem` imageExtensions
-  = do
-    return $ Span nullAttr ([
-      toHtml "<figure>",
-      toHtml (renderHtml $ image),
-      toHtml "<figcaption>"]
-      ++ inlines ++
-      [toHtml "</figcaption>",
-      toHtml "</figure>"])
-  where
-    src = (lazySrcAttr url)
-    image = assembleToHtml (img ! src) (convertMediaAttributes attrs) inlines tit
-
+renderMediaTag disp@(Disposition _ Html) (Image attrs@(ident, cls, values) inlines (url, tit))
+  | ident == "img" || (uriPathExtension url) `elem` imageExtensions = do
+    let imageTag =
+          renderHtml $
+          assembleToHtml
+            (img ! (lazySrcAttr url))
+            (convertMediaAttributes attrs)
+            []
+            tit
+    let caption =
+          if null inlines
+            then []
+            else [toHtml "<figcaption>"] ++ inlines ++ [toHtml "</figcaption>"]
+    return $
+      Span
+        nullAttr
+        ([toHtml "<figure>", toHtml imageTag] ++ caption ++ [toHtml "</figure>"])
 -- video
 renderMediaTag (Disposition _ Html) (Image attrs@(ident, cls, values) [] (url, tit))
-  | ident == "video" || (uriPathExtension url) `elem` videoExtensions
-    = do
-      return $ RawInline (Format "html") (renderHtml $ assembleToHtml (video "Browser does not support video." ! (lazySrcAttr url)) (convertMediaAttributes attrs) [] tit)
-
-renderMediaTag (Disposition _ Html) (Image attrs@(ident, cls, values) inlines (url, tit))
-  | ident == "video" || (uriPathExtension url) `elem` videoExtensions
-  = do
-    return $ Span nullAttr ([
-      toHtml "<figure>",
-      toHtml (renderHtml $ vid),
-      toHtml "<figcaption>"]
-      ++ inlines ++
-      [toHtml "</figcaption>",
-      toHtml "</figure>"])
-  where
-    src = (lazySrcAttr url)
-    vid = assembleToHtml (video "Browser does not support video." ! src) (convertMediaAttributes attrs) inlines tit
-
+  | ident == "video" || (uriPathExtension url) `elem` videoExtensions = do
+    return $
+      RawInline
+        (Format "html")
+        (renderHtml $
+         assembleToHtml
+           (video "Browser does not support video." ! (lazySrcAttr url))
+           (convertMediaAttributes attrs)
+           []
+           tit)
+renderMediaTag disp@(Disposition _ Html) (Image attrs@(ident, cls, values) inlines (url, tit))
+  | ident == "video" || (uriPathExtension url) `elem` videoExtensions = do
+    RawInline _ (videoTag) <- renderMediaTag disp (Image attrs [] (url, tit))
+    return $
+      Span
+        nullAttr
+        ([toHtml "<figure>", toHtml videoTag, toHtml "<figcaption>"] ++
+         inlines ++ [toHtml "</figcaption>", toHtml "</figure>"])
 -- audio
 renderMediaTag (Disposition _ Html) (Image attrs@(ident, cls, values) [] (url, tit))
-  | ident == "audio" || (uriPathExtension url) `elem` audioExtensions
-    = do
-      return $ RawInline (Format "html") (renderHtml $ assembleToHtml (audio "Browser does not support audio." ! (lazySrcAttr url)) (convertMediaAttributes attrs) [] tit)
-
+  | ident == "audio" || (uriPathExtension url) `elem` audioExtensions = do
+    return $
+      RawInline
+        (Format "html")
+        (renderHtml $
+         assembleToHtml
+           (audio "Browser does not support audio." ! (lazySrcAttr url))
+           (convertMediaAttributes attrs)
+           []
+           tit)
 renderMediaTag (Disposition _ Html) (Image attrs@(ident, cls, values) inlines (url, tit))
-  | ident == "audio" || (uriPathExtension url) `elem` audioExtensions
-  = do
-    return $ Span nullAttr ([
-      toHtml "<figure>",
-      toHtml (renderHtml $ aud),
-      toHtml "<figcaption>"]
-      ++ inlines ++
-      [toHtml "</figcaption>",
-      toHtml "</figure>"])
+  | ident == "audio" || (uriPathExtension url) `elem` audioExtensions = do
+    return $
+      Span
+        nullAttr
+        ([toHtml "<figure>", toHtml (renderHtml $ aud), toHtml "<figcaption>"] ++
+         inlines ++ [toHtml "</figcaption>", toHtml "</figure>"])
   where
     src = lazySrcAttr url
-    aud = assembleToHtml (audio "Browser does not support audio." ! src) (convertMediaAttributes attrs) inlines tit
-
+    aud =
+      assembleToHtml
+        (audio "Browser does not support audio." ! src)
+        (convertMediaAttributes attrs)
+        inlines
+        tit
 -- 3D meshes shown in a WebGL viewer in an iframe 
 -- TODO: see to determine proper path for viewer
 renderMediaTag (Disposition _ Html) (Image attrs@(ident, cls, values) [] (url, tit))
-  | (uriPathExtension url) `elem` meshExtensions
-    = do
-      return $ RawInline (Format "html") (renderHtml $ assembleToHtml (iframe "" ! (lazySrcAttr src)) (convertMediaAttributes attrs) [] tit)
+  | (uriPathExtension url) `elem` meshExtensions = do
+    return $
+      RawInline
+        (Format "html")
+        (renderHtml $
+         assembleToHtml
+           (iframe "" ! (lazySrcAttr src))
+           (convertMediaAttributes attrs)
+           []
+           tit)
   where
     src = "demos" </> "mview" </> "mview.html?model=.." </> ".." </> url
-
 renderMediaTag (Disposition _ Html) (Image attrs@(ident, cls, values) inlines (url, tit))
-  | (uriPathExtension url) `elem` meshExtensions
-  = do
-    return $ Span nullAttr ([
-      toHtml "<figure>",
-      toHtml (renderHtml $ aud),
-      toHtml "<figcaption>"]
-      ++ inlines ++
-      [toHtml "</figcaption>",
-      toHtml "</figure>"])
+  | (uriPathExtension url) `elem` meshExtensions = do
+    return $
+      Span
+        nullAttr
+        ([toHtml "<figure>", toHtml (renderHtml $ aud), toHtml "<figcaption>"] ++
+         inlines ++ [toHtml "</figcaption>", toHtml "</figure>"])
   where
-    src = lazySrcAttr ("demos" </> "mview" </> "mview.html?model=.." </> ".." </> url)
-    aud = assembleToHtml (iframe "" ! src) (convertMediaAttributes attrs) inlines tit
-
+    src =
+      lazySrcAttr
+        ("demos" </> "mview" </> "mview.html?model=.." </> ".." </> url)
+    aud =
+      assembleToHtml
+        (iframe "" ! src)
+        (convertMediaAttributes attrs)
+        inlines
+        tit
 -- TODO: svg load
+renderMediaTag (Disposition _ Html) (Image attrs@(ident, cls, values) [] (url, tit))
+  | ident == "svg" || (uriPathExtension url) `elem` [".svg"] = do
+    svg <- liftIO $ catch (readFile url) svgLoadErrorHandler
+    return $ Span attrs [toHtml svg]
+renderMediaTag (Disposition _ Html) (Image attrs@(ident, cls, values) inlines (url, tit))
+  | ident == "svg" || (uriPathExtension url) `elem` [".svg"] = do
+    svg <- liftIO $ catch (readFile url) svgLoadErrorHandler
+    return $
+      Span
+        attrs
+        ([toHtml "<figure>", toHtml svg, toHtml "<figcaption>"] ++
+         inlines ++ [toHtml "</figcaption>", toHtml "</figure>"])
 -- iframe
 renderMediaTag (Disposition _ Html) (Image attrs@(ident, cls, values) [] (url, tit))
-  | ident == "iframe" || (uriPathExtension url) `elem` iframeExtensions
-    = do
-      return $ RawInline (Format "html") (renderHtml $ assembleToHtml (iframe "Browser does not support iframe." ! (lazySrcAttr url)) (convertMediaAttributes attrs) [] tit)
-
+  | ident == "iframe" || (uriPathExtension url) `elem` iframeExtensions = do
+    return $
+      toHtml
+        (renderHtml $
+         assembleToHtml
+           (iframe "Browser does not support iframe." ! (lazySrcAttr url))
+           (convertMediaAttributes attrs)
+           []
+           tit)
 renderMediaTag (Disposition _ Html) (Image attrs@(ident, cls, values) inlines (url, tit))
-  | ident == "iframe" || (uriPathExtension url) `elem` iframeExtensions
-  = do
-    return $ Span nullAttr ([
-      toHtml "<figure>",
-      toHtml (renderHtml $ aud),
-      toHtml "<figcaption>"]
-      ++ inlines ++
-      [toHtml "</figcaption>",
-      toHtml "</figure>"])
+  | ident == "iframe" || (uriPathExtension url) `elem` iframeExtensions = do
+    return $
+      Span
+        nullAttr
+        ([toHtml "<figure>", toHtml (renderHtml $ aud), toHtml "<figcaption>"] ++
+         inlines ++ [toHtml "</figcaption>", toHtml "</figure>"])
   where
     src = lazySrcAttr url
-    aud = assembleToHtml (iframe "Browser does not support iframe." ! src) (convertMediaAttributes attrs) inlines tit
-
+    aud =
+      assembleToHtml
+        (iframe "Browser does not support iframe." ! src)
+        (convertMediaAttributes attrs)
+        inlines
+        tit
 -- Nothing matched
-renderMediaTag _ inline = do return inline
+renderMediaTag _ inline = do
+  return inline
+
+svgLoadErrorHandler :: IOException -> IO String
+svgLoadErrorHandler e = do
+  return "<div>Couldn't load SVG</div>"
 
 -- Renders an image with a video reference to a video tag in raw HTML. Faithfully
 -- transfers attributes to the video tag.
@@ -554,7 +606,6 @@ renderMediaTag _ inline = do return inline
 --     transformedValues = (lazyLoad . transformImageSize) values
 --     lazyLoad vs = (srcAttr, url) : vs
 -- renderImageAudioVideoTag _ inline = inline
-
 -- | Mimic pandoc for handling the 'width' and 'height' attributes of images.
 -- That is, transfer 'width' and 'height' attribute values to css style values
 -- and add them to the 'style' attribute value.
@@ -584,20 +635,18 @@ renderMediaTag _ inline = do return inline
 --   in if null css
 --        then unstyled
 --        else styleAttr : unsized
-
 -- | Moves the `src` attribute to `data-src` to enable reveal.js lazy loading.
 -- lazyLoadImage :: Inline -> IO Inline
 -- lazyLoadImage (Image (ident, cls, values) inlines (url, tit)) = do
 --   let kvs = ("data-src", url) : [kv | kv <- values, "data-src" /= fst kv]
 --   return (Image (ident, cls, kvs) inlines ("", tit))
 -- lazyLoadImage inline = return inline
-
 assembleToHtml :: Html -> Attr -> [Inline] -> String -> Html
-assembleToHtml tag (ident, classes, values) inlines tit = 
+assembleToHtml tag (ident, classes, values) inlines tit =
   ifNotEmpty A.id ident $
-      ifNotEmpty class_ (unwords classes) $
-      ifNotEmpty alt (stringify inlines) $
-      ifNotEmpty title tit $ foldl appendAttr tag values
+  ifNotEmpty class_ (unwords classes) $
+  ifNotEmpty alt (stringify inlines) $
+  ifNotEmpty title tit $ foldl appendAttr tag values
   where
     appendAttr element (key, value) =
       element ! customAttribute (stringTag key) (toValue value)
@@ -606,25 +655,30 @@ assembleToHtml tag (ident, classes, values) inlines tit =
         then element
         else element ! attr (toValue value)
 
-
 -- | Converts attributes 
 convertMediaAttributes :: Attr -> Attr
 convertMediaAttributes attrs =
   convertMediaAttributeImageSize $ convertMediaAttributeAutoplay attrs
 
 convertMediaAttributeAutoplay :: Attr -> Attr
-convertMediaAttributeAutoplay (id, cls, vals) =
-  (id, cls', vals')
-  where 
-    (autoplay_cls, cls') = partition (=="autoplay") cls
-    vals' = vals ++ if null autoplay_cls then [] else [("data-autoplay", "true")]
+convertMediaAttributeAutoplay (id, cls, vals) = (id, cls', vals')
+  where
+    (autoplay_cls, cls') = partition (== "autoplay") cls
+    vals' =
+      vals ++
+      if null autoplay_cls
+        then []
+        else [("data-autoplay", "true")]
 
 convertMediaAttributeControls :: Attr -> Attr
-convertMediaAttributeControls (id, cls, vals) =
-  (id, cls', vals')
-  where 
-    (autoplay_cls, cls') = partition (=="controls") cls
-    vals' = vals ++ if null autoplay_cls then [] else [("controls", "true")]
+convertMediaAttributeControls (id, cls, vals) = (id, cls', vals')
+  where
+    (autoplay_cls, cls') = partition (== "controls") cls
+    vals' =
+      vals ++
+      if null autoplay_cls
+        then []
+        else [("controls", "true")]
 
 -- | Mimic pandoc for handling the 'width' and 'height' attributes of images.
 -- That is, transfer 'width' and 'height' attribute values to css style values
@@ -652,9 +706,11 @@ convertMediaAttributeImageSize (id, cls, attributes) =
           (Nothing, Nothing) -> []
       css = style ++ sizeStyle
       styleAttr = ("style", intercalate ";" $ reverse $ "" : css)
-  in (id, cls, if null css
-       then unstyled
-       else styleAttr : unsized)
+   in ( id
+      , cls
+      , if null css
+          then unstyled
+          else styleAttr : unsized)
 
 -- | small wrapper around @RawInline (Format "html")@
 --   as this is less line-noise in the filters and the
