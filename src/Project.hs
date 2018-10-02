@@ -25,9 +25,9 @@ import Network.URI
 import Resources
 import qualified System.Directory as D
 import System.FilePath
-import System.Directory (createFileLink)
 import Text.Pandoc.Definition
 import Text.Pandoc.Shared
+import System.Decker.Utility
 
 provisioningFromMeta :: Meta -> Provisioning
 provisioningFromMeta meta =
@@ -73,7 +73,7 @@ linkResource resource = do
     (D.doesFileExist (publicFile resource))
     (D.removeFile (publicFile resource))
   D.createDirectoryIfMissing True (takeDirectory (publicFile resource))
-  createFileLink (sourceFile resource) (publicFile resource)
+  fileLink (sourceFile resource) (publicFile resource)
   return (publicUrl resource)
 
 absRefResource :: Resource -> IO FilePath

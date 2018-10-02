@@ -15,13 +15,14 @@ import External
 import GHC.Conc (numCapabilities)
 import Project
 import Resources
-import System.Directory (createDirectoryIfMissing, removeFile, createFileLink)
+import System.Directory (createDirectoryIfMissing, removeFile)
 import System.FilePath ()
 import Text.Groom
 import qualified Text.Mustache as M ()
 import Text.Pandoc ()
 import Text.Printf ()
 import Utilities
+import System.Decker.Utility
 
 main :: IO ()
 main = do
@@ -216,12 +217,12 @@ main = do
         case metaValueAsString "provisioning" metaData of
           Just value
             | value == show SymLink ->
-              liftIO $ createFileLink (appDataDir </> "support") supportDir
+              liftIO $ fileLink (appDataDir </> "support") supportDir
           Just value
             | value == show Copy ->
               rsync [(appDataDir </> "support/"), supportDir]
           Nothing ->
-            liftIO $ createFileLink (appDataDir </> "support") supportDir
+            liftIO $ fileLink (appDataDir </> "support") supportDir
           _ -> return ()
     --
     phony "check" checkExternalPrograms

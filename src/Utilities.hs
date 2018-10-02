@@ -1,4 +1,5 @@
 {-- Author: Henrik Tramberend <henrik@tramberend.de> --}
+{-# LANGUAGE CPP #-}
 module Utilities
   ( runShakeInContext
   , watchFiles
@@ -22,6 +23,7 @@ module Utilities
   , toPandocMeta
   , deckerPandocExtensions
   , lookupPandocMeta
+  , isDebug
   , DeckerException(..)
   ) where
 
@@ -743,3 +745,10 @@ lookupPandocMeta key (Meta m) =
     lookup' [] (Just (MetaString s)) = Just s
     lookup' [] (Just (MetaInlines i)) = Just $ stringify i
     lookup' _ _ = Nothing
+
+isDebug :: Bool
+#ifdef DEBUG
+isDebug = True
+#else
+isDebug = False
+#endif

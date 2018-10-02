@@ -2,7 +2,7 @@
 module Resources
   ( extractResources
   , getResourceString
-  , deckerResourceDir
+  -- , deckerResourceDir
   , writeResourceFiles
   ) where
 
@@ -15,9 +15,10 @@ import System.Environment
 import System.Exit
 import System.FilePath
 import System.Process
+import System.Decker.Utility
 
-deckerResourceDir :: IO FilePath
-deckerResourceDir = getXdgDirectory XdgData ("decker" ++ "-" ++ deckerVersion)
+-- deckerResourceDir :: IO FilePath
+-- deckerResourceDir = getXdgDirectory XdgData ("decker" ++ "-" ++ deckerVersion)
 
 getResourceString :: FilePath -> IO String
 getResourceString path = do

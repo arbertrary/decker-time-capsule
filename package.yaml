@@ -82,6 +82,16 @@ dependencies:
 
 library:
   source-dirs: src
+  when:
+    - condition: os(windows)
+      then:
+        source-dirs: src-win
+        exposed-modules: "System.Decker.Utility"
+      else:
+        source-dirs: src-mac
+        exposed-modules: "System.Decker.Utility"
+    - condition: flag(debug)
+      cc-options: "-DDEBUG"
 
 executables:
   decker:
@@ -117,3 +127,9 @@ default-extensions:
 - DeriveDataTypeable
 - TemplateHaskell
 - MultiWayIf
+
+flags:
+  debug:
+    description: Enables debug mode which assumes that the executable is started inside the repository
+    manual: true
+    default: false
