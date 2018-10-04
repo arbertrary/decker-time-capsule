@@ -1,6 +1,6 @@
 {-- Author: Jan-Philipp Stauffert <jan-philipp.stauffert@uni-wuerzburg.de.de> --}
 
-module System.Decker.Utility
+module System.Decker.OS
     (deckerResourceDir,
     fileLink
     ) where

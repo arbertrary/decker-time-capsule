@@ -15,7 +15,7 @@ import System.Environment
 import System.Exit
 import System.FilePath
 import System.Process
-import System.Decker.Utility
+import System.Decker.OS
 
 -- deckerResourceDir :: IO FilePath
 -- deckerResourceDir = getXdgDirectory XdgData ("decker" ++ "-" ++ deckerVersion)

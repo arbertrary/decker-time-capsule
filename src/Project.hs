@@ -27,7 +27,7 @@ import qualified System.Directory as D
 import System.FilePath
 import Text.Pandoc.Definition
 import Text.Pandoc.Shared
-import System.Decker.Utility
+import System.Decker.OS
 
 provisioningFromMeta :: Meta -> Provisioning
 provisioningFromMeta meta =

@@ -86,12 +86,12 @@ library:
     - condition: os(windows)
       then:
         source-dirs: src-win
-        exposed-modules: "System.Decker.Utility"
+        exposed-modules: "System.Decker.OS"
       else:
         source-dirs: src-mac
-        exposed-modules: "System.Decker.Utility"
+        exposed-modules: "System.Decker.OS"
     - condition: flag(debug)
-      cc-options: "-DDEBUG"
+      cpp-options: "-DDEBUG"
 
 executables:
   decker:
