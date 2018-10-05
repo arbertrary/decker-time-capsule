@@ -69,6 +69,7 @@ import Text.Pandoc.Shared
 import Text.Pandoc.Walk
 import Text.Printf
 import Watch
+import System.Decker.OS
 
 runShakeInContext :: ActionContext -> ShakeOptions -> Rules () -> IO ()
 runShakeInContext context options rules = do
@@ -226,9 +227,10 @@ getSupportDir :: Meta -> FilePath -> FilePath -> Action FilePath
 getSupportDir meta out defaultPath = do
   pub <- public <$> getProjectDirs
   cur <- liftIO Dir.getCurrentDirectory
-  return $ case templateFromMeta meta of
-    Just template -> (makeRelativeTo (takeDirectory out) pub) </> (makeRelativeTo cur template)
-    Nothing -> defaultPath
+  let dirPath = case templateFromMeta meta of
+        Just template -> (makeRelativeTo (takeDirectory out) pub) </> (makeRelativeTo cur template)
+        Nothing -> defaultPath
+  return $ urlPath dirPath
 
 -- | Write a markdown file to a HTML file using the page template.
 markdownToHtmlDeck :: FilePath -> FilePath -> Action ()
@@ -248,9 +250,9 @@ markdownToHtmlDeck markdownFile out = do
         , writerHighlightStyle = Just pygments
         , writerHTMLMathMethod =
             MathJax
-              (supportDirRel </> "node_modules" </> "mathjax" </> "MathJax.js?config=TeX-AMS_HTML")
+              (urlPath $ supportDirRel </> "node_modules" </> "mathjax" </> "MathJax.js?config=TeX-AMS_HTML")
         , writerVariables =
-            [ ("revealjs-url", supportDirRel </> "node_modules" </> "reveal.js")
+            [ ("revealjs-url", urlPath $ supportDirRel </> "node_modules" </> "reveal.js")
             , ("decker-support-dir", templateSupportDir)
             ]
         , writerCiteMethod = Citeproc
@@ -430,7 +432,7 @@ markdownToHtmlPage markdownFile out = do
         , writerHighlightStyle = Just pygments
         , writerHTMLMathMethod =
             MathJax
-              (supportDir </> "node_modules" </> "mathjax" </> "MathJax.js?config=TeX-AMS_HTML")
+              (urlPath$ supportDir </> "node_modules" </> "mathjax" </> "MathJax.js?config=TeX-AMS_HTML")
         , writerVariables = [("decker-support-dir", templateSupportDir)]
         , writerCiteMethod = Citeproc
         }
@@ -477,7 +479,7 @@ markdownToHtmlHandout markdownFile out = do
         , writerHighlightStyle = Just pygments
         , writerHTMLMathMethod =
             MathJax
-              (supportDir </> "node_modules" </> "mathjax" </> "MathJax.js?config=TeX-AMS_HTML")
+              (urlPath $ supportDir </> "node_modules" </> "mathjax" </> "MathJax.js?config=TeX-AMS_HTML")
         , writerVariables = [("decker-support-dir", templateSupportDir)]
         , writerCiteMethod = Citeproc
         }
