@@ -9,7 +9,6 @@ module System.Decker.OS
 
 import Common
 import Data.List
-import Debug.Trace
 import System.Directory
 import System.Environment
 import System.FilePath

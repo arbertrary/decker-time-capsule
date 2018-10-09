@@ -57,6 +57,7 @@ import Project
 import Render
 import Resources
 import Server
+import System.Decker.OS
 import qualified System.Directory as Dir
 import Text.CSL.Pandoc
 import qualified Text.Mustache as M
@@ -69,7 +70,6 @@ import Text.Pandoc.Shared
 import Text.Pandoc.Walk
 import Text.Printf
 import Watch
-import System.Decker.OS
 
 runShakeInContext :: ActionContext -> ShakeOptions -> Rules () -> IO ()
 runShakeInContext context options rules = do
@@ -227,9 +227,12 @@ getSupportDir :: Meta -> FilePath -> FilePath -> Action FilePath
 getSupportDir meta out defaultPath = do
   pub <- public <$> getProjectDirs
   cur <- liftIO Dir.getCurrentDirectory
-  let dirPath = case templateFromMeta meta of
-        Just template -> (makeRelativeTo (takeDirectory out) pub) </> (makeRelativeTo cur template)
-        Nothing -> defaultPath
+  let dirPath =
+        case templateFromMeta meta of
+          Just template ->
+            (makeRelativeTo (takeDirectory out) pub) </>
+            (makeRelativeTo cur template)
+          Nothing -> defaultPath
   return $ urlPath dirPath
 
 -- | Write a markdown file to a HTML file using the page template.
@@ -245,18 +248,21 @@ markdownToHtmlDeck markdownFile out = do
   templateSupportDir <- getSupportDir meta out supportDirRel
   let options =
         pandocWriterOpts
-        { writerSlideLevel = Just 1
-        , writerTemplate = Just template
-        , writerHighlightStyle = Just pygments
-        , writerHTMLMathMethod =
-            MathJax
-              (urlPath $ supportDirRel </> "node_modules" </> "mathjax" </> "MathJax.js?config=TeX-AMS_HTML")
-        , writerVariables =
-            [ ("revealjs-url", urlPath $ supportDirRel </> "node_modules" </> "reveal.js")
-            , ("decker-support-dir", templateSupportDir)
-            ]
-        , writerCiteMethod = Citeproc
-        }
+          { writerSlideLevel = Just 1
+          , writerTemplate = Just template
+          , writerHighlightStyle = Just pygments
+          , writerHTMLMathMethod =
+              MathJax
+                (urlPath $
+                 supportDirRel </> "node_modules" </> "mathjax" </>
+                 "MathJax.js?config=TeX-AMS_HTML")
+          , writerVariables =
+              [ ( "revealjs-url"
+                , urlPath $ supportDirRel </> "node_modules" </> "reveal.js")
+              , ("decker-support-dir", templateSupportDir)
+              ]
+          , writerCiteMethod = Citeproc
+          }
   readAndProcessMarkdown markdownFile (Disposition Deck Html) >>=
     writePandocFile "revealjs" options out
 
@@ -397,7 +403,26 @@ provisionTemplateOverrideSupportTopLevel base method url = do
 provisionResource :: FilePath -> Provisioning -> FilePath -> Action FilePath
 provisionResource base method filePath =
   case parseRelativeReference filePath of
-    Nothing -> return filePath
+    Nothing ->
+      if hasDrive filePath
+        then do
+          dirs <- getProjectDirs
+          let resource =
+                Resource
+                  { sourceFile = filePath
+                  , publicFile =
+                      public dirs </> makeRelativeTo (project dirs) filePath
+                  , publicUrl = urlPath $ makeRelativeTo base filePath
+                  }
+          publicResource <- getPublicResource
+          withResource publicResource 1 $
+            liftIO $
+            case method of
+              Copy -> copyResource resource
+              SymLink -> linkResource resource
+              Absolute -> absRefResource resource
+              Relative -> relRefResource base resource
+        else return filePath
     Just uri -> do
       dirs <- getProjectDirs
       need [uriPath uri]
@@ -428,14 +453,16 @@ markdownToHtmlPage markdownFile out = do
   templateSupportDir <- getSupportDir meta out supportDir
   let options =
         pandocWriterOpts
-        { writerTemplate = Just template
-        , writerHighlightStyle = Just pygments
-        , writerHTMLMathMethod =
-            MathJax
-              (urlPath$ supportDir </> "node_modules" </> "mathjax" </> "MathJax.js?config=TeX-AMS_HTML")
-        , writerVariables = [("decker-support-dir", templateSupportDir)]
-        , writerCiteMethod = Citeproc
-        }
+          { writerTemplate = Just template
+          , writerHighlightStyle = Just pygments
+          , writerHTMLMathMethod =
+              MathJax
+                (urlPath $
+                 supportDir </> "node_modules" </> "mathjax" </>
+                 "MathJax.js?config=TeX-AMS_HTML")
+          , writerVariables = [("decker-support-dir", templateSupportDir)]
+          , writerCiteMethod = Citeproc
+          }
   readAndProcessMarkdown markdownFile (Disposition Page Html) >>=
     writePandocFile "html5" options out
 
@@ -475,14 +502,16 @@ markdownToHtmlHandout markdownFile out = do
   templateSupportDir <- getSupportDir meta out supportDir
   let options =
         pandocWriterOpts
-        { writerTemplate = Just template
-        , writerHighlightStyle = Just pygments
-        , writerHTMLMathMethod =
-            MathJax
-              (urlPath $ supportDir </> "node_modules" </> "mathjax" </> "MathJax.js?config=TeX-AMS_HTML")
-        , writerVariables = [("decker-support-dir", templateSupportDir)]
-        , writerCiteMethod = Citeproc
-        }
+          { writerTemplate = Just template
+          , writerHighlightStyle = Just pygments
+          , writerHTMLMathMethod =
+              MathJax
+                (urlPath $
+                 supportDir </> "node_modules" </> "mathjax" </>
+                 "MathJax.js?config=TeX-AMS_HTML")
+          , writerVariables = [("decker-support-dir", templateSupportDir)]
+          , writerCiteMethod = Citeproc
+          }
   readAndProcessMarkdown markdownFile (Disposition Handout Html) >>=
     writePandocFile "html5" options out
 
