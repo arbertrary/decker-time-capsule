@@ -56,7 +56,7 @@ build:mac:
 
 build:win:
   tags:
-    -win
+    - win
   stage: build
   only:
     - 26-windows-package
