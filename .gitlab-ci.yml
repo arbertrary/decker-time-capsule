@@ -150,4 +150,4 @@ deploy:win:
   dependencies:
     - build:win
   only:
-    - 26-win-package
+    - 26-windows-package
