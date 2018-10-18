@@ -147,8 +147,8 @@ deploy:win:
   script:
     - mc config host add store http://store.hci.informatik.uni-wuerzburg.de:9002 $MINIO_ACCESS $MINIO_SECRET --api S3v4
     - mc cp ./decker.exe store/decker/decker-win.exe
-    - mc cp -r ./resource.zip store/decker/resource-win.zip
-    - mc cp -r ./version.txt store/decker/version-win.txt
+    - mc cp ./resource.zip store/decker/resource-win.zip
+    - mc cp ./version.txt store/decker/version-win.txt
   dependencies:
     - build:win
   only:
