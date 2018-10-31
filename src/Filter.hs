@@ -65,6 +65,11 @@ isBoxDelim :: Block -> Bool
 isBoxDelim (Header 2 _ _) = True
 isBoxDelim _ = False
 
+isVerticalDelim :: Block -> Bool
+isVerticalDelim vertical@(Div (id_, cls, kvs) _ _)
+  | "vertical" `elem` cls = True
+isVerticalDelim _ = False
+
 hasClass :: String -> Block -> Bool
 hasClass which = elem which . blockClasses
 
@@ -257,6 +262,14 @@ wrapBoxes (header, body) = (header, concatMap wrap boxes)
           (Header 2 (id_, deFragment cls, kvs) text : blocks)
       ]
     wrap box = box
+
+-- | Wrap section around vertical divs and the following content.
+wrapSection :: Slide -> Slide
+wrapSection (header, body) = (header, concatMap wrap section)
+  where
+    section = split (keepDelimsL $ whenElt isVerticalDelim) body
+    wrap (Div text:blocks) =
+      [ Section (Div text : blocks) ]
 
 -- | Wrap H1 headers with class notes into a DIV and promote all header
 -- attributes to the DIV.

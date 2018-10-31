@@ -1,288 +1,51 @@
 ---
-author: Henrik Tramberend
-date: '15.5.2016'
+author: Samantha Monty
+date: '31.10.2018'
 history: True
-signs: © €
-subtitle: Tutorial and Examples
-title: Decker Slide Tool
-transition: linear
-ümläüte: Ümläüte
+title: Vertical Slides Example
 ---
 
-# Overview
+# Vertical slides
 
--   Features
--   Installation
--   Usage
--   Development
+Create a vertical slide deck using the {.vertical} tag.
+Vertical slides are created only from H2 headings.
 
-# Features {.section}
+## H2 vertical slide {.vertical}
 
-# Markdown Syntax
+This slide is vertical with an H2 header.
 
-## Pandoc-Markdown
+## H2 Regular div
 
--   Slides are basically [Pandoc-Markdown](http://pandoc.org) formatted text
--   Pandoc provides a Markdown variant with many extensions
+This H2 div has no vertical tag.
 
-## Some Pandoc extensions
+## H2 vertical slide {.vertical}
 
--   Bibliographies
--   Footnotes
--   Tables
--   Figures with captions
--   Code blocks with syntax highlighting
--   LaTeX math typesetting
+This slide is vertical with an H2 header.
 
-# Slides
+## H2 vertical slide {.vertical}
 
-## Markdown header
+This slide is vertical with an H2 header.
 
--   Level 1 header (`#`) starts new slide
--   Level 2 header (`##`) starts a block on a slide
+# Mixed Headers
 
-``` {.markdown}
-# Episode IV: A new Slide
+Testing mixed headers
 
-## A long time ago ...
+## H2 Regular div
 
-... in a galaxy far, far away.
-```
+This H2 div has no vertical tag.
 
-# Includes
+### H3 Regular div
 
-## Include markdown files
+This H3 div has no vertical tag.
 
-The following text is included from file `/resource/realtive.md`:
+## H2 vertical slide {.vertical}
 
-[:include](include/relative.md)
+This slide is vertical with an H2 header.
 
-# Multicolumn slides
+### H3 Vertical Slide {.vertical}
 
-## The author {.split}
+This slide shouldn’t be vertical.
 
-![](img/htr-beuth.jpg){width="50%"}
+#### H4 Vertical Slide {.vertical}
 
-[Deck markdown source](example-deck.md)
-
-## Slide source
-
-``` {.markdown}
-# Multicolumn slides {.split}
-
-## The author
-
-![](img/htr-beuth.jpg){data-src="img/htr-beuth.jpg"}
-
-## Slide source
-
-~~~ {.markdown}
-...
-~~~
-```
-
-# Local Images
-
-## Relative path
-
-![](img/06-metal.png){width="75%"}
-
-# LaTeX Math
-
-## Syntax
-
--   Standard LaTeX syntax
--   Single \$ encloses inline math
--   Double \$\$ encloses a display math block
-
-## Example
-
--   To $\infty$ and beyond!
-
-$$
-e = mc^2
-$$
-
-# Compile Time Macros
-
-## Macros {.split}
-
--   Appropriated link `[Link text](Url)` and image `![Alt text](Url)` syntax
--   Example: embed a YouTube video
-
-    ``` {.markdown}
-    ## Video
-
-    [:youtube](Wji-BZ0oCwg)
-    ```
-
-## Video
-
-[:youtube](Wji-BZ0oCwg)
-
-# Compile Time Templating
-
-## Mustache templates
-
--   Markdown source code is processed with Mustache
-
-    ``` {.markdown}
-    {{=<% %>=}}
-    The current semester is {{semester}}
-    <%={{ }}=%>
-    ```
-
--   Data is provided in YAML files
-
-    ``` {.yaml}
-    ---
-    semester: Summer 2016
-    ---
-    ```
-
--   Results in
-
-    ``` {.markdown}
-    The current semester is Summer 2016
-    ```
-
-# Blocks
-
-## Block markup {.split}
-
--   Level 2 headers start new block
--   Blocks can be marked with attributes
-
-## Alert block {.alert}
-
--   This block is marked `alert`
-
-``` {.markdown}
-## Alert block {.alert}
-
-- This block is marked `.alert`
-```
-
-## Block styles
-
--   Other block styles include `definition` and `equation`
-
-## Definition {.definition}
-
-$e=mc^2$
-
-## Equation {.equation}
-
-$e=mc^2$
-
-# Speaker Notes
-
-## Slide level {.split}
-
--   The slide content becomes part of the speaker notes
--   Add `notes` class to slide header
-
-    ``` {.markdown}
-    # Slide Level {.notes}
-
-    These are speaker notes.
-    ```
-
-## Block level
-
--   Block content becomes part of the speaker notes
--   Add `notes` class to level two header
-
-    ``` {.markdown}
-    ## Block level {.notes}
-
-    These are speaker notes too.
-    ```
-
-# These are just notes {.notes}
-
-Slides with headers that are have the `.notes` class attribute are not included in the presentation. They are only visible in the handout and probably are available as presenter notes during slide presentation.
-
-# Cached Images
-
-## Local image cache {.split}
-
-Remote images can be cached locally
-
-Cache directory is named `img/cached` and is located in the directory of the referencing document
-
-`decker cache` scans for and downloads all images
-
-## Cached remote image
-
-<!--
-![Some piece of scene graph](https://tramberend.beuth-hochschule.de/img/cg1-banner.png)
--->
-
-## Not really!
-
--   Caching is currently disabled
-
-# Meta Data
-
-## Mustache template processor
-
--   Markdown source is processed by [mustache]()
--   Data is the union of all available YAML files
-
-# Meta Data Example
-
-## Markdown source
-
-``` {.markdown}
-Your total score is {\{total.score}}.
-```
-
-## YAML data
-
-``` {.yaml}
----
-total:
-    score: 42
-...
-```
-
-## Result
-
-``` {.html}
-Your total score is 42.
-```
-
-# Encoding
-
-## UTF-8 encoding for everything
-
--   Markdown source files are assumed to be UTF-8 encoded
--   YAML metadata also
-
-## German Umlaute
-
--   ÄÖÜäöüßß
-
-## Substituted meta data
-
--   Umlaute: {{ümläüte}}
--   Signs: {{signs}}
-
-# `decker` Tool {.section}
-
-# `decker` Tool
-
-## Command line tool
-
--   Statically linked, no library dependencies
--   Easy to deploy, just copy the executable
--   Self-contained, no support or data files
--   Not configurable, conventions are key
-
-## Implemented using
-
--   [Haskell](http://haskell.org)
--   [Pandoc](), [Shake](), [Mustache](), [reveal.js]()
--   [LaTeX](), [decktape.sh]()
-
+This slide shouldn’t be vertical.
