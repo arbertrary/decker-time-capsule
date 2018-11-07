@@ -274,13 +274,41 @@ wrapNoteRevealjs (header@(Header 1 (id_, cls, kvs) _), body)
   | "notes" `elem` cls = (Div (id_, cls, kvs) (header : body), [])
 wrapNoteRevealjs slide = slide
 
+verticalSlides :: [Block] -> [Block]
+verticalSlides (h@(Header 1 (_, cls, _) _):rest) | "vert" `notElem` cls = 
+  if hasVertical rest 
+    then
+        [Plain [RawInline "html" "<section class=test>"], h] ++ untilNextHorizontal ++ [Plain [RawInline "html" "</section class=test>"]] ++ (verticalSlides others)
+    else
+        h:(verticalSlides rest)
+  where
+      (untilNextHorizontal, others) = splitBeforeHorizontalSlide rest
+      
+verticalSlides (b:bs) = b:(verticalSlides bs)
+verticalSlides [] = []
+
+
+hasVertical :: [Block] -> Bool
+hasVertical [] = False
+hasVertical ((Header 1 attr@(_, cls, _) _):rest) | "vert" `elem` cls = True
+hasVertical ((Header 1 attr@(_, cls, _) _):rest) = False
+hasVertical (_:rest) = hasVertical rest
+
+splitBeforeHorizontalSlide :: [Block] -> ([Block], [Block])
+splitBeforeHorizontalSlide [] = ([], [])
+splitBeforeHorizontalSlide (h@(Header 1 (_, cls, _) _):rest) | "vert" `notElem` cls = ([], h:rest)
+splitBeforeHorizontalSlide (block:rest) = 
+  (block:blocks, other)
+  where
+    (blocks, other) = splitBeforeHorizontalSlide rest
+
 type Slide = (Block, [Block])
 
 -- | Map over all slides in a deck. A slide has always a header followed by zero
 -- or more blocks.
 mapSlides :: (Slide -> Slide) -> Pandoc -> Pandoc
 mapSlides func (Pandoc meta blocks) =
-  Pandoc meta (concatMap (prependHeader . func) slides)
+  Pandoc meta (verticalSlides (concatMap (prependHeader . func) slides))
   where
     slideBlocks = split (keepDelimsL $ whenElt isSlideHeader) blocks
     slides = map extractHeader $ filter (not . null) slideBlocks
