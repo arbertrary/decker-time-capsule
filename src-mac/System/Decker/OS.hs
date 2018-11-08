@@ -11,7 +11,7 @@ import System.Environment
 import System.FilePath
 
 deckerResourceDir :: IO FilePath
-deckerResourceDir = getXdgDirectory XdgData ("decker" ++ "-" ++ deckerVersion)
+deckerResourceDir = getXdgDirectory XdgData ("decker" ++ "-" ++ deckerVersion ++ "-" ++ deckerGitBranch)
 
 fileLink :: FilePath -> FilePath -> IO ()
 fileLink target link = createFileLink target link

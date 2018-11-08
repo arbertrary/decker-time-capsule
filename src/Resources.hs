@@ -7,6 +7,7 @@ module Resources
   ) where
 
 import Common
+import Exception
 import Control.Exception
 import Control.Monad
 import Control.Monad.Extra
@@ -18,7 +19,7 @@ import System.Process
 import System.Decker.OS
 
 -- deckerResourceDir :: IO FilePath
--- deckerResourceDir = getXdgDirectory XdgData ("decker" ++ "-" ++ deckerVersion)
+-- deckerResourceDir = getXdgDirectory XdgData ("decker" ++ "-" ++ deckerVersion ++ "-" ++ deckerGitBranch)
 
 getResourceString :: FilePath -> IO String
 getResourceString path = do
