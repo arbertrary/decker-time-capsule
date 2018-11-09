@@ -284,7 +284,7 @@ writePandocFile fmt options out pandoc =
   case getWriter fmt of
     Right (TextWriter writePandoc, _) ->
       runIOQuietly (writePandoc options pandoc) >>= handleError >>=
-      T.writeFile out
+      B.writeFile out . E.encodeUtf8 
     Right (ByteStringWriter writePandoc, _) ->
       runIOQuietly (writePandoc options pandoc) >>= handleError >>=
       LB.writeFile out

@@ -13,4 +13,4 @@ $version = $version -replace "\s+", " "
 $version = ($version -split " ")[1]
 Write-Output $version > version.txt
 
-Compress-Archive -Path .\resource -CompressionLevel Fastest -DestinationPath resource
+Compress-Archive -Force -Path .\resource -CompressionLevel Fastest -DestinationPath resource
