@@ -76,6 +76,10 @@ main = do
       decksA >>= need
     --
     phony "html" $ do
+      need ["supportHtml"]
+      everythingA <++> indexA >>= need
+    --
+    phony "htmlServer" $ do
       need ["support"]
       everythingA <++> indexA >>= need
     --
@@ -85,11 +89,11 @@ main = do
     phony "pdf-decks" $ decksPdfA <++> indexA >>= need
     --
     phony "watch" $ do
-      need ["html"]
+      need ["htmlServer"]
       allMarkdownA <++> metaA <++> allImagesA >>= watchFiles
     --
     phony "open" $ do
-      need ["html"]
+      need ["htmlServer"]
       openBrowser index
     --
     phony "server" $ do
@@ -232,6 +236,11 @@ main = do
           Nothing ->
             liftIO $ createFileLink (appDataDir </> "support") supportDir
           _ -> return ()
+    --
+    phony "supportHtml" $ do
+      unlessM (Development.Shake.doesDirectoryExist supportDir) $ do
+        liftIO $ createDirectoryIfMissing True publicDir
+        rsync [(appDataDir </> "support/"), supportDir]
     --
     phony "check" checkExternalPrograms
     --
