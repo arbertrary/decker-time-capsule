@@ -40,15 +40,6 @@ $if(highlighting-css)$
   </style>
 $endif$
 
-  <!-- Reload on change machinery -->
-  <script>
-    var socket = new WebSocket("ws://" + location.host + "/reload");
-    socket.onmessage = function () {
-    window.location.reload(true);
-    };
-  </script>
-
-
   <!-- Decker's standard default CSS -->
   <!--<link rel="stylesheet" href="$decker-support-dir$/decker.css">-->
 
