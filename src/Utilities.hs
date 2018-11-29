@@ -522,7 +522,7 @@ readMetaMarkdown markdownFile = do
   externalMeta <-
     liftIO $ aggregateMetaData projectDir (takeDirectory markdownFile)
   -- extract embedded meta data from the document
-  markdown <- liftIO $ T.readFile markdownFile
+  markdown <- liftIO $ E.decodeUtf8 <$> B.readFile markdownFile
   let Pandoc meta _ = readMarkdownOrThrow pandocReaderOpts markdown
   let documentMeta = MetaMap $ unMeta meta
   -- combine the meta data with preference on the embedded data
