@@ -4,13 +4,15 @@ module Resources
   , getResourceString
   -- , deckerResourceDir
   , writeResourceFiles
+  , writeExampleProject
+  , copyDir
   ) where
 
 import Common
-import Exception
 import Control.Exception
 import Control.Monad
 import Control.Monad.Extra
+import Exception
 import System.Directory
 import System.Environment
 import System.Exit
@@ -19,7 +21,11 @@ import System.Process
 import System.Decker.OS
 
 -- deckerResourceDir :: IO FilePath
--- deckerResourceDir = getXdgDirectory XdgData ("decker" ++ "-" ++ deckerVersion ++ "-" ++ deckerGitBranch)
+-- deckerResourceDir =
+--   getXdgDirectory
+--     XdgData
+--     ("decker" ++
+--      "-" ++ deckerVersion ++ "-" ++ deckerGitBranch ++ "-" ++ deckerGitCommitId)
 
 getResourceString :: FilePath -> IO String
 getResourceString path = do
@@ -50,9 +56,42 @@ unzip args = do
       ExitFailure 1 -> True
       _ -> False
 
+-- | Write the example project to the current folder
+writeExampleProject :: IO ()
+writeExampleProject = writeResourceFiles "example" "."
+
 writeResourceFiles :: FilePath -> FilePath -> IO ()
 writeResourceFiles prefix destDir = do
   dataDir <- deckerResourceDir
   let src = dataDir </> prefix
-  exists <- doesDirectoryExist (destDir </> prefix)
-  unless exists $ callProcess "cp" ["-R", src, destDir]
+  copyDir src destDir
+
+-- | Copy a file to a file location or to a directory
+cp :: FilePath -> FilePath -> IO ()
+cp src dst = do
+  unlessM (doesFileExist src) $
+    throw (userError "src does not exist or is not a file")
+  unlessM (doesFileExist dst) $ do
+    destIsDir <- doesDirectoryExist dst
+    if destIsDir
+      then copyFile src (dst </> takeFileName src)
+      else copyFile src dst
+
+-- | Copy a directory and its contents recursively
+copyDir :: FilePath -> FilePath -> IO ()
+copyDir src dst = do
+  unlessM (doesDirectoryExist src) $
+    throw (userError "src does not exist or is not a directory")
+  dstExists <- doesDirectoryExist dst
+  if dstExists && (last (splitPath src) /= last (splitPath dst))
+    then copyDir src (dst </> last (splitPath src))
+    else do
+      createDirectoryIfMissing True dst
+      contents <- listDirectory src
+      forM_ contents $ \name -> do
+        let srcPath = src </> name
+        let dstPath = dst </> name
+        isDirectory <- doesDirectoryExist srcPath
+        if isDirectory
+          then copyDir srcPath dstPath
+          else cp srcPath dstPath

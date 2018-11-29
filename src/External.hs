@@ -8,7 +8,6 @@ module External
   , pdflatex
   , pdf2svg
   , decktape
-  , sassc
   , checkExternalPrograms
   ) where
 
@@ -93,13 +92,6 @@ programs =
         []
         (helpText
            "Decktape PDF exporter (https://github.com/astefanutti/decktape)"))
-  , ( "sassc"
-    , ExternalProgram
-        []
-        "sassc"
-        ["--style", "nested"]
-        ["-v"]
-        (helpText "LibSass wrapper (https://github.com/sass/sassc)"))
   ]
 
 type Program = [String] -> Action ()
@@ -128,9 +120,6 @@ pdf2svg = makeProgram "pdf2svg"
 decktape :: Program
 decktape = makeProgram "decktape"
 
-sassc :: Program
-sassc = makeProgram "sassc"
-
 helpText :: String -> String
 helpText name =
   "The " ++
@@ -151,7 +140,7 @@ makeProgram name =
            ExitFailure _ ->
              throw $
              ExternalException $
-             "\n" ++ (help external) ++ "\n\n" ++ err ++ "\n\n" ++ out)
+             "\n" ++ help external ++ "\n\n" ++ err ++ "\n\n" ++ out)
 
 checkProgram :: String -> Action Bool
 checkProgram name =
