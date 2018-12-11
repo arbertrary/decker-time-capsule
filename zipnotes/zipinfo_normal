@@ -1,0 +1,52 @@
+# output of `zipinfo -v self-extracting-zip`
+
+Archive:  self-extracting-zip_test
+There is no zipfile comment.
+
+End-of-central-directory record:
+-------------------------------
+
+  Zip archive file size:                   8234614 (00000000007DA676h)
+  Actual end-cent-dir record offset:       8234592 (00000000007DA660h)
+  Expected end-cent-dir record offset:         288 (0000000000000120h)
+  (based on the length of the central directory and its expected offset)
+
+  This zipfile constitutes the sole disk of a single-part archive; its
+  central directory contains 1 entry.
+  The central directory is 61 (000000000000003Dh) bytes long,
+  and its (expected) offset in bytes from the beginning of the zipfile
+  is 227 (00000000000000E3h).
+
+
+Central directory entry #1:
+---------------------------
+
+  app/Main.hs
+
+  offset of local header from start of archive:   0
+                                                  (0000000000000000h) bytes
+  file system or operating system of origin:      MS-DOS, OS/2 or NT FAT
+  version of encoding software:                   4.6
+  minimum file system compatibility required:     MS-DOS, OS/2 or NT FAT
+  minimum software version required to extract:   2.0
+  compression method:                             deflated
+  compression sub-type (deflation):               normal
+  file security status:                           not encrypted
+  extended local header:                          no
+  file last modified on (DOS date/time):          2018 Nov 20 11:33:16
+  32-bit CRC value (hex):                         491568f5
+  compressed size:                                166 bytes
+  uncompressed size:                              239 bytes
+  length of filename:                             11 characters
+  length of extra field:                          4 bytes
+  length of file comment:                         0 characters
+  disk number on which file begins:               disk 1
+  apparent file type:                             binary
+  non-MSDOS external file attributes:             000000 hex
+  MS-DOS file attributes (00 hex):                none
+
+  The central-directory extra field contains:
+  - A subfield with ID 0x0001 (PKWARE 64-bit sizes) and 0 data bytes.
+
+  There is no file comment.
+

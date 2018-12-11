@@ -1,0 +1,50 @@
+Archive:  testfile.zip
+There is no zipfile comment.
+
+End-of-central-directory record:
+-------------------------------
+
+  Zip archive file size:                      1181 (000000000000049Dh)
+  Actual end-cent-dir record offset:          1159 (0000000000000487h)
+  Expected end-cent-dir record offset:        1159 (0000000000000487h)
+  (based on the length of the central directory and its expected offset)
+
+  This zipfile constitutes the sole disk of a single-part archive; its
+  central directory contains 1 entry.
+  The central directory is 58 (000000000000003Ah) bytes long,
+  and its (expected) offset in bytes from the beginning of the zipfile
+  is 1101 (000000000000044Dh).
+
+
+Central directory entry #1:
+---------------------------
+
+  testfile
+
+  offset of local header from start of archive:   0
+                                                  (0000000000000000h) bytes
+  file system or operating system of origin:      MS-DOS, OS/2 or NT FAT
+  version of encoding software:                   4.6
+  minimum file system compatibility required:     MS-DOS, OS/2 or NT FAT
+  minimum software version required to extract:   2.0
+  compression method:                             deflated
+  compression sub-type (deflation):               normal
+  file security status:                           not encrypted
+  extended local header:                          no
+  file last modified on (DOS date/time):          2018 Nov 9 09:28:24
+  32-bit CRC value (hex):                         92d373cb
+  compressed size:                                1043 bytes
+  uncompressed size:                              4349 bytes
+  length of filename:                             8 characters
+  length of extra field:                          4 bytes
+  length of file comment:                         0 characters
+  disk number on which file begins:               disk 1
+  apparent file type:                             binary
+  non-MSDOS external file attributes:             000000 hex
+  MS-DOS file attributes (00 hex):                none
+
+  The central-directory extra field contains:
+  - A subfield with ID 0x0001 (PKWARE 64-bit sizes) and 0 data bytes.
+
+  There is no file comment.
+

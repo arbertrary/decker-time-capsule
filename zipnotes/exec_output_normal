@@ -1,0 +1,28 @@
+-- correctly working output with testfile.zip
+"Start:"
+locateECD sizeCheck
+1181
+locateECD loop limit
+locateECD getNum
+"val:"
+101010256
+"found EOCD sig"
+locateECD checkComment
+locateECD getNum
+"val:"
+0
+locateECD checkCDSig
+locateECD getNum
+"val:"
+1101
+locateECD getNum
+"val:"
+33639248
+"cdSig"
+33639248
+locateECD checkZip64
+locateECD getNum
+"val:"
+0
+"Something"
+"testfile"

@@ -1,0 +1,39 @@
+-- incorrect output with self-extracting-zip_test
+"Start:"
+locateECD sizeCheck
+8234614
+locateECD loop limit
+locateECD getNum
+"val:"
+101010256
+"found EOCD sig"
+locateECD checkComment
+locateECD getNum
+"val:"
+0
+locateECD checkCDSig
+locateECD getNum
+"val:"
+227
+locateECD getNum
+"val:"
+0
+"cdSig"
+0
+"Nothing"
+"again"
+locateECD loop limit
+locateECD getNum
+"val:"
+88821760
+"again"
+locateECD loop limit
+locateECD getNum
+"val:"
+1263534080
+"again"
+locateECD loop limit
+locateECD getNum
+"val:"
+1342177280
+-- ... looping from here on
