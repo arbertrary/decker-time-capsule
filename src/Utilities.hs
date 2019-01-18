@@ -26,7 +26,7 @@ import Exception
 import Filter
 import Macro
 import Meta
-import NewResources
+import Output
 import Project
 import Render
 import Resources
@@ -314,7 +314,6 @@ provisionResources pandoc = do
     mapMetaResources (provisionMetaResource base method) pandoc >>=
     mapResources (provisionResource base method)
 
--- CLEANUP: Moved to Output.hs
 putCurrentDocument :: FilePath -> Action ()
 putCurrentDocument out = do
   public <- publicA

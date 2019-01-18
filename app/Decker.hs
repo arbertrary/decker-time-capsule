@@ -3,6 +3,7 @@ import Common
 import Exception
 import External
 import Flags (hasPreextractedResources)
+import Output
 import Project
 import Resources
 import Shake
@@ -21,7 +22,6 @@ import Data.Version
 import Development.Shake
 import Development.Shake.FilePath
 import GHC.Conc (numCapabilities)
-import NewResources as NR
 import System.Decker.OS (defaultProvisioning)
 import System.Directory (createDirectoryIfMissing, createFileLink, removeFile)
 import System.Environment.Blank
@@ -94,7 +94,7 @@ main = do
       need ["watch"]
       runHttpServer serverPort directories Nothing
     --
-    phony "example" $ liftIO NR.writeExampleProject
+    phony "example" $ liftIO writeExampleProject
     --
     phony "sketch-pad-index" $ do
       indicesA >>= need
@@ -181,10 +181,6 @@ main = do
     phony "clean" $ do
       removeFilesAfter (directories ^. public) ["//"]
       removeFilesAfter (directories ^. project) cruft
-      -- old <- liftIO getOldResources
-      -- forM_ old $ \dir -> removeFilesAfter dir ["//"]
-      -- when isDevelopmentVersion $
-        -- removeFilesAfter (directories ^. appData) ["//"]
     --
     -- | deletes old, cached resource folders
     -- TODO: include clear-cache in makefile?
@@ -223,7 +219,7 @@ main = do
           Just value
             | value == show Copy ->
               liftIO $
-              NR.copyDir
+              copyDir
                 ((directories ^. appData) </> "support")
                 (directories ^. support)
           Nothing ->
@@ -234,7 +230,7 @@ main = do
                   ((directories ^. appData) </> "support")
                   (directories ^. support)
               _ ->
-                NR.copyDir
+                copyDir
                   ((directories ^. appData) </> "support")
                   (directories ^. support)
           _ -> return ()
