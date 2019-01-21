@@ -14,10 +14,12 @@ module NewResources
   , provisionMetaResource
   , provisionTemplateOverrideSupport
   , provisionTemplateOverrideSupportTopLevel
+  , handleResources
   ) where
 
 import Common
 import Exception
+import Meta
 import Project
 import Shake
 import System.Decker.OS
@@ -25,6 +27,8 @@ import System.Decker.OS
 import Control.Exception
 import Control.Lens ((^.))
 import Control.Monad.Extra
+import qualified Data.Text as T
+import Data.Yaml as Yaml
 import Development.Shake
 import Network.URI
 import qualified System.Directory as Dir
@@ -51,12 +55,29 @@ What does "provision" actually mean in this context?
 and the copying/linking that is done when "decker support" or "decker example" happens.
 provisionResources happens during the processing of markdown files
 
+- the only directory path that has to be changed is 
+(directories ^. appData)
+e.g.  /home/user/.local/share/decker-0.7.3-84-resource-handling-d804821
+Folder contains example, support, template folders. from there on the rest can stay the same
 -}
--- getResourceMeta :: ResourceType
--- looks for "resources" in metaA
--- returns a resource type (if no "resource" exists then default)
--- returns a Maybe String with the source of the resource folder
--- handleResources :: ResourceType -> 
+getResourceMeta :: Yaml.Value -> ResourceType
+getResourceMeta meta =
+  case lookupYamlValue "resources" meta of
+    Just resources ->
+      case (t, src) of
+        (Just "local", Just (Yaml.String src)) -> Local (T.unpack src)
+        (Just "file", Just (Yaml.String src)) -> File (T.unpack src)
+        (Just "https", Just (Yaml.String src)) -> Https (T.unpack src)
+        (Just "dev", _) -> Dev
+        (Just "project", _) -> Project
+        (_, _) -> Decker
+      where t = lookupYamlValue "type" resources
+            src = lookupYamlValue "source" resources
+    Nothing -> Decker
+
+handleResources :: Yaml.Value -> IO ()
+handleResources meta = print $ getResourceMeta meta
+
 {-
 TODO: From Decker.hs
 move functionality from "support" command to here

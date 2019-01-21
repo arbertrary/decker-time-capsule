@@ -168,11 +168,11 @@ data Provisioning
 -- TODO: rename Decker to Default?
 data ResourceType
   = Decker -- ^ decker executable, caching
-  | File -- ^ local ZIP archive, caching
-  | Https -- ^ remote ZIP archive, caching
+  | File String -- ^ local ZIP archive, caching
+  | Https String -- ^ remote ZIP archive, caching
   | Dev -- ^ local resource folder in decker repo, no caching
   | Project -- ^ local resource folder in slide project, no caching
-  | Local -- ^ local resource folder anywhere, no caching
+  | Local String -- ^ local resource folder anywhere, no caching
   deriving (Eq, Show, Read)
 
 repeatIfTrue :: Monad m => m Bool -> m ()

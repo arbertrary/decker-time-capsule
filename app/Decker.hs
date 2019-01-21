@@ -3,6 +3,8 @@ import Common
 import Exception
 import External
 import Flags (hasPreextractedResources)
+import Meta
+import NewResources (handleResources)
 import Output
 import Project
 import Resources
@@ -193,6 +195,11 @@ main = do
     phony "help" $ do
       text <- liftIO $ getResourceString "template/help-page.md"
       liftIO $ putStr text
+    --
+    phony "resources" $ do
+      metaData <- metaA
+      liftIO $ handleResources metaData
+      -- liftIO $ print (handleResources metaData)
     --
     phony "info" $ do
       putNormal $ "\nproject directory: " ++ (directories ^. project)

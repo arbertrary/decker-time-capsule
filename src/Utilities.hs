@@ -10,7 +10,7 @@ module Utilities
   , markdownToPdfHandout
   , markdownToHtmlPage
   , markdownToPdfPage
-  , metaValueAsString
+  -- , metaValueAsString
   , (<++>)
   , pandocMakePdf
   , fixMustacheMarkup
@@ -568,11 +568,12 @@ processCitesWithDefault pandoc@(Pandoc meta blocks) =
         _ -> return pandoc
     liftIO $ processCites' document
 
+{-
 lookupValue :: String -> Y.Value -> Maybe Y.Value
 lookupValue key (Y.Object hashTable) = HashMap.lookup (T.pack key) hashTable
 lookupValue _ _ = Nothing
 
--- TODO: move to Meta.hs?
+-- CLEANUP: moved to Meta.hs
 -- used in Decker.hs
 metaValueAsString :: String -> Y.Value -> Maybe String
 metaValueAsString key meta =
@@ -586,7 +587,7 @@ metaValueAsString key meta =
     lookup' [] (Just (Y.Bool b)) = Just (show b)
     lookup' (k:ks) (Just obj@(Y.Object _)) = lookup' ks (lookupValue k obj)
     lookup' _ _ = Nothing
-
+-}
 -- TODO: Not used anywhere
 -- UNUSED:
 lookupPandocMeta :: String -> Meta -> Maybe String

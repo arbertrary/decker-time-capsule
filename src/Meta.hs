@@ -6,6 +6,8 @@ module Meta
   , joinMeta
   , readMetaData
   , aggregateMetaData
+  , metaValueAsString
+  , lookupYamlValue
   , DeckerException(..)
   ) where
 
@@ -16,6 +18,9 @@ import Markdown
 import Control.Arrow
 import Control.Exception
 import qualified Data.HashMap.Strict as H
+
+-- import qualified Data.HashMap.Lazy as H
+import Data.List.Split (splitOn)
 import qualified Data.Map.Lazy as Map
 import qualified Data.Text as T
 import qualified Data.Vector as Vec
@@ -82,9 +87,8 @@ readMetaData dir = do
   meta <- mapM decodeYaml files
   return $ foldl joinMeta (Y.object []) meta
 
-
 aggregateMetaData :: FilePath -> FilePath -> IO Y.Value
-aggregateMetaData top = walkUpTo 
+aggregateMetaData top = walkUpTo
   where
     walkUpTo dir = do
       fromHere <- readMetaData dir
@@ -94,3 +98,20 @@ aggregateMetaData top = walkUpTo
           fromAbove <- walkUpTo (takeDirectory dir)
           return $ joinMeta fromHere fromAbove
 
+lookupYamlValue :: String -> Y.Value -> Maybe Y.Value
+lookupYamlValue key (Y.Object hashTable) = H.lookup (T.pack key) hashTable
+lookupYamlValue _ _ = Nothing
+
+-- | Return String of a value from yaml file
+metaValueAsString :: String -> Y.Value -> Maybe String
+metaValueAsString key meta =
+  case splitOn "." key of
+    [] -> Nothing
+    k:ks -> lookup' ks (lookupYamlValue k meta)
+  where
+    lookup' :: [String] -> Maybe Y.Value -> Maybe String
+    lookup' [] (Just (Y.String s)) = Just (T.unpack s)
+    lookup' [] (Just (Y.Number n)) = Just (show n)
+    lookup' [] (Just (Y.Bool b)) = Just (show b)
+    lookup' (k:ks) (Just obj@(Y.Object _)) = lookup' ks (lookupYamlValue k obj)
+    lookup' _ _ = Nothing

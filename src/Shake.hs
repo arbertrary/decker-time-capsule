@@ -331,6 +331,7 @@ loggingA = _logging <$> projectDirsA
 targetsA :: Action Targets
 targetsA = _targetList <$> actionContext
 
+metaA :: Action Value
 metaA = _metaData <$> actionContext
 
 indicesA = _indices <$> targetsA
