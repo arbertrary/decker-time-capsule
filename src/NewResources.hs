@@ -24,14 +24,17 @@ import Project
 import Shake
 import System.Decker.OS
 
+import Codec.Archive.Zip
 import Control.Exception
 import Control.Lens ((^.))
 import Control.Monad.Extra
+import Data.Map.Strict (size)
 import qualified Data.Text as T
 import Data.Yaml as Yaml
 import Development.Shake
 import Network.URI
 import qualified System.Directory as Dir
+import System.Environment
 import System.FilePath
 
 {- NOTE:
@@ -59,6 +62,11 @@ provisionResources happens during the processing of markdown files
 (directories ^. appData)
 e.g.  /home/user/.local/share/decker-0.7.3-84-resource-handling-d804821
 Folder contains example, support, template folders. from there on the rest can stay the same
+- COULD be changed using directories & appData .~ path
+- For ResourceTypes without caching the public and support dirs could be changed accordingly
+- what about the template dir? where is it called from?
+I don't think it is copied anywhere so if the appData directory is correct it should not matter
+
 -}
 getResourceMeta :: Yaml.Value -> ResourceType
 getResourceMeta meta =
@@ -77,6 +85,21 @@ getResourceMeta meta =
 
 handleResources :: Yaml.Value -> IO ()
 handleResources meta = print $ getResourceMeta meta
+
+-- | Extract resources from a given .zip archive
+extractResources :: FilePath -> IO ()
+extractResources archPath
+  -- deckerExecutable <- getExecutablePath
+ = do
+  dataDir <- deckerResourceDir
+  exists <- Dir.doesDirectoryExist dataDir
+  unless exists $ do
+    numFiles <- withArchive archPath getEntries
+    unless ((size numFiles) > 0) $
+      throw $ ResourceException "No resource zip found in decker executable."
+    Dir.createDirectoryIfMissing True dataDir
+    withArchive archPath (unpackInto dataDir)
+    putStrLn $ "# resources extracted to " ++ dataDir
 
 {-
 TODO: From Decker.hs

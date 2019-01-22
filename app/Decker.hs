@@ -12,7 +12,7 @@ import Shake
 import Utilities
 
 import Control.Exception
-import Control.Lens ((^.))
+import Control.Lens ((&), (.~), (^.))
 import Control.Monad (when)
 import Control.Monad.Extra
 import Data.Aeson
@@ -43,8 +43,15 @@ main = do
       deckerGitBranch
       deckerGitCommitId
       deckerGitVersionTag
+  -- TODO: handleResources has to be called here
+  -- deckerResourceDir/projectDirectories changed as needed
   extractResources
   directories <- projectDirectories
+  print directories
+  -- Simply setting appData as a different dir through Lens ...
+  -- Not the best solution I think
+  let dirs = directories & appData .~ "test"
+  print dirs
   --
   let serverPort = 8888
   let serverUrl = "http://localhost:" ++ (show serverPort)

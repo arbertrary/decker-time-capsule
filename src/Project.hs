@@ -103,6 +103,7 @@ templateFromMeta meta =
     Just (MetaInlines i) -> Just $ stringify i
     _ -> Nothing
 
+-- UNUSED: TODO: not used anywhere
 provisioningClasses :: [(String, Provisioning)]
 provisioningClasses =
   [ ("copy", Copy)
@@ -155,6 +156,8 @@ projectDirectories = do
   return
     (ProjectDirs projectDir publicDir cacheDir supportDir appDataDir logDir)
 
+-- TODO: This is the only function that has to be changed for different ResourceTypes
+-- pass ResourceType parameter and change returned FilePath accordingly
 deckerResourceDir :: IO FilePath
 deckerResourceDir =
   if hasPreextractedResources
@@ -164,6 +167,26 @@ deckerResourceDir =
            ("decker" ++
             "-" ++
             deckerVersion ++ "-" ++ deckerGitBranch ++ "-" ++ deckerGitCommitId)
+
+-- | the src FilePaths have to be preprocessed/made into abs paths before this will work
+testdeckerResourceDir :: Maybe ResourceType -> IO FilePath
+testdeckerResourceDir rt =
+  case rt of
+    Nothing ->
+      if hasPreextractedResources
+        then preextractedResourceFolder
+        else defaultDir
+    Just (File src) -> return src
+    Just (Https src) -> return src
+    Just (Local src) -> return src
+    Just _ -> defaultDir
+  where
+    defaultDir =
+      D.getXdgDirectory
+        D.XdgData
+        ("decker" ++
+         "-" ++
+         deckerVersion ++ "-" ++ deckerGitBranch ++ "-" ++ deckerGitCommitId)
 
 -- | Get the absolute paths of resource folders 
 -- with version numbers older than the current one

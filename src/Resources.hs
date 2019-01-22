@@ -44,6 +44,7 @@ import System.Process
 
 -- import Text.Regex.TDFA
 -- | Extract resources from the executable into the XDG data directory.
+-- TODO: Simply add parameter instead of calling getExecutablePath inside
 extractResources :: IO ()
 extractResources = do
   deckerExecutable <- getExecutablePath
