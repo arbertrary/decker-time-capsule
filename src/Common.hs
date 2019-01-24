@@ -171,7 +171,7 @@ data ResourceType
   | File String -- ^ local ZIP archive, caching
   | Https String -- ^ remote ZIP archive, caching
   | Dev -- ^ local resource folder in decker repo, no caching
-  | Project -- ^ local resource folder in slide project, no caching
+  | Project String -- ^ local resource folder in slide project, no caching
   | Local String -- ^ local resource folder anywhere, no caching
   deriving (Eq, Show, Read)
 

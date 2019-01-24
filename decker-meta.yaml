@@ -1,8 +1,13 @@
 project-name: Decker
 provisioning: Copy
-resources: 
-  type: local
-  source: /home/user/test
+resources: file:///../decker/
+# options
+# relative path
+# file:../../test/resource
+# absolute path
+# file:/home/armin/test/resource
+# optional
+# project
 
 exclude-directories:
 - app

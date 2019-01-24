@@ -38,16 +38,11 @@ import System.Environment
 import System.FilePath
 
 {- NOTE:
-Plan:
-First move all resource-related functions to this module
-then refactor and design new interface
-
 resources is already in meta data (read from decker-meta.yaml)
 see metaA in Shake.hs
 this metadata is currently only read in Decker.hs and then propagated forward
 This should stay. Here in NewResources only the ResourceType Datatype should be used.
 Paths come from Project.hs
-What does "provision" actually mean in this context?
 
 - call one "main" function from Decker.hs
 - must account for "example", "support" and "template"
@@ -67,24 +62,46 @@ Folder contains example, support, template folders. from there on the rest can s
 - what about the template dir? where is it called from?
 I don't think it is copied anywhere so if the appData directory is correct it should not matter
 
+
+Strategy for different ResourceTypes:
+- Decker/Default -> same as currently. unpack from executable, unpack to .local/share
+- File -> unpack from local zip archive (absolute or relative path?), unpack to .local/share
+- Https -> curl/wget zip archive and immediately unpack to .local/share
+- Dev -> Use resource folder here in the decker repo
+- Project -> Use resource folder in slide project (no copying/symlinking to public?)
+- Local -> Use resource folder anywhere
 -}
 getResourceMeta :: Yaml.Value -> ResourceType
 getResourceMeta meta =
-  case lookupYamlValue "resources" meta of
+  case metaValueAsString "resources" meta of
+    Just "project" -> Project $ "." </> "resource"
     Just resources ->
-      case (t, src) of
-        (Just "local", Just (Yaml.String src)) -> Local (T.unpack src)
-        (Just "file", Just (Yaml.String src)) -> File (T.unpack src)
-        (Just "https", Just (Yaml.String src)) -> Https (T.unpack src)
-        (Just "dev", _) -> Dev
-        (Just "project", _) -> Project
-        (_, _) -> Decker
-      where t = lookupYamlValue "type" resources
-            src = lookupYamlValue "source" resources
+      case parseURI resources of
+        Just (URI "file:" _ path _ _) ->
+          if ".zip" `isExtensionOf` path
+            then File path
+            else Local path
+        Just (URI "https:" _ path _ _) -> Https resources
+        Just (URI "project:" _ path _ _) -> Project $ path </> "resource"
+        _ -> Decker
+      --   (Just "dev", _) -> Dev
+      --   (Just "project", _) -> Project
+      --   (_, _) -> Decker
+      -- where t = lookupYamlValue "type" resources
+      --       src = lookupYamlValue "source" resources
     Nothing -> Decker
 
 handleResources :: Yaml.Value -> IO ()
-handleResources meta = print $ getResourceMeta meta
+handleResources meta = do
+  let rt = getResourceMeta meta
+  print rt
+  p <- testdeckerResourceDir rt
+  absp <- Dir.makeAbsolute p
+  pexists <- Dir.doesDirectoryExist absp
+  print absp
+  print pexists
+  cont <- Dir.getDirectoryContents absp
+  print cont
 
 -- | Extract resources from a given .zip archive
 extractResources :: FilePath -> IO ()

@@ -4,6 +4,7 @@
 module Project
   ( resourcePaths
   , deckerResourceDir
+  , testdeckerResourceDir
   , oldResourcePaths
   -- , linkResource
   , relRefResource
@@ -169,17 +170,21 @@ deckerResourceDir =
             deckerVersion ++ "-" ++ deckerGitBranch ++ "-" ++ deckerGitCommitId)
 
 -- | the src FilePaths have to be preprocessed/made into abs paths before this will work
-testdeckerResourceDir :: Maybe ResourceType -> IO FilePath
+-- cached resources
+testdeckerResourceDir :: ResourceType -> IO FilePath
 testdeckerResourceDir rt =
-  case rt of
-    Nothing ->
-      if hasPreextractedResources
-        then preextractedResourceFolder
-        else defaultDir
-    Just (File src) -> return src
-    Just (Https src) -> return src
-    Just (Local src) -> return src
-    Just _ -> defaultDir
+  case rt
+    -- Nothing ->
+      -- if hasPreextractedResources
+        -- then preextractedResourceFolder
+        -- else defaultDir
+        of
+    Https src -> return src
+    Local src -> return src
+    -- Project src -> return $ "." </> src </> "resources"
+    Project src -> return src
+    Dev -> return $ "." </> "resources"
+    _ -> defaultDir
   where
     defaultDir =
       D.getXdgDirectory
