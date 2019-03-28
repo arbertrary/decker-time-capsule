@@ -1,5 +1,6 @@
 ---
 history: True
+slideNumbers: true
 ---
 
 # Iframes
