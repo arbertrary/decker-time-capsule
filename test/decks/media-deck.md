@@ -1,6 +1,7 @@
 ---
 history: True
 title: Image, Audio and Video Handling
+slideNumbers: true
 ---
 
 # Local Image
