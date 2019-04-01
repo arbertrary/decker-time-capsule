@@ -32,7 +32,7 @@ RUN wget -qO- https://get.haskellstack.org/ | sh
 WORKDIR /decker
 COPY . /decker
 ARG MAKE_FLAGS
-RUN stack build --only-dependencies
+RUN stack build --only-dependencies -j8
 
 
 ENV NODE_PATH=/root/.node_modules

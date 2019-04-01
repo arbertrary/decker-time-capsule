@@ -14,13 +14,14 @@ ci-stack-container:
     entrypoint: [""]
   script:
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile-ci --destination $CI_REGISTRY_IMAGE:stack
-  # only:
-  #   changes:
-  #     - Dockerfile
-  #     - stack.yaml
-  #     - package.yaml
-  #     - .gitlab-ci
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile-ci --destination $CI_REGISTRY_IMAGE:stack > /dev/null
+  only:
+    changes:
+      - Dockerfile-ci
+      - Dockerfile
+      - stack.yaml
+      - package.yaml
+      - .gitlab-ci
 
 templates:
   image: kkarczmarczyk/node-yarn
