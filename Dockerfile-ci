@@ -38,6 +38,6 @@ RUN stack build --only-dependencies -j8
 
 ENV NODE_PATH=/root/.node_modules
 RUN yarn install
-RUN cp node_modules /root/.node_modules
+RUN cp -r node_modules /root/.node_modules
 
 RUN rm -rf ./*
