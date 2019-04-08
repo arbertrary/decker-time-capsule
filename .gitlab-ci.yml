@@ -46,7 +46,7 @@ build:linux:
     name: $CI_REGISTRY_IMAGE:stack
   script:
     - make build
-    - cp $(STACK_ROOT=`pwd`/.stack stack path | grep "local-install-root" | awk '{printf "%s/bin/decker",$2}') decker
+    - cp $(stack path | grep "local-install-root" | awk '{printf "%s/bin/decker",$2}') decker
   artifacts:
     paths:
       - decker
