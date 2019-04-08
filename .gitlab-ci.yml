@@ -28,16 +28,12 @@ ci-stack-container:
       - .gitlab-ci
 
 templates:
-  image: kkarczmarczyk/node-yarn
+  image: $CI_REGISTRY_IMAGE:stack
   stage: templates
   tags:
     - docker
   script:
     - make yarn
-  cache:
-    key: ${CI_JOB_NAME}
-    paths:
-      - node_modules
   artifacts:
     paths:
       - resource/support
@@ -47,19 +43,13 @@ build:linux:
   tags:
     - docker
   image:
-    name: fpco/stack-build
-    entrypoint: [""]
+    name: $CI_REGISTRY_IMAGE:stack
   script:
-    - STACK_ROOT=`pwd`/.stack make build
+    - make build
     - cp $(STACK_ROOT=`pwd`/.stack stack path | grep "local-install-root" | awk '{printf "%s/bin/decker",$2}') decker
   artifacts:
     paths:
       - decker
-  cache:
-    key: stack_work
-    paths:
-      - .stack-work
-      - .stack
 
 build:mac:
   tags:
@@ -98,15 +88,9 @@ test:linux:
   tags:
     - docker
   image:
-    name: fpco/stack-build
-    entrypoint: [""]
+    name: $CI_REGISTRY_IMAGE:stack
   script:
-    - STACK_ROOT=`pwd`/.stack make test
-  cache:
-    key: stack_work
-    paths:
-      - .stack-work
-      - .stack
+    - make test
   dependencies:
     - build:linux
 
