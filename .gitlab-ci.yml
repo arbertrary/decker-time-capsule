@@ -14,11 +14,7 @@ ci-stack-container:
     entrypoint: [""]
   script:
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile-ci --destination $CI_REGISTRY_IMAGE:stack 2>&1 | grep -v "Adding "
-  artifacts:
-    expire_in: 1 days
-    paths:
-      - debug.log
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile-ci --destination $CI_REGISTRY_IMAGE/testcontainer 2>&1 | grep -v "Adding "
   only:
     changes:
       - Dockerfile-ci
@@ -28,7 +24,7 @@ ci-stack-container:
       - .gitlab-ci
 
 templates:
-  image: $CI_REGISTRY_IMAGE:stack
+  image: $CI_REGISTRY_IMAGE/testcontainer
   stage: templates
   tags:
     - docker
@@ -43,7 +39,7 @@ build:linux:
   tags:
     - docker
   image:
-    name: $CI_REGISTRY_IMAGE:stack
+    name: $CI_REGISTRY_IMAGE/testcontainer
   script:
     - make build
     - cp $(stack path | grep "local-install-root" | awk '{printf "%s/bin/decker",$2}') decker
@@ -88,7 +84,7 @@ test:linux:
   tags:
     - docker
   image:
-    name: $CI_REGISTRY_IMAGE:stack
+    name: $CI_REGISTRY_IMAGE/testcontainer
   script:
     - make test
   dependencies:
