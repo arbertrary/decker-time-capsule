@@ -4,8 +4,15 @@
 -- Everything that is copying or linking Resource folders needs to be moved here
 -- 
 module Resources
+<<<<<<< HEAD
   ( writeExampleProject
   , extractResources
+=======
+  ( extractResources
+  , deckerResourceDir
+  , writeExampleProject
+  , writeTutorialProject
+>>>>>>> 84-resource-patch1-refactoring
   , copyDir
   , copyResource
   , linkResource
@@ -62,6 +69,13 @@ extractResources = do
 writeExampleProject :: IO ()
 writeExampleProject = writeResourceFiles "example" "."
 
+<<<<<<< HEAD
+=======
+-- | Write the tutorial project to the current folder
+writeTutorialProject :: IO ()
+writeTutorialProject = writeResourceFiles "tutorial" "."
+
+>>>>>>> 84-resource-patch1-refactoring
 writeResourceFiles :: FilePath -> FilePath -> IO ()
 writeResourceFiles prefix destDir = do
   dataDir <- deckerResourceDir

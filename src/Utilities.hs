@@ -18,6 +18,8 @@ module Utilities
   , toPandocMeta
   , deckerPandocExtensions
   , lookupPandocMeta
+  , readMarkdownOrThrow
+  , pandocReaderOpts
   , DeckerException(..)
   ) where
 
@@ -33,6 +35,7 @@ import Resources
 import Server
 import Shake
 import Sketch
+import Text.Pandoc.Lens
 
 import Control.Arrow
 import Control.Concurrent
@@ -59,6 +62,11 @@ import qualified Data.Yaml as Y
 import Development.Shake
 import Development.Shake.FilePath as SFP
 import Network.URI
+import Project
+import Quiz
+import Render
+import Resources
+import Server
 import System.Decker.OS
 import qualified System.Directory as Dir
 import System.FilePath.Glob
@@ -68,7 +76,6 @@ import qualified Text.Mustache.Types as MT
 import Text.Pandoc
 import Text.Pandoc.Builder
 import Text.Pandoc.Highlighting
-import Text.Pandoc.Lens
 import Text.Pandoc.PDF
 import Text.Pandoc.Shared
 import Text.Pandoc.Walk
@@ -137,6 +144,9 @@ writeIndexLists out baseUrl = do
   let decks = (zip (_decks ts) (_decksPdf ts))
   let handouts = (zip (_handouts ts) (_handoutsPdf ts))
   let pages = (zip (_pages ts) (_pagesPdf ts))
+  decksLinks <- mapM makeLink decks
+  handoutsLinks <- mapM makeLink handouts
+  pagesLinks <- mapM makeLink pages
   liftIO $
     writeFile out $
     unlines
@@ -145,19 +155,26 @@ writeIndexLists out baseUrl = do
       , "subtitle: " ++ dirs ^. project
       , "---"
       , "# Slide decks"
-      , unlines $ map makeLink decks
+      , unlines $ decksLinks
       , "# Handouts"
-      , unlines $ map makeLink handouts
+      , unlines $ handoutsLinks
       , "# Supporting Documents"
-      , unlines $ map makeLink pages
+      , unlines $ pagesLinks
       ]
   where
-    makeLink (html, pdf) =
-      printf
-        "-    [%s <i class='fab fa-html5'></i>](%s) [<i class='fas fa-file-pdf'></i>](%s)"
-        (takeFileName html)
-        (makeRelative baseUrl html)
-        (makeRelative baseUrl pdf)
+    makeLink (html, pdf) = do
+      pdfExists <- doesFileExist pdf 
+      if pdfExists then
+        return $ printf
+          "-    [%s <i class='fab fa-html5'></i>](%s) [<i class='fas fa-file-pdf'></i>](%s)"
+          (takeFileName html)
+          (makeRelative baseUrl html)
+          (makeRelative baseUrl pdf)
+      else 
+        return $ printf
+          "-    [%s <i class='fab fa-html5'></i>](%s)"
+          (takeFileName html)
+          (makeRelative baseUrl html)
 
 -- | Fixes pandoc escaped # markup in mustache template {{}} markup.
 fixMustacheMarkup :: B.ByteString -> T.Text
@@ -213,23 +230,22 @@ markdownToHtmlDeck markdownFile out index = do
   pandoc@(Pandoc meta _) <- readAndProcessMarkdown markdownFile disp
   template <- getTemplate meta disp
   templateSupportDir <- getSupportDir meta out supportDirRel
+  dachdeckerUrl' <- liftIO getDachdeckerUrl
   let options =
         pandocWriterOpts
-          { writerSlideLevel = Just 1
-          , writerTemplate = Just template
-          , writerHighlightStyle = Just pygments
-          , writerHTMLMathMethod =
-              MathJax
-                (urlPath $
-                 supportDirRel </> "node_modules" </> "mathjax" </>
-                 "MathJax.js?config=TeX-AMS_HTML")
-          , writerVariables =
-              [ ( "revealjs-url"
-                , urlPath $ supportDirRel </> "node_modules" </> "reveal.js")
-              , ("decker-support-dir", templateSupportDir)
-              ]
-          , writerCiteMethod = Citeproc
-          }
+        { writerSlideLevel = Just 1
+        , writerTemplate = Just template
+        , writerHighlightStyle = Just pygments
+        , writerHTMLMathMethod =
+            MathJax
+              (supportDirRel </> "node_modules" </> "mathjax" </> "MathJax.js?config=TeX-AMS_HTML")
+        , writerVariables =
+            [ ("revealjs-url", supportDirRel </> "node_modules" </> "reveal.js")
+            , ("decker-support-dir", templateSupportDir)
+            , ("dachdecker-url", dachdeckerUrl')
+            ]
+        , writerCiteMethod = Citeproc
+        }
   writeNativeWhileDebugging out "filtered" pandoc >>=
     writeDeckIndex markdownFile index >>=
     writePandocFile "revealjs" options out
@@ -285,6 +301,7 @@ readAndProcessMarkdown markdownFile disp = do
         , renderCodeBlocks
         , includeCode
         , provisionResources
+        , renderQuizzes
         , processSlides
         , renderMediaTags
         , extractFigures
@@ -602,158 +619,3 @@ lookupPandocMeta key (Meta m) =
     lookup' [] (Just (MetaString s)) = Just s
     lookup' [] (Just (MetaInlines i)) = Just $ stringify i
     lookup' _ _ = Nothing
-{-
-CLEANUP: moved to Shake.hs since getRelativeSUpportDir is there already
-getSupportDir :: Meta -> FilePath -> FilePath -> Action FilePath
-getSupportDir meta out defaultPath = do
-  dirs <- projectDirsA
-  cur <- liftIO Dir.getCurrentDirectory
-  let dirPath =
-        case templateFromMeta meta of
-          Just template ->
-            (makeRelativeTo (takeDirectory out) (dirs ^. public)) </>
-            (makeRelativeTo cur template)
-          Nothing -> defaultPath
-  return $ urlPath dirPath
--}
-{- CLEANUP: moved to NewResources
-provisionMetaResource ::
-     FilePath -> Provisioning -> (String, FilePath) -> Action FilePath
-provisionMetaResource base method kv@(key, url)
-  | key `elem` runtimeMetaKeys = do
-    filePath <- urlToFilePathIfLocal base url
-    provisionResource base method filePath
-provisionMetaResource base method kv@(key, url)
-  | key `elem` templateOverrideMetaKeys = do
-    cwd <- liftIO $ Dir.getCurrentDirectory
-    filePath <- urlToFilePathIfLocal cwd url
-    provisionTemplateOverrideSupportTopLevel cwd method filePath
-provisionMetaResource base _ kv@(key, url)
-  | key `elem` compiletimeMetaKeys = do
-    filePath <- urlToFilePathIfLocal base url
-    need [filePath]
-    return filePath
-provisionMetaResource _ _ (key, url) = return url
-
-provisionTemplateOverrideSupport ::
-     FilePath -> Provisioning -> FilePath -> Action ()
-provisionTemplateOverrideSupport base method url = do
-  let newBase = base </> url
-  exists <- liftIO $ Dir.doesDirectoryExist url
-  if exists
-    then liftIO (Dir.listDirectory url) >>= mapM_ recurseProvision
-    else do
-      need [url]
-      provisionResource base method url
-      return ()
-  where
-    recurseProvision x = provisionTemplateOverrideSupport url method (url </> x)
-
-provisionTemplateOverrideSupportTopLevel ::
-     FilePath -> Provisioning -> FilePath -> Action FilePath
-provisionTemplateOverrideSupportTopLevel base method url = do
-  liftIO (Dir.listDirectory url) >>= filterM dirFilter >>=
-    mapM_ recurseProvision
-  return $ url
-  where
-    dirFilter x = liftIO $ Dir.doesDirectoryExist (url </> x)
-    recurseProvision x = provisionTemplateOverrideSupport url method (url </> x)
-
--- | Determines if a URL can be resolved to a local file. Absolute file URLs are
--- resolved against and copied or linked to public from 
---    1. the project root 
---    2. the local filesystem root 
---
--- Relative file URLs are resolved against and copied or linked to public from 
---
---    1. the directory path of the referencing file 
---    2. the project root Copy and link operations target the public directory
---       in the project root and recreate the source directory structure. 
---
--- This function is used to provision resources that are used at presentation
---       time.
---
--- Returns a public URL relative to base
-provisionResource :: FilePath -> Provisioning -> FilePath -> Action FilePath
-provisionResource base method filePath =
-  case parseRelativeReference filePath of
-    Nothing ->
-      if hasDrive filePath
-        then do
-          dirs <- projectDirsA
-          let resource =
-                Resource
-                  { sourceFile = filePath
-                  , publicFile =
-                      (dirs ^. public) </>
-                      makeRelativeTo (dirs ^. project) filePath
-                  , publicUrl = urlPath $ makeRelativeTo base filePath
-                  }
-          provision resource
-        else return filePath
-    Just uri -> do
-      dirs <- projectDirsA
-      let path = uriPath uri
-      fileExists <- doesFileExist path
-      if fileExists
-        then do
-          need [path]
-          let resource = resourcePaths dirs base uri
-          provision resource
-        else throw $ ResourceException $ "resource does not exist: " ++ path
-  where
-    provision resource = do
-      publicResource <- publicResourceA
-      withResource publicResource 1 $
-        liftIO $
-        case method of
-          Copy -> copyResource resource
-          SymLink -> linkResource resource
-          Absolute -> absRefResource resource
-          Relative -> relRefResource base resource
-
--}
-{- CLEANUP: Moved to Common.hs
--- | These resources are needed at runtime. If they are specified as local URLs,
--- the resource must exists at compile time. Remote URLs are passed through
--- unchanged.
-elementAttributes :: [String]
-elementAttributes =
-  [ "src"
-  , "data-src"
-  , "data-markdown"
-  , "data-background-video"
-  , "data-background-image"
-  , "data-background-iframe"
-  , "include"
-  ]
-
--- | Resources in meta data that are needed at compile time. They have to be
--- specified as local URLs and must exist.
-runtimeMetaKeys :: [String]
-runtimeMetaKeys = ["css"]
-
-templateOverrideMetaKeys :: [String]
-templateOverrideMetaKeys = ["template"]
-
-compiletimeMetaKeys :: [String]
-compiletimeMetaKeys = ["bibliography", "csl", "citation-abbreviations"]
-
-metaKeys :: [String]
-metaKeys = runtimeMetaKeys ++ compiletimeMetaKeys ++ templateOverrideMetaKeys
--}
-{- CLEANUP: Moved to NewResources. Not really sure about that location, though
-urlToFilePathIfLocal :: FilePath -> FilePath -> Action FilePath
-urlToFilePathIfLocal base uri =
-  case parseRelativeReference uri of
-    Nothing -> return uri
-    Just relativeUri -> do
-      let filePath = uriPath relativeUri
-      absBase <- liftIO $ Dir.makeAbsolute base
-      absRoot <- projectA
-      let absPath =
-            if isAbsolute filePath
-              then absRoot </> makeRelative "/" filePath
-              else absBase </> filePath
-      return absPath
--}

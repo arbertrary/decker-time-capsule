@@ -7,7 +7,6 @@ import Project
 
 import System.FilePath
 
--- CLEANUP: From Resources
 getResourceString :: FilePath -> IO String
 getResourceString path = do
   dataDir <- deckerResourceDir

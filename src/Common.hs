@@ -9,7 +9,6 @@ module Common
   , MediaType(..)
   , Provisioning(..)
   , Script(..)
-  , ResourceType(..)
   , Decker
   -- *
   , doIO
@@ -154,9 +153,6 @@ data MediaType
   | IframeMedia
   | MeshMedia
 
--- TODO: Provisioning needs to be changed in favor of ResourceType
--- Absolute/Relative is subsumed by ResourceType
--- in which ResourceType cases is Copy/SymLink needed?
 data Provisioning
   = Copy -- ^ Copy to public and relative URL
   | SymLink -- ^ Symbolic link to public and relative URL
@@ -164,6 +160,7 @@ data Provisioning
   | Relative -- ^ Relative local URL
   deriving (Eq, Show, Read)
 
+<<<<<<< HEAD
 -- | Source of the resource bundle
 -- TODO: rename Decker to Default?
 data ResourceType
@@ -175,6 +172,8 @@ data ResourceType
   | Local String -- ^ local resource folder anywhere, no caching
   deriving (Eq, Show, Read)
 
+=======
+>>>>>>> 84-resource-patch1-refactoring
 repeatIfTrue :: Monad m => m Bool -> m ()
 repeatIfTrue action = do
   again <- action
