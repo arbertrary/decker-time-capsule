@@ -7,6 +7,7 @@ module Common
   , OutputFormat(..)
   , Disposition(..)
   , MediaType(..)
+  , ResourceType(..)
   , Provisioning(..)
   , Script(..)
   , Decker
