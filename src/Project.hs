@@ -56,9 +56,9 @@ import Network.URI
 import qualified System.Directory as D
 import Text.Regex.TDFA
 
+import System.Environment
 -- import System.Directory (createFileLink, doesDirectoryExist, doesFileExist)
 import System.FilePath
-import System.Environment
 import Text.Pandoc.Definition
 import Text.Pandoc.Shared
 
@@ -106,9 +106,6 @@ templateFromMeta meta =
     Just (MetaInlines i) -> Just $ stringify i
     _ -> Nothing
 
-<<<<<<< HEAD
--- UNUSED: TODO: not used anywhere
-=======
 dachdeckerFromMeta :: Meta -> Maybe String
 dachdeckerFromMeta meta =
   case lookupMeta "dachdecker" meta of
@@ -116,7 +113,6 @@ dachdeckerFromMeta meta =
     Just (MetaInlines i) -> Just $ stringify i
     _ -> Nothing
 
->>>>>>> 84-resource-patch1-refactoring
 provisioningClasses :: [(String, Provisioning)]
 provisioningClasses =
   [ ("copy", Copy)

@@ -3,14 +3,10 @@ import Common
 import Exception
 import External
 import Flags (hasPreextractedResources)
-<<<<<<< HEAD
 import Meta
 import NewResources (handleResources)
 import Output
-=======
-import Output
 import Pdf
->>>>>>> 84-resource-patch1-refactoring
 import Project
 import Resources
 import Shake
@@ -121,11 +117,8 @@ main = do
       runHttpServer serverPort directories Nothing
     --
     phony "example" $ liftIO writeExampleProject
-<<<<<<< HEAD
-=======
     --
     phony "tutorial" $ liftIO writeTutorialProject
->>>>>>> 84-resource-patch1-refactoring
     --
     phony "sketch-pad-index" $ do
       indicesA >>= need
@@ -218,13 +211,10 @@ main = do
     phony "clean" $ do
       removeFilesAfter (directories ^. public) ["//"]
       removeFilesAfter (directories ^. project) cruft
-<<<<<<< HEAD
     --
     -- | deletes old, cached resource folders
     -- TODO: include clear-cache in makefile?
     phony "clear-cache" $ do
-=======
->>>>>>> 84-resource-patch1-refactoring
       old <- liftIO oldResourcePaths
       forM_ old $ \dir -> removeFilesAfter dir ["//"]
       when (isDevelopmentVersion && not hasPreextractedResources) $

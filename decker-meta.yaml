@@ -1,6 +1,5 @@
 project-name: Decker
 provisioning: Copy
-<<<<<<< HEAD
 resources: file:///../decker/
 # options
 # relative path
@@ -9,8 +8,6 @@ resources: file:///../decker/
 # file:/home/armin/test/resource
 # optional
 # project
-=======
->>>>>>> 84-resource-patch1-refactoring
 
 exclude-directories:
 - app

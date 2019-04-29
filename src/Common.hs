@@ -160,7 +160,6 @@ data Provisioning
   | Relative -- ^ Relative local URL
   deriving (Eq, Show, Read)
 
-<<<<<<< HEAD
 -- | Source of the resource bundle
 -- TODO: rename Decker to Default?
 data ResourceType
@@ -172,8 +171,6 @@ data ResourceType
   | Local String -- ^ local resource folder anywhere, no caching
   deriving (Eq, Show, Read)
 
-=======
->>>>>>> 84-resource-patch1-refactoring
 repeatIfTrue :: Monad m => m Bool -> m ()
 repeatIfTrue action = do
   again <- action
