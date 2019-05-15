@@ -170,7 +170,11 @@ main = do
     --
     priority 2 $
       index %> \out -> do
-        alwaysRerun
+        publicContents <-
+          getDirectoryFiles
+            (directories ^. public)
+            ["//*-deck.html", "//*-page.html", "//*-handout.html"]
+        need $ map ((directories ^. public) </>) publicContents
         exists <- Development.Shake.doesFileExist indexSource
         let src =
               if exists
@@ -179,7 +183,11 @@ main = do
         markdownToHtmlPage src out
     --
     indexSource <.> "generated" %> \out -> do
-      alwaysRerun
+      publicContents <-
+        getDirectoryFiles
+          (directories ^. public)
+          ["//*-deck.html", "//*-page.html", "//*-handout.html"]
+      need $ map ((directories ^. public) </>) publicContents
       writeIndexLists out (takeDirectory index)
     --
     priority 2 $
