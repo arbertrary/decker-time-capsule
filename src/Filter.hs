@@ -223,6 +223,7 @@ includeCode (Pandoc meta blocks) = do
   included <- doIO $ walkM (P.includeCode Nothing) blocks
   return $ Pandoc meta included
 
+-- 
 -- end snippet includeCode
 -- Transform inline image or video elements within the header line with
 -- background attributes of the respective section. 
@@ -234,6 +235,10 @@ handleBackground slide@(Slide header blocks) =
       case query allImages inlines of
         image@(Image (_, imageClasses, imageAttributes) _ (imageSrc, _)):_ -> do
           disp <- gets disposition
+          let startSrc =
+                case retrieveVideoStart imageAttributes of
+                  (kv, Just start) -> imageSrc ++ "#t=" ++ start
+                  _ -> imageSrc
           case disp of
             Disposition Deck Html ->
               return $
@@ -243,7 +248,7 @@ handleBackground slide@(Slide header blocks) =
                       1
                       ( headerId
                       , headerClasses ++ imageClasses
-                      , srcAttribute imageSrc : headerAttributes ++
+                      , srcAttribute startSrc : headerAttributes ++
                         map transform imageAttributes)
                       (walk zapImages inlines)))
                 blocks

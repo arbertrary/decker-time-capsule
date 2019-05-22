@@ -20,7 +20,7 @@ function fixAutoplayWithStart() {
     vid.addEventListener('play', (e) => {
       const timeRegex = /#t=(\d+)/;
       const matches = e.target.currentSrc.match(timeRegex);
-      if (matches.length > 0) {
+      if (matches && matches.length > 0) {
         e.target.currentTime = matches[1];
       }
     });
