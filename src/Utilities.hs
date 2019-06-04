@@ -1,8 +1,6 @@
 {-- Author: Henrik Tramberend <henrik@tramberend.de> --}
 module Utilities
   ( runDecker
-  , writeIndex
-  , writeIndexTable
   , writeIndexLists
   , substituteMetaData
   , markdownToHtmlDeck
@@ -17,7 +15,6 @@ module Utilities
   , fixMustacheMarkupText
   , toPandocMeta
   , deckerPandocExtensions
-  , lookupPandocMeta
   , readMarkdownOrThrow
   , pandocReaderOpts
   , DeckerException(..)
@@ -30,11 +27,13 @@ import Macro
 import Meta
 import Output
 import Project
+import Quiz
 import Render
 import Resources
 import Server
 import Shake
 import Sketch
+import System.Decker.OS
 import Text.Pandoc.Lens
 
 import Control.Arrow
@@ -62,12 +61,6 @@ import qualified Data.Yaml as Y
 import Development.Shake
 import Development.Shake.FilePath as SFP
 import Network.URI
-import Project
-import Quiz
-import Render
-import Resources
-import Server
-import System.Decker.OS
 import qualified System.Directory as Dir
 import System.FilePath.Glob
 import Text.CSL.Pandoc
@@ -84,57 +77,6 @@ import Text.Printf
 -- | Monadic version of list concatenation.
 (<++>) :: Monad m => m [a] -> m [a] -> m [a]
 (<++>) = liftM2 (++)
-
--- | Generates an index.md file with links to all generated files of interest.
-writeIndexTable ::
-     FilePath -> FilePath -> [[FilePath]] -> [[FilePath]] -> Action ()
-writeIndexTable out baseUrl deckData pageData = do
-  dirs <- projectDirsA
-  liftIO $
-    writeFile out $
-    unlines
-      [ "---"
-      , "title: Generated Index"
-      , "subtitle: " ++ dirs ^. project
-      , "---"
-      , "# Slide decks"
-      , "| Deck HTML | Handout HTML | Deck PDF | Handout PDF|"
-      , "|-----------|--------------|----------|------------|"
-      , unlines $ makeRow deckData
-      , "# Pages"
-      , "| Page HTML | Page PDF |"
-      , "|-----------|----------|"
-      , unlines $ makeRow pageData
-      ]
-  where
-    makeRow = map (("| " ++) . (++ " | ") . intercalate " | " . map makeLink)
-    makeLink file =
-      "[" ++ takeFileName file ++ "](" ++ makeRelative baseUrl file ++ ")"
-
--- | Generates an index.md file with links to all generated files of interest.
-writeIndex ::
-     FilePath -> FilePath -> [FilePath] -> [FilePath] -> [FilePath] -> Action ()
-writeIndex out baseUrl decks handouts pages = do
-  let decksLinks = map (makeRelative baseUrl) decks
-  let handoutsLinks = map (makeRelative baseUrl) handouts
-  let pagesLinks = map (makeRelative baseUrl) pages
-  dirs <- projectDirsA
-  liftIO $
-    writeFile out $
-    unlines
-      [ "---"
-      , "title: Generated Index"
-      , "subtitle: " ++ dirs ^. project
-      , "---"
-      , "# Slide decks"
-      , unlines $ map makeLink $ sort decksLinks
-      , "# Handouts"
-      , unlines $ map makeLink $ sort handoutsLinks
-      , "# Supporting Documents"
-      , unlines $ map makeLink $ sort pagesLinks
-      ]
-  where
-    makeLink file = "-    [" ++ takeFileName file ++ "](" ++ file ++ ")"
 
 -- | Generates an index.md file with links to all generated files of interest.
 writeIndexLists :: FilePath -> FilePath -> Action ()
@@ -163,18 +105,19 @@ writeIndexLists out baseUrl = do
       ]
   where
     makeLink (html, pdf) = do
-      pdfExists <- doesFileExist pdf 
-      if pdfExists then
-        return $ printf
-          "-    [%s <i class='fab fa-html5'></i>](%s) [<i class='fas fa-file-pdf'></i>](%s)"
-          (takeFileName html)
-          (makeRelative baseUrl html)
-          (makeRelative baseUrl pdf)
-      else 
-        return $ printf
-          "-    [%s <i class='fab fa-html5'></i>](%s)"
-          (takeFileName html)
-          (makeRelative baseUrl html)
+      pdfExists <- doesFileExist pdf
+      if pdfExists
+        then return $
+             printf
+               "-    [%s <i class='fab fa-html5'></i>](%s) [<i class='fas fa-file-pdf'></i>](%s)"
+               (takeFileName html)
+               (makeRelative baseUrl html)
+               (makeRelative baseUrl pdf)
+        else return $
+             printf
+               "-    [%s <i class='fab fa-html5'></i>](%s)"
+               (takeFileName html)
+               (makeRelative baseUrl html)
 
 -- | Fixes pandoc escaped # markup in mustache template {{}} markup.
 fixMustacheMarkup :: B.ByteString -> T.Text
@@ -233,19 +176,21 @@ markdownToHtmlDeck markdownFile out index = do
   dachdeckerUrl' <- liftIO getDachdeckerUrl
   let options =
         pandocWriterOpts
-        { writerSlideLevel = Just 1
-        , writerTemplate = Just template
-        , writerHighlightStyle = Just pygments
-        , writerHTMLMathMethod =
-            MathJax
-              (supportDirRel </> "node_modules" </> "mathjax" </> "MathJax.js?config=TeX-AMS_HTML")
-        , writerVariables =
-            [ ("revealjs-url", supportDirRel </> "node_modules" </> "reveal.js")
-            , ("decker-support-dir", templateSupportDir)
-            , ("dachdecker-url", dachdeckerUrl')
-            ]
-        , writerCiteMethod = Citeproc
-        }
+          { writerSlideLevel = Just 1
+          , writerTemplate = Just template
+          , writerHighlightStyle = Just pygments
+          , writerHTMLMathMethod =
+              MathJax
+                (supportDirRel </> "node_modules" </> "mathjax" </>
+                 "MathJax.js?config=TeX-AMS_HTML")
+          , writerVariables =
+              [ ( "revealjs-url"
+                , supportDirRel </> "node_modules" </> "reveal.js")
+              , ("decker-support-dir", templateSupportDir)
+              , ("dachdecker-url", dachdeckerUrl')
+              ]
+          , writerCiteMethod = Citeproc
+          }
   writeNativeWhileDebugging out "filtered" pandoc >>=
     writeDeckIndex markdownFile index >>=
     writePandocFile "revealjs" options out

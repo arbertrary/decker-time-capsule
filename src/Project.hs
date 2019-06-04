@@ -17,7 +17,6 @@ module Project
   , provisioningFromMeta
   , templateFromMeta
   , dachdeckerFromMeta
-  , provisioningFromClasses
   , invertPath
   , scanTargets
   -- * Types
@@ -57,6 +56,7 @@ import qualified System.Directory as D
 import Text.Regex.TDFA
 
 import System.Environment
+
 -- import System.Directory (createFileLink, doesDirectoryExist, doesFileExist)
 import System.FilePath
 import Text.Pandoc.Definition
@@ -120,12 +120,6 @@ provisioningClasses =
   , ("absolute", Absolute)
   , ("relative", Relative)
   ]
-
--- UNUSED: TODO: Not used anywhere
-provisioningFromClasses :: Provisioning -> [String] -> Provisioning
-provisioningFromClasses defaultP cls =
-  fromMaybe defaultP $
-  listToMaybe $ map snd $ filter (flip elem cls . fst) provisioningClasses
 
 absRefResource :: Resource -> IO FilePath
 absRefResource resource =

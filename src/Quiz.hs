@@ -36,7 +36,15 @@ renderMultipleChoice :: Block -> Block
 -- BulletList which qualifies as survey
 renderMultipleChoice (BulletList blocks@((firstBlock:_):_))
   | checkIfMC firstBlock =
-    Div ("", ["survey"], []) [BulletList (map renderAnswerMC blocks)]
+    Div
+      ("", ["survey"], [])
+      [BulletList (map renderAnswerMC blocks), answerButton]
+  where
+    answerButton =
+      Para $
+      [LineBreak] ++
+      [toHtml "<button class=\"mcAnswerButton\" type=\"button\">"] ++
+      [Str "Show Solution"] ++ [toHtml "</button>"]
 -- Default pass through
 renderMultipleChoice block = block
 
@@ -70,7 +78,10 @@ matchingHtml dListItems =
       Para $
       [LineBreak] ++
       [toHtml "<button class=\"matchingAnswerButton\" type=\"button\">"] ++
-      [Str "Show Solution"] ++ [toHtml "</button>"]
+      [Str "Show Solution"] ++
+      [toHtml "</button>"] ++
+      [toHtml "<button class=\"retryButton\" type=\"button\">"] ++
+      [Str "Retry"] ++ [toHtml "</button>"]
 
 wrapDrop :: [[Inline]] -> Block
 wrapDrop inlines = Div ("", ["dropzones"], []) dropzones
@@ -87,9 +98,11 @@ freetextQuestionHtml question answer =
   -- 
   [LineBreak] ++
   [toHtml "<button class=\"freetextAnswerButton\" type=\"button\">"] ++
-  [Str "Show Solution:"] ++
+  [Str "Show Solution"] ++
   [ Span
-      ("", ["freetextAnswer"], [("style", "display:none;"), ("type", "text")])
+      ( ""
+      , ["freetextAnswer"]
+      , [("style", "display:none; font-color:black;"), ("type", "text")])
       answer
   ] ++
   [toHtml "</button>"] ++ [toHtml "</form>"]
@@ -99,6 +112,7 @@ checkIfMatching (Str "[match]":Space:rest, firstBlock:_) =
   Just (rest, [firstBlock])
 checkIfMatching _ = Nothing
 
+-- 
 checkIfFreetextQuestion :: Block -> Maybe [Inline]
 checkIfFreetextQuestion (Para (Str "[?]":q)) = Just q
 checkIfFreetextQuestion (Plain (Str "[?]":q)) = Just q
@@ -131,6 +145,8 @@ renderAnswerMC (prelude:rest) =
         Para ((Str "["):Space:(Str "]"):prest) -> (["wrong"], Para prest)
         Plain ((Str "[X]"):prest) -> (["right"], Para prest)
         Plain ((Str "["):Space:(Str "]"):prest) -> (["wrong"], Para prest)
+        Plain ((Link nullAttr [] ('#':_, "")):Space:prest) ->
+          (["wrong"], Para prest)
         prest -> ([], prest)
 
 -- if there is a bullet list create a div class tooltip around
