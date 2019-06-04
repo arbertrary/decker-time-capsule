@@ -76,6 +76,7 @@ getResourceMeta meta =
             else Local path
         Just (URI "https:" _ path _ _) -> Https resources
         Just (URI "project:" _ path _ _) -> Project $ path </> "resource"
+        Just (URI _ _ path _ _) -> Local path
         _ -> Decker
       --   (Just "dev", _) -> Dev
       --   (Just "project", _) -> Project
@@ -87,9 +88,11 @@ getResourceMeta meta =
 handleResources :: Yaml.Value -> IO ()
 handleResources meta = do
   let rt = getResourceMeta meta
+  print "## Resource Type:"
   print rt
   p <- testdeckerResourceDir rt
   absp <- Dir.makeAbsolute p
+  print "### Absolute:"
   pexists <- Dir.doesDirectoryExist absp
   print absp
   print pexists

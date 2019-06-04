@@ -49,11 +49,11 @@ main = do
   -- deckerResourceDir/projectDirectories changed as needed
   extractResources
   directories <- projectDirectories
-  print directories
+  -- print directories
   -- Simply setting appData as a different dir through Lens ...
   -- Not the best solution I think
-  let dirs = directories & appData .~ "test"
-  print dirs
+  -- let dirs = directories & appData .~ "test"
+  -- print dirs
   --
   let serverPort = 8888
   let serverUrl = "http://localhost:" ++ (show serverPort)
