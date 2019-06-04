@@ -475,7 +475,7 @@ mapBlock _ block = return block
 
 -- TODO: Move to Meta.hs?
 -- UNUSED:
--- only used once her: line 313
+-- only used once here
 mapMetaResources ::
      ((String, FilePath) -> Action FilePath) -> Pandoc -> Action Pandoc
 mapMetaResources transform (Pandoc (Meta kvmap) blocks) = do
@@ -529,38 +529,3 @@ processCitesWithDefault pandoc@(Pandoc meta blocks) =
           return (Pandoc cslMeta blocks)
         _ -> return pandoc
     liftIO $ processCites' document
-
-{-
-lookupValue :: String -> Y.Value -> Maybe Y.Value
-lookupValue key (Y.Object hashTable) = HashMap.lookup (T.pack key) hashTable
-lookupValue _ _ = Nothing
-
--- CLEANUP: moved to Meta.hs
--- used in Decker.hs
-metaValueAsString :: String -> Y.Value -> Maybe String
-metaValueAsString key meta =
-  case splitOn "." key of
-    [] -> Nothing
-    k:ks -> lookup' ks (lookupValue k meta)
-  where
-    lookup' :: [String] -> Maybe Y.Value -> Maybe String
-    lookup' [] (Just (Y.String s)) = Just (T.unpack s)
-    lookup' [] (Just (Y.Number n)) = Just (show n)
-    lookup' [] (Just (Y.Bool b)) = Just (show b)
-    lookup' (k:ks) (Just obj@(Y.Object _)) = lookup' ks (lookupValue k obj)
-    lookup' _ _ = Nothing
--}
--- TODO: Not used anywhere
--- UNUSED:
-lookupPandocMeta :: String -> Meta -> Maybe String
-lookupPandocMeta key (Meta m) =
-  case splitOn "." key of
-    [] -> Nothing
-    k:ks -> lookup' ks (Map.lookup k m)
-  where
-    lookup' :: [String] -> Maybe MetaValue -> Maybe String
-    lookup' (k:ks) (Just (MetaMap m)) = lookup' ks (Map.lookup k m)
-    lookup' [] (Just (MetaBool b)) = Just $ show b
-    lookup' [] (Just (MetaString s)) = Just s
-    lookup' [] (Just (MetaInlines i)) = Just $ stringify i
-    lookup' _ _ = Nothing
