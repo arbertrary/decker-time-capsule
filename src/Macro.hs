@@ -121,11 +121,24 @@ embedWebVideosPdf page _ attr (vid, _) =
         "twitch" ->
           "https://www.twitch.tv/p/assets/uploads/glitch_solo_750x422.png"
 
+buildThumbnailVideos :: String -> [String] -> Attr -> Target -> Inline 
+buildThumbnailVideos page _ attr (vid, _) =
+  Image attr [Str text] (imageUrl, "")
+  where
+    text =
+      case page of
+        "youtube" -> printf "https://www.youtube.com/watch?v=%s" vid :: String
+    imageUrl =
+      case page of
+        "youtube" ->
+          printf "http://img.youtube.com/vi/%s/maxresdefault.jpg" vid :: String
+
+
 webVideo :: String -> MacroAction
 webVideo page args attr target _ = do
   disp <- gets disposition
   case disp of
-    Disposition _ Html -> return $ embedWebVideosHtml page args attr target
+    Disposition _ Html -> return $ buildThumbnailVideos page args attr target
     Disposition _ Latex -> return $ embedWebVideosPdf page args attr target
 
 fontAwesome :: String -> MacroAction
