@@ -183,9 +183,8 @@ testdeckerResourceDir rt =
         of
     Https src -> return src
     Local src -> return src
-    -- Project src -> return $ "." </> src </> "resources"
-    Project src -> return src
-    Dev -> return $ "." </> "resources"
+    File src -> return src
+    -- Dev -> return $ "." </> "resources"
     _ -> defaultDir
   where
     defaultDir =

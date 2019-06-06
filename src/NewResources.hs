@@ -6,26 +6,29 @@
 module NewResources
   -- * Provisioning
   ( handleResources
+  , extractNResources
   ) where
 
 import Common
-import Exception
+
+-- import Exception
 import Meta
 import Project
-import Shake
-import System.Decker.OS
 
+-- import Shake
+-- import System.Decker.OS
 import Codec.Archive.Zip
 import Control.Exception
-import Control.Lens ((^.))
 import Control.Monad.Extra
 import Data.Map.Strict (size)
-import qualified Data.Text as T
+
+-- import Control.Lens ((^.))
+-- import qualified Data.Text as T
+-- import Development.Shake
+-- import System.Environment
 import Data.Yaml as Yaml
-import Development.Shake
 import Network.URI
 import qualified System.Directory as Dir
-import System.Environment
 import System.FilePath
 
 -- import Text.URI (mkURI)
@@ -64,37 +67,55 @@ Strategy for different ResourceTypes:
 - Project -> Use resource folder in slide project (no copying/symlinking to public?)
 - Local -> Use resource folder anywhere
 -}
-getResourceMeta :: Yaml.Value -> ResourceType
-getResourceMeta meta =
+getResourceType :: Yaml.Value -> ResourceType
+getResourceType meta =
   case metaValueAsString "resources" meta of
-    Just "project" -> Project $ "." </> "resource"
     Just resources ->
       case parseURIReference resources of
-        Just (URI "file:" _ path _ _) ->
-          if ".zip" `isExtensionOf` path
-            then File path
-            else Local path
+        Just (URI "file:" _ path _ _) -> fileOrLocal path
         Just (URI "https:" _ path _ _) -> Https resources
-        Just (URI "project:" _ path _ _) -> Project $ path </> "resource"
-        Just (URI _ _ path _ _) -> Local path
+        Just (URI _ _ path _ _) -> fileOrLocal path
         _ -> Decker
-      --   (Just "dev", _) -> Dev
-      --   (Just "project", _) -> Project
-      --   (_, _) -> Decker
-      -- where t = lookupYamlValue "type" resources
-      --       src = lookupYamlValue "source" resources
+      where fileOrLocal path =
+              if ".zip" `isExtensionOf` path
+                then File path
+                else Local path
     Nothing -> Decker
 
+{-
+Resources for testing
+https://downloads.hci.informatik.uni-wuerzburg.de/decker/resourcetest/resource.zip
+http://downloads.hci.informatik.uni-wuerzburg.de/decker/resourcetest/resource.zip
+/Users/armin/work/decker_related/resourcetest/resource.zip
+/Users/armin/work/decker_related/resourcetest/resource
+
+
+-}
 handleResources :: Yaml.Value -> IO ()
 handleResources meta = do
-  let rt = getResourceMeta meta
+  let rt = getResourceType meta
   print "## Resource Type:"
   print rt
+  case rt of
+    File path -> extractNResources path
+    _ -> print "no zip"
   p <- testdeckerResourceDir rt
   absp <- Dir.makeAbsolute p
   print "### Absolute:"
   pexists <- Dir.doesDirectoryExist absp
   print absp
-  print pexists
-  cont <- Dir.getDirectoryContents absp
-  print cont
+
+-- import Text.Regex.TDFA
+-- | Extract resources from the executable into the XDG data directory.
+-- TODO: Simply add parameter instead of calling getExecutablePath inside
+extractNResources :: FilePath -> IO ()
+extractNResources zipFile = do
+  dataDir <- deckerResourceDir
+  exists <- Dir.doesDirectoryExist dataDir
+  unless exists $ do
+    numFiles <- withArchive zipFile getEntries
+    unless ((size numFiles) > 0) $
+      throw $ ResourceException "No resource zip found in decker executable."
+    Dir.createDirectoryIfMissing True dataDir
+    withArchive zipFile (unpackInto dataDir)
+    putStrLn $ "# resources extracted to " ++ dataDir

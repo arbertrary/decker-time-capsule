@@ -218,6 +218,7 @@ main = do
       removeFilesAfter (directories ^. project) cruft
     --
     -- | deletes old, cached resource folders
+    -- Should also delete old executables?5
     -- TODO: include clear-cache in makefile?
     phony "clear-cache" $ do
       old <- liftIO oldResourcePaths
