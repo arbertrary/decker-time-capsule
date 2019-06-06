@@ -8,6 +8,8 @@ import Project
 import System.FilePath
 
 getResourceString :: FilePath -> IO String
-getResourceString path = do
-  dataDir <- deckerResourceDir
+getResourceString path
+  -- dataDir <- deckerResourceDir
+ = do
+  let dataDir = "/Users/armin/work/decker_related/resourcetest/resource/"
   readFile (dataDir </> path)

@@ -51,6 +51,8 @@ main = do
   -- directories <- projectDirectories
   -- meta <- readMetaData "."
   directories <- handleResources
+  print "#######"
+  print directories
   -- Simply setting appData as a different dir through Lens ...
   -- Not the best solution I think
   -- let dirs = directories & appData .~ "test"
@@ -70,7 +72,8 @@ main = do
         "\tAlternatively you can add 'chrome' to $PATH.\n" ++
         "# Linux: 'chrome' has to be on $PATH.\n"
   --
-  runDecker $
+  -- 
+  runDecker directories $
   --
    do
     want ["html"]

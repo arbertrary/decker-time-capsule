@@ -111,15 +111,15 @@ initMutableActionState = do
   public <- newResourceIO "public" 1
   return $ MutableActionState server watch public
 
-runDecker :: Rules () -> IO ()
-runDecker rules = do
+runDecker :: ProjectDirs -> Rules () -> IO ()
+runDecker dirs rules = do
   state <- initMutableActionState
-  catch (repeatIfTrue $ runShakeOnce state rules) (putError "Terminated: ")
+  catch (repeatIfTrue $ runShakeOnce dirs state rules) (putError "Terminated: ")
   cleanup state
 
-runShakeOnce :: MutableActionState -> Rules () -> IO Bool
-runShakeOnce state rules = do
-  context <- initContext state
+runShakeOnce :: ProjectDirs -> MutableActionState -> Rules () -> IO Bool
+runShakeOnce pdirs state rules = do
+  context <- initContext pdirs state
   options <- deckerShakeOptions context
   catch (shakeArgs options rules) (putError "Error: ")
   server <- readIORef (state ^. server)
@@ -141,8 +141,10 @@ excludeDirs meta =
         meta ^.. key "exclude-directories" . values . _String . unpacked
    in alwaysExclude ++ metaExclude
 
-initContext state = do
-  dirs <- projectDirectories
+initContext :: ProjectDirs -> MutableActionState -> IO ActionContext
+initContext dirs state
+  -- dirs <- projectDirectories
+ = do
   meta <- readMetaData $ dirs ^. project
   targets <- scanTargets (excludeDirs meta) sourceSuffixes dirs
   return $ ActionContext dirs targets meta state
