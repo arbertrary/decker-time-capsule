@@ -6,7 +6,9 @@
 module NewResources
   -- * Provisioning
   ( handleResources
+  , testResources
   , extractNResources
+  , getResourceType
   ) where
 
 import Common
@@ -15,14 +17,15 @@ import Common
 import Meta
 import Project
 
--- import Shake
+import Shake
+
 -- import System.Decker.OS
 import Codec.Archive.Zip
 import Control.Exception
+import Control.Lens ((&), (.~), (^.))
 import Control.Monad.Extra
 import Data.Map.Strict (size)
 
--- import Control.Lens ((^.))
 -- import qualified Data.Text as T
 -- import Development.Shake
 -- import System.Environment
@@ -91,8 +94,8 @@ http://downloads.hci.informatik.uni-wuerzburg.de/decker/resourcetest/resource.zi
 
 
 -}
-handleResources :: Yaml.Value -> IO ()
-handleResources meta = do
+testResources :: Yaml.Value -> IO ()
+testResources meta = do
   let rt = getResourceType meta
   print "## Resource Type:"
   print rt
@@ -105,6 +108,36 @@ handleResources meta = do
   pexists <- Dir.doesDirectoryExist absp
   print absp
 
+handleResources :: IO ProjectDirs
+handleResources = do
+  directories <- projectDirectories
+  meta <- readMetaData $ directories ^. project
+  defaultResourceDir <- deckerResourceDir
+  let rt = getResourceType meta
+  print rt
+  print directories
+  case rt of
+    File path -> extractNResources path >> return directories
+    Https url -> extractNResources defaultResourceDir >> return directories
+    Local path -> do
+      print path
+      let t = (directories & appData .~ path)
+      print t
+      return t
+    _ -> extractNResources defaultResourceDir >> return directories
+
+-- handleResources :: Action Yaml.Value -> Action ProjectDirs
+-- handleResources meta = do
+--   m <- meta
+--   directories <- liftIO projectDirectories
+--   defaultResourceDir <- liftIO deckerResourceDir
+--   let rt = getResourceType m
+--   case rt of
+--     File path -> liftIO (extractNResources path >> return directories)
+--     Https url ->
+--       liftIO (extractNResources defaultResourceDir >> return directories)
+--     Local path -> return (directories & appData .~ path)
+--     _ -> liftIO (extractNResources defaultResourceDir >> return directories)
 -- import Text.Regex.TDFA
 -- | Extract resources from the executable into the XDG data directory.
 -- TODO: Simply add parameter instead of calling getExecutablePath inside

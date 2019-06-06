@@ -47,9 +47,10 @@ main = do
       deckerGitVersionTag
   -- TODO: handleResources has to be called here
   -- deckerResourceDir/projectDirectories changed as needed
-  extractResources
-  directories <- projectDirectories
-  -- print directories
+  -- extractResources
+  -- directories <- projectDirectories
+  -- meta <- readMetaData "."
+  directories <- handleResources
   -- Simply setting appData as a different dir through Lens ...
   -- Not the best solution I think
   -- let dirs = directories & appData .~ "test"
@@ -73,6 +74,11 @@ main = do
   --
    do
     want ["html"]
+    --
+    -- phony "resources" $ do
+      -- metaData <- metaA
+      -- liftIO $ handleResources metaData
+    --   -- liftIO $ print (handleResources metaData)
     --
     phony "version" $ do
       putNormal $
@@ -220,20 +226,16 @@ main = do
     -- | deletes old, cached resource folders
     -- Should also delete old executables?5
     -- TODO: include clear-cache in makefile?
-    phony "clear-cache" $ do
-      old <- liftIO oldResourcePaths
-      forM_ old $ \dir -> removeFilesAfter dir ["//"]
-      when (isDevelopmentVersion && not hasPreextractedResources) $
-        removeFilesAfter (directories ^. appData) ["//"]
+    -- FIXME: Temporarily disabled because appData can be customized with the resource: meta option
+    -- phony "clear-cache" $ do
+    --   old <- liftIO oldResourcePaths
+    --   forM_ old $ \dir -> removeFilesAfter dir ["//"]
+    --   when (isDevelopmentVersion && not hasPreextractedResources) $
+    --     removeFilesAfter (directories ^. appData) ["//"]
     --
     phony "help" $ do
       text <- liftIO $ getResourceString "template/help-page.md"
       liftIO $ putStr text
-    --
-    phony "resources" $ do
-      metaData <- metaA
-      liftIO $ handleResources metaData
-      -- liftIO $ print (handleResources metaData)
     --
     phony "info" $ do
       putNormal $ "\nproject directory: " ++ (directories ^. project)
