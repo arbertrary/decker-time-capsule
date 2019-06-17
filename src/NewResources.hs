@@ -9,6 +9,7 @@ module NewResources
   , testResources
   , extractNResources
   , getResourceType
+  , downloadResources
   ) where
 
 import Common
@@ -24,12 +25,14 @@ import Codec.Archive.Zip
 import Control.Exception
 import Control.Lens ((&), (.~), (^.))
 import Control.Monad.Extra
+import Data.ByteString.Lazy as BS (writeFile)
 import Data.Map.Strict (size)
 
 -- import qualified Data.Text as T
 -- import Development.Shake
 -- import System.Environment
 import Data.Yaml as Yaml
+import Network.HTTP.Conduit (simpleHttp)
 import Network.URI
 import qualified System.Directory as Dir
 import System.FilePath
@@ -115,16 +118,29 @@ handleResources = do
   defaultResourceDir <- deckerResourceDir
   let rt = getResourceType meta
   print rt
-  print directories
+  -- print directories
   case rt of
     File path -> extractNResources path >> return directories
-    Https url -> extractNResources defaultResourceDir >> return directories
+    Https url -> do
+      putStrLn $ "Downloading resources from " ++ url
+      downloadResources url
+      return directories
     Local path -> do
       print path
       let t = (directories & appData .~ path)
       print t
       return t
     _ -> extractNResources defaultResourceDir >> return directories
+
+-- | Download from url, write to System temp dir and extract from there
+downloadResources :: String -> IO ()
+downloadResources url = do
+  bs <- simpleHttp url
+  cache <- Dir.getTemporaryDirectory
+  let resfile = cache </> "zresource.zip"
+  BS.writeFile resfile bs
+  extractNResources resfile
+  Dir.removeFile resfile
 
 -- handleResources :: Action Yaml.Value -> Action ProjectDirs
 -- handleResources meta = do
