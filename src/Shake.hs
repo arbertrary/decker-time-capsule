@@ -210,6 +210,7 @@ getSupportDir :: Meta -> FilePath -> FilePath -> Action FilePath
 getSupportDir meta out defaultPath = do
   dirs <- projectDirsA
   cur <- liftIO Dir.getCurrentDirectory
+  -- TODO: Maybe remove templateFromMeta since template is included in Resource folder?
   let dirPath =
         case templateFromMeta meta of
           Just template ->

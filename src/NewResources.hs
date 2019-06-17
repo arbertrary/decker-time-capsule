@@ -9,6 +9,7 @@ module NewResources
   , testResources
   , extractNResources
   , getResourceType
+  , getResourceMeta
   , downloadResources
   ) where
 
@@ -73,20 +74,24 @@ Strategy for different ResourceTypes:
 - Project -> Use resource folder in slide project (no copying/symlinking to public?)
 - Local -> Use resource folder anywhere
 -}
-getResourceType :: Yaml.Value -> ResourceType
-getResourceType meta =
+getResourceMeta :: Yaml.Value -> ResourceType
+getResourceMeta meta =
   case metaValueAsString "resources" meta of
-    Just resources ->
-      case parseURIReference resources of
-        Just (URI "file:" _ path _ _) -> fileOrLocal path
-        Just (URI "https:" _ path _ _) -> Https resources
-        Just (URI _ _ path _ _) -> fileOrLocal path
-        _ -> Decker
-      where fileOrLocal path =
-              if ".zip" `isExtensionOf` path
-                then File path
-                else Local path
+    Just resources -> getResourceType resources
     Nothing -> Decker
+
+getResourceType :: String -> ResourceType
+getResourceType resources =
+  case parseURIReference resources of
+    Just (URI "file:" _ path _ _) -> fileOrLocal path
+    Just (URI "https:" _ path _ _) -> Https resources
+    Just (URI _ _ path _ _) -> fileOrLocal path
+    _ -> Decker
+  where
+    fileOrLocal path =
+      if ".zip" `isExtensionOf` path
+        then File path
+        else Local path
 
 {-
 Resources for testing
@@ -99,7 +104,7 @@ http://downloads.hci.informatik.uni-wuerzburg.de/decker/resourcetest/resource.zi
 -}
 testResources :: Yaml.Value -> IO ()
 testResources meta = do
-  let rt = getResourceType meta
+  let rt = getResourceMeta meta
   print "## Resource Type:"
   print rt
   case rt of
@@ -116,7 +121,7 @@ handleResources = do
   directories <- projectDirectories
   meta <- readMetaData $ directories ^. project
   defaultResourceDir <- deckerResourceDir
-  let rt = getResourceType meta
+  let rt = getResourceMeta meta
   print rt
   -- print directories
   case rt of
@@ -127,7 +132,7 @@ handleResources = do
       return directories
     Local path -> do
       print path
-      let t = (directories & appData .~ path)
+      let t = directories & appData .~ path
       print t
       return t
     _ -> extractNResources defaultResourceDir >> return directories

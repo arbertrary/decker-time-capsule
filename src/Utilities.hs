@@ -25,6 +25,7 @@ import Exception
 import Filter
 import Macro
 import Meta
+import NewResources (getResourceType)
 import Output
 import Project
 import Quiz
@@ -144,6 +145,15 @@ substituteMetaData source metaData = do
 
 getTemplate :: Meta -> Disposition -> Action String
 getTemplate meta disp = do
+  let s =
+        case lookupMeta "resources" meta of
+          Just (MetaString uri) -> uri
+          Nothing -> ""
+  let resourcePath =
+        case getResourceType s of
+          Local p -> Just p
+          _ -> Nothing
+  -- TODO: Maybe remove templateFromMeta?
   let templateOverridePath =
         case templateFromMeta meta of
           Just template -> Just $ template </> (getTemplateFileName disp)
@@ -153,7 +163,8 @@ getTemplate meta disp = do
       let templateOverridePath' = fromJust templateOverridePath
       need [templateOverridePath']
       liftIO $ readFile templateOverridePath'
-    else liftIO $ getResourceString ("template" </> (getTemplateFileName disp))
+    else do
+      liftIO $ getResourceString ("template" </> (getTemplateFileName disp))
 
 -- | Write Pandoc in native format right next to the output file
 writeNativeWhileDebugging :: FilePath -> String -> Pandoc -> Action Pandoc
