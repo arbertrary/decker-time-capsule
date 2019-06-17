@@ -151,8 +151,8 @@ getTemplate meta disp = do
           Nothing -> ""
   let resourcePath =
         case getResourceType s of
-          Local p -> Just p
-          _ -> Nothing
+          Local p -> p
+          _ -> ""
   -- TODO: Maybe remove templateFromMeta?
   let templateOverridePath =
         case templateFromMeta meta of
@@ -163,8 +163,9 @@ getTemplate meta disp = do
       let templateOverridePath' = fromJust templateOverridePath
       need [templateOverridePath']
       liftIO $ readFile templateOverridePath'
-    else do
-      liftIO $ getResourceString ("template" </> (getTemplateFileName disp))
+    else liftIO $
+         getResourceString
+           (resourcePath </> "template" </> (getTemplateFileName disp))
 
 -- | Write Pandoc in native format right next to the output file
 writeNativeWhileDebugging :: FilePath -> String -> Pandoc -> Action Pandoc
