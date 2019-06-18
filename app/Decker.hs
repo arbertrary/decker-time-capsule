@@ -45,18 +45,7 @@ main = do
       deckerGitBranch
       deckerGitCommitId
       deckerGitVersionTag
-  -- TODO: handleResources has to be called here
-  -- deckerResourceDir/projectDirectories changed as needed
-  -- extractResources
-  -- directories <- projectDirectories
-  -- meta <- readMetaData "."
   directories <- handleResources
-  print "#######"
-  print directories
-  -- Simply setting appData as a different dir through Lens ...
-  -- Not the best solution I think
-  -- let dirs = directories & appData .~ "test"
-  -- print dirs
   --
   let serverPort = 8888
   let serverUrl = "http://localhost:" ++ (show serverPort)

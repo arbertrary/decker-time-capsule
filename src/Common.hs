@@ -162,11 +162,10 @@ data Provisioning
   deriving (Eq, Show, Read)
 
 -- | Source of the resource bundle
--- TODO: rename Decker to Default?
 data ResourceType
-  = Decker -- ^ decker executable, caching
-  | File String -- ^ local ZIP archive, caching
-  | Https String -- ^ remote ZIP archive, caching
+  = Decker -- ^ decker executable, gets extracted and cached
+  | File String -- ^ local ZIP archive, gets extracted and cached
+  | Https String -- ^ remote ZIP archive, gets downloaded, extracted and cached
   -- | Dev -- ^ local resource folder in decker repo, no caching
   -- | Project String -- ^ local resource folder in slide project, no caching
   | Local String -- ^ local resource folder anywhere, no caching

@@ -6,7 +6,6 @@
 module NewResources
   -- * Provisioning
   ( handleResources
-  , testResources
   , extractNResources
   , getResourceType
   , getResourceMeta
@@ -14,32 +13,23 @@ module NewResources
   ) where
 
 import Common
-
--- import Exception
 import Meta
 import Project
-
 import Shake
 
--- import System.Decker.OS
 import Codec.Archive.Zip
 import Control.Exception
 import Control.Lens ((&), (.~), (^.))
 import Control.Monad.Extra
 import Data.ByteString.Lazy as BS (writeFile)
 import Data.Map.Strict (size)
-
--- import qualified Data.Text as T
--- import Development.Shake
--- import System.Environment
 import Data.Yaml as Yaml
 import Network.HTTP.Conduit (simpleHttp)
 import Network.URI
 import qualified System.Directory as Dir
+import System.Environment
 import System.FilePath
 
--- import Text.URI (mkURI)
--- import Text.URI.Lens
 {- NOTE:
 resources is already in meta data (read from decker-meta.yaml)
 see metaA in Shake.hs
@@ -74,12 +64,14 @@ Strategy for different ResourceTypes:
 - Project -> Use resource folder in slide project (no copying/symlinking to public?)
 - Local -> Use resource folder anywhere
 -}
+-- | Find "resources" field in Yaml Metadata
 getResourceMeta :: Yaml.Value -> ResourceType
 getResourceMeta meta =
   case metaValueAsString "resources" meta of
     Just resources -> getResourceType resources
     Nothing -> Decker
 
+-- | Extra Function to parse the resources URI
 getResourceType :: String -> ResourceType
 getResourceType resources =
   case parseURIReference resources of
@@ -102,66 +94,42 @@ http://downloads.hci.informatik.uni-wuerzburg.de/decker/resourcetest/resource.zi
 
 
 -}
-testResources :: Yaml.Value -> IO ()
-testResources meta = do
-  let rt = getResourceMeta meta
-  print "## Resource Type:"
-  print rt
-  case rt of
-    File path -> extractNResources path
-    _ -> print "no zip"
-  p <- testdeckerResourceDir rt
-  absp <- Dir.makeAbsolute p
-  print "### Absolute:"
-  pexists <- Dir.doesDirectoryExist absp
-  print absp
-
+-- | Main function that calculates the Resource locations depending on the presence of the "resources" metadata field
 handleResources :: IO ProjectDirs
 handleResources = do
   directories <- projectDirectories
   meta <- readMetaData $ directories ^. project
   defaultResourceDir <- deckerResourceDir
+  deckerExecutable <- getExecutablePath
   let rt = getResourceMeta meta
   print rt
-  -- print directories
   case rt of
     File path -> extractNResources path >> return directories
     Https url -> do
-      putStrLn $ "Downloading resources from " ++ url
       downloadResources url
       return directories
     Local path -> do
-      print path
-      let t = directories & appData .~ path
-      print t
-      return t
-    _ -> extractNResources defaultResourceDir >> return directories
+      let dirs = directories & appData .~ path
+      return dirs
+    _ -> extractNResources deckerExecutable >> return directories
 
 -- | Download from url, write to System temp dir and extract from there
 downloadResources :: String -> IO ()
 downloadResources url = do
-  bs <- simpleHttp url
-  cache <- Dir.getTemporaryDirectory
-  let resfile = cache </> "zresource.zip"
-  BS.writeFile resfile bs
-  extractNResources resfile
-  Dir.removeFile resfile
+  dataDir <- deckerResourceDir
+  exists <- Dir.doesDirectoryExist dataDir
+  if exists
+    then putStrLn $ dataDir ++ " already exists"
+    else do
+      putStrLn $ "Downloading resources from " ++ url
+      bs <- simpleHttp url
+      cache <- Dir.getTemporaryDirectory
+      let resfile = cache </> "zresource.zip"
+      BS.writeFile resfile bs
+      extractNResources resfile
+      Dir.removeFile resfile
 
--- handleResources :: Action Yaml.Value -> Action ProjectDirs
--- handleResources meta = do
---   m <- meta
---   directories <- liftIO projectDirectories
---   defaultResourceDir <- liftIO deckerResourceDir
---   let rt = getResourceType m
---   case rt of
---     File path -> liftIO (extractNResources path >> return directories)
---     Https url ->
---       liftIO (extractNResources defaultResourceDir >> return directories)
---     Local path -> return (directories & appData .~ path)
---     _ -> liftIO (extractNResources defaultResourceDir >> return directories)
--- import Text.Regex.TDFA
 -- | Extract resources from the executable into the XDG data directory.
--- TODO: Simply add parameter instead of calling getExecutablePath inside
 extractNResources :: FilePath -> IO ()
 extractNResources zipFile = do
   dataDir <- deckerResourceDir

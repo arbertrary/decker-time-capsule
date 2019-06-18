@@ -99,7 +99,6 @@ provisioningFromMeta meta =
     Just (MetaInlines i) -> read $ stringify i
     _ -> SymLink
 
--- TODO: Maybe remove this since template is included in Resources?
 templateFromMeta :: Meta -> Maybe String
 templateFromMeta meta =
   case lookupMeta "template" meta of
