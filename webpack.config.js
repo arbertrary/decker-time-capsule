@@ -6,7 +6,6 @@ module.exports = {
   entry: {
     decker: './src-support/decker.js',
     plugins: './src-support/rplugins.js',
-    // classlist: './src-support/classlist.js',
     page: './src-support/page.js',
     handout: './src-support/handout.js',
     three: './src-support/three.js',
