@@ -1,0 +1,3 @@
+[submodule "third-party/bielefeld"]
+	path = third-party/bielefeld
+	url = https://github.com/mbotsch/revealSlides.git

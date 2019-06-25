@@ -28,6 +28,8 @@ JS_DEP_COPY += \
 	reveal.js-menu/font-awesome/webfonts/fa-regular-400.ttf
 JS_DEP_COPY += print/paper.css
 JS_DEP_COPY += print/pdf.css
+JS_DEP_COPY += whiteboard/whiteboard.js
+JS_DEP_COPY += whiteboard/sponge.png
 MATHJAX = node_modules/mathjax/MathJax.js
 MATHJAX += node_modules/mathjax/config/TeX-AMS_SVG.js
 MATHJAX += $(shell find node_modules/mathjax/jax/input/TeX -name "*.js")
@@ -102,6 +104,9 @@ resource/support/notes/%: node_modules/reveal.js/plugin/notes/%
 	mkdir -p $(@D) && cp $< $@
 
 resource/support/reveal.js-menu/%: node_modules/reveal.js-menu/%
+	mkdir -p $(@D) &&	cp $< $@
+
+resource/support/whiteboard/%: third-party/bielefeld/mb-plugins/whiteboard/%
 	mkdir -p $(@D) &&	cp $< $@
 
 resource/support/mathjax/%: node_modules/mathjax/%

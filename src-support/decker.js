@@ -1,9 +1,12 @@
-require('reveal.js/lib/js/head.min.js');
 Reveal = require('reveal.js/js/reveal');
 require('./decker.scss');
 require('./fonts/roboto.css');
 require('./fonts/source-code-pro.css');
 const quizModule = require('./quiz.js');
+
+window.Reveal = Reveal;
+
+window.Piklor = require('piklor.js/src/piklor').Piklor;
 
 window.addEventListener('ready', function (event) {
   fixAutoplayWithStart();
@@ -21,7 +24,7 @@ function fixAutoplayWithStart() {
     vid.addEventListener('play', (e) => {
       const timeRegex = /#t=(\d+)/;
       const matches = e.target.currentSrc.match(timeRegex);
-      if (matches.length > 0) {
+      if (matches !== null && matches.length > 0) {
         e.target.currentTime = matches[1];
       }
     });

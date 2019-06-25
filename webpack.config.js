@@ -6,12 +6,11 @@ module.exports = {
   entry: {
     decker: './src-support/decker.js',
     plugins: './src-support/rplugins.js',
-    classlist: './src-support/classlist.js',
+    // classlist: './src-support/classlist.js',
     page: './src-support/page.js',
     handout: './src-support/handout.js',
     three: './src-support/three.js',
     d3: './src-support/d3.js',
-    chalkboard: './src-support/chalkboard.js',
     chart: ['./src-support/Chart.min.js', './src-support/csv2chart.js']
   },
   output: {
