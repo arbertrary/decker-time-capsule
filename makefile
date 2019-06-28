@@ -106,6 +106,9 @@ resource/support/notes/%: node_modules/reveal.js/plugin/notes/%
 resource/support/reveal.js-menu/%: node_modules/reveal.js-menu/%
 	mkdir -p $(@D) &&	cp $< $@
 
+resource/support/whiteboard/sponge.png: src-support/img/sponge.png
+	mkdir -p $(@D) &&	cp $< $@
+
 resource/support/whiteboard/%: third-party/bielefeld/mb-plugins/whiteboard/%
 	mkdir -p $(@D) &&	cp $< $@
 
