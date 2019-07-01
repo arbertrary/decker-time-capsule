@@ -10,6 +10,7 @@ module NewResources
   , getResourceType
   , getResourceMeta
   , downloadResources
+  , getInplaceMeta
   ) where
 
 import Common
@@ -22,6 +23,7 @@ import Control.Exception
 import Control.Lens ((&), (.~), (^.))
 import Control.Monad.Extra
 import Data.ByteString.Lazy as BS (writeFile)
+import Data.List.Utils (replace)
 import Data.Map.Strict (size)
 import Data.Yaml as Yaml
 import Network.HTTP.Conduit (simpleHttp)
@@ -71,6 +73,15 @@ getResourceMeta meta =
     Just resources -> getResourceType resources
     Nothing -> Decker
 
+getInplaceMeta :: Yaml.Value -> Bool
+getInplaceMeta meta =
+  case metaValueAsString "inplace" meta of
+    Just "True" -> True
+    Just "true" -> True
+    Just "1.0" -> True
+    Nothing -> False
+    _ -> False
+
 -- | Extra Function to parse the resources URI
 getResourceType :: String -> ResourceType
 getResourceType resources =
@@ -103,6 +114,7 @@ handleResources = do
   deckerExecutable <- getExecutablePath
   let rt = getResourceMeta meta
   print rt
+  print $ show $ getInplaceMeta meta
   case rt of
     File path -> extractNResources path >> return directories
     Https url -> do
@@ -112,7 +124,19 @@ handleResources = do
       let dirs = directories & appData .~ path
       return dirs
     _ -> extractNResources deckerExecutable >> return directories
+  if getInplaceMeta meta
+      -- print $ show $ makeInplace directories
+    then return $ makeInplace directories
+    else return directories
 
+makeInplace :: ProjectDirs -> ProjectDirs
+makeInplace directories = b & public .~ (replace "/public" "" (b ^. public))
+  where
+    a = directories & support .~ (replace "/public" "" (directories ^. support))
+    b = a & cache .~ (replace "/public" "" (a ^. cache))
+    -- repl x dirs = dirs & x .~ (replace "public" "" (dirs ^. x))
+
+--  = repl public $ repl cache $ repl support directories
 -- | Download from url, write to System temp dir and extract from there
 downloadResources :: String -> IO ()
 downloadResources url = do

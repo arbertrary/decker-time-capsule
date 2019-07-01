@@ -4,7 +4,7 @@ import Exception
 import External
 import Flags (hasPreextractedResources)
 import Meta
-import NewResources (handleResources)
+import NewResources (getInplaceMeta, handleResources)
 import Output
 import Pdf
 import Project
@@ -46,6 +46,7 @@ main = do
       deckerGitCommitId
       deckerGitVersionTag
   directories <- handleResources
+  print $ show directories
   --
   let serverPort = 8888
   let serverUrl = "http://localhost:" ++ (show serverPort)
@@ -212,8 +213,12 @@ main = do
         liftIO $ removeFile pdf
     --
     phony "clean" $ do
-      removeFilesAfter (directories ^. public) ["//"]
-      removeFilesAfter (directories ^. project) cruft
+      meta <- metaA
+      if not $ getInplaceMeta meta
+        then do
+          removeFilesAfter (directories ^. public) ["//"]
+          removeFilesAfter (directories ^. project) cruft
+        else putNormal "Inplace compiling doesn't allow automatic cleaning"
     --
     -- | deletes old, cached resource folders
     -- Should also delete old executables?5

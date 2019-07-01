@@ -159,8 +159,6 @@ projectDirectories = do
   return
     (ProjectDirs projectDir publicDir cacheDir supportDir appDataDir logDir)
 
--- TODO: This is the only function that has to be changed for different ResourceTypes
--- pass ResourceType parameter and change returned FilePath accordingly
 deckerResourceDir :: IO FilePath
 deckerResourceDir =
   if hasPreextractedResources

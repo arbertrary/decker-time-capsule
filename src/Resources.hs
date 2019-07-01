@@ -205,6 +205,14 @@ provisionResource base method filePath =
       dirs <- projectDirsA
       let path = uriPath uri
       fileExists <- doesFileExist path
+      test <-
+        doesDirectoryExist
+          "/Users/armin/work/decker_related/testdecks/tutorial/img"
+      putNormal $ show test
+      test2 <-
+        doesFileExist
+          "/Users/armin/work/decker_related/testdecks/tutorial/img/haskell.png"
+      putNormal $ show test2
       if fileExists
         then do
           need [path]
