@@ -332,6 +332,11 @@ $endif$
 $if(maxScale)$
         maxScale: $maxScale$,
 $endif$
+$if(chalkboard)$
+        // Display chalkboard controls
+        chalkboard: { src: "chalkboard.json", },
+$endif$
+
 $if(chart)$
         chart: {
           defaults: {
@@ -383,12 +388,15 @@ $endif$
             40: function() { Reveal.next(); },                       // up:   next slide
             38: function() { Reveal.prev(); },                       // down: prev slide
 $if(chalkboard)$
-            67: function() { /*window.RevealWhiteboard.toggleNotesCanvas() TODO */ }, // c: draw on slides
-            84: function() { window.RevealWhiteboard.toggleWhiteboard() },  // t: draw on blackboard
-            8:  function() { /*window.RevealWhiteboard.clear() TODO*/ },             // BACKSPACE: clear chalkboard
-            46: function() { /*window.RevealWhiteboard.resetSlide() TODO*/ },             // DELETE: reset chalkboard
-            68: function() { window.RevealWhiteboard.downloadNotes() },          // d: downlad chalkboard drawing
-            90: function() { window.RevealWhiteboard.drawUndo() } ,         // z: undo last stroke
+      // as defined in whiteboard.js: 
+         // 46: function() { window.RevealWhiteboard.clearSlide() },                 // DELETE: clear slide
+         // 68: function() { window.RevealWhiteboard.selectTool(ToolType.PEN) },     // d: draw on slide  
+         // 69: function() { window.RevealWhiteboard.selectTool(ToolType.ERASER) },  // e: eraser  
+         // 87: function() { window.RevealWhiteboard.toggleWhiteboard() },           // w: toggle whiteboard
+         // 90: function() { window.RevealWhiteboard.drawUndo() },                   // z: undo last drawing 
+         // 13: function() { window.RevealWhiteboard.addWhiteboardPage() },          // ENTER: extend whiteboard by one page
+            80: function() { window.RevealWhiteboard.createPrintout() },             // p: print notes
+            78: function() { window.RevealWhiteboard.downloadNotes() },              // n: download notes
 $endif$
         },
       });

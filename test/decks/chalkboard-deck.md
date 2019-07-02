@@ -1,5 +1,6 @@
 ---
 chalkboard: chalkboard-deck.json
+menu: true
 ---
 
 # Slide 1
