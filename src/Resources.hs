@@ -119,13 +119,18 @@ copyResource resource = do
 
 -- | Creates SymLink to single resource file and returns Filepath
 linkResource :: Project.Resource -> IO FilePath
-linkResource resource = do
-  whenM
-    (Dir.doesFileExist (publicFile resource))
-    (Dir.removeFile (publicFile resource))
-  Dir.createDirectoryIfMissing True (takeDirectory (publicFile resource))
-  Dir.createFileLink (sourceFile resource) (publicFile resource)
-  return (publicUrl resource)
+linkResource resource
+  -- whenM
+    -- (Dir.doesFileExist (publicFile resource))
+    -- (Dir.removeFile (publicFile resource))
+ = do
+  exists <- Dir.doesFileExist (publicFile resource)
+  if not exists
+    then do
+      Dir.createDirectoryIfMissing True (takeDirectory (publicFile resource))
+      Dir.createFileLink (sourceFile resource) (publicFile resource)
+      return (publicUrl resource)
+    else return (publicUrl resource)
 
 provisionMetaResource ::
      FilePath -> Provisioning -> (String, FilePath) -> Action FilePath
@@ -205,14 +210,6 @@ provisionResource base method filePath =
       dirs <- projectDirsA
       let path = uriPath uri
       fileExists <- doesFileExist path
-      test <-
-        doesDirectoryExist
-          "/Users/armin/work/decker_related/testdecks/tutorial/img"
-      putNormal $ show test
-      test2 <-
-        doesFileExist
-          "/Users/armin/work/decker_related/testdecks/tutorial/img/haskell.png"
-      putNormal $ show test2
       if fileExists
         then do
           need [path]

@@ -46,7 +46,6 @@ main = do
       deckerGitCommitId
       deckerGitVersionTag
   directories <- handleResources
-  print $ show directories
   --
   let serverPort = 8888
   let serverUrl = "http://localhost:" ++ (show serverPort)

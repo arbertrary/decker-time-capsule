@@ -114,7 +114,6 @@ handleResources = do
   deckerExecutable <- getExecutablePath
   let rt = getResourceMeta meta
   print rt
-  print $ show $ getInplaceMeta meta
   case rt of
     File path -> extractNResources path >> return directories
     Https url -> do
@@ -125,16 +124,15 @@ handleResources = do
       return dirs
     _ -> extractNResources deckerExecutable >> return directories
   if getInplaceMeta meta
-      -- print $ show $ makeInplace directories
     then return $ makeInplace directories
     else return directories
 
+-- TODO: "/public" is not applicable for all OSs because of backslash
 makeInplace :: ProjectDirs -> ProjectDirs
 makeInplace directories = b & public .~ (replace "/public" "" (b ^. public))
   where
     a = directories & support .~ (replace "/public" "" (directories ^. support))
     b = a & cache .~ (replace "/public" "" (a ^. cache))
-    -- repl x dirs = dirs & x .~ (replace "public" "" (dirs ^. x))
 
 --  = repl public $ repl cache $ repl support directories
 -- | Download from url, write to System temp dir and extract from there
