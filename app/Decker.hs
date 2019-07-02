@@ -217,7 +217,21 @@ main = do
         then do
           removeFilesAfter (directories ^. public) ["//"]
           removeFilesAfter (directories ^. project) cruft
-        else putNormal "Inplace compiling doesn't allow automatic cleaning"
+        else do
+          putNormal "Inplace compiling doesn't allow automatic cleaning"
+          removeFilesAfter
+            (directories ^. project)
+            [ "*-deck.html"
+            , "*-page.html"
+            , "*-handout.html"
+            , "*-page.pdf"
+            , "*-deck.pdf"
+            , "*-handout.pdf"
+            , "*-index.json"
+            , "*-index.yaml"
+            , "*filtered.hs"
+            , "support-*"
+            ]
     --
     -- | deletes old, cached resource folders
     -- Should also delete old executables?5

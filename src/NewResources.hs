@@ -127,14 +127,20 @@ handleResources = do
     then return $ makeInplace directories
     else return directories
 
--- TODO: "/public" is not applicable for all OSs because of backslash
+-- | replace the "public" in in several in the three ProjectDirs "public", "cache" and "support"
+-- Updates the paths using Lens setters and getters
 makeInplace :: ProjectDirs -> ProjectDirs
-makeInplace directories = b & public .~ (replace "/public" "" (b ^. public))
+makeInplace directories = b & public .~ (repl (b ^. public))
   where
-    a = directories & support .~ (replace "/public" "" (directories ^. support))
-    b = a & cache .~ (replace "/public" "" (a ^. cache))
+    a = directories & support .~ (repl (directories ^. support))
+    b = a & cache .~ (repl (a ^. cache))
+    repl path = joinPath $ removePublic (splitDirectories path)
+    removePublic [] = []
+    removePublic (y:ys) =
+      if "public" == y
+        then ys
+        else y : removePublic ys
 
---  = repl public $ repl cache $ repl support directories
 -- | Download from url, write to System temp dir and extract from there
 downloadResources :: String -> IO ()
 downloadResources url = do
