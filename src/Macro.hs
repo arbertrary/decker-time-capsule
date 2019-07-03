@@ -59,7 +59,7 @@ embedWebVideosHtml page args attr@(_, _, kv) (vid, _) =
             vid
             start :: String
         "twitch" ->
-          printf "https://player.twitch.tv/?channel=%s&autoplay=1&muted=1" vid :: String
+          printf "https://player.twitch.tv/?autoplay=1&muted=1&video=%s" vid :: String
     vidWidthStr = macroArg 0 args "560"
     vidHeightStr = macroArg 1 args "315"
     vidWidth = readDefault 560.0 vidWidthStr :: Float
@@ -119,27 +119,54 @@ embedWebVideosPdf page _ attr (vid, _) =
         "vimeo" ->
           printf "https://i.vimeocdn.com/video/%s_560x315.jpg" vid :: String
         "twitch" ->
-          "https://www.twitch.tv/p/assets/uploads/glitch_solo_750x422.png"
+          printf "https://www.twitch.tv/p/assets/uploads/glitch_solo_750x422.png" vid :: String
 
 buildThumbnailVideos :: String -> [String] -> Attr -> Target -> Inline 
-buildThumbnailVideos page _ attr (vid, _) =
+buildThumbnailVideos page _ attr@(_, _, kv) (vid, _) =
   Image attr [Str text] (imageUrl, "")
   where
+    start =
+      case find (\(x, y) -> x == "t" || x == "start") kv of
+        Just (_, time) -> time
+        _ -> "0"
     text =
       case page of
-        "youtube" -> printf "https://www.youtube.com/watch?v=%s" vid :: String
+        "youtube" -> 
+          printf 
+            "https://www.youtube.com/watch?v=%s&feature=youtu.be&t=%s"
+            vid 
+            start :: String
+        "vimeo" ->
+          printf
+            "https://vimeo.com/%s#t=%ss"
+            vid
+            start :: String
+        "twitch" ->
+          printf 
+          "https://www.twitch.tv/videos/%s?t=%ss"
+          vid
+          start :: String
     imageUrl =
       case page of
         "youtube" ->
           printf "http://img.youtube.com/vi/%s/maxresdefault.jpg" vid :: String
-
+        "vimeo" ->
+          printf "https://i.vimeocdn.com/video/%s_560x315.jpg" vid :: String
+        "twitch" ->
+          printf "https://www.twitch.tv/p/assets/uploads/glitch_solo_750x422.png"
+      
 
 webVideo :: String -> MacroAction
 webVideo page args attr target _ = do
   disp <- gets disposition
   case disp of
-    Disposition _ Html -> return $ buildThumbnailVideos page args attr target
-    Disposition _ Latex -> return $ embedWebVideosPdf page args attr target
+    Disposition Deck _ -> return $ embedWebVideosHtml page args attr target
+    Disposition Page Html -> return $ embedWebVideosHtml page args attr target
+    Disposition Page Latex -> return $ embedWebVideosPdf page args attr target
+    Disposition Page Reveal -> return $ embedWebVideosHtml page args attr target
+    Disposition Handout Html -> return $ buildThumbnailVideos page args attr target
+    Disposition Handout Latex -> return $ embedWebVideosPdf page args attr target
+    Disposition Handout Reveal -> return $ embedWebVideosHtml page args attr target
 
 fontAwesome :: String -> MacroAction
 fontAwesome which _ _ (iconName, _) _ = do
