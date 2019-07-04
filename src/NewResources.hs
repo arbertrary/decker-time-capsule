@@ -92,9 +92,11 @@ getResourceType resources =
     _ -> Decker
   where
     fileOrLocal path =
-      if ".zip" `isExtensionOf` path
-        then File path
-        else Local path
+      if not (null path)
+        then if ".zip" `isExtensionOf` path
+               then File path
+               else Local path
+        else Decker
 
 {-
 Resources for testing

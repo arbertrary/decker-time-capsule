@@ -6,7 +6,6 @@ module Project
   , deckerResourceDir
   , testdeckerResourceDir
   , oldResourcePaths
-  -- , linkResource
   , relRefResource
   , absRefResource
   , removeCommonPrefix

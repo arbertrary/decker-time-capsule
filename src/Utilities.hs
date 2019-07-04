@@ -145,6 +145,7 @@ substituteMetaData source metaData = do
 
 getTemplate :: Meta -> Disposition -> Action String
 getTemplate meta disp = do
+  defaultResourceDir <- liftIO deckerResourceDir
   let s =
         case lookupMeta "resources" meta of
           Just (MetaString uri) -> uri
@@ -152,7 +153,7 @@ getTemplate meta disp = do
   let resourcePath =
         case getResourceType s of
           Local p -> p
-          _ -> ""
+          _ -> defaultResourceDir
   -- TODO: Maybe remove templateFromMeta?
   let templateOverridePath =
         case templateFromMeta meta of
@@ -164,8 +165,7 @@ getTemplate meta disp = do
       need [templateOverridePath']
       liftIO $ readFile templateOverridePath'
     else liftIO $
-         getResourceString
-           (resourcePath </> "template" </> (getTemplateFileName disp))
+         readFile (resourcePath </> "template" </> (getTemplateFileName disp))
 
 -- | Write Pandoc in native format right next to the output file
 writeNativeWhileDebugging :: FilePath -> String -> Pandoc -> Action Pandoc

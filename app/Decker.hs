@@ -67,10 +67,6 @@ main = do
    do
     want ["html"]
     --
-    -- phony "resources" $ do
-      -- metaData <- metaA
-      -- liftIO $ handleResources metaData
-    --   -- liftIO $ print (handleResources metaData)
     --
     phony "version" $ do
       putNormal $
