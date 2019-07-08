@@ -69,7 +69,7 @@ Strategy for different ResourceTypes:
 -- | Find "resources" field in Yaml Metadata
 getResourceMeta :: Yaml.Value -> ResourceType
 getResourceMeta meta =
-  case metaValueAsString "resources" meta of
+  case metaValueAsString "resource" meta of
     Just resources -> getResourceType resources
     Nothing -> Decker
 

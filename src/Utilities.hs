@@ -147,7 +147,7 @@ getTemplate :: Meta -> Disposition -> Action String
 getTemplate meta disp = do
   defaultResourceDir <- liftIO deckerResourceDir
   let s =
-        case lookupMeta "resources" meta of
+        case lookupMeta "resource" meta of
           Just (MetaString uri) -> uri
           Nothing -> ""
   let resourcePath =

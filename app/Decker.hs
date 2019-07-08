@@ -213,21 +213,20 @@ main = do
         then do
           removeFilesAfter (directories ^. public) ["//"]
           removeFilesAfter (directories ^. project) cruft
-        else removeFilesAfter
-               (directories ^. project)
-               [ "*-deck.html"
-               , "*-page.html"
-               , "*-handout.html"
-               , "*-deck.pdf"
-               , "*-page.pdf"
-               , "*-handout.pdf"
-               , "*-index.json"
-               , "*-index.yaml"
-               , "index.html"
-               , "*.generated"
-               , "*filtered.hs"
-               , "support-*"
-               ]
+        else removeFilesAfter (directories ^. project) $
+             [ "*-deck.html"
+             , "*-page.html"
+             , "*-handout.html"
+             , "*-deck.pdf"
+             , "*-page.pdf"
+             , "*-handout.pdf"
+             , "*-index.json"
+             , "*-index.yaml"
+             , "index.html"
+             , "*filtered.hs"
+             , "support-*"
+             ] ++
+             cruft
     --
     -- | deletes old, cached resource folders
     -- Should also delete old executables?5
