@@ -20,6 +20,7 @@ import Data.IORef ()
 import Data.List
 import Data.Maybe
 import Data.String ()
+import Data.Vector (toList)
 import Data.Version
 import Development.Shake
 import Development.Shake.FilePath
@@ -225,6 +226,22 @@ main = do
       allHtmlA <++> allPdfA >>= mapM_ putNormal
       putNormal "\ntop level meta data:\n"
       groom <$> metaA >>= putNormal
+      -- TODO: Just as notes: 
+      -- look up meta field for additional resources that then get copied to public 
+      -- no matter if they are included in the deck or not
+      -- Not sure if this copying should be located in the "support" rule/command or should happen at another time
+      -- Maybe add function "copyAdditionalResources" and call it in "support"
+      meta <- metaA
+      case lookupValue "additional" meta of
+        Just (String p) -> liftIO $ print p
+        Just (Array a) ->
+          liftIO $ print $ show $ getStringsFromMetaArray (toList a)
+          where getStringsFromMetaArray [] = []
+                getStringsFromMetaArray (m:ms) =
+                  case m of
+                    String p -> p : getStringsFromMetaArray ms
+                    _ -> []
+        _ -> liftIO $ print "stuff"
     --
     phony "support" $ do
       metaData <- metaA

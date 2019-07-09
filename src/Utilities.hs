@@ -9,6 +9,7 @@ module Utilities
   , markdownToHtmlPage
   , markdownToPdfPage
   , metaValueAsString
+  , lookupValue
   , (<++>)
   , pandocMakePdf
   , fixMustacheMarkup
