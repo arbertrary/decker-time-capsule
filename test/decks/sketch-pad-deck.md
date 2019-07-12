@@ -4,7 +4,7 @@ history: True
 subtitle: High Quality Slide Annotations
 title: Sketch Pad
 write-back:
-  line-columns: 80
+  line-columns: 80.0
   line-wrap: auto
 ---
 

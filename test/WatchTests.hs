@@ -2,8 +2,9 @@ module WatchTests
   ( watchTests
   ) where
 
-import           Glob
-import           Test.Hspec
+import Data.List
+import Glob
+import Test.Hspec
 
 watchTests = do
   describe "fastGlobFiles" $ do
@@ -19,5 +20,10 @@ watchTests = do
       []
   describe "fastGlobDirs" $ do
     it "globs for directories" $
-      fastGlobDirs ["include"] "resource/example" `shouldReturn`
-      ["resource/example","resource/example/audio","resource/example/img","resource/example/movies"]
+      (sort <$> fastGlobDirs ["include"] "resource/example") `shouldReturn`
+      (sort
+         [ "resource/example"
+         , "resource/example/audio"
+         , "resource/example/img"
+         , "resource/example/movies"
+         ])
