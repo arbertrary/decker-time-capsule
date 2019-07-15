@@ -589,10 +589,6 @@ body {
             }
           }
 
-          .video-caption {
-            display: none;
-          }
-
           /////////////////////////////////////////////
           // Math
           /////////////////////////////////////////////
@@ -638,6 +634,9 @@ body {
           width: 100%;
           margin: 0;
           display: block;
+        }
+        .video-caption {
+          display: none;
         }
 
         &.img-center img {

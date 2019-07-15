@@ -43,7 +43,7 @@ menu: true
 
 # Native video tag
 
-<video style="width:50%;" src="./pacman-perfect-game#t=200" controls data-autoplay></video>
+<video src="pacman-perfect-game.mp4#t=200" style="height:auto;width:50%;" controls="1" data-autoplay="1"></video>
 
 # ![](./pacman-perfect-game.mp4){controls=1}
 
