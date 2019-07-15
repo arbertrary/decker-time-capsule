@@ -11,7 +11,8 @@ import qualified Data.Map as Map (Map, fromList, lookup)
 import Data.Maybe
 import Data.Text (pack, replace, unpack)
 import Exception
-import Text.Blaze (customAttribute)
+import Text.Blaze (customAttribute, toMarkup)
+import Text.Blaze.Html (toHtml)
 import Text.Blaze.Html.Renderer.String
 import Text.Blaze.Html5 as H ((!), div, figure, iframe, iframe, p, toValue)
 import Text.Blaze.Html5.Attributes as A (class_, height, src, style, width)
@@ -36,7 +37,7 @@ type MacroAction = [String] -> Attr -> Target -> Meta -> Decker Inline
 -- and: https://dev.twitch.tv/docs/embed/everything/
 embedWebVideosHtml :: String -> [String] -> Attr -> Target -> Inline
 embedWebVideosHtml page args attr@(_, _, kv) (vid, _) =
-  RawInline (Format "html") (renderHtml html)
+  RawInline (Format "html") captionedIframe
   where
     start =
       case find (\(x, y) -> x == "t" || x == "start") kv of
@@ -73,21 +74,33 @@ embedWebVideosHtml page args attr@(_, _, kv) (vid, _) =
     figureStyle (_, _, kv) =
       foldl (\s (k, v) -> s ++ printf "%s:%s;" k v :: String) "" kv
     figureClass (_, cls, _) = unwords cls
-    html =
+    iframeVideo = renderHtml (
       H.figure ! class_ (toValue (figureClass attr)) !
       style (toValue (figureStyle attr)) $
       H.div ! style (toValue wrapperStyle) $
       iframe ! style (toValue iframeStyle) ! width (toValue vidWidthStr) !
       height (toValue vidHeightStr) !
       src (toValue url) !
-      customAttribute "frameborder" "0" !
+      customAttribute "frameborder" "1" !
       auto !
       customAttribute "allowfullscreen" "" $
-      H.p ""
+      H.p "" )
+    captionSrc =
+      case page of
+        "youtube" ->
+          printf "https://www.youtube.com/watch?v=%s&feature=youtu.be" vid :: String
+        "vimeo" ->
+          printf "https://vimeo.com/%s" vid :: String
+        "twitch" ->
+          printf "https://www.twitch.tv/videos/%s" vid :: String
+    caption = 
+      renderHtml ( H.p ! class_ "video-caption" $ toHtml captionSrc )
+    captionedIframe = 
+      iframeVideo ++ caption
     auto =
       if (autoplay == "1" || autoplay == "true")
         then (customAttribute "data-autoplay" "")
-        else mempty
+        else mempty 
 
 -- Twitch thumbnail from https://www.twitch.tv/p/brand/social-media
 -- Twitch channels unfortunately have no fixed thumbnail
@@ -121,53 +134,13 @@ embedWebVideosPdf page _ attr (vid, _) =
         "twitch" ->
           printf "https://www.twitch.tv/p/assets/uploads/glitch_solo_750x422.png" vid :: String
 
-buildThumbnailVideos :: String -> [String] -> Attr -> Target -> Inline 
-buildThumbnailVideos page _ attr@(_, _, kv) (vid, _) =
-  Image attr [Str text] (imageUrl, "")
-  where
-    start =
-      case find (\(x, y) -> x == "t" || x == "start") kv of
-        Just (_, time) -> time
-        _ -> "0"
-    text =
-      case page of
-        "youtube" -> 
-          printf 
-            "https://www.youtube.com/watch?v=%s&feature=youtu.be&t=%s"
-            vid 
-            start :: String
-        "vimeo" ->
-          printf
-            "https://vimeo.com/%s#t=%ss"
-            vid
-            start :: String
-        "twitch" ->
-          printf 
-          "https://www.twitch.tv/videos/%s?t=%ss"
-          vid
-          start :: String
-    imageUrl =
-      case page of
-        "youtube" ->
-          printf "http://img.youtube.com/vi/%s/maxresdefault.jpg" vid :: String
-        "vimeo" ->
-          printf "https://i.vimeocdn.com/video/%s_560x315.jpg" vid :: String
-        "twitch" ->
-          printf "https://www.twitch.tv/p/assets/uploads/glitch_solo_750x422.png"
-      
-
 webVideo :: String -> MacroAction
 webVideo page args attr target _ = do
   disp <- gets disposition
   case disp of
-    Disposition Deck _ -> return $ embedWebVideosHtml page args attr target
-    Disposition Page Html -> return $ embedWebVideosHtml page args attr target
-    Disposition Page Latex -> return $ embedWebVideosPdf page args attr target
-    Disposition Page Reveal -> return $ embedWebVideosHtml page args attr target
-    Disposition Handout Html -> return $ buildThumbnailVideos page args attr target
-    Disposition Handout Latex -> return $ embedWebVideosPdf page args attr target
-    Disposition Handout Reveal -> return $ embedWebVideosHtml page args attr target
-
+    Disposition _ Html -> return $ embedWebVideosHtml page args attr target
+    Disposition _ Latex -> return $ embedWebVideosPdf page args attr target
+          
 fontAwesome :: String -> MacroAction
 fontAwesome which _ _ (iconName, _) _ = do
   disp <- gets disposition

@@ -35,9 +35,10 @@ $base-spacer: 1em;
 /////////////////////////////////////////////
 body {
   background: white;
+  margin: 2cm;
   -webkit-print-color-adjust: exact; // No standard: https://developer.mozilla.org/de/docs/Web/CSS/-webkit-print-color-adjust
 
-  .decker-handout {
+  
     /////////////////////////////////////////////
     // General slide settings
     /////////////////////////////////////////////
@@ -469,7 +470,7 @@ body {
     }
 
     figure {
-      margin: 0 0 0 0;
+      margin: auto;
       text-align: center;
 
       figcaption {
@@ -493,6 +494,10 @@ body {
     &.img-nocenter img {
       margin: 0 0;
       display: inline;
+    }
+
+    .video-caption {
+      display: none;
     }
 
     /////////////////////////////////////////////
@@ -829,7 +834,7 @@ body {
         }
       }
     }
-  }
+  
 
   /////////////////////////////////////////////
   // Font size modifiers
@@ -878,14 +883,45 @@ body {
 
     @page {
       size: A4; /* DIN A4 standard, Europe */
-      margin: 0;
+      margin: 2cm;
+      }
+    html, body {
+      overflow: visible !important;
+      overflow-x: visible !important;
+      overflow-y: visible !important;
+      height: auto;
     }
-    html,
-    body {
-      overflow: visible;
+
+    // h1 + p > video : local videos, full screen
+    // h1 + video: native video
+    // h1 + p > figure > div > iframe > p
+    // figure + p : iframe and caption
+    h1, 
+    h1 + p,
+    iframe,
+    figure + p,
+    p > video,
+    p + figure, 
+    video {
+      page-break-after: avoid;
+      page-break-before: avoid;
+      page-break-inside: avoid;
     }
     a:link:after {
       content: " (" attr(href) ") ";
+    }
+    img {
+      float: none;
+    }
+    video {
+      background-color: black;
+      border: 1px solid black;
+    }
+    .video-caption {
+      display: block;
+      font-size: 0.8em;
+      font-style: italic;
+      text-align: center;
     }
   }
 }
