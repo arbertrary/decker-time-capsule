@@ -5,9 +5,9 @@ require("bootstrap/dist/css/bootstrap.css");
 require("./handout.scss");
 
 document.addEventListener("load", () => {
-  $("table").addClass(
-    "table table-striped table-bordered table-hover table-condensed table-responsive"
-  );
+$("table").addClass(
+"table table-striped table-bordered table-hover table-condensed table-responsive"
+);
 });
 
 // Webpack handling of MathJax copied from
@@ -37,36 +37,59 @@ require("mathjax3/mathjax3/input/tex/enclose/EncloseConfiguration.js");
 
 // initialize mathjax with with the browser DOM document; other documents are possible
 const html = MathJax.document(document, {
-  InputJax: new TeX({
-    inlineMath: [["$", "$"], ["\\(", "\\)"]],
-    packages: [
-      "base",
-      "ams",
-      "noundefined",
-      "newcommand",
-      "boldsymbol",
-      "braket",
-      "mhchem",
-      "physics",
-      "verb",
-      "cancel",
-      "enclose"
-    ]
-  }),
-  OutputJax: new CHTML({
-    fontURL:
-      "https://cdn.rawgit.com/mathjax/mathjax-v3/3.0.0-alpha.4/mathjax2/css/"
-  })
+InputJax: new TeX({
+inlineMath: [["$", "$"], ["\\(", "\\)"]],
+packages: [
+"base",
+"ams",
+"noundefined",
+"newcommand",
+"boldsymbol",
+"braket",
+"mhchem",
+"physics",
+"verb",
+"cancel",
+"enclose"
+]
+}),
+OutputJax: new CHTML({
+fontURL:
+"https://cdn.rawgit.com/mathjax/mathjax-v3/3.0.0-alpha.4/mathjax2/css/"
+})
+});
+
+// Add captions to videos with source - only shows when printing
+window.addEventListener("load", function() {
+    var updatedVideo = [];
+    var videos = document.getElementsByTagName("video");
+    var videoList = Array.prototype.slice.call(videos);
+
+    function addCaption(videoList, i) {
+        return function() {
+            var videoCaption = document.createElement("p");
+            videoCaption.className = "video-caption";
+            videoCaption.innerHTML = videoList[i].src.match(/([^/]+)$/)[0];
+            videoList[i].parentNode.insertBefore(videoCaption, videoList[i].nextSibling);            
+        }
+    }
+    for (let i=0; i<videoList.length; i++) {
+        updatedVideo[i] = addCaption(videoList, i);
+    }
+
+    for (let j=0; j<videoList.length; j++) {
+        updatedVideo[j]();
+    }      
 });
 
 window.addEventListener("load", function() {
-  console.time("wrapper");
-  // process the document
-  html
-    .findMath()
-    .compile()
-    .getMetrics()
-    .typeset()
-    .updateDocument();
-  console.timeEnd("wrapper");
+console.time("wrapper");
+// process the document
+html
+.findMath()
+.compile()
+.getMetrics()
+.typeset()
+.updateDocument();
+console.timeEnd("wrapper");
 });
