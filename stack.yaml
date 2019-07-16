@@ -1,8 +1,9 @@
-flags: 
+flags:
   pandoc-citeproc:
     embed_data_files: true
 packages:
-- '.'
+  - "."
 extra-deps:
 - pandoc-include-code-1.4.0.0
+- git-0.3.0
 resolver: nightly-2019-07-12
