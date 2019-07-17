@@ -5,91 +5,27 @@ require("bootstrap/dist/css/bootstrap.css");
 require("./handout.scss");
 
 document.addEventListener("load", () => {
-$("table").addClass(
-"table table-striped table-bordered table-hover table-condensed table-responsive"
-);
+  $("table").addClass(
+    "table table-striped table-bordered table-hover table-condensed table-responsive"
+  );
 });
 
-// Webpack handling of MathJax copied from
-// https://github.com/mathjax/mathjax-v3/wiki/A-first-usable-demo-(using-webpack)
-// the MathJax core
-const MathJax = require("mathjax3/mathjax3/mathjax.js").MathJax;
-// MathML input
-const TeX = require("mathjax3/mathjax3/input/tex.js").TeX;
-// HTML output
-const CHTML = require("mathjax3/mathjax3/output/chtml.js").CHTML;
-// Use browser DOM
-const adaptor = require("mathjax3/mathjax3/adaptors/browserAdaptor").browserAdaptor();
-// Register the HTML document handler
-require("mathjax3/mathjax3/handlers/html.js").RegisterHTMLHandler(adaptor);
-require("mathjax3/mathjax3/input/tex/ams/AmsConfiguration.js");
-require("mathjax3/mathjax3/input/tex/base/BaseConfiguration.js");
-require("mathjax3/mathjax3/input/tex/ams/AmsConfiguration.js");
-require("mathjax3/mathjax3/input/tex/noundefined/NoUndefinedConfiguration.js");
-require("mathjax3/mathjax3/input/tex/newcommand/NewcommandConfiguration.js");
-require("mathjax3/mathjax3/input/tex/boldsymbol/BoldsymbolConfiguration.js");
-require("mathjax3/mathjax3/input/tex/braket/BraketConfiguration.js");
-require("mathjax3/mathjax3/input/tex/mhchem/MhchemConfiguration.js");
-require("mathjax3/mathjax3/input/tex/physics/PhysicsConfiguration.js");
-require("mathjax3/mathjax3/input/tex/verb/VerbConfiguration.js");
-require("mathjax3/mathjax3/input/tex/cancel/CancelConfiguration.js");
-require("mathjax3/mathjax3/input/tex/enclose/EncloseConfiguration.js");
-
-// initialize mathjax with with the browser DOM document; other documents are possible
-const html = MathJax.document(document, {
-InputJax: new TeX({
-inlineMath: [["$", "$"], ["\\(", "\\)"]],
-packages: [
-"base",
-"ams",
-"noundefined",
-"newcommand",
-"boldsymbol",
-"braket",
-"mhchem",
-"physics",
-"verb",
-"cancel",
-"enclose"
-]
-}),
-OutputJax: new CHTML({
-fontURL:
-"https://cdn.rawgit.com/mathjax/mathjax-v3/3.0.0-alpha.4/mathjax2/css/"
-})
-});
-
-// Add captions to videos with source - only shows when printing
-window.addEventListener("load", function() {
-    var updatedVideo = [];
-    var videos = document.getElementsByTagName("video");
-    var videoList = Array.prototype.slice.call(videos);
-
-    function addCaption(videoList, i) {
-        return function() {
-            var videoCaption = document.createElement("p");
+window.addEventListener('load', e => {
+    const videoTags = document.getElementsByTagName("video");
+    for(let video of videoTags) {
+        video.addEventListener("loadeddata", evt => {
+            let canvas = document.createElement("canvas");
+            canvas.className = "video-placeholder";
+            canvas.width = 890;
+            canvas.height = 500;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(video, 0, 0, 890, 500);
+            let videoCaption = document.createElement("p");
             videoCaption.className = "video-caption";
-            videoCaption.innerHTML = videoList[i].src.match(/([^/]+)$/)[0];
-            videoList[i].parentNode.insertBefore(videoCaption, videoList[i].nextSibling);            
-        }
-    }
-    for (let i=0; i<videoList.length; i++) {
-        updatedVideo[i] = addCaption(videoList, i);
-    }
-
-    for (let j=0; j<videoList.length; j++) {
-        updatedVideo[j]();
-    }      
-});
-
-window.addEventListener("load", function() {
-console.time("wrapper");
-// process the document
-html
-.findMath()
-.compile()
-.getMetrics()
-.typeset()
-.updateDocument();
-console.timeEnd("wrapper");
+            videoCaption.innerHTML = video.src.match(/([^/]+)$/)[0];
+            evt.target.parentNode.insertBefore(canvas, evt.target);
+            evt.target.parentNode.insertBefore(videoCaption, evt.target);
+        });
+    video.load();
+    };
 });

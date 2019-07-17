@@ -14,7 +14,7 @@ import Exception
 import Text.Blaze (customAttribute, toMarkup)
 import Text.Blaze.Html (toHtml)
 import Text.Blaze.Html.Renderer.String
-import Text.Blaze.Html5 as H ((!), div, figure, iframe, iframe, p, toValue)
+import Text.Blaze.Html5 as H ((!), div, figure, iframe, iframe, img, p, toValue)
 import Text.Blaze.Html5.Attributes as A (class_, height, src, style, width)
 import Text.Pandoc
 import Text.Pandoc.Definition ()
@@ -37,7 +37,7 @@ type MacroAction = [String] -> Attr -> Target -> Meta -> Decker Inline
 -- and: https://dev.twitch.tv/docs/embed/everything/
 embedWebVideosHtml :: String -> [String] -> Attr -> Target -> Inline
 embedWebVideosHtml page args attr@(_, _, kv) (vid, _) =
-  RawInline (Format "html") captionedIframe
+  RawInline (Format "html") embededVideo
   where
     start =
       case find (\(x, y) -> x == "t" || x == "start") kv of
@@ -69,11 +69,21 @@ embedWebVideosHtml page args attr@(_, _, kv) (vid, _) =
       printf
         "position:relative;padding-top:25px;padding-bottom:%f%%;height:0;"
         (vidHeight / vidWidth * 100.0) :: String
+    placeholderClass =
+      case page of
+        "youtube" ->
+          printf "http://img.youtube.com/vi/%s/maxresdefault.jpg" vid :: String
+        "vimeo" ->
+          printf "https://press.vimeo.com/assets/vimeo_logo_dark_thumb-a2f7a9e24e62c1e7fac4b4f2885a18cc5da3136cac3432b378a866a3581d6be7.jpg" :: String
+        "twitch" ->
+          printf "https://www.twitch.tv/p/assets/uploads/glitch_solo_750x422.png" :: String
+    placeholder =
+      renderHtml ( H.img ! class_ "video-placeholder" ! src (toValue placeholderClass) )
     iframeStyle =
       "position:absolute;top:0;left:0;width:100%;height:100%;" :: String
     figureStyle (_, _, kv) =
       foldl (\s (k, v) -> s ++ printf "%s:%s;" k v :: String) "" kv
-    figureClass (_, cls, _) = unwords cls
+    figureClass (_, cls, _) = unwords cls ++ "embedded-video"
     iframeVideo = renderHtml (
       H.figure ! class_ (toValue (figureClass attr)) !
       style (toValue (figureStyle attr)) $
@@ -95,8 +105,8 @@ embedWebVideosHtml page args attr@(_, _, kv) (vid, _) =
           printf "https://www.twitch.tv/videos/%s" vid :: String
     caption = 
       renderHtml ( H.p ! class_ "video-caption" $ toHtml captionSrc )
-    captionedIframe = 
-      iframeVideo ++ caption
+    embededVideo = 
+      placeholder ++ iframeVideo ++ caption 
     auto =
       if (autoplay == "1" || autoplay == "true")
         then (customAttribute "data-autoplay" "")

@@ -496,7 +496,7 @@ body {
       display: inline;
     }
 
-    .video-caption {
+    .video-caption, .video-placeholder {
       display: none;
     }
 
@@ -892,36 +892,53 @@ body {
       height: auto;
     }
 
-    // h1 + p > video : local videos, full screen
-    // h1 + video: native video
-    // h1 + p > figure > div > iframe > p
-    // figure + p : iframe and caption
-    h1, 
-    h1 + p,
+    //local video: h1 + p > canvas + p(.video-caption) + video
+    .video-caption + video, 
+    video,
+    p  video,
     iframe,
-    figure + p,
-    p > video,
-    p + figure, 
-    video {
-      page-break-after: avoid;
+    figure,
+    .video-caption + .video-placeholder {
       page-break-before: avoid;
       page-break-inside: avoid;
     }
+
+    h1 + p,
+    p  canvas,
+    p + .video-placeholder,
+    .video-placeholder + .embedded-video {      
+      page-break-before: avoid;
+      page-break-inside: avoid;
+      page-break-after: avoid;
+    }
+
+    h1 {
+      page-break-after: avoid;
+    } 
+
+    .video-caption, .video-placeholder {
+      page-break-before: avoid;
+    }
+    
     a:link:after {
       content: " (" attr(href) ") ";
     }
     img {
       float: none;
     }
-    video {
-      background-color: black;
-      border: 1px solid black;
+    video, .embedded-video {
+      display: none;
     }
     .video-caption {
       display: block;
       font-size: 0.8em;
       font-style: italic;
       text-align: center;
+    }
+    .video-placeholder {
+      display: block;
+      margin: 0 auto;
+      border: #B2B2B2 1px;
     }
   }
 }

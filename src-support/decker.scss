@@ -635,7 +635,7 @@ body {
           margin: 0;
           display: block;
         }
-        .video-caption {
+        .video-caption, .video-placeholder {
           display: none;
         }
 
@@ -1188,6 +1188,9 @@ body {
             &:visited {
               font-weight: normal;
             }
+          }
+          .video-caption, .video-placeholder {
+            display: none;
           }
 
           div.sourceCode {
