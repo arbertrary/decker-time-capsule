@@ -60,7 +60,13 @@ embedWebVideosHtml page args attr@(_, _, kv) (vid, _) =
             vid
             start :: String
         "twitch" ->
-          printf "https://player.twitch.tv/?autoplay=1&muted=1&video=%s" vid :: String
+          case readMaybe vid :: Maybe Double of
+            Just _ ->
+              printf "https://player.twitch.tv/?autoplay=1&muted=1&video=%s" vid :: String
+            Nothing ->
+              printf
+                "https://player.twitch.tv/?autoplay=1&muted=1&channel=%s"
+                vid :: String
     vidWidthStr = macroArg 0 args "560"
     vidHeightStr = macroArg 1 args "315"
     vidWidth = readDefault 560.0 vidWidthStr :: Float
@@ -74,43 +80,46 @@ embedWebVideosHtml page args attr@(_, _, kv) (vid, _) =
         "youtube" ->
           printf "http://img.youtube.com/vi/%s/maxresdefault.jpg" vid :: String
         "vimeo" ->
-          printf "https://press.vimeo.com/assets/vimeo_logo_dark_thumb-a2f7a9e24e62c1e7fac4b4f2885a18cc5da3136cac3432b378a866a3581d6be7.jpg" :: String
+          printf
+            "https://press.vimeo.com/assets/vimeo_logo_dark_thumb-a2f7a9e24e62c1e7fac4b4f2885a18cc5da3136cac3432b378a866a3581d6be7.jpg" :: String
         "twitch" ->
-          printf "https://www.twitch.tv/p/assets/uploads/glitch_solo_750x422.png" :: String
+          printf
+            "https://www.twitch.tv/p/assets/uploads/glitch_solo_750x422.png" :: String
     placeholder =
-      renderHtml ( H.img ! class_ "video-placeholder" ! src (toValue placeholderClass) )
+      renderHtml
+        (H.img ! class_ "video-placeholder" ! src (toValue placeholderClass))
     iframeStyle =
       "position:absolute;top:0;left:0;width:100%;height:100%;" :: String
     figureStyle (_, _, kv) =
       foldl (\s (k, v) -> s ++ printf "%s:%s;" k v :: String) "" kv
     figureClass (_, cls, _) = unwords cls ++ "embedded-video"
-    iframeVideo = renderHtml (
-      H.figure ! class_ (toValue (figureClass attr)) !
-      style (toValue (figureStyle attr)) $
-      H.div ! style (toValue wrapperStyle) $
-      iframe ! style (toValue iframeStyle) ! width (toValue vidWidthStr) !
-      height (toValue vidHeightStr) !
-      src (toValue url) !
-      customAttribute "frameborder" "1" !
-      auto !
-      customAttribute "allowfullscreen" "" $
-      H.p "" )
+    iframeVideo =
+      renderHtml
+        (H.figure ! class_ (toValue (figureClass attr)) !
+         style (toValue (figureStyle attr)) $
+         H.div ! style (toValue wrapperStyle) $
+         iframe ! style (toValue iframeStyle) ! width (toValue vidWidthStr) !
+         height (toValue vidHeightStr) !
+         src (toValue url) !
+         customAttribute "frameborder" "1" !
+         auto !
+         customAttribute "allowfullscreen" "" $
+         H.p "")
     captionSrc =
       case page of
         "youtube" ->
           printf "https://www.youtube.com/watch?v=%s&feature=youtu.be" vid :: String
-        "vimeo" ->
-          printf "https://vimeo.com/%s" vid :: String
+        "vimeo" -> printf "https://vimeo.com/%s" vid :: String
         "twitch" ->
-          printf "https://www.twitch.tv/videos/%s" vid :: String
-    caption = 
-      renderHtml ( H.p ! class_ "video-caption" $ toHtml captionSrc )
-    embededVideo = 
-      placeholder ++ iframeVideo ++ caption 
+          case readMaybe vid :: Maybe Double of
+            Just _ -> printf "https://www.twitch.tv/videos/%s" vid :: String
+            Nothing -> printf "https://www.twitch.tv/%s" vid :: String
+    caption = renderHtml (H.p ! class_ "video-caption" $ toHtml captionSrc)
+    embededVideo = placeholder ++ iframeVideo ++ caption
     auto =
       if (autoplay == "1" || autoplay == "true")
         then (customAttribute "data-autoplay" "")
-        else mempty 
+        else mempty
 
 -- Twitch thumbnail from https://www.twitch.tv/p/brand/social-media
 -- Twitch channels unfortunately have no fixed thumbnail
@@ -142,7 +151,8 @@ embedWebVideosPdf page _ attr (vid, _) =
         "vimeo" ->
           printf "https://i.vimeocdn.com/video/%s_560x315.jpg" vid :: String
         "twitch" ->
-          printf "https://www.twitch.tv/p/assets/uploads/glitch_solo_750x422.png" vid :: String
+          printf
+            "https://www.twitch.tv/p/assets/uploads/glitch_solo_750x422.png"
 
 webVideo :: String -> MacroAction
 webVideo page args attr target _ = do
@@ -150,7 +160,7 @@ webVideo page args attr target _ = do
   case disp of
     Disposition _ Html -> return $ embedWebVideosHtml page args attr target
     Disposition _ Latex -> return $ embedWebVideosPdf page args attr target
-          
+
 fontAwesome :: String -> MacroAction
 fontAwesome which _ _ (iconName, _) _ = do
   disp <- gets disposition
