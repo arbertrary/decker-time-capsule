@@ -154,9 +154,22 @@ main = do
         markdownToHtmlHandout src out
     --
     priority 2 $
-      "//*-handout.pdf" %> \out -> do
-        src <- calcSource "-handout.pdf" "-deck.md" out
-        markdownToPdfHandout src out
+      "//*-handout.pdf" %> \out
+        -- src <- calcSource "-handout.pdf" "-deck.md" out
+        -- markdownToPdfHandout src out
+       -> do
+        let src = replaceSuffix "-handout.pdf" "-handout.html" out
+        need [src]
+        putNormal $ "Started: " ++ src ++ " -> " ++ out
+        runHttpServer serverPort directories Nothing
+        result <-
+          liftIO $
+          launchChrome
+            (serverUrl </> makeRelative (directories ^. public) src)
+            out
+        case result of
+          Right msg -> putNormal msg
+          Left msg -> error msg
     --
     priority 2 $
       "//*-page.html" %> \out -> do
