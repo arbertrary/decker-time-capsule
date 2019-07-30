@@ -538,6 +538,12 @@ extractFigure (Para content) =
     [Span attr inner@(RawInline (Format "html") "<figure>":otherContent)] ->
       Div attr [Plain inner]
     a -> Para a
+-- TODO: Here the slide content is wrapped in Paragraphs
+-- What to do with a list of images?
+-- add another case for content. e.g. list of images
+-- better would be to handle this before. 
+-- the Para wrapping apparently happens already in the pipeline in Utilities
+-- But where?
 extractFigure b = b
 
 -- | Retrieves the start attribute for videos to append it to the url
