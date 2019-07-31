@@ -15,6 +15,7 @@ module Filter
   , audioExtensions
   , videoExtensions
   , convertMediaAttributes
+  , makeHorizontals
   ) where
 
 import Common
@@ -538,13 +539,42 @@ extractFigure (Para content) =
     [Span attr inner@(RawInline (Format "html") "<figure>":otherContent)] ->
       Div attr [Plain inner]
     a -> Para a
--- TODO: Here the slide content is wrapped in Paragraphs
--- What to do with a list of images?
--- add another case for content. e.g. list of images
--- better would be to handle this before. 
--- the Para wrapping apparently happens already in the pipeline in Utilities
--- But where?
 extractFigure b = b
+
+makeHorizontals :: Pandoc -> Decker Pandoc
+makeHorizontals pandoc = return $ walk makeHorizontal pandoc
+
+-- | If Header 2 has class "horizontal" wrap the contents in the paragraph below it in a Span that aligns its contents horizontally
+makeHorizontal :: Block -> Block
+makeHorizontal d@(Div attr@(id, cls, kv) content) =
+  if notElem "box" cls || notElem "horizontal" cls
+    then d
+    else case content of
+           hdr@(Header 2 a is):(Para c):rest ->
+             Div
+               attr
+               ([ hdr
+                , Para
+                    [ Span
+                        ( ""
+                        , []
+                        , [("style", "display: flex; align-items: flex-end;")])
+                        (map inlineImg c)
+                    ]
+                ] ++
+                rest)
+           _ -> d
+      -- If content is an image, change style to inline-block
+  where
+    inlineImg :: Inline -> Inline
+    inlineImg (RawInline (Format "html") str) =
+      if "<img" `isPrefixOf` str
+        then RawInline
+               (Format "html")
+               (init str ++ " style=\"display: inline-block;\">")
+        else RawInline (Format "html") str
+    inlineImg x = x
+makeHorizontal d = d
 
 -- | Retrieves the start attribute for videos to append it to the url
 retrieveVideoStart :: [(String, String)] -> ([(String, String)], Maybe String)

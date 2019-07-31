@@ -250,6 +250,7 @@ readAndProcessMarkdown markdownFile disp = do
         , processSlides
         , renderMediaTags
         , extractFigures
+        , makeHorizontals
         , processCitesWithDefault
         , appendScripts
         ]
