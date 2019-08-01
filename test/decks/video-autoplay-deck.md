@@ -59,11 +59,11 @@ menu: true
 
 # Twitch Video
 
+![](twitch://348193686){width="65%"}
+
+# Twitch Channel
+
 ![](twitch://hungry){width="65%"}
-
-# Twitch Video with Specific Start Time
-
-![](twitch://hungry){width="65%" start="15"}
 
 # Vimeo Video
 

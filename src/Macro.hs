@@ -51,9 +51,10 @@ embedWebVideosHtml page args attr@(_, _, kv) (vid, _) =
       case page of
         "youtube" ->
           printf
-            "https://www.youtube.com/embed/%s?iv_load_policy=3&disablekb=1&rel=0&modestbranding=1&autohide=1&start=%s"
+            "https://www.youtube.com/embed/%s?iv_load_policy=3&disablekb=1&rel=0&modestbranding=1&autohide=1&start=%s&autoplay=%s"
             vid
-            start :: String
+            start
+            autoplay :: String
         "vimeo" ->
           printf
             "https://player.vimeo.com/video/%s?quality=autop&muted=0#t=%s"
