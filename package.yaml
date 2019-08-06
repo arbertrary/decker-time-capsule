@@ -1,5 +1,5 @@
 name: decker
-version: 0.8.1
+version: 0.9.0
 license: OtherLicense
 author: "Henrik Tramberend"
 maintainer: "henrik.tramberend@beuth-hochschule.de"
@@ -39,6 +39,7 @@ dependencies:
   - ansi-terminal
   - array
   - base64-bytestring
+  - base16-bytestring
   - blaze-html
   - blaze-markup
   - bytestring
@@ -46,13 +47,12 @@ dependencies:
   - data-default
   - directory
   - extra
-  - file-embed
   - filepath
   - fsnotify
   - Glob
+  - git
   - groom
   - hashable
-  - highlighting-kate
   - HTTP
   - http-client
   - http-conduit
@@ -60,7 +60,9 @@ dependencies:
   - lens
   - lens-action
   - lens-aeson
+  - listsafe
   - MissingH
+  - modern-uri
   - monad-loops
   - mtl
   - multimap
@@ -69,7 +71,6 @@ dependencies:
   - pandoc
   - pandoc-citeproc
   - pandoc-types
-  - pandoc-include-code
   - process
   - pureMD5
   - random
@@ -81,7 +82,6 @@ dependencies:
   - split
   - tagsoup
   - template-haskell
-  - temporary
   - text
   - time
   - transformers
@@ -95,6 +95,9 @@ dependencies:
   - zip
 
 library:
+  # ghc-options:
+  #   - -fwarn-unused-binds 
+  #   - -fwarn-unused-imports
   source-dirs: src
   when:
     - condition: os(windows)
@@ -109,12 +112,14 @@ library:
 
 executables:
   decker:
-    main: Decker.hs
+    main: Decker
     source-dirs: app
     ghc-options:
       - -threaded
       - -rtsopts
       - -with-rtsopts=-N
+#     - -fwarn-unused-binds 
+#     - -fwarn-unused-imports
     dependencies:
       - decker
 
@@ -135,6 +140,7 @@ default-extensions:
   - EmptyCase
   - FlexibleContexts
   - FlexibleInstances
+  - GeneralizedNewtypeDeriving
   - InstanceSigs
   - MultiParamTypeClasses
   - MultiWayIf

@@ -1,9 +1,10 @@
 module SketchTests
-  ( sketchTests
+    -- sketchTests
+  (
   ) where
 
-import Sketch
-import Slide
+import Text.Decker.Filter.Slide
+import Text.Decker.Project.Sketch
 import Text.Pandoc.Lens
 
 import Data.Char
@@ -11,7 +12,7 @@ import Test.Hspec
 import Text.Pandoc
 
 import Control.Lens
-
+{--
 noIdSlide = Slide (Just $ Header 1 ("", [], []) []) []
 
 someIdSlide = Slide (Just $ Header 1 ("manually-set-id", [], []) []) []
@@ -33,3 +34,4 @@ sketchTests = do
     it "does not touch headers that already have an id" $
       view (header . _Just . attributes . attrIdentifier) <$>
       provideSlideIdIO someIdSlide `shouldReturn` "manually-set-id"
+--}

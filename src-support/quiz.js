@@ -1,3 +1,5 @@
+Reveal = require("reveal.js/js/reveal")
+MathJax = require("mathjax/MathJax.js")
 module.exports = {
     quiz: function () {
         initialMatchings = initMatching();
@@ -62,6 +64,21 @@ function matchings(initialMatchings) {
     retryButtons(initialMatchings);
 }
 
+// Copied from revealjs/math.js
+function reloadMath() {
+    // Typeset followed by an immediate reveal.js layout since
+    // the typesetting process could affect slide height
+    MathJax.Hub.Queue(['Typeset', MathJax.Hub]);
+    MathJax.Hub.Queue(Reveal.layout);
+
+    // Reprocess equations in slides when they turn visible
+    Reveal.addEventListener('slidechanged', function (event) {
+
+        MathJax.Hub.Queue(['Typeset', MathJax.Hub, event.currentSlide]);
+
+    });
+}
+
 // Configure retryButtons
 function retryButtons(initialMatchings) {
     var buttons = document.getElementsByClassName("retryButton");
@@ -72,9 +89,9 @@ function retryButtons(initialMatchings) {
         buttons[i].onclick = function () {
             var curr = this.closest(".matching");
             curr.parentNode.replaceChild(initial, curr);
-
             // Call matchings once again to reset everything. e.g the shuffling etc
             matchings(initialMatchings);
+            reloadMath();
         }
     }
 }
@@ -120,11 +137,11 @@ function matchingAnswerButtons(initialMatchings) {
     for (let button of answerButtons) {
         button.onclick = function () {
             // Hack to get the index
-            const j = Array.prototype.slice.call(answerButtons).indexOf(button);
+            const j = Array.prototype.slice.call(answerButtons).indexOf(this);
 
             // Get the initial and current states of the dragzones
             var initialDragzone = initialMatchings[j].getElementsByClassName("dragzone")[0].cloneNode(true);
-            var matchingField = button.closest(".matching");
+            var matchingField = this.closest(".matching");
             var currDragzone = matchingField.getElementsByClassName("dragzone")[0];
 
             var dropzones = matchingField.getElementsByClassName("dropzone");
@@ -158,9 +175,10 @@ function matchingAnswerButtons(initialMatchings) {
             }
             // replace the empty dropzone with the correct/sample solution
             matchingField.replaceChild(initialDragzone, currDragzone);
+            reloadMath();
 
-            button.nextSibling.disabled = true;
-            button.disabled = true;
+            this.nextSibling.disabled = true;
+            this.disabled = true;
         }
     }
 }
@@ -205,11 +223,11 @@ function multipleChoice() {
             const local_answer_num = answer_num;
 
             answer.addEventListener("click", function () {
-                if (answer.style.border == defBorder) {
-                    answer.style.border = "thick solid black";
+                if (this.style.border == defBorder) {
+                    this.style.border = "thick solid black";
                 }
                 else {
-                    answer.style.border = defBorder;
+                    this.style.border = defBorder;
                 }
             });
             answer_num += 1;
@@ -229,7 +247,7 @@ function multipleChoice() {
             }
 
             if (answered) {
-                answerButton.disabled = true;
+                this.disabled = true;
                 for (let answer of answers) {
                     var answer_div = answer.getElementsByClassName("answer")[0];
                     const is_right = answer_div.classList.contains("right");
@@ -270,7 +288,7 @@ function freetextAnswerButtons() {
                     questionField.style.backgroundColor = "rgb(255, 122, 122)";
                 }
                 questionField.disabled = true;
-                button.disabled = true;
+                this.disabled = true;
             }
             else {
                 alert("No answer entered!");

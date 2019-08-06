@@ -1,6 +1,8 @@
 import SketchTests
 import Test.Hspec
 import WatchTests
+import MetaTests
+import IncludeTests
 
 import Control.Lens ((^.))
 import qualified Data.ByteString.Char8 as B
@@ -10,14 +12,13 @@ import Data.Maybe
 import Data.Text
 import Data.Text.Encoding
 import qualified Data.Yaml as Y
-import Filter
-import Project as P
-import Resources
+import Text.Decker.Filter.Filter
+import Text.Decker.Project.Project as P
+import Text.Decker.Resource.Resource
 import qualified System.Directory as Dir
 import System.FilePath
 import System.FilePath.Glob
 import Text.Pandoc
-import Utilities
 
 main = do
   dirs <- projectDirectories
@@ -29,8 +30,10 @@ main = do
   hspec $
   --
    do
-    watchTests
-    sketchTests
+    includeTests
+    -- watchTests
+    -- sketchTests
+    metaTests
     describe "makeRelativeTo" $
       it "calculates the path of file relative to dir. Includes '..'" $ do
         makeRelativeTo "" "img.png" `shouldBe` "img.png"
