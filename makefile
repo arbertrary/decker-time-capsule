@@ -30,6 +30,7 @@ JS_DEP_COPY += print/paper.css
 JS_DEP_COPY += print/pdf.css
 JS_DEP_COPY += whiteboard/whiteboard.js
 JS_DEP_COPY += whiteboard/sponge.png
+JS_DEP_COPY += piklor.js
 MATHJAX = node_modules/mathjax/MathJax.js
 MATHJAX += node_modules/mathjax/config/TeX-AMS_SVG.js
 MATHJAX += $(shell find node_modules/mathjax/jax/input/TeX -name "*.js")
@@ -97,6 +98,9 @@ version:
 
 ##### Copy JS dependencies that can't be packed with webpack
 
+resource/support/piklor.js: node_modules/piklor.js/src/piklor.min.js
+	mkdir -p $(@D) && cp $< $@
+
 resource/support/print/%: node_modules/reveal.js/css/print/%
 	mkdir -p $(@D) && cp $< $@
 
@@ -118,6 +122,7 @@ resource/support/mathjax/%: node_modules/mathjax/%
 node_modules/%:
 	yarn install
 
+SECONDARY += node_modules/piklor.js/src/piklor.min.js
 SECONDARY =  node_modules/reveal.js/css/print/paper.css
 SECONDARY += node_modules/reveal.js/css/print/pdf.css
 SECONDARY += node_modules/reveal.js/plugin/notes/notes.html

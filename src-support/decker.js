@@ -7,8 +7,6 @@ const quizModule = require('./quiz.js');
 
 window.Reveal = Reveal;
 
-window.Piklor = require('piklor.js/src/piklor').Piklor;
-
 window.addEventListener('ready', function (event) {
   fixAutoplayWithStart();
   if (Reveal.isReady()) {
