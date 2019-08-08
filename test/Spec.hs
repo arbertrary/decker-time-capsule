@@ -1,8 +1,8 @@
+import IncludeTests
+import MetaTests
 import SketchTests
 import Test.Hspec
 import WatchTests
-import MetaTests
-import IncludeTests
 
 import Control.Lens ((^.))
 import qualified Data.ByteString.Char8 as B
@@ -12,12 +12,12 @@ import Data.Maybe
 import Data.Text
 import Data.Text.Encoding
 import qualified Data.Yaml as Y
-import Text.Decker.Filter.Filter
-import Text.Decker.Project.Project as P
-import Text.Decker.Resource.Resource
 import qualified System.Directory as Dir
 import System.FilePath
 import System.FilePath.Glob
+import Text.Decker.Filter.Filter
+import Text.Decker.Project.Project as P
+import Text.Decker.Resource.Resource
 import Text.Pandoc
 
 main = do
@@ -25,7 +25,8 @@ main = do
   --
   deckTemplate <- B.readFile (dirs ^. project </> "resource/template/deck.html")
   --
-  metaFiles <- globDir1 (compile "**/*-meta.yaml") (dirs ^. project)
+  -- metaFiles <- globDir1 (compile "**/*-meta.yaml") (dirs ^. project)
+  let metaFile = (dirs ^. project) </> "decker.yaml"
   --
   hspec $
   --

@@ -100,7 +100,7 @@ makeLenses ''MutableActionState
 data ActionContext = ActionContext
   { _dirs :: ProjectDirs
   , _targetList :: Targets
-  , _metaData :: Yaml.Value
+  , _metaData :: Meta
   , _state :: MutableActionState
   } deriving (Typeable, Show)
 
@@ -137,10 +137,15 @@ targetDirs context =
 
 alwaysExclude = ["public", "log", "dist", "code", ".shake", ".git", ".vscode"]
 
+-- excludeDirs meta =
+--   let metaExclude =
+--         meta ^.. key "exclude-directories" . values . _String . unpacked
+--    in alwaysExclude ++ metaExclude
 excludeDirs meta =
-  let metaExclude =
-        meta ^.. key "exclude-directories" . values . _String . unpacked
-   in alwaysExclude ++ metaExclude
+  let metaExclude = lookupMetaStringList meta "exclude-directories"
+   in case metaExclude of
+        Just dirs -> alwaysExclude ++ dirs
+        _ -> alwaysExclude
 
 initContext state = do
   dirs <- projectDirectories
@@ -361,6 +366,7 @@ loggingA = _logging <$> projectDirsA
 targetsA :: Action Targets
 targetsA = _targetList <$> actionContext
 
+metaA :: Action Meta
 metaA = _metaData <$> actionContext
 
 indicesA = _indices <$> targetsA

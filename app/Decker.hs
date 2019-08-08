@@ -3,18 +3,18 @@ module Decker where
 
 import Text.Decker.Internal.Common
 import Text.Decker.Internal.Exception
-import Text.Decker.Internal.Meta
 import Text.Decker.Internal.External
 import Text.Decker.Internal.Flags (hasPreextractedResources)
 import Text.Decker.Internal.Helper
+import Text.Decker.Internal.Meta
 import Text.Decker.Project.Project
 import Text.Decker.Project.Shake
 import Text.Decker.Project.Version
 import Text.Decker.Resource.Resource
 import Text.Decker.Server.Dachdecker
 import Text.Decker.Writer.Format
-import Text.Decker.Writer.Pdf
 import Text.Decker.Writer.Html
+import Text.Decker.Writer.Pdf
 
 import Control.Exception
 import Control.Lens ((^.))
@@ -245,7 +245,7 @@ run = do
         liftIO $ createDirectoryIfMissing True (directories ^. public)
         let provisioning =
               fromMaybe defaultProvisioning $
-              metaValueAsString "provisioning" metaData >>= readMaybe
+              lookupMetaString metaData "provisioning" >>= readMaybe
         if provisioning == SymLink
           then liftIO $
                createFileLink
@@ -260,7 +260,7 @@ run = do
     --
     phony "publish-annotations" $ do
       metaData <- metaA
-      when (isJust $ metaValueAsString "publish-annotations" metaData) $ do
+      when (isJust $ lookupMetaString metaData "publish-annotations") $ do
         let src = (directories ^. project) </> "annotations"
         let dst = (directories ^. public) </> "annotations"
         exists <- doesDirectoryExist src
@@ -273,8 +273,8 @@ run = do
       allHtmlA >>= need
       metaData <- metaA
       need ["index"]
-      let host = metaValueAsString "rsync-destination.host" metaData
-      let path = metaValueAsString "rsync-destination.path" metaData
+      let host = lookupMetaString metaData "rsync-destination.host"
+      let path = lookupMetaString metaData "rsync-destination.path"
       if isJust host && isJust path
         then do
           let src = (directories ^. public) ++ "/"

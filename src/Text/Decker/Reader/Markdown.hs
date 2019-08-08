@@ -1,5 +1,5 @@
 module Text.Decker.Reader.Markdown
-  (readAndProcessMarkdown
+  ( readAndProcessMarkdown
   ) where
 
 import Text.Decker.Filter.Filter
@@ -90,9 +90,10 @@ readMetaMarkdown markdownFile = do
   projectDir <- projectA
   need [markdownFile]
   -- read external meta data for this directory
-  externalMeta <-
-    liftIO $
-    toPandocMeta <$> aggregateMetaData projectDir (takeDirectory markdownFile)
+  externalMeta <- liftIO $ readMetaData projectDir
+  -- externalMeta <-
+    -- liftIO $
+    -- toPandocMeta <$> aggregateMetaData projectDir (takeDirectory markdownFile)
   markdown <- liftIO $ T.readFile markdownFile
   let filePandoc@(Pandoc fileMeta _) =
         readMarkdownOrThrow pandocReaderOpts markdown
