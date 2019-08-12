@@ -62,11 +62,19 @@ writeMarkdownText options pandoc =
     Right text -> text
     Left err -> throw $ PandocException $ show err
 
+-- | Fields in the project meta data that should never be overwritten by file-level meta data
 neverOverrideMetaKeys :: [String]
 neverOverrideMetaKeys = ["resource"]
 
+-- | Merges two pandoc Meta maps with preference on the left one (except for certain keys)
 mergePandocMeta :: Meta -> Meta -> Meta
-mergePandocMeta (Meta meta1) (Meta meta2) = Meta $ Map.union meta1 meta2
+mergePandocMeta (Meta meta1) (Meta meta2) =
+  Meta $ Map.unionWithKey f meta1 meta2
+  where
+    f k left_value right_value =
+      if k `elem` neverOverrideMetaKeys
+        then right_value
+        else left_value
 
 -- | Converts YAML meta data to pandoc meta data.
 toPandocMeta :: Y.Value -> Meta
@@ -100,7 +108,6 @@ readMetaData :: FilePath -> IO Meta
 readMetaData dir = do
   let file = dir </> "decker.yaml"
   meta <- decodeYaml file
-  print $ show $ meta
   return $ toPandocMeta meta
 
 lookupPandocMeta :: String -> Meta -> Maybe String
