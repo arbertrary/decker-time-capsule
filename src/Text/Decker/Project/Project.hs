@@ -253,7 +253,6 @@ handoutHTMLSuffix = "-handout.html"
 
 handoutPDFSuffix = "-handout.pdf"
 
--- metaSuffix = "-meta.yaml"
 indexSuffix = "-deck-index.yaml"
 
 sourceSuffixes = [deckSuffix, pageSuffix, indexSuffix]

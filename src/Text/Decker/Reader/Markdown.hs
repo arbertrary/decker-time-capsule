@@ -84,7 +84,7 @@ readAndProcessMarkdown markdownFile disp = do
 
 -- | Reads a markdown file and returns a pandoc document. Handles meta data
 -- extraction and template substitution. All references to local resources are
--- converted to absolute pathes.
+-- converted to absolute paths.
 readMetaMarkdown :: FilePath -> Action Pandoc
 readMetaMarkdown markdownFile = do
   projectDir <- projectA
@@ -106,7 +106,7 @@ readMetaMarkdown markdownFile = do
    -- use mustache to substitute
   let substituted = substituteMetaData markdown mustacheMeta
   -- read markdown with substitutions again
-  let Pandoc _ substitudedBlocks =
+  let Pandoc _ substitutedBlocks =
         readMarkdownOrThrow pandocReaderOpts substituted
   versionCheck combinedMeta
   let writeBack = lookupBool "write-back.enable" False combinedMeta
@@ -114,7 +114,7 @@ readMetaMarkdown markdownFile = do
     writeToMarkdownFile markdownFile (Pandoc fileMeta fileBlocks)
   mapResources
     (urlToFilePathIfLocal (takeDirectory markdownFile))
-    (Pandoc combinedMeta substitudedBlocks)
+    (Pandoc combinedMeta substitutedBlocks)
   where
     maybeGenerateIds doit pandoc =
       if doit

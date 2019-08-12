@@ -3,9 +3,7 @@ module Text.Decker.Internal.Meta
   ( toPandocMeta
   , toMustacheMeta
   , mergePandocMeta
-  -- , joinMeta
   , readMetaData
-  -- , aggregateMetaData
   , lookupPandocMeta
   , lookupInt
   , lookupBool
@@ -16,7 +14,6 @@ module Text.Decker.Internal.Meta
   , lookupMetaString
   , lookupMetaStringList
   , lookupMetaInt
-  -- , metaValueAsString
   , DeckerException(..)
   ) where
 
@@ -43,11 +40,6 @@ import Text.Pandoc.Shared
 import Text.Read
 import Text.Regex.TDFA
 
--- joinMeta :: Y.Value -> Y.Value -> Y.Value
--- joinMeta (Y.Object old) (Y.Object new) = Y.Object (H.union new old)
--- joinMeta (Y.Object old) _ = Y.Object old
--- joinMeta _ (Y.Object new) = Y.Object new
--- joinMeta _ _ = throw $ YamlException "Can only join YAML objects."
 -- | Converts pandoc meta data to mustache meta data. Inlines and blocks are
 -- rendered to markdown strings with default options.
 toMustacheMeta :: Meta -> MT.Value
@@ -69,6 +61,9 @@ writeMarkdownText options pandoc =
   case runPure $ writeMarkdown options pandoc of
     Right text -> text
     Left err -> throw $ PandocException $ show err
+
+neverOverrideMetaKeys :: [String]
+neverOverrideMetaKeys = ["resource"]
 
 mergePandocMeta :: Meta -> Meta -> Meta
 mergePandocMeta (Meta meta1) (Meta meta2) = Meta $ Map.union meta1 meta2
@@ -108,23 +103,6 @@ readMetaData dir = do
   print $ show $ meta
   return $ toPandocMeta meta
 
--- readMetaData :: FilePath -> IO Y.Value
--- readMetaData dir = do
---   files <- globDir1 (compile "*-meta.yaml") dir
---   meta <- mapM decodeYaml files
---   return $ foldl joinMeta (Y.object []) meta
--- aggregateMetaData :: FilePath -> FilePath -> IO Y.Value
--- aggregateMetaData top = walkUpTo
---   where
---     walkUpTo dir = do
---       fromHere <- readMetaData dir
---       if equalFilePath top dir
---         then return fromHere
---         else do
---           fromAbove <- walkUpTo (takeDirectory dir)
---           let m = joinMeta fromHere fromAbove
---           print $ show $ m
---           return $ m
 lookupPandocMeta :: String -> Meta -> Maybe String
 lookupPandocMeta key (Meta m) =
   case L.splitOn "." key of
@@ -213,18 +191,3 @@ metaToStringList _ = Nothing
 
 lookupMetaInt :: Meta -> String -> Maybe Int
 lookupMetaInt meta key = lookupMetaString meta key >>= readMaybe
--- metaValueAsString :: String -> Y.Value -> Maybe String
--- metaValueAsString key meta =
---   case L.splitOn "." key of
---     [] -> Nothing
---     k:ks -> lookup' ks (lookupValue k meta)
---   where
---     lookup' :: [String] -> Maybe Y.Value -> Maybe String
---     lookup' [] (Just (Y.String s)) = Just (T.unpack s)
---     lookup' [] (Just (Y.Number n)) = Just (show n)
---     lookup' [] (Just (Y.Bool b)) = Just (show b)
---     lookup' (k:ks) (Just obj@(Y.Object _)) = lookup' ks (lookupValue k obj)
---     lookup' _ _ = Nothing
--- lookupValue :: String -> Y.Value -> Maybe Y.Value
--- lookupValue key (Y.Object hashTable) = H.lookup (T.pack key) hashTable
--- lookupValue _ _ = Nothing

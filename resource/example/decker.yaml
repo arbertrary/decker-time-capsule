@@ -1,0 +1,7 @@
+# Example of a decker meta config file
+date: 2019-04-23
+menu: True
+# publishing to a remote location
+rsync-destination:
+    host: git@gitlab2.informatik.uni-wuerzburg.de
+    path: /some/path
