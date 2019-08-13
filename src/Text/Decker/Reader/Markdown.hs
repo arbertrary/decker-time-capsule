@@ -90,7 +90,7 @@ readMetaMarkdown markdownFile = do
   projectDir <- projectA
   need [markdownFile]
   -- read external meta data for this directory
-  externalMeta <- liftIO $ readMetaData projectDir
+  externalMeta <- globalMetaA
   markdown <- liftIO $ T.readFile markdownFile
   let filePandoc@(Pandoc fileMeta _) =
         readMarkdownOrThrow pandocReaderOpts markdown
@@ -99,7 +99,6 @@ readMetaMarkdown markdownFile = do
   Pandoc fileMeta fileBlocks <- maybeGenerateIds generateIds filePandoc
   -- combine the meta data with preference on the embedded data
   let combinedMeta = mergePandocMeta fileMeta externalMeta
-  putNormal $ show $ combinedMeta
   let mustacheMeta = toMustacheMeta combinedMeta
    -- use mustache to substitute
   let substituted = substituteMetaData markdown mustacheMeta

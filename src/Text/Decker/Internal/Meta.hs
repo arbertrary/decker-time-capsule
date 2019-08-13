@@ -32,6 +32,7 @@ import qualified Data.Text as T
 import qualified Data.Vector as Vec
 import qualified Data.Yaml as Y
 import Prelude hiding ((!!))
+import System.Directory
 import System.FilePath
 import System.FilePath.Glob
 import qualified Text.Mustache.Types as MT
@@ -107,7 +108,11 @@ decodeYaml yamlFile = do
 readMetaData :: FilePath -> IO Meta
 readMetaData dir = do
   let file = dir </> "decker.yaml"
-  meta <- decodeYaml file
+  exists <- doesFileExist file
+  meta <-
+    if exists
+      then decodeYaml file
+      else return (Y.object [])
   return $ toPandocMeta meta
 
 lookupPandocMeta :: String -> Meta -> Maybe String

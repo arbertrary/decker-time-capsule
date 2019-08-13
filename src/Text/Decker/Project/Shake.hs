@@ -3,6 +3,7 @@ module Text.Decker.Project.Shake
   ( runDecker
   -- * Get fields from ActionContext inside Action Monad
   , metaA
+  , globalMetaA
   , projectDirsA
   -- * Get targets inside Action Monad
   , allHtmlA
@@ -105,6 +106,7 @@ data ActionContext = ActionContext
   { _dirs :: ProjectDirs
   , _targetList :: Targets
   , _metaData :: Meta
+  , _globalMeta :: Meta
   , _state :: MutableActionState
   } deriving (Typeable, Show)
 
@@ -141,6 +143,7 @@ targetDirs context =
 
 alwaysExclude = ["public", "log", "dist", "code", ".shake", ".git", ".vscode"]
 
+-- Keep this comment, just in case
 -- excludeDirs meta =
 --   let metaExclude =
 --         meta ^.. key "exclude-directories" . values . _String . unpacked
@@ -157,7 +160,8 @@ initContext state = do
   dirs <- projectDirectories
   meta <- readMetaData $ dirs ^. project
   targets <- scanTargets (excludeDirs meta) dirs
-  return $ ActionContext dirs targets meta state
+  -- initialize context with duplicated meta. document level meta has not been read yet
+  return $ ActionContext dirs targets meta meta state
 
 cleanup :: MutableActionState -> IO ()
 cleanup state = do
@@ -375,6 +379,9 @@ targetsA = _targetList <$> actionContext
 
 metaA :: Action Meta
 metaA = _metaData <$> actionContext
+
+globalMetaA :: Action Meta
+globalMetaA = _globalMeta <$> actionContext
 
 indicesA :: Action [FilePath]
 indicesA = _indices <$> targetsA

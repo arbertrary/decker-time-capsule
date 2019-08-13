@@ -1,6 +1,7 @@
 module Text.Decker.Internal.Helper
   ( dropSuffix
   , replaceSuffix
+  , removeCommonPrefix
   , isPrefix
   , makeRelativeTo
   , invertPath
