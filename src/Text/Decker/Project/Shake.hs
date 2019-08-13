@@ -1,38 +1,42 @@
 {-- Author: Henrik Tramberend <henrik@tramberend.de> --}
 module Text.Decker.Project.Shake
   ( runDecker
+  -- * Get fields from ActionContext inside Action Monad
+  , metaA
+  , projectDirsA
+  -- * Get targets inside Action Monad
   , allHtmlA
   , allPdfA
   , appDataA
   , cacheA
-  , calcSource
   , decksA
-  , decksPdfA
-  , getSupportDir
-  , getRelativeSupportDir
   , handoutsA
   , handoutsPdfA
   , loggingA
-  , metaA
   , indicesA
-  , openBrowser
   , pagesA
   , pagesPdfA
   , projectA
-  , projectDirsA
   , publicA
-  , publicResourceA
-  , putCurrentDocument
-  , runHttpServer
-  , startHttpServer
-  , stopHttpServer
   , supportA
   , targetsA
+  , publicResourceA
+  , decksPdfA
+  -- * Server and Watching
+  , runHttpServer
+  , waitForChange
+  , startHttpServer
+  , stopHttpServer
   , watchChangesAndRepeat
+  -- *
+  , getSupportDir
+  , calcSource
+  , getRelativeSupportDir
+  , openBrowser
+  , putCurrentDocument
   , writeDeckIndex
   , writeSketchPadIndex
   , withShakeLock
-  , waitForChange
   ) where
 
 import System.Decker.OS
@@ -141,18 +145,21 @@ alwaysExclude = ["public", "log", "dist", "code", ".shake", ".git", ".vscode"]
 --   let metaExclude =
 --         meta ^.. key "exclude-directories" . values . _String . unpacked
 --    in alwaysExclude ++ metaExclude
+excludeDirs :: Meta -> [String]
 excludeDirs meta =
   let metaExclude = lookupMetaStringList "exclude-directories" meta
    in case metaExclude of
         Just dirs -> alwaysExclude ++ dirs
         _ -> alwaysExclude
 
+initContext :: MutableActionState -> IO ActionContext
 initContext state = do
   dirs <- projectDirectories
   meta <- readMetaData $ dirs ^. project
   targets <- scanTargets (excludeDirs meta) dirs
   return $ ActionContext dirs targets meta state
 
+cleanup :: MutableActionState -> IO ()
 cleanup state = do
   srvr <- readIORef $ state ^. server
   forM_ srvr stopHttpServer
@@ -369,6 +376,7 @@ targetsA = _targetList <$> actionContext
 metaA :: Action Meta
 metaA = _metaData <$> actionContext
 
+indicesA :: Action [FilePath]
 indicesA = _indices <$> targetsA
 
 decksA :: Action [FilePath]

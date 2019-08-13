@@ -6,20 +6,16 @@ module Text.Decker.Project.Project
   , getResourceString
   , deckerResourceDir
   , oldResourcePaths
-  -- , linkResource
   , relRefResource
   , absRefResource
-  , removeCommonPrefix
-  , isPrefix
   , makeRelativeTo
   , findProjectDirectory
   , projectDirectories
   , provisioningFromMeta
   , templateFromMeta
   , dachdeckerFromMeta
-  , invertPath
   , scanTargets
-  -- * Types
+  -- * Targets record fields
   , sources
   , decks
   , decksPdf
@@ -27,12 +23,14 @@ module Text.Decker.Project.Project
   , pagesPdf
   , handouts
   , handoutsPdf
+  -- * ProjectDirs record fields
   , project
   , public
   , cache
   , support
   , appData
   , logging
+  -- *
   , getDachdeckerUrl
   , Targets(..)
   , Resource(..)
@@ -201,39 +199,6 @@ resourcePaths dirs base uri =
           (uriQuery uri)
           (uriFragment uri)
     }
-
--- | Express the second path argument as relative to the first. 
--- Both arguments are expected to be absolute pathes. 
-makeRelativeTo :: FilePath -> FilePath -> FilePath
-makeRelativeTo dir file =
-  let (d, f) = removeCommonPrefix (normalise dir, normalise file)
-   in normalise $ invertPath d </> f
-
-invertPath :: FilePath -> FilePath
-invertPath fp = joinPath $ map (const "..") $ filter ("." /=) $ splitPath fp
-
-removeCommonPrefix :: (FilePath, FilePath) -> (FilePath, FilePath)
-removeCommonPrefix =
-  mapTuple joinPath . removeCommonPrefix_ . mapTuple splitDirectories
-  where
-    removeCommonPrefix_ :: ([FilePath], [FilePath]) -> ([FilePath], [FilePath])
-    removeCommonPrefix_ (al@(a:as), bl@(b:bs))
-      | a == b = removeCommonPrefix_ (as, bs)
-      | otherwise = (al, bl)
-    removeCommonPrefix_ pathes = pathes
-
-isPrefix :: FilePath -> FilePath -> Bool
-isPrefix prefix whole = isPrefix_ (splitPath prefix) (splitPath whole)
-  where
-    isPrefix_ :: Eq a => [a] -> [a] -> Bool
-    isPrefix_ (a:as) (b:bs)
-      | a == b = isPrefix_ as bs
-      | otherwise = False
-    isPrefix_ [] _ = True
-    isPrefix_ _ _ = False
-
-mapTuple :: (t1 -> t) -> (t1, t1) -> (t, t)
-mapTuple f (a, b) = (f a, f b)
 
 deckSuffix = "-deck.md"
 
