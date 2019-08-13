@@ -64,7 +64,7 @@ writeMarkdownText options pandoc =
 
 -- | Fields in the project meta data that should never be overwritten by file-level meta data
 neverOverrideMetaKeys :: [String]
-neverOverrideMetaKeys = ["resource"]
+neverOverrideMetaKeys = ["resource", "provisioning"]
 
 -- | Merges two pandoc Meta maps with preference on the left one (except for certain keys)
 mergePandocMeta :: Meta -> Meta -> Meta
@@ -160,7 +160,7 @@ arrayIndex key =
   listToMaybe $
   reverse (getAllTextSubmatches (key =~ ("^\\[([0-9]+)\\]$" :: String)))
 
--- | Recursively deconstract a compound key and drill into the meta data hierarchy.
+-- | Recursively deconstruct a compound key and drill into the meta data hierarchy.
 lookupMeta' :: Meta -> String -> Maybe MetaValue
 lookupMeta' meta key = lookup' (splitKey key) (MetaMap (unMeta meta))
   where
@@ -172,8 +172,8 @@ lookupMeta' meta key = lookup' (splitKey key) (MetaMap (unMeta meta))
 
 -- | Lookup a boolean value in a Pandoc meta data hierarchy. The key string
 -- notation is indexed subkeys separated by '.', eg. `top.list[3].value`.
-lookupMetaBool :: Meta -> String -> Maybe Bool
-lookupMetaBool meta key = lookupMeta' meta key >>= metaToBool
+lookupMetaBool :: String -> Meta -> Maybe Bool
+lookupMetaBool key meta = lookupMeta' meta key >>= metaToBool
 
 metaToBool :: MetaValue -> Maybe Bool
 metaToBool (MetaBool bool) = Just bool
@@ -181,11 +181,11 @@ metaToBool _ = Nothing
 
 -- | Lookup a String value in a Pandoc meta data hierarchy. The key string
 -- notation is indexed subkeys separated by '.', eg. `top.list[3].value`.
-lookupMetaString :: Meta -> String -> Maybe String
-lookupMetaString meta key = lookupMeta' meta key >>= metaToString
+lookupMetaString :: String -> Meta -> Maybe String
+lookupMetaString key meta = lookupMeta' meta key >>= metaToString
 
-lookupMetaStringList :: Meta -> String -> Maybe [String]
-lookupMetaStringList meta key = lookupMeta' meta key >>= metaToStringList
+lookupMetaStringList :: String -> Meta -> Maybe [String]
+lookupMetaStringList key meta = lookupMeta' meta key >>= metaToStringList
 
 metaToString :: MetaValue -> Maybe String
 metaToString (MetaString string) = Just string
@@ -196,5 +196,5 @@ metaToStringList :: MetaValue -> Maybe [String]
 metaToStringList (MetaList list) = Just $ mapMaybe metaToString list
 metaToStringList _ = Nothing
 
-lookupMetaInt :: Meta -> String -> Maybe Int
-lookupMetaInt meta key = lookupMetaString meta key >>= readMaybe
+lookupMetaInt :: String -> Meta -> Maybe Int
+lookupMetaInt key meta = lookupMetaString key meta >>= readMaybe

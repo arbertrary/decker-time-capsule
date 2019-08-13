@@ -142,7 +142,7 @@ alwaysExclude = ["public", "log", "dist", "code", ".shake", ".git", ".vscode"]
 --         meta ^.. key "exclude-directories" . values . _String . unpacked
 --    in alwaysExclude ++ metaExclude
 excludeDirs meta =
-  let metaExclude = lookupMetaStringList meta "exclude-directories"
+  let metaExclude = lookupMetaStringList "exclude-directories" meta
    in case metaExclude of
         Just dirs -> alwaysExclude ++ dirs
         _ -> alwaysExclude

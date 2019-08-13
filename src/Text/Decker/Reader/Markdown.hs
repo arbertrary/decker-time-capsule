@@ -91,9 +91,6 @@ readMetaMarkdown markdownFile = do
   need [markdownFile]
   -- read external meta data for this directory
   externalMeta <- liftIO $ readMetaData projectDir
-  -- externalMeta <-
-    -- liftIO $
-    -- toPandocMeta <$> aggregateMetaData projectDir (takeDirectory markdownFile)
   markdown <- liftIO $ T.readFile markdownFile
   let filePandoc@(Pandoc fileMeta _) =
         readMarkdownOrThrow pandocReaderOpts markdown

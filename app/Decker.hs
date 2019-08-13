@@ -245,7 +245,7 @@ run = do
         liftIO $ createDirectoryIfMissing True (directories ^. public)
         let provisioning =
               fromMaybe defaultProvisioning $
-              lookupMetaString metaData "provisioning" >>= readMaybe
+              lookupMetaString "provisioning" metaData >>= readMaybe
         if provisioning == SymLink
           then liftIO $
                createFileLink
@@ -260,7 +260,7 @@ run = do
     --
     phony "publish-annotations" $ do
       metaData <- metaA
-      when (isJust $ lookupMetaString metaData "publish-annotations") $ do
+      when (isJust $ lookupMetaString "publish-annotations" metaData) $ do
         let src = (directories ^. project) </> "annotations"
         let dst = (directories ^. public) </> "annotations"
         exists <- doesDirectoryExist src
@@ -273,8 +273,8 @@ run = do
       allHtmlA >>= need
       metaData <- metaA
       need ["index"]
-      let host = lookupMetaString metaData "rsync-destination.host"
-      let path = lookupMetaString metaData "rsync-destination.path"
+      let host = lookupMetaString "rsync-destination.host" metaData
+      let path = lookupMetaString "rsync-destination.path" metaData
       if isJust host && isJust path
         then do
           let src = (directories ^. public) ++ "/"
