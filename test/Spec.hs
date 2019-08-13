@@ -16,6 +16,7 @@ import qualified System.Directory as Dir
 import System.FilePath
 import System.FilePath.Glob
 import Text.Decker.Filter.Filter
+import Text.Decker.Internal.Helper as Help
 import Text.Decker.Project.Project as P
 import Text.Decker.Resource.Resource
 import Text.Pandoc
@@ -50,14 +51,14 @@ main = do
     --
     describe "removeCommonPrefix" $
       it "removes the common prefix from two pathes." $ do
-        P.removeCommonPrefix ("", "") `shouldBe` ("", "")
-        P.removeCommonPrefix ("fasel/bla", "fasel/bla/lall") `shouldBe`
+        Help.removeCommonPrefix ("", "") `shouldBe` ("", "")
+        Help.removeCommonPrefix ("fasel/bla", "fasel/bla/lall") `shouldBe`
           ("", "lall")
-        P.removeCommonPrefix ("lurgel/hopp", "fasel/bla/lall") `shouldBe`
+        Help.removeCommonPrefix ("lurgel/hopp", "fasel/bla/lall") `shouldBe`
           (joinPath ["lurgel", "hopp"], joinPath ["fasel", "bla", "lall"])
-        P.removeCommonPrefix ("/lurgel/hopp", "fasel/bla/lall") `shouldBe`
+        Help.removeCommonPrefix ("/lurgel/hopp", "fasel/bla/lall") `shouldBe`
           (joinPath ["/lurgel", "hopp"], joinPath ["fasel", "bla", "lall"])
-        P.removeCommonPrefix ("/lurgel/hopp", "/fasel/bla/lall") `shouldBe`
+        Help.removeCommonPrefix ("/lurgel/hopp", "/fasel/bla/lall") `shouldBe`
           (joinPath ["lurgel", "hopp"], joinPath ["fasel", "bla", "lall"])
     --
     describe "copyResource" $
