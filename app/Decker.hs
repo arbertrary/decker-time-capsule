@@ -139,8 +139,12 @@ run = do
     priority 2 $
       "//*-deck.html" %> \out -> do
         src <- calcSource "-deck.html" "-deck.md" out
-        let ind = replaceSuffix "-deck.html" "-deck-index.yaml" out
-        markdownToHtmlDeck src out ind
+        let index = replaceSuffix "-deck.html" "-deck-index.yaml" out
+        let annotSrc = replaceSuffix "-deck.md" "-annot.json" src
+        let annotDst = replaceSuffix "-deck.html" "-annot.json" out
+        exists <- doesFileExist annotSrc
+        when exists $ copyFileChanged annotSrc annotDst
+        markdownToHtmlDeck src out index
     --
     priority 2 $
       "//*-deck-index.yaml" %> \ind -> do
