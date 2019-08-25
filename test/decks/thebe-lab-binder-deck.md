@@ -5,23 +5,14 @@ header-includes: |
     <script type="text/x-thebe-config">
         {
         bootstrap: true,
-        requestKernel: false,
-        predefinedOutput: false,
+        selector: "[data-executable=true]",
         binderOptions: {
-            repo: "monofon/plc-notebooks",
-            ref: "master",
-            binderUrl: "https://mybinder.org",
-            repoProvider: "github",
+         repo: "binder-examples/requirements"
         },
         kernelOptions: {
-            name: "haskell",
+          name: "python3",
         },
-        selector: "[data-executable]",
-        mathjaxUrl: false,
-        codeMirrorConfig: {
-            mode: "haskell"
-        }
-        }
+      }
     </script>
     <script src="https://unpkg.com/thebelab@0.4.0/lib/index.js"></script>
 height: 500.0
@@ -29,7 +20,7 @@ history: True
 margin: '0.0'
 maxScale: 1.0
 minScale: 1.0
-subtitle: Haskell Kernel
+subtitle: Python Kernel
 title: ThebeLab Test
 width: 960.0
 ---
@@ -53,16 +44,19 @@ custom Docker image on GitHub.
 -   [gibiansky/IHaskell](https://github.com/gibiansky/IHaskell)
 -   [monofon/plc-notebooks](https://github.com/monofon/plc-notebooks)
 
-# A ThebeLab Code Block {.columns}
+# A ThebeLab Code Block
 
-## {.left grow=2}
-
-``` {.haskell data-executable="true" data-language="haskell"}
+``` {.python data-executable="true" data-language="python"}
 print "Hallo!"
 ```
-## Usage {.right}
 
-1. Click [run]
-2. Be patient!
-3. Edit code
-4. Rinse, repeat
+# A ThebeLab Code Block
+
+``` {.python data-executable="true" data-language="python" style="max-height:400px"}
+%matplotlib inline
+import numpy as np
+import matplotlib.pyplot as plt
+x = np.linspace(0,10)
+plt.plot(x, np.sin(x))
+plt.plot(x, np.cos(x))
+```
