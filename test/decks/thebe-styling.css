@@ -1,8 +1,6 @@
 .reveal .thebelab-cell {
   display: block;
   position: relative;
-  max-height: 500px;
-  overflow: auto;
 }
 
 .reveal .thebelab-cell button {
@@ -27,7 +25,7 @@
 }
 
 .reveal .thebelab-cell pre {
-  font-size: 20px;
+  font-size: 28px;
   font-weight: 500;
   font-family: "Source Code Pro";
 }
