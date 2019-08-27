@@ -75,7 +75,6 @@ RESOURCES += $(support)/mb-reveal-plugins
 $(support)/mb-reveal-plugins: 
 	cp -r mb-reveal-plugins $(support)/
 
-
 # Fontawesome
 FONTAWESOME += Font-Awesome/js-packages/@fortawesome/fontawesome-free/js/all.js
 FONTAWESOME += Font-Awesome/js-packages/@fortawesome/fontawesome-free/css/all.css
