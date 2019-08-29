@@ -5,11 +5,11 @@ chart: true
 ---
 
 
-# Charts from {.json style="font-size:x-small"} Strings
+# Charts from json Strings
 
 A chart can be included in a slide by adding a canvas element to the `*-deck.md` file  with the data-chart attribute set to the desired chart type.
 
-The chart can be configured within the canvas body by a {.json style="font-size:x-small"} string embedded into an HTML comment.
+The chart can be configured within the canvas body by a json string embedded into an HTML comment.
 
 For further information see: [https://github.com/rajgoel/reveal.js-plugins/tree/master/chart](https://github.com/rajgoel/reveal.js-plugins/tree/master/chart)
 
