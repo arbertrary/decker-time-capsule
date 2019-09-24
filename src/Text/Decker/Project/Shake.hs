@@ -258,8 +258,14 @@ copyStaticDirs = do
   public <- publicA
   project <- projectA
   let staticSrc = map (project </>) (staticDirs meta)
-  let staticDst = map (public </>) (staticDirs meta)
+  let staticDst = map ((public </>) . stripParentPrefix) (staticDirs meta)
   liftIO $ zipWithM_ copyDir staticSrc staticDst
+  where
+    stripParentPrefix :: FilePath -> FilePath
+    stripParentPrefix path =
+      if "../" `isPrefixOf` path
+        then stripParentPrefix (drop 3 path)
+        else path
 
 extractSupport :: Action ()
 extractSupport = do
