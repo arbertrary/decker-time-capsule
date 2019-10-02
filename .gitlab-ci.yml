@@ -13,7 +13,7 @@ templates:
     - docker
   script:
     # - make resources
-    - make -f symlinks.mk -C third-party all
+    - make -f symlinks.mk -C third-party prov=copy all
   artifacts:
     paths:
       - resource/support

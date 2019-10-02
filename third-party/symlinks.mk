@@ -12,6 +12,10 @@ else
 dup = ln -sF
 endif
 
+ifeq ($(prov),copy)
+dup = cp -r
+endif
+
 all: jquery chart.js mathjax reveal.js bootstrap piklor.js whiteboard math fontawesome reveal.js-menu thebelab
 
 thebelab: thebelab/lib/index.js
