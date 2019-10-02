@@ -12,7 +12,8 @@ templates:
   tags:
     - docker
   script:
-    - make resources
+    # - make resources
+    - make -f symlinks.mk -C third-party all
   artifacts:
     paths:
       - resource/support
