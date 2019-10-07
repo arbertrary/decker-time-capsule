@@ -12,7 +12,7 @@ else
 dup = ln -sF
 endif
 
-ifeq ($(prov),copy)
+ifeq ($(copy), true)
 dup = cp -r
 endif
 
