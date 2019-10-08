@@ -19,7 +19,7 @@ templates:
     paths:
       - resource/support
 
-build:linux:
+.build:linux:
   stage: build
   tags:
     - docker
@@ -54,7 +54,7 @@ build:mac:
     paths:
       - decker
 
-build:win:
+.build:win:
   tags:
     - win
   stage: build
@@ -71,7 +71,7 @@ build:win:
       - .stack-work
 
 
-test:linux:
+.test:linux:
   stage: test
   tags:
     - docker
