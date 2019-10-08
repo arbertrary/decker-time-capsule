@@ -117,7 +117,7 @@ deploy:mac:
   only:
     - master
   
-deploy:mac-release:
+deploy:mac-$CI_COMMIT_REF_NAME:
   stage: deploy
   image: 
     name: minio/mc:latest
@@ -128,7 +128,7 @@ deploy:mac-release:
     - docker
   script:
     - mc config host add store http://store.hci.informatik.uni-wuerzburg.de:9002 $MINIO_ACCESS $MINIO_SECRET --api S3v4
-    - mc cp ./decker store/decker/decker-mac-release
+    - mc cp ./decker store/decker/decker-mac-$CI_COMMIT_REF_NAME
   dependencies:
     - build:mac
   only:
