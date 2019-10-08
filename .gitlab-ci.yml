@@ -134,7 +134,7 @@ deploy:mac-$CI_COMMIT_REF_NAME:
   only:
     - /^v\d\.\d\.\d-patching$/
 
-deploy:linux:
+.deploy:linux:
   stage: deploy
   image: 
     name: minio/mc:latest
@@ -151,7 +151,7 @@ deploy:linux:
   only:
     - master
 
-deploy:win:
+.deploy:win:
   stage: deploy
   image: 
     name: minio/mc:latest
