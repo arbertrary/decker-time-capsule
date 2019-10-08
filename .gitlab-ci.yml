@@ -116,6 +116,23 @@ deploy:mac:
     - build:mac
   only:
     - master
+  
+deploy:mac082:
+  stage: deploy
+  image: 
+    name: minio/mc:latest
+    entrypoint: [""]
+  variables:
+    GIT_STRATEGY: none
+  tags:
+    - docker
+  script:
+    - mc config host add store http://store.hci.informatik.uni-wuerzburg.de:9002 $MINIO_ACCESS $MINIO_SECRET --api S3v4
+    - mc cp ./decker store/decker/decker-mac082
+  dependencies:
+    - build:mac
+  only:
+    - v0.8.2-patching
 
 deploy:linux:
   stage: deploy
