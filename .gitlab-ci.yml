@@ -100,7 +100,7 @@ build:mac:
     - docker build -t $CI_REGISTRY_IMAGE --build-arg MAKE_FLAGS=branch=$CI_COMMIT_REF_NAME .
     - docker push $CI_REGISTRY_IMAGE
 
-deploy:mac:
+.deploy:mac:
   stage: deploy
   image: 
     name: minio/mc:latest
@@ -127,11 +127,13 @@ deploy:mac-release:
   tags:
     - docker
   script:
+    - if [ "$CI_COMMIT_REF_NAME"== "master"]; then SUFFIX=""; else SUFFIX="-release"; fi
     - mc config host add store http://store.hci.informatik.uni-wuerzburg.de:9002 $MINIO_ACCESS $MINIO_SECRET --api S3v4
-    - mc cp ./decker store/decker/decker-mac-release
+    - mc cp ./decker store/decker/decker-mac${SUFFIX}
   dependencies:
     - build:mac
   only:
+    - master
     - /^v\d\.\d\.\d-patching$/
 
 .deploy:linux:
