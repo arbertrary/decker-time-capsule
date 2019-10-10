@@ -93,16 +93,23 @@ $endif$
   <script src="https://unpkg.com/thebelab@0.4.0/lib/index.js"></script> 
   <!-- <script src="$decker-support-dir$/vendor/thebelab/index.js"></script> -->
 $endif$
+$if(SCORM)$
+<script src="$decker-support-dir$/js/scorm.js" type="text/javascript"></script>
+$endif$
 $for(header-includes)$
   $header-includes$
 $endfor$
 </head>
+$if(SCORM)$
+<body onload="doStart(false);" onbeforeunload="doUnload(true);"></body>
+$else$
 <body>
+$endif$
 $for(include-before)$
 $include-before$
 $endfor$
   <div class="reveal">
-    <div class="slides">
+    <div class="slides" id="slideContent">
 
 $if(title)$
 <section id="$idprefix$title-slide">
