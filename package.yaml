@@ -93,6 +93,8 @@ dependencies:
   - websockets
   - websockets-snap
   - wreq
+  - xml-conduit
+  - xml-types
   - yaml
   - zip
 
