@@ -1,4 +1,5 @@
 const Reveal = require('../vendor/reveal/js/reveal');
+const fs = require('fs');
 
 /* *************************************
     SCORM 1.2 API Discovery Algorithm
