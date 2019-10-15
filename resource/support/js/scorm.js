@@ -1,6 +1,3 @@
-const Reveal = require('../vendor/reveal/js/reveal');
-const fs = require('fs');
-
 /* *************************************
     SCORM 1.2 API Discovery Algorithm
 ************************************** */
@@ -152,6 +149,50 @@ var startTimeStamp = null,
     bookmark = null,
     indexh = null, indexv = null, indexf = null;
 
+function isVerticalSlide(slide) {
+    return slide && slide.parentNode && !!slide.parentNode.nodeName.match( /section/i );
+}
+function isLastSlide(slide) {
+    if(slide) {
+        if(slide.nextElementSibling) return false;
+
+        if(isVerticalSlide(slide) && slide.parentNode.nextElementSibling) return false;
+        return true;
+    }
+    return false;
+}		
+function isLastVerticalSlide(slide) {
+    if(isVerticalSlide(slide) ) {
+        // Does this slide have a next sibling?
+        if(slide.nextElementSibling) return false;
+        return true;
+    }
+    return false;
+}
+// Returns h:horizontal v:vertical f:fragment indices of slide all numbers
+function getIndices(slide) {
+    var h = indexh;
+    var v = indexv;
+    var f = indexf;
+    var slideh = isVerticalSlide(slide) ? slide.parentNode : slide;
+    var horiSlides = Array.prototype.slice.call(document.querySelectorAll('.slides>section')); 
+    h = Math.max(horiSlides.indexOf(slideh),0);
+    v = undefined;
+    if(isVerticalSlide(slide)) {
+        v = Math.max(Array.prototype.slice.call(slide.parentNode.querySelectorAll('section')).indexOf(slide),0);
+    } else v = undefined;
+    var hasFragments = slide.querySelectorAll('.fragment').length > 0;
+    if(hasFragments) {
+        var curFragment = slide.querySelector('.current-fragment');
+        if(curFragment && curFragment.hasAttribute('data-fragment-index')) {
+            f = parseInt(curFragment.getAttribute('data-fragment-index'), 10);
+        } else {
+            f = slide.querySelectorAll('.fragment.visible').length - 1;
+        }
+    }
+    return { h: h, v: v, f: f};
+}
+
 //Create function handlers for the loading and unloading of the page
 function doStart() {
     /* record the time that the learner started the SCO to report the total time */
@@ -183,11 +224,6 @@ function doStart() {
             indexf = 0; }
     /* save the current location as the bookmark; */
     ScormProcessSetValue("cmi.core.lesson_location", [indexh, indexv, indexf].join());
-
-    /* the course is considered complete when the last page is reached */
-    if (Reveal.isLastSlide() && Reveal.isLastVerticalSlide()){
-            ScormProcessSetValue("cmi.core.lesson_status", "completed"); }
-    Reveal.slide(indexh, indexv, indexf); 
 }
 function ZeroPad(intNum, intNumDigits) {
     var strTemp;
@@ -273,7 +309,8 @@ function doUnload(pressedExit) {
     ScormProcessSetValue("cmi.core.session_time", scormTime);
 
     /* save the current location as the bookmark; */
-    var indices = Reveal.getCurrentSlide().getIndices();
+    var currentSlide = document.querySelector('#slideContent>.slide.present');
+    var indices = getIndices(currentSlide);
     indexh = indices.h;
     indexv = indices.v;
     indexf = indices.f;
@@ -281,8 +318,12 @@ function doUnload(pressedExit) {
 
     /* course is complete when last slide is reached
     prompt the user if exit before course complete */
-    if (Reveal.isLastSlide() && Reveal.isLastVerticalSlide()){
-            ScormProcessSetValue("cmi.core.lesson_status", "completed");
+
+    /* the course is considered complete when the last page is reached
+    prompt the user if exit before course complete */
+    var currentSlide = document.querySelector('#slideContent>.slide.present');
+    if (isLastSlide(currentSlide) && isLastVerticalSlide(currentSlide)){
+            ScormProcessSetValue("cmi.core.lesson_status", "completed"); 
             ScormProcessSetValue("cmi.core.exit", ""); }
     else if (confirm("Would you like to save your progress to resume later?")) {
             ScormProcessSetValue("cmi.core.exit", "suspend"); }
