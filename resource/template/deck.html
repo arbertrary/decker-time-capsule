@@ -96,15 +96,18 @@ $endif$
   <script src="https://unpkg.com/thebelab@0.4.0/lib/index.js"></script> 
   <!-- <script src="$decker-support-dir$/vendor/thebelab/index.js"></script> -->
 $endif$
-$if(SCORM)$
+
+<script src="$decker-support-dir$/vendor/reveal/js/reveal.js"></script>
+  <script src="$decker-support-dir$/vendor/jquery.js"></script>
+  <script src="$decker-support-dir$/vendor/piklor.js"></script>
 <script src="$decker-support-dir$/js/scorm.js" type="text/javascript"></script>
-$endif$
+
 $for(header-includes)$
   $header-includes$
 $endfor$
 </head>
 $if(SCORM)$
-<body onload="doStart(false);" onbeforeunload="doUnload(true);"></body>
+<body onload="doStart();" onbeforeunload="doUnload();"></body>
 $else$
 <body>
 $endif$
@@ -137,11 +140,6 @@ $endif$
 $body$
     </div>
   </div>
-
-  <script src="$decker-support-dir$/vendor/reveal/js/reveal.js"></script>
-  <script src="$decker-support-dir$/vendor/jquery.js"></script>
-  <script src="$decker-support-dir$/vendor/piklor.js"></script>
-
   <script>
       // Full list of configuration options available at:
       // https://github.com/hakimel/reveal.js#configuration

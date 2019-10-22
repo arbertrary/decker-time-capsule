@@ -144,61 +144,20 @@ function ScormProcessSetValue(element, value) {
      API Functions
 ************************************** */
 
-var startTimeStamp = null,
-    processedUnload = false,
-    bookmark = null,
-    indexh = null, indexv = null, indexf = null;
-
-function isVerticalSlide(slide) {
-    return slide && slide.parentNode && !!slide.parentNode.nodeName.match( /section/i );
-}
-function isLastSlide(slide) {
-    if(slide) {
-        if(slide.nextElementSibling) return false;
-
-        if(isVerticalSlide(slide) && slide.parentNode.nextElementSibling) return false;
-        return true;
-    }
-    return false;
-}		
-function isLastVerticalSlide(slide) {
-    if(isVerticalSlide(slide) ) {
-        // Does this slide have a next sibling?
-        if(slide.nextElementSibling) return false;
-        return true;
-    }
-    return false;
-}
-// Returns h:horizontal v:vertical f:fragment indices of slide all numbers
-function getIndices(slide) {
-    var h = indexh;
-    var v = indexv;
-    var f = indexf;
-    var slideh = isVerticalSlide(slide) ? slide.parentNode : slide;
-    var horiSlides = Array.prototype.slice.call(document.querySelectorAll('.slides>section')); 
-    h = Math.max(horiSlides.indexOf(slideh),0);
-    v = undefined;
-    if(isVerticalSlide(slide)) {
-        v = Math.max(Array.prototype.slice.call(slide.parentNode.querySelectorAll('section')).indexOf(slide),0);
-    } else v = undefined;
-    var hasFragments = slide.querySelectorAll('.fragment').length > 0;
-    if(hasFragments) {
-        var curFragment = slide.querySelector('.current-fragment');
-        if(curFragment && curFragment.hasAttribute('data-fragment-index')) {
-            f = parseInt(curFragment.getAttribute('data-fragment-index'), 10);
-        } else {
-            f = slide.querySelectorAll('.fragment.visible').length - 1;
-        }
-    }
-    return { h: h, v: v, f: f};
-}
+var startTimeStamp, reachedEnd, bookmark, h, v, f = null,
+    processedUnload = false;
 
 //Create function handlers for the loading and unloading of the page
 function doStart() {
-    /* record the time that the learner started the SCO to report the total time */
+
+    // Trouble shooting
+    var errorPar = document.createElement('p');
+    errorPar.setAttribute("id", "error");
+    document.getElementById('title-slide').appendChild(errorPar);
+        
+    /* record the time that the learner started the SCO to report the total time 
+       initialize communication with LMS   */
     startTimeStamp = new Date();
-    
-    /* initialize communication with the LMS */
     ScormProcessInitialize();
     
     /* set the lesson status to incomplete at first launch (if the course is not already completed) */
@@ -212,19 +171,56 @@ function doStart() {
     bookmark = ScormProcessGetValue("cmi.core.lesson_location");
 
     /* if there is a stored bookmark, sprompt the user to resume from the previous location */
-    if (bookmark && confirm("Would you like to resume from where you previously left off?")) {
+    if (bookmark && confirm("Resume where you previously left off?")) {
             /* find horiz, vert, frag indices */
             var indexStr = bookmark.split(",");
-            indexh = parseInt(indexStr[0], 10) || 0;
-            indexv = parseInt(indexStr[1], 10) || 0;
-            indexf = parseInt(indexStr[2], 10) || 0; }
+            h = parseInt(indexStr[0], 10) || 0;
+            v = parseInt(indexStr[1], 10) || 0;
+            f = parseInt(indexStr[2], 10) || 0; }
     else {
-            indexh = 0;
-            indexv = 0;
-            indexf = 0; }
+            h = 0;
+            v = 0;
+            f = 0; }
     /* save the current location as the bookmark; */
-    ScormProcessSetValue("cmi.core.lesson_location", [indexh, indexv, indexf].join());
+    ScormProcessSetValue("cmi.core.lesson_location", [h, v, f].join());
+
+    Reveal.slide(h,v,f);
 }
+
+function doUnload() {
+
+    /* don't call this function twice */
+    if (processedUnload == true){return;}
+    processedUnload = true;
+
+    /* record the session time */
+    var endTimeStamp = new Date();
+    var totalMilliseconds = (endTimeStamp.getTime() - startTimeStamp.getTime());
+    var scormTime = ConvertMilliSecondsToSCORMTime(totalMilliseconds, false);
+    ScormProcessSetValue("cmi.core.session_time", scormTime);
+
+    /* save the current location as the bookmark; */
+    var currentSlide = document.querySelector('#slideContent>.slide.present');
+    var indices = Reveal.getIndices(currentSlide);
+    h = indices.h || 0;
+    v = indices.v || 0;
+    f = indices.f || 0;
+    ScormProcessSetValue("cmi.core.lesson_location", [h, v, f].join());
+
+    /* course is complete when last slide is reached
+    prompt the user if exit before course complete */
+    reachedEnd = Reveal.isLastSlide();
+
+    var currentSlide = document.querySelector('#slideContent>.slide.present');
+    if (reachedEnd){
+            ScormProcessSetValue("cmi.core.lesson_status", "completed"); 
+            ScormProcessSetValue("cmi.core.exit", ""); }
+    else if (confirm("Would you like to save your progress to resume later?")) {
+            ScormProcessSetValue("cmi.core.exit", "suspend"); }
+    else {
+            ScormProcessSetValue("cmi.core.exit", ""); }
+    ScormProcessFinish();
+} 
 function ZeroPad(intNum, intNumDigits) {
     var strTemp;
     var intLen;
@@ -297,41 +293,6 @@ function ConvertMilliSecondsToSCORMTime(intTotalMilliseconds, blnIncludeFraction
     }
     return strCMITimeSpan;
 }
-function doUnload(pressedExit) {
-    /* don't call this function twice */
-    if (processedUnload == true){return;}
-    processedUnload = true;
-
-    /* record the session time */
-    var endTimeStamp = new Date();
-    var totalMilliseconds = (endTimeStamp.getTime() - startTimeStamp.getTime());
-    var scormTime = ConvertMilliSecondsToSCORMTime(totalMilliseconds, false);
-    ScormProcessSetValue("cmi.core.session_time", scormTime);
-
-    /* save the current location as the bookmark; */
-    var currentSlide = document.querySelector('#slideContent>.slide.present');
-    var indices = getIndices(currentSlide);
-    indexh = indices.h;
-    indexv = indices.v;
-    indexf = indices.f;
-    ScormProcessSetValue("cmi.core.lesson_location", [indexh, indexv, indexf].join());
-
-    /* course is complete when last slide is reached
-    prompt the user if exit before course complete */
-
-    /* the course is considered complete when the last page is reached
-    prompt the user if exit before course complete */
-    var currentSlide = document.querySelector('#slideContent>.slide.present');
-    if (isLastSlide(currentSlide) && isLastVerticalSlide(currentSlide)){
-            ScormProcessSetValue("cmi.core.lesson_status", "completed"); 
-            ScormProcessSetValue("cmi.core.exit", ""); }
-    else if (confirm("Would you like to save your progress to resume later?")) {
-            ScormProcessSetValue("cmi.core.exit", "suspend"); }
-    else {
-            ScormProcessSetValue("cmi.core.exit", ""); }
-    ScormProcessFinish();
-} 
-
 //Used to record the results of a test; passes in score as a percentage
 function RecordTest(score){
     ScormProcessSetValue("cmi.core.score.raw", score);
