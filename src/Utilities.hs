@@ -301,9 +301,10 @@ markdownToHtmlPage markdownFile out = do
                 (urlPath $
                  supportDir </> "node_modules" </> "mathjax" </>
                  "MathJax.js?config=TeX-AMS_HTML")
-          , writerVariables = 
-            [ ("decker-support-dir",  supportDir)
-            , ("template-support-dir", templateSupportDir) ]
+          , writerVariables =
+              [ ("decker-support-dir", supportDir)
+              , ("template-support-dir", templateSupportDir)
+              ]
           , writerCiteMethod = Citeproc
           , writerTableOfContents = lookupBool "show-toc" False docMeta
           , writerTOCDepth = lookupInt "toc-depth" 1 docMeta
@@ -353,9 +354,10 @@ markdownToHtmlHandout markdownFile out = do
                 (urlPath $
                  supportDir </> "node_modules" </> "mathjax" </>
                  "MathJax.js?config=TeX-AMS_HTML")
-          , writerVariables = 
-            [ ("decker-support-dir",  supportDir)
-            , ("template-support-dir", templateSupportDir) ]
+          , writerVariables =
+              [ ("decker-support-dir", supportDir)
+              , ("template-support-dir", templateSupportDir)
+              ]
           , writerCiteMethod = Citeproc
           , writerTableOfContents = lookupBool "show-toc" False docMeta
           , writerTOCDepth = lookupInt "toc-depth" 1 docMeta
@@ -388,7 +390,8 @@ readMetaMarkdown markdownFile = do
   externalMeta <-
     liftIO $
     toPandocMeta <$> aggregateMetaData projectDir (takeDirectory markdownFile)
-  markdown <- liftIO $ T.readFile markdownFile
+  -- markdown <- liftIO $ T.readFile markdownFile
+  markdown <- liftIO $ E.decodeUtf8 <$> B.readFile markdownFile
   let filePandoc@(Pandoc fileMeta fileBlocks) =
         readMarkdownOrThrow pandocReaderOpts markdown
   let combinedMeta = mergePandocMeta fileMeta externalMeta
