@@ -149,11 +149,6 @@ var startTimeStamp, reachedEnd, bookmark, h, v, f = null,
 
 //Create function handlers for the loading and unloading of the page
 function doStart() {
-
-    // Trouble shooting
-    var errorPar = document.createElement('p');
-    errorPar.setAttribute("id", "error");
-    document.getElementById('title-slide').appendChild(errorPar);
         
     /* record the time that the learner started the SCO to report the total time 
        initialize communication with LMS   */
