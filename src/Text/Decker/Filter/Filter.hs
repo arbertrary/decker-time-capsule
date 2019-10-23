@@ -154,10 +154,10 @@ wrapBoxes slide@(Slide header body) = do
     Disposition _ Html -> return $ Slide header $ concatMap wrap boxes
   where
     boxes = split (keepDelimsL $ whenElt isBoxDelim) body
-    wrap (Header 2 (id_, cls, kvs) text:blocks) =
+    wrap (Header n (id_, cls, kvs) text:blocks) =
       [ Div
           ("", "box" : cls, kvs)
-          (Header 2 (id_, deFragment cls, kvs) text : blocks)
+          (Header n (id_, deFragment cls, kvs) text : blocks)
       ]
     wrap box = box
 

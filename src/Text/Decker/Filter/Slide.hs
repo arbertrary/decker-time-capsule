@@ -111,5 +111,5 @@ dropByClass which =
   filter (not . any (`elem` which) . view (attributes . attrClasses))
 
 isBoxDelim :: Block -> Bool
-isBoxDelim (Header 2 _ _) = True
+isBoxDelim (Header _ _ _) = True
 isBoxDelim _ = False
