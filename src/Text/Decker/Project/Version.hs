@@ -5,6 +5,7 @@ module Text.Decker.Project.Version
   , deckerGitVersionTag
   , isDevelopmentVersion
   , versionCheck
+  , deckerCompileDate
   ) where
 
 import Text.Decker.Internal.Meta
@@ -31,6 +32,9 @@ deckerGitBranch = $(lookupGitBranch)
 -- | Determines the git branch at compile time 
 deckerGitCommitId :: String
 deckerGitCommitId = $(lookupGitCommitId)
+
+deckerCompileDate :: String
+deckerCompileDate = $(lookupCompileDate)
 
 -- | Determines the git tag at compile time 
 deckerGitVersionTag :: String

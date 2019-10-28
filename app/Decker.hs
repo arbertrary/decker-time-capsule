@@ -55,11 +55,12 @@ run :: IO ()
 run = do
   when isDevelopmentVersion $
     printf
-      "WARNING: You are running a development build of decker (version: %s, branch: %s, commit: %s, tag: %s). Please be sure that you know what you're doing.\n"
+      "WARNING: You are running a development build of decker (version: %s, branch: %s, commit: %s, tag: %s, nightly date: %s). Please be sure that you know what you're doing.\n"
       deckerVersion
       deckerGitBranch
       deckerGitCommitId
       deckerGitVersionTag
+      deckerCompileDate
   directories <- projectDirectories
   --
   let serverPort = 8888
@@ -88,7 +89,9 @@ run = do
         " (branch: " ++
         deckerGitBranch ++
         ", commit: " ++
-        deckerGitCommitId ++ ", tag: " ++ deckerGitVersionTag ++ ")"
+        deckerGitCommitId ++
+        ", tag: " ++
+        deckerGitVersionTag ++ ", nightly date: " ++ deckerCompileDate ++ ")"
       putNormal $ "pandoc version " ++ pandocVersion
       putNormal $ "pandoc-types version " ++ showVersion pandocTypesVersion
     --
