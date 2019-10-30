@@ -52,7 +52,7 @@ build:mac:
     paths:
       - decker
 
-.build:win:
+build:win:
   tags:
     - win
   stage: build
@@ -68,7 +68,7 @@ build:mac:
     paths:
       - .stack-work
 
-.test:linux:
+test:linux:
   stage: test
   tags:
     - docker
@@ -123,7 +123,7 @@ deploy:linux:
     - master
     - /^v\d\.\d\.\d-patching$/
 
-.deploy:win:
+deploy:win:
   stage: deploy
   image: 
     name: minio/mc:latest
