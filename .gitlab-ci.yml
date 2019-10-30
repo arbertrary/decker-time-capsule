@@ -42,7 +42,7 @@ build:mac:
   stage: build
   script:
     - git rev-parse --short HEAD
-    - make clean-build
+    - make build
     - cp $(stack path | grep "local-install-root" | awk '{printf "%s/bin/decker",$2}') decker
   cache:
     key: ${CI_JOB_NAME}
