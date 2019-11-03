@@ -1,6 +1,7 @@
 {-- Author: Henrik Tramberend <henrik@tramberend.de> --}
 module Decker where
 
+import Text.Decker.Filter.Scorm
 import Text.Decker.Internal.Exception
 import Text.Decker.Internal.External
 import Text.Decker.Internal.Flags (hasPreextractedResources)
@@ -14,7 +15,6 @@ import Text.Decker.Server.Dachdecker
 import Text.Decker.Writer.Format
 import Text.Decker.Writer.Html
 import Text.Decker.Writer.Pdf
-
 import Control.Concurrent
 import Control.Exception
 import Control.Lens ((^.))
@@ -145,6 +145,12 @@ run = do
     --
     phony "index" $ need ["support", index]
     --
+    phony "scorm" $ do
+      need ["html"]
+      let publicDir = directories ^. public
+      let projectDir = directories ^. project
+      writeManifest projectDir publicDir
+
     priority 2 $
       "//*-deck.html" %> \out -> do
         needGlobalMetaFile
