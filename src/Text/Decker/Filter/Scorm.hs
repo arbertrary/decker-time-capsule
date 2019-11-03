@@ -8,7 +8,7 @@
     Learning Management Systems.
 -}
 module Text.Decker.Filter.Scorm
-( writeManifest
+( buildScorm
 ) where
 
 import System.Directory
@@ -108,17 +108,17 @@ writeManifest projDir pubDir = do
     -- get courseInfo from markdown YAML
     -- course <- getCourseInfo projDir    
 
-    -- build children tags
     resourceTag <- buildResources pubDir
     let resource = resourceTag
     let metaData = buildMetadata
-
-    -- build Manifest Tag
     let attrs = [ ("identifier", [ContentText "course-identifier"])
                 , ("version", [ContentText "course-version"])]
     let root = Element "manifest" attrs [metaData, orgs, resource]
 
     -- build and write Manifest file
-    let manifest = T.pack $ show $ Document (Prologue [] Nothing []) root []
+    let manifestDoc = T.pack $ show $ Document (Prologue [] Nothing []) root []
     let maniDir = pubDir </> "imsmanifest.xml"
-    TI.writeFile maniDir manifest
+    TI.writeFile maniDir manifestDoc
+
+buildScorm :: FilePath -> FilePath -> Action ()
+buildScorm proj pub = runAfter $ writeManifest proj pub
