@@ -146,7 +146,7 @@ run = do
       need ["html"]
       let publicDir = directories ^. public
       let projectDir = directories ^. project
-      writeManifest projectDir publicDir
+      buildScorm projectDir publicDir
 
     priority 2 $
       "//*-deck.html" %> \out -> do
