@@ -12,7 +12,8 @@ module Text.Decker.Filter.Scorm
 ) where
 
 import qualified Data.ByteString.Lazy as Lazy (putStr, writeFile)
-import qualified Data.Text as T
+import Data.List
+import qualified Data.Text as T hiding (isSuffixOf)
 -- import qualified Text.XML.Unresolved as XR
 import Data.XML.Types
 import Development.Shake
@@ -21,7 +22,7 @@ import System.FilePath
 import Text.XML.Unresolved (renderLBS, def)
 
 -- import Data.Yaml
--- import Text.Decker.Project.Project
+import Text.Decker.Project.Project
 -- import Text.XML.Generator
 
 -- Defined in the YAML header
@@ -55,21 +56,17 @@ data Course = Course
     --     let courseId = maybe [] (map text) $ getField "course-id" metadata
     --     let courseVersion = maybe [] (map text) $ getField "course-version" metadata
     --     return $ Course courseName courseId courseVersion lessonName
-
--- List contents of dir (takes path of public directory), returns File tags
-getFiles :: [FilePath] -> [Node]
-getFiles pubFiles = map buildFileTags pubFiles             -- returns IO [FilePath]
-        where
-            buildFileTags file = NodeElement $ Element "file" [("href", [ContentText $ T.pack file])] []
-    
-buildMetadata :: Node 
-buildMetadata = NodeElement $ Element "metadata" [] [schema, schemaVersion]
+  
+metaData :: Node 
+metaData = NodeElement $ Element "metadata" [] [schema, schemaVersion]
     where
         schema = NodeElement $ Element "schema" [] [NodeContent $ ContentText $ T.pack "ADL SCORM"]
         schemaVersion = NodeElement $ Element "schemaversion" [] [NodeContent $ ContentText $ T.pack "1.2"]
 
+        -- <organization identifier="GOL_23.10.19_ORG">
+
 orgs :: Node
-orgs = NodeElement $ Element "organizations" attrs [title, item]
+orgs = NodeElement $ Element "organizations" attrs [org]
     where
         id = "course-identifier" ++ "_ORG"
         attrs = [("identifier", [ContentText $ T.pack id])]
@@ -81,43 +78,40 @@ orgs = NodeElement $ Element "organizations" attrs [title, item]
                     , ("identifierref", [ContentText $ T.pack itemIdRef])]
         itemChildren = [NodeElement $ Element "title" [] [NodeContent $ ContentText $ T.pack "lesson-title"]]
         item = NodeElement $ Element "item" itemAttrs itemChildren
+        org = NodeElement $ Element "organization" attrs [title, item]
 
-buildResources :: FilePath -> IO Node
-buildResources pubDir = do 
-    pubFiles <- listDirectory pubDir 
-    html <- getHtml pubFiles
-    let href = html
+getHtml :: [FilePath] -> FilePath
+getHtml (file:fileList) = do
+    let isHtml = "-deck.html" `isSuffixOf` file
+    case isHtml of 
+        True -> file
+        False -> getHtml fileList
+getHtml [] = error $ "Cant find *-deck.html" 
+
+buildResources :: [FilePath] -> IO Node
+buildResources pubFiles = do 
     let resAttrs =  [("identifier", [ContentText "course-identifier_res"])
                     ,("type", [ContentText "webcontent"])
-                    ,("href", [ContentText $ T.pack href])
+                    ,("href", [ContentText $ T.pack $ getHtml pubFiles])
                     ,("adlcp:scormtype", [ContentText "sco"])]
-    let resChildren = getFiles pubFiles   
+    let resChildren = map buildFileTags pubFiles   
     let children = NodeElement $ Element "resource" resAttrs resChildren           
     return $ NodeElement $ Element "resources" [] [children]
-    where 
-        getHtml pubFiles = do
-            file <- findFile pubFiles "deck.html$" 
-            case file of 
-                Just file -> return file
-                Nothing -> return ""
+    where
+        buildFileTags file = 
+            NodeElement $ Element "file" [("href", [ContentText $ T.pack file])] []
 
 writeManifest :: FilePath -> FilePath -> IO ()
 writeManifest projDir pubDir = do
     -- get courseInfo from markdown YAML
     -- course <- getCourseInfo projDir    
-
-    resourceTag <- buildResources pubDir
-    let resource = resourceTag
-    let metaData = buildMetadata
+    pubFiles <- listDirectory pubDir
+    resources <- buildResources pubFiles
     let attrs = [ ("identifier", [ContentText "course-identifier"])
                 , ("version", [ContentText "course-version"])]
-    let root = Element "manifest" attrs [metaData, orgs, resource]
-
-    -- build and write Manifest file
+    let root = Element "manifest" attrs [metaData, orgs, resources]
     let manifestDoc = renderLBS def (Document (Prologue [] Nothing []) root [])
-    let maniDir = pubDir </> "imsmanifest.xml"
-    Lazy.putStr manifestDoc
-    Lazy.writeFile maniDir manifestDoc
+    Lazy.writeFile (pubDir </> "imsmanifest.xml") manifestDoc
 
 buildScorm :: FilePath -> FilePath -> Action ()
 buildScorm proj pub = runAfter $ writeManifest proj pub
