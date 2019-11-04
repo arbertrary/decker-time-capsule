@@ -147,6 +147,7 @@ run = do
       let publicDir = directories ^. public
       let projectDir = directories ^. project
       buildScorm projectDir publicDir
+      liftIO $ manifestComplete
 
     priority 2 $
       "//*-deck.html" %> \out -> do
@@ -301,6 +302,10 @@ waitForYes = do
   hFlush stdout
   input <- getLine
   unless (input == "y") waitForYes
+
+manifestComplete :: IO ()
+manifestComplete = do
+  putStr "\nManifest file has been created.\n"
 
 needGlobalMetaFile :: Action ()
 needGlobalMetaFile = do
