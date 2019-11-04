@@ -11,20 +11,16 @@ module Text.Decker.Filter.Scorm
 ( buildScorm
 ) where
 
-import System.Directory
 import qualified Data.Text as T
-import qualified Data.Text.IO as TI
+import qualified Text.XML.Unresolved as XR
 import Data.XML.Types
 import Development.Shake
-
+import System.Directory
 import System.FilePath
-import Control.Exception
-import Control.Monad.Extra
-import Control.Monad.IO.Class
-import Data.Maybe
 
-import Data.Yaml
-import Text.Decker.Project.Project
+-- import Data.Yaml
+-- import Text.Decker.Project.Project
+-- import Text.XML.Generator
 
 -- Defined in the YAML header
 data Course = Course 
@@ -42,7 +38,7 @@ data Course = Course
     -- getCourseInfo :: FilePath -> IO Course
     -- getCourseInfo projDir = do
     --     let mdFile = 
-    --     course <- TI.readfile mdFile
+    --     course <- XR.readfile mdFile
     --     return $ course
 
     -- Gets course info from YAML header, need path of markdown file
@@ -116,9 +112,9 @@ writeManifest projDir pubDir = do
     let root = Element "manifest" attrs [metaData, orgs, resource]
 
     -- build and write Manifest file
-    let manifestDoc = T.pack $ show $ Document (Prologue [] Nothing []) root []
+    let manifestDoc = Document (Prologue [] Nothing []) root []
     let maniDir = pubDir </> "imsmanifest.xml"
-    TI.writeFile maniDir manifestDoc
+    XR.writeFile XR.def maniDir manifestDoc
 
 buildScorm :: FilePath -> FilePath -> Action ()
 buildScorm proj pub = runAfter $ writeManifest proj pub
