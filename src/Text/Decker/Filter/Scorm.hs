@@ -11,12 +11,14 @@ module Text.Decker.Filter.Scorm
 ( buildScorm
 ) where
 
+import qualified Data.ByteString.Lazy as Lazy (putStr, writeFile)
 import qualified Data.Text as T
-import qualified Text.XML.Unresolved as XR
+-- import qualified Text.XML.Unresolved as XR
 import Data.XML.Types
 import Development.Shake
 import System.Directory
 import System.FilePath
+import Text.XML.Unresolved (renderLBS, def)
 
 -- import Data.Yaml
 -- import Text.Decker.Project.Project
@@ -112,9 +114,10 @@ writeManifest projDir pubDir = do
     let root = Element "manifest" attrs [metaData, orgs, resource]
 
     -- build and write Manifest file
-    let manifestDoc = Document (Prologue [] Nothing []) root []
+    let manifestDoc = renderLBS def (Document (Prologue [] Nothing []) root [])
     let maniDir = pubDir </> "imsmanifest.xml"
-    XR.writeFile XR.def maniDir manifestDoc
+    Lazy.putStr manifestDoc
+    Lazy.writeFile maniDir manifestDoc
 
 buildScorm :: FilePath -> FilePath -> Action ()
 buildScorm proj pub = runAfter $ writeManifest proj pub
