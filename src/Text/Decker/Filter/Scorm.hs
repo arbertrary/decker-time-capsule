@@ -11,12 +11,14 @@ module Text.Decker.Filter.Scorm
 ( buildScorm
 ) where
 
+import Control.Monad (filterM)
+import Control.Monad.Extra (partitionM)
 import qualified Data.ByteString.Lazy as Lazy (putStr, writeFile)
 import Data.List
 import qualified Data.Text as T hiding (isSuffixOf)
 -- import qualified Text.XML.Unresolved as XR
 import Data.XML.Types
-import Development.Shake
+import Development.Shake hiding (doesDirectoryExist)
 import System.Directory
 import System.FilePath
 import Text.XML.Unresolved (renderLBS, def)
@@ -88,25 +90,38 @@ getHtml (file:fileList) = do
         False -> getHtml fileList
 getHtml [] = error $ "Cant find *-deck.html" 
 
-buildResources :: [FilePath] -> IO Node
-buildResources pubFiles = do 
+-- lists all directories in a directory, returns a list of all directories
+listDirs :: FilePath -> IO [FilePath]
+listDirs dir = do
+    names <- listDirectory dir
+    (dirs, files) <- partitionM doesDirectoryExist names
+    return files
+    -- listDirectory dir >>= filterM (doesDirectoryExist . (++) dir )
+
+-- Expected type is return type in signature
+buildFileTags :: FilePath -> IO [Node]
+buildFileTags dir = do
+    allDirs <- listDirs dir
+    return $ fmap wrapTag allDirs
+    where
+        wrapTag file = NodeElement $ Element "file" [("href", [ContentText $ T.pack file])] []
+
+buildResources :: FilePath -> IO Node
+buildResources pubDir = do 
+    pubFiles <- listDirectory pubDir
     let resAttrs =  [("identifier", [ContentText "course-identifier_res"])
                     ,("type", [ContentText "webcontent"])
                     ,("href", [ContentText $ T.pack $ getHtml pubFiles])
                     ,("adlcp:scormtype", [ContentText "sco"])]
-    let resChildren = map buildFileTags pubFiles   
-    let children = NodeElement $ Element "resource" resAttrs resChildren           
+    resChildren <- buildFileTags pubDir   
+    let children = NodeElement $ Element "resource" resAttrs resChildren          
     return $ NodeElement $ Element "resources" [] [children]
-    where
-        buildFileTags file = 
-            NodeElement $ Element "file" [("href", [ContentText $ T.pack file])] []
 
 writeManifest :: FilePath -> FilePath -> IO ()
 writeManifest projDir pubDir = do
     -- get courseInfo from markdown YAML
-    -- course <- getCourseInfo projDir    
-    pubFiles <- listDirectory pubDir
-    resources <- buildResources pubFiles
+    -- course <- getCourseInfo projDir  
+    resources <- buildResources pubDir
     let attrs = [ ("identifier", [ContentText "course-identifier"])
                 , ("version", [ContentText "course-version"])]
     let root = Element "manifest" attrs [metaData, orgs, resources]
