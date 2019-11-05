@@ -94,9 +94,10 @@ getHtml [] = error $ "Cant find *-deck.html"
 getFiles :: FilePath -> IO [FilePath]
 getFiles dir = do
     names <- listDirectory dir
-    (dirs, files) <- partitionM doesDirectoryExist names
-    concatDirs <- mconcat $ map getFiles dirs
-    return $ files ++ concatDirs
+    (dirs, files) <- partitionM System.Directory.doesDirectoryExist names   -- files returns support dirmm
+    subFiles <- mconcat $ map getFiles dirs
+    let allFiles = files ++ subFiles
+    return $ dropWhile (\x -> x == "support" || x == ".DS_Store") allFiles
     -- listDirectory dir >>= filterM (doesDirectoryExist . (++) dir )
 
 -- Expected type is return type in signature
