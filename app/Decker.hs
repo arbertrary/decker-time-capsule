@@ -147,9 +147,7 @@ run = do
     --
     phony "scorm" $ do
       need ["html"]
-      let publicDir = directories ^. public
-      let projectDir = directories ^. project
-      buildScorm projectDir publicDir
+      buildScorm (directories ^. project) (directories ^. public)
       liftIO $ manifestComplete
 
     priority 2 $
