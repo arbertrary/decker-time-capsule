@@ -91,17 +91,18 @@ getHtml (file:fileList) = do
 getHtml [] = error $ "Cant find *-deck.html" 
 
 -- lists all directories in a directory, returns a list of all directories
-listDirs :: FilePath -> IO [FilePath]
-listDirs dir = do
+getFiles :: FilePath -> IO [FilePath]
+getFiles dir = do
     names <- listDirectory dir
     (dirs, files) <- partitionM doesDirectoryExist names
-    return files
+    concatDirs <- mconcat $ map getFiles dirs
+    return $ files ++ concatDirs
     -- listDirectory dir >>= filterM (doesDirectoryExist . (++) dir )
 
 -- Expected type is return type in signature
 buildFileTags :: FilePath -> IO [Node]
 buildFileTags dir = do
-    allDirs <- listDirs dir
+    allDirs <- getFiles dir
     return $ fmap wrapTag allDirs
     where
         wrapTag file = NodeElement $ Element "file" [("href", [ContentText $ T.pack file])] []
