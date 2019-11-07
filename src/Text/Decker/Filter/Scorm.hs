@@ -18,15 +18,14 @@ import Data.List
 import qualified Data.Text as T hiding (isSuffixOf)
 import Data.Time.Clock (getCurrentTime, utctDay)
 import Data.XML.Types
-import Data.Yaml
+import Data.Yaml (YamlException(YamlException))
 import Development.Shake hiding (doesDirectoryExist)
 import System.Directory
 import System.FilePath
 import Text.Decker.Internal.Common (pandocReaderOpts)
--- import Text.Decker.Project.Project
 import Text.Pandoc.Class (runPure)
 import Text.Pandoc.Definition
-import Text.Pandoc.Error
+import Text.Pandoc.Error (PandocError (PandocParseError))
 import Text.Pandoc.Readers (readMarkdown)
 import Text.Pandoc.Shared (stringify)
 import Text.XML.Unresolved (renderLBS, def)
@@ -47,12 +46,11 @@ getFile target [] = error $ "Can't find " ++ target 
 
 getYaml :: String -> Meta -> IO String   
 getYaml field meta = do
+    let yamlWarning = "The YAML header of your markdown file requires title, author and version."
     case lookupMeta field meta of 
         Just (MetaInlines s) -> return $ stringify s
         Nothing -> throw $ YamlException yamlWarning
-    where
-        yamlWarning = "The YAML header of your markdown file requires title, author and version."
-        
+
 -- Gets course info from YAML header
 getCourse :: FilePath -> IO Course
 getCourse projDir = do
@@ -65,7 +63,7 @@ getCourse projDir = do
             author <- getYaml "author" meta 
             version <- getYaml "version" meta 
             date <- getCurrentTime >>= return . show . utctDay
-            let identifier = (take 3 title) ++ "_" ++ (take 3 author) ++ date 
+            let identifier = (take 3 title) ++ "_" ++ (take 3 author) ++ "_" ++ date 
             return $ Course title identifier version 
         Left errMsg -> throw $ PandocParseError (show errMsg)
   
@@ -86,12 +84,14 @@ buildFileTags dir = do
     where
         wrapTag file = NodeElement $ Element "file" [("href", [ContentText $ T.pack file])] []
 
-buildResources :: FilePath -> T.Text -> IO Node
-buildResources pubDir courseID = do 
+buildResources :: FilePath -> Course -> IO Node
+buildResources pubDir course = do 
     pubFiles <- listDirectory pubDir
-    let resAttrs =  [("identifier", [ContentText courseID])
+    let resId = ContentText $ T.pack $ identifier course ++ "_RES"
+    let href = ContentText $ T.pack $ getFile "-deck.html" pubFiles
+    let resAttrs =  [("identifier", [resId])
                     ,("type", [ContentText "webcontent"])
-                    ,("href", [ContentText $ T.pack $ getFile "-deck.html" pubFiles])
+                    ,("href", [href])
                     ,("adlcp:scormtype", [ContentText "sco"])]
     resChildren <- buildFileTags pubDir   
     let children = NodeElement $ Element "resource" resAttrs resChildren          
@@ -125,7 +125,7 @@ writeManifest projDir pubDir = do
     let courseID = T.pack $ identifier course
     let courseVersion = T.pack $ version course
     let orgs = buildOrg course
-    resources <- buildResources pubDir courseID
+    resources <- buildResources pubDir course
     let attrs = [ ("identifier", [ContentText $ courseID])
                 , ("version", [ContentText $ courseVersion])]
     let root = Element "manifest" attrs [metaData, orgs, resources]
