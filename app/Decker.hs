@@ -144,8 +144,8 @@ run = do
     --
     phony "scorm" $ do
       need ["html"]
-      buildScorm (directories ^. project) (directories ^. public)
-      liftIO $ manifestComplete
+      let publicDir = directories ^. public
+      createScormPackage (directories ^. project) publicDir
 
     priority 2 $
       "//*-deck.html" %> \out -> do

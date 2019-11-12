@@ -1,16 +1,17 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-| 
   Module: Scorm
-  Description: Provides functionality for creating different types of quiz questions
+  Description: Provides functionality for creating imsmanifest file
   Author: Samantha Monty <samantha.monty@uni-wuerzburg.de>
   
   This module creates an imsmanifest.xml file to enable SCORM standards used in
-    Learning Management Systems.
+    Learning Management Systems. This is based on SCORM 1.2.
 -}
 module Text.Decker.Filter.Scorm
-( buildScorm
-) where
+    ( createScormPackage
+    ) where
 
+import Codec.Archive.Zip
 import Control.Exception (throw)
 import Control.Monad.Extra (partitionM)
 import qualified Data.ByteString.Lazy as Lazy (writeFile)
@@ -20,7 +21,7 @@ import Data.Time.Clock (getCurrentTime, utctDay)
 import Data.XML.Types
 import Data.Yaml (YamlException(YamlException))
 import Development.Shake hiding (doesDirectoryExist)
-import System.Directory
+import qualified System.Directory as Dir
 import System.FilePath
 import Text.Decker.Internal.Common (pandocReaderOpts)
 import Text.Pandoc.Class (runPure)
@@ -29,6 +30,7 @@ import Text.Pandoc.Error (PandocError (PandocParseError))
 import Text.Pandoc.Readers (readMarkdown)
 import Text.Pandoc.Shared (stringify)
 import Text.XML.Unresolved (renderLBS, def)
+
 
 -- Defined in the YAML header
 data Course = Course 
@@ -54,7 +56,7 @@ getYaml field meta = do
 -- Gets course info from YAML header
 getCourse :: FilePath -> IO Course
 getCourse projDir = do
-    names <- listDirectory projDir
+    names <- Dir.listDirectory projDir
     markdownFile <- readFile $ getFile "-deck.md" names
     let markdown = T.pack markdownFile
     case runPure (readMarkdown pandocReaderOpts markdown) of
@@ -69,9 +71,9 @@ getCourse projDir = do
   
 listFiles :: FilePath -> IO [FilePath]
 listFiles dir = do
-    names <- listDirectory dir
+    names <- Dir.listDirectory dir
     let qualifiedNames = map (dir </>) names
-    (dirs, files) <- partitionM System.Directory.doesDirectoryExist qualifiedNames   -- files returns support dir
+    (dirs, files) <- partitionM Dir.doesDirectoryExist qualifiedNames   -- files returns support dir
     subFiles <- mconcat $ map listFiles dirs
     let allFiles = files ++ subFiles
     let noStores = dropWhile (\x -> x == ".DS_Store") allFiles 
@@ -86,7 +88,7 @@ buildFileTags dir = do
 
 buildResources :: FilePath -> Course -> IO Node
 buildResources pubDir course = do 
-    pubFiles <- listDirectory pubDir
+    pubFiles <- Dir.listDirectory pubDir
     let resId = ContentText $ T.pack $ identifier course ++ "_RES"
     let href = ContentText $ T.pack $ getFile "-deck.html" pubFiles
     let resAttrs =  [("identifier", [resId])
@@ -132,5 +134,10 @@ writeManifest projDir pubDir = do
     let manifestDoc = renderLBS def (Document (Prologue [] Nothing []) root [])
     Lazy.writeFile (pubDir </> "imsmanifest.xml") manifestDoc
 
-buildScorm :: FilePath -> FilePath -> Action ()
-buildScorm proj pub = runAfter $ writeManifest proj pub
+createScormPackage :: FilePath -> FilePath -> Action ()
+createScormPackage projDir pubDir = do
+    let archPath = projDir </> "SCORM-package.zip"
+    let archive = packDirRecur Deflate mkEntrySelector pubDir
+    runAfter $ writeManifest projDir pubDir 
+    runAfter $ createArchive archPath archive
+    runAfter $ putStrLn "Finished building SCORM package. You may now upload SCORM-package.zip to your Learning Management System.\n"
