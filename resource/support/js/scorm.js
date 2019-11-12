@@ -3,46 +3,46 @@
 ************************************** */
 
 var findAPITries = 0;
- 
+
 function findAPI(win) {
-   // Check to see if the window (win) contains the API
-   // if the window (win) does not contain the API and
-   // the window (win) has a parent window and the parent window
-   // is not the same as the window (win)
-   while ( (win.API == null) && (win.parent != null) && (win.parent != win) ) {
-      // increment the number of findAPITries
-      findAPITries++;
- 
-      // Note: 7 is an arbitrary number, but should be more than sufficient
-      if (findAPITries > 7) {
-         alert("Error finding API -- too deeply nested.");
-         return null;
-      }
- 
-      // set the variable that represents the window being
-      // being searched to be the parent of the current window
-      // then search for the API again
-      win = win.parent;
-   }
-   return win.API;
+    // Check to see if the window (win) contains the API
+    // if the window (win) does not contain the API and
+    // the window (win) has a parent window and the parent window
+    // is not the same as the window (win)
+    while ((win.API == null) && (win.parent != null) && (win.parent != win)) {
+        // increment the number of findAPITries
+        findAPITries++;
+
+        // Note: 7 is an arbitrary number, but should be more than sufficient
+        if (findAPITries > 7) {
+            alert("Error finding API -- too deeply nested.");
+            return null;
+        }
+
+        // set the variable that represents the window being
+        // being searched to be the parent of the current window
+        // then search for the API again
+        win = win.parent;
+    }
+    return win.API;
 }
- 
+
 function getAPI() {
-   // start by looking for the API in the current window
-   var theAPI = findAPI(window);
- 
-   // if the API is null (could not be found in the current window)
-   // and the current window has an opener window
-   if ( (theAPI == null) && (window.opener != null) && (typeof(window.opener) != "undefined") ) {
-      // try to find the API in the current window’s opener
-      theAPI = findAPI(window.opener);
-   }
-   // if the API has not been found
-   if (theAPI == null) {
-      // Alert the user that the API Adapter could not be found
-      alert("Unable to find an API adapter");
-   }
-   return theAPI;
+    // start by looking for the API in the current window
+    var theAPI = findAPI(window);
+
+    // if the API is null (could not be found in the current window)
+    // and the current window has an opener window
+    if ((theAPI == null) && (window.opener != null) && (typeof (window.opener) != "undefined")) {
+        // try to find the API in the current window’s opener
+        theAPI = findAPI(window.opener);
+    }
+    // if the API has not been found
+    if (theAPI == null) {
+        // Alert the user that the API Adapter could not be found
+        alert("Unable to find an API adapter");
+    }
+    return theAPI;
 }
 
 /* *************************************
@@ -55,23 +55,22 @@ var API = null;
 
 function ScormProcessInitialize() {
     var result;
-    
     API = getAPI();
-    
+
     if (API == null) {
         alert("ERROR - Could not establish a connection with WUECampus.\n\nYour results may not be recorded.");
         return;
     }
-    
+
     result = API.LMSInitialize("");
-    
+
     if (result == "false") {
         var errorNumber = API.LMSGetLastError();
         var errorString = API.LMSGetErrorString(errorNumber);
         var diagnostic = API.LMSGetDiagnostic(errorNumber);
-        
+
         var errorDescription = "Number: " + errorNumber + "\nDescription: " + errorString + "\nDiagnostic: " + diagnostic;
-        
+
         alert("Error - Could not initialize communication with WUECampus.\n\nYour results may not be recorded.\n\n" + errorDescription);
         return;
     }
@@ -79,62 +78,62 @@ function ScormProcessInitialize() {
 }
 function ScormProcessFinish() {
     var result;
-    
+
     //Don't terminate if we haven't initialized or if we've already terminated
-    if (initialized == false || finishCalled == true){return;}
-    
+    if (initialized == false || finishCalled == true) { return; }
+
     result = API.LMSFinish("");
-    
+
     finishCalled = true;
-    
+
     if (result == "false") {
         var errorNumber = API.LMSGetLastError();
         var errorString = API.LMSGetErrorString(errorNumber);
         var diagnostic = API.LMSGetDiagnostic(errorNumber);
-        
+
         var errorDescription = "Number: " + errorNumber + "\nDescription: " + errorString + "\nDiagnostic: " + diagnostic;
-        
+
         alert("Error - Could not terminate communication with the LMS.\n\nYour results may not be recorded.\n\n" + errorDescription);
         return;
     }
 }
 function ScormProcessGetValue(element) {
     var result;
-    
-    if (initialized == false || finishCalled == true){return;}
-    
+
+    if (initialized == false || finishCalled == true) { return; }
+
     result = API.LMSGetValue(element);
-    
+
     if (result == "") {
-    
+
         var errorNumber = API.LMSGetLastError();
-        
+
         if (errorNumber != "0") {
             var errorString = API.LMSGetErrorString(errorNumber);
             var diagnostic = API.LMSGetDiagnostic(errorNumber);
-            
+
             var errorDescription = "Number: " + errorNumber + "\nDescription: " + errorString + "\nDiagnostic: " + diagnostic;
-            
+
             alert("Error - Could not retrieve a value from the LMS.\n\n" + errorDescription);
             return "";
         }
-    } 
+    }
     return result;
 }
 function ScormProcessSetValue(element, value) {
     var result;
-    
-    if (initialized == false || finishCalled == true){return;}
-    
+
+    if (initialized == false || finishCalled == true) { return; }
+
     result = API.LMSSetValue(element, value);
-    
+
     if (result == "false") {
         var errorNumber = API.LMSGetLastError();
         var errorString = API.LMSGetErrorString(errorNumber);
         var diagnostic = API.LMSGetDiagnostic(errorNumber);
-        
+
         var errorDescription = "Number: " + errorNumber + "\nDescription: " + errorString + "\nDiagnostic: " + diagnostic;
-        
+
         alert("Error - Could not store a value in the LMS.\n\nYour results may not be recorded.\n\n" + errorDescription);
         return;
     }
@@ -143,23 +142,24 @@ function ScormProcessSetValue(element, value) {
 /* *************************************
      API Functions
 ************************************** */
-
 var startTimeStamp, reachedEnd, bookmark, h, v, f = null,
     processedUnload = false;
 
 //Create function handlers for the loading and unloading of the page
 function doStart() {
-        
+    // Format MC questions
+    scormMC();
     /* record the time that the learner started the SCO to report the total time 
        initialize communication with LMS   */
     startTimeStamp = new Date();
     ScormProcessInitialize();
-    
+
     /* set the lesson status to incomplete at first launch (if the course is not already completed) */
     var completionStatus = ScormProcessGetValue("cmi.core.lesson_status");
-    if (completionStatus == "not attempted"){
-            ScormProcessSetValue("cmi.core.lesson_status", "incomplete"); }
-    
+    if (completionStatus == "not attempted") {
+        ScormProcessSetValue("cmi.core.lesson_status", "incomplete");
+    }
+
     /* see if the user stored a bookmark previously (don't check for errors
     because cmi.core.lesson_location may not be initialized
     returns string (h,v,f) */
@@ -167,25 +167,25 @@ function doStart() {
 
     /* if there is a stored bookmark, sprompt the user to resume from the previous location */
     if (bookmark && confirm("Resume where you previously left off?")) {
-            /* find horiz, vert, frag indices */
-            var indexStr = bookmark.split(",");
-            h = parseInt(indexStr[0], 10) || 0;
-            v = parseInt(indexStr[1], 10) || 0;
-            f = parseInt(indexStr[2], 10) || 0; }
+        /* find horiz, vert, frag indices */
+        var indexStr = bookmark.split(",");
+        h = parseInt(indexStr[0], 10) || 0;
+        v = parseInt(indexStr[1], 10) || 0;
+        f = parseInt(indexStr[2], 10) || 0;
+    }
     else {
-            h = 0;
-            v = 0;
-            f = 0; }
+        h = 0;
+        v = 0;
+        f = 0;
+    }
     /* save the current location as the bookmark; */
     ScormProcessSetValue("cmi.core.lesson_location", [h, v, f].join());
-
-    Reveal.slide(h,v,f);
+    Reveal.slide(h, v, f);
 }
-
 function doUnload() {
-
+    console.log("Scorm has ended.");
     /* don't call this function twice */
-    if (processedUnload == true){return;}
+    if (processedUnload == true) { return; }
     processedUnload = true;
 
     /* record the session time */
@@ -207,30 +207,33 @@ function doUnload() {
     reachedEnd = Reveal.isLastSlide();
 
     var currentSlide = document.querySelector('#slideContent>.slide.present');
-    if (reachedEnd){
-            ScormProcessSetValue("cmi.core.lesson_status", "completed"); 
-            ScormProcessSetValue("cmi.core.exit", ""); }
+    if (reachedEnd) {
+        ScormProcessSetValue("cmi.core.lesson_status", "completed");
+        ScormProcessSetValue("cmi.core.exit", "");
+    }
     else if (confirm("Would you like to save your progress to resume later?")) {
-            ScormProcessSetValue("cmi.core.exit", "suspend"); }
+        ScormProcessSetValue("cmi.core.exit", "suspend");
+    }
     else {
-            ScormProcessSetValue("cmi.core.exit", ""); }
+        ScormProcessSetValue("cmi.core.exit", "");
+    }
     ScormProcessFinish();
-} 
+}
 function ZeroPad(intNum, intNumDigits) {
     var strTemp;
     var intLen;
     var i;
-    
+
     strTemp = new String(intNum);
     intLen = strTemp.length;
-    
-    if (intLen > intNumDigits){
-            strTemp = strTemp.substr(0,intNumDigits);
+
+    if (intLen > intNumDigits) {
+        strTemp = strTemp.substr(0, intNumDigits);
     }
-    else{
-            for (i=intLen; i<intNumDigits; i++){
-                    strTemp = "0" + strTemp;
-            }
+    else {
+        for (i = intLen; i < intNumDigits; i++) {
+            strTemp = "0" + strTemp;
+        }
     }
     return strTemp;
 }
@@ -242,8 +245,9 @@ function ConvertMilliSecondsToSCORMTime(intTotalMilliseconds, blnIncludeFraction
     var intHundredths;
     var strCMITimeSpan;
 
-    if (blnIncludeFraction == null || blnIncludeFraction == undefined){
-            blnIncludeFraction = true; }
+    if (blnIncludeFraction == null || blnIncludeFraction == undefined) {
+        blnIncludeFraction = true;
+    }
 
     /* extract time parts */
     intMilliseconds = intTotalMilliseconds % 1000;
@@ -257,17 +261,17 @@ function ConvertMilliSecondsToSCORMTime(intTotalMilliseconds, blnIncludeFraction
     note - this case is permissable under SCORM, but will be exceptionally rare
     */
 
-    if (intHours == 10000) {	
-            intHours = 9999;
-            intMinutes = (intTotalMilliseconds - (intHours * 3600000)) / 60000;
-            if (intMinutes == 100) { intMinutes = 99; }
-            intMinutes = Math.floor(intMinutes);
+    if (intHours == 10000) {
+        intHours = 9999;
+        intMinutes = (intTotalMilliseconds - (intHours * 3600000)) / 60000;
+        if (intMinutes == 100) { intMinutes = 99; }
+        intMinutes = Math.floor(intMinutes);
 
-            intSeconds = (intTotalMilliseconds - (intHours * 3600000) - (intMinutes * 60000)) / 1000;
-            if (intSeconds == 100) { intSeconds = 99; }
-            intSeconds = Math.floor(intSeconds);
-            
-            intMilliseconds = (intTotalMilliseconds - (intHours * 3600000) - (intMinutes * 60000) - (intSeconds * 1000));
+        intSeconds = (intTotalMilliseconds - (intHours * 3600000) - (intMinutes * 60000)) / 1000;
+        if (intSeconds == 100) { intSeconds = 99; }
+        intSeconds = Math.floor(intSeconds);
+
+        intMilliseconds = (intTotalMilliseconds - (intHours * 3600000) - (intMinutes * 60000) - (intSeconds * 1000));
     }
 
     /* drop the extra precision from the milliseconds */
@@ -276,30 +280,151 @@ function ConvertMilliSecondsToSCORMTime(intTotalMilliseconds, blnIncludeFraction
     /* put in padding 0's and concatinate to get the proper format */
     strCMITimeSpan = ZeroPad(intHours, 4) + ":" + ZeroPad(intMinutes, 2) + ":" + ZeroPad(intSeconds, 2);
 
-    if (blnIncludeFraction){ strCMITimeSpan += "." + intHundredths; }
+    if (blnIncludeFraction) { strCMITimeSpan += "." + intHundredths; }
 
     /* check for case where total milliseconds is greater than max supported by strCMITimeSpan */
     if (intHours > 9999) {
-            strCMITimeSpan = "9999:99:99";
+        strCMITimeSpan = "9999:99:99";
 
-            if (blnIncludeFraction){
-                    strCMITimeSpan += ".99";
-            }
+        if (blnIncludeFraction) {
+            strCMITimeSpan += ".99";
+        }
     }
     return strCMITimeSpan;
 }
+// Add ID to each question, highlight selected response, add submit button to end
+function scormMC() {
+    const questions = document.getElementsByClassName("scorm-survey");
+
+    let question_num = 1;
+    for (let question of questions) {
+        question.setAttribute("id", question_num.toString());
+        question_num += 1;
+
+        const answerDivs = question.getElementsByTagName("li");
+        let defBorder = answerDivs[0].style.border;
+
+        // color the chosen answer(s)
+        let answer_num = 0;
+        for (let ad of answerDivs) {
+            ad.addEventListener("click", function () {
+                if (!this.classList.contains("selected")) {
+                    this.classList.add("selected");
+                    this.style.border = "thick solid black";
+                    this.style.backgroundColor = "#dcdcdc";
+                } else {
+                    this.classList.remove("selected");
+                    this.style.border = defBorder;
+                    this.style.backgroundColor = "#FFF";
+                }
+            });
+            answer_num += 1;
+        }
+    }
+
+    var submitButton = document.createElement('button');
+    submitButton.innerHTML = "Submit All";
+    submitButton.id = "submitButton";
+    submitButton.addEventListener('click', gradeScormMC);
+    questions[questions.length - 1].appendChild(submitButton);
+}
+// Replace all whitespace
+function FormatChoiceResponse(value) {
+    var newValue = new String(value);
+    newValue = newValue.replace(/\W/g, "_");
+    newValue = newValue.replace(/^_/, "");
+    return newValue;
+}
+// Disable Submit button, grade each question, submit interaction data and score to LMS
+function gradeScormMC() {
+    document.getElementById("submitButton").style.pointerEvents = "none";
+    const questions = document.getElementsByClassName("scorm-survey");
+    var correctCount = 0;
+    var totalQuestions = questions.length;
+    var questionID = "";
+    var weight = 100 / questions.length;
+
+    for (let question of questions) {
+        questionID = question.id;
+        let answered = false;
+        var learnerResponse, correctAnswer = null;
+        const type = "choice";
+        const answers = question.getElementsByClassName("answer");
+
+        // disable answer, get learner response and correct response
+        for (let answer of answers) {
+            answer.parentElement.style.pointerEvents = "none";
+            if (answer.parentElement.classList.contains("selected")) {
+                answered = true;
+                learnerResponse = answer.firstElementChild.innerHTML;
+                learnerResponse = FormatChoiceResponse(learnerResponse);
+            }
+
+            if (answer.classList.contains("lft")) {
+                correctAnswer = answer.firstElementChild.innerHTML;
+                correctAnswer = FormatChoiceResponse(correctAnswer);
+            }
+        }
+
+        var p = document.createElement('p');
+        var t = document.createTextNode('');
+        t.nodeValue = "Incorrect";
+        p.style.color = "#cc0000";
+        // if question was answered, check if response is correct
+        var feedback = null;
+        if (answered) {
+            feedback = (correctAnswer == learnerResponse) ? true : false;
+            if (feedback) {
+                correctCount++;
+                t.nodeValue = "Correct!";
+                p.style.color = "#009933";
+            }
+        }
+
+        p.appendChild(t);
+        question.parentElement.insertBefore(p, question.parentElement.childNodes[0]);
+
+        // submit question data to LMS 
+        if (learnerResponse == null) { learnerResponse = "not_answered"; }
+        RecordQuestion(questionID, type, learnerResponse, feedback, weight);
+    }
+
+    var finalResult = "";
+    var score = Math.round(correctCount * 100 / totalQuestions);
+    finalResult = "Your final score is: " + score + ".\n";
+    var resultsPara = document.createElement('p');
+    var resultsText = document.createTextNode(finalResult);
+    resultsPara.appendChild(resultsText);
+    questions[totalQuestions - 1].appendChild(resultsPara);
+
+    // submit score to LMS
+    RecordTest(score);
+}
+//Used to record the details of the question
+function RecordQuestion(id, type, response, feedback, weight) {
+    var nextIndex = ScormProcessGetValue("cmi.interactions._count", true);
+    ScormProcessSetValue("cmi.interactions." + nextIndex + ".id", id);
+    ScormProcessSetValue("cmi.interactions." + nextIndex + ".type", type);
+    ScormProcessSetValue("cmi.interactions." + nextIndex + ".student_response", response);
+    if (feedback) {
+        ScormProcessSetValue("cmi.interactions." + nextIndex + ".result", "correct");
+    } else {
+        ScormProcessSetValue("cmi.interactions." + nextIndex + ".result", "wrong");
+    }
+    ScormProcessSetValue("cmi.interactions." + nextIndex + ".weighting", weight);
+}
 //Used to record the results of a test; passes in score as a percentage
-function RecordTest(score){
+function RecordTest(score) {
     ScormProcessSetValue("cmi.core.score.raw", score);
     ScormProcessSetValue("cmi.core.score.min", "0");
     ScormProcessSetValue("cmi.core.score.max", "100");
-    
+    var passingGrade = document.getElementById("slideContent").getAttribute("data-grade");
+
     //if we get a test result, set the lesson status to passed/failed instead of completed
-    //consider 70% to be passing
-    if (score >= 70){
+    //passing grade is specified in decker.yaml
+    if (score >= passingGrade) {
         ScormProcessSetValue("cmi.core.lesson_status", "passed");
-    }
-    else{
+    } else {
         ScormProcessSetValue("cmi.core.lesson_status", "failed");
     }
 }

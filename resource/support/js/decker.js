@@ -1,14 +1,12 @@
-if (typeof Reveal === 'undefined')
-{
-    console.error("decker.js has to be loaded after reveal.js");
+if (typeof Reveal === 'undefined') {
+  console.error("decker.js has to be loaded after reveal.js");
 }
-else
-{
-    if (Reveal.isReady()) {
-        deckerStart();
-    } else {
-        Reveal.addEventListener("ready", deckerStart);
-    }
+else {
+  if (Reveal.isReady()) {
+    deckerStart();
+  } else {
+    Reveal.addEventListener("ready", deckerStart);
+  }
 }
 
 

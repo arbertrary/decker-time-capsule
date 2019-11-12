@@ -1,9 +1,6 @@
-
-quizModule = {
+var quizModule = {
     quiz: function () {
-        blanktextButtons();
-        // blanktext();
-        initialMatchings = initMatching();
+        var initialMatchings = initMatching();
         matchings(initialMatchings);
         multipleChoice();
         freetextAnswerButtons();
@@ -339,7 +336,7 @@ function multipleChoice() {
                 this.disabled = true;
                 for (let answer of answers) {
                     var answer_div = answer.getElementsByClassName("answer")[0];
-                    const is_right = answer_div.classList.contains("right");
+                    const is_right = answer_div.classList.contains("lft");
                     answer.style.backgroundColor = (is_right) ? "#97ff7a" : "#ff7a7a";
                     const tooltips = answer.getElementsByClassName("tooltip");
                     for (let tooltip of tooltips) {

@@ -100,14 +100,13 @@ $endif$
 <script src="$decker-support-dir$/vendor/reveal/js/reveal.js"></script>
   <script src="$decker-support-dir$/vendor/jquery.js"></script>
   <script src="$decker-support-dir$/vendor/piklor.js"></script>
-<script src="$decker-support-dir$/js/scorm.js" type="text/javascript"></script>
-
 $for(header-includes)$
   $header-includes$
 $endfor$
 </head>
-$if(SCORM)$
-<body onload="doStart();" onbeforeunload="doUnload();"></body>
+$if(scorm)$
+<script src="$decker-support-dir$/js/scorm.js"></script>
+<body oncontextmenu="return false;" onload="doStart();" onbeforeunload="doUnload();">
 $else$
 <body>
 $endif$
@@ -115,8 +114,15 @@ $for(include-before)$
 $include-before$
 $endfor$
   <div class="reveal">
+  $if(scorm)$
+    $if(passing-grade)$
+      <div class="slides" id="slideContent" data-grade="$passing-grade$">
+    $else$
+      <div class="slides" id="slideContent" data-grade="70">
+    $endif$
+  $else$
     <div class="slides" id="slideContent">
-
+  $endif$
 $if(title)$
 <section id="$idprefix$title-slide">
   <h1 class="title">$title$</h1>
