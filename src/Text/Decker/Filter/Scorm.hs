@@ -9,6 +9,8 @@
 -}
 module Text.Decker.Filter.Scorm
     ( createScormPackage
+    , getFile
+    , getMDYaml
     ) where
 
 import Codec.Archive.Zip
@@ -31,14 +33,13 @@ import Text.Pandoc.Readers (readMarkdown)
 import Text.Pandoc.Shared (stringify)
 import Text.XML.Unresolved (renderLBS, def)
 
-
 -- Defined in the YAML header
 data Course = Course 
     { name :: String
     , identifier :: String
     , version :: String
     } deriving Show
-    
+
 getFile :: String -> [FilePath] -> FilePath
 getFile target (file:fileList) = 
     case target `isSuffixOf` file of 
@@ -46,28 +47,27 @@ getFile target (file:fileList) = 
         False -> getFile target fileList
 getFile target [] = error $ "Can't find " ++ target 
 
-getYaml :: String -> Meta -> IO String   
-getYaml field meta = do
-    let yamlWarning = "The YAML header of your markdown file requires title, author and version."
-    case lookupMeta field meta of 
-        Just (MetaInlines s) -> return $ stringify s
-        Nothing -> throw $ YamlException yamlWarning
-
--- Gets course info from YAML header
-getCourse :: FilePath -> IO Course
-getCourse projDir = do
-    names <- Dir.listDirectory projDir
+getMDYaml :: FilePath -> String -> IO String 
+getMDYaml dir target = do
+    names <- Dir.listDirectory dir
     markdownFile <- readFile $ getFile "-deck.md" names
     let markdown = T.pack markdownFile
     case runPure (readMarkdown pandocReaderOpts markdown) of
         Right pandoc@(Pandoc meta _) -> do
-            title <- getYaml "title" meta
-            author <- getYaml "author" meta 
-            version <- getYaml "version" meta 
-            date <- getCurrentTime >>= return . show . utctDay
-            let identifier = (take 3 title) ++ "_" ++ (take 3 author) ++ "_" ++ date 
-            return $ Course title identifier version 
+            case lookupMeta target meta of 
+                Just (MetaInlines s) -> return $ stringify s
+                Nothing -> throw $ YamlException "The YAML value was not found."
         Left errMsg -> throw $ PandocParseError (show errMsg)
+
+-- Gets course info from YAML header
+getCourse :: FilePath -> IO Course
+getCourse projDir = do
+    title <- getMDYaml projDir "title"
+    author <- getMDYaml projDir "author"
+    version <- getMDYaml projDir "version"
+    date <- getCurrentTime >>= return . show . utctDay
+    let identifier = (take 3 title) ++ "_" ++ (take 3 author) ++ "_" ++ date 
+    return $ Course title identifier version 
   
 listFiles :: FilePath -> IO [FilePath]
 listFiles dir = do
