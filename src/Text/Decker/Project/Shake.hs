@@ -50,6 +50,7 @@ import Text.Decker.Project.Version
 import Text.Decker.Resource.Template
 import Text.Decker.Resource.Zip
 import Text.Decker.Server.Server
+import Text.Decker.Writer.Format
 import Text.Pandoc.Lens as P
 
 import Control.Concurrent
@@ -62,11 +63,13 @@ import qualified Data.ByteString as B
 import qualified Data.ByteString.Base16 as B16
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString.Lazy as BL
+import Data.Char
 import Data.Digest.Pure.MD5
 import Data.Dynamic
 import qualified Data.HashMap.Strict as HashMap
 import Data.IORef
 import Data.List
+import Data.List.Extra
 import Data.Maybe
 import qualified Data.Set as Set
 import qualified Data.Text as T
@@ -82,10 +85,11 @@ import Development.Shake as Shake
   , getShakeOptions
   , liftIO
   , newResourceIO
-  , shakeArgs
+  , shakeArgsWith
   , shakeOptions
   , withResource
   )
+import System.Console.GetOpt
 import System.Directory as Dir
 import qualified System.FSNotify as Notify
 import System.FilePath
@@ -131,11 +135,55 @@ runDecker rules = do
   catch (repeatIfTrue $ runShakeOnce state rules) (putError "Terminated: ")
   cleanup state
 
+data Flags
+  = MetaValueFlag String
+                  String
+  | FormatFlag
+  deriving (Eq, Show)
+
+deckerFlags :: [OptDescr (Either String Flags)]
+deckerFlags =
+  [ Option
+      ['m']
+      ["meta"]
+      (ReqArg parseMetaValueArg "META")
+      "Set a meta value like this: 'name=value'. Overrides values from decker.yaml."
+  , Option
+      ['f']
+      ["format"]
+      (NoArg $ Right FormatFlag)
+      "Format Markdown on stdin to stdout"
+  ]
+
+parseMetaValueArg :: String -> Either String Flags
+parseMetaValueArg arg =
+  case splitOn "=" arg of
+    [meta, value]
+      | isMetaName meta -> Right $ MetaValueFlag meta value
+    _ -> Left "Cannot parse argument. Must be 'name=value'."
+
+isMetaName :: String -> Bool
+isMetaName str = all check $ splitOn "." str
+  where
+    check s = length s > 1 && isAlpha (head s) && all isAlphaNum (tail s)
+
+handleArguments :: Rules () -> [Flags] -> [String] -> IO (Maybe (Rules ()))
+handleArguments rules flags targets =
+  -- TODO: Handle the meta flag
+  if FormatFlag `elem` flags
+    then formatMarkdown >> return Nothing
+    else return $ Just $
+         if null targets
+           then rules
+           else want targets >> withoutActions rules
+
 runShakeOnce :: MutableActionState -> Rules () -> IO Bool
 runShakeOnce state rules = do
   context <- initContext state
   options <- deckerShakeOptions context
-  catch (shakeArgs options rules) (putError "Error: ")
+  catch
+    (shakeArgsWith options deckerFlags (handleArguments rules))
+    (putError "Error: ")
   server <- readIORef (state ^. server)
   forM_ server reloadClients
   keepWatching <- readIORef (state ^. watch)
@@ -205,16 +253,8 @@ waitForChange inDirs =
        done <- newEmptyMVar
        forM_
          inDirs
-         (\dir
-            -- putStrLn $ "watching dir: " ++ dir
-           -> do
-            Notify.watchDir
-              manager
-              dir
-              (const True)
-              (\e
-                 -- putStrLn $ "changed: " ++ show e
-                -> do putMVar done ()))
+         (\dir ->
+            Notify.watchDir manager dir (const True) (\e -> putMVar done ()))
        takeMVar done)
 
 waitForChange' :: FilePath -> [FilePath] -> IO ()
@@ -222,17 +262,10 @@ waitForChange' inDir exclude =
   Notify.withManager
     (\manager -> do
        done <- newEmptyMVar
-       -- putStrLn $ "watching dir: " ++ inDir
-       Notify.watchTree
-         manager
-         inDir
-         filter
-         (\e
-            -- putStrLn $ "changed: " ++ show e
-           -> do putMVar done ())
+       Notify.watchTree manager inDir filter (\e -> putMVar done ())
        takeMVar done)
   where
-    filter event = not $ any (`isPrefixOf` (Notify.eventPath event)) exclude
+    filter event = not $ any (`isPrefixOf` Notify.eventPath event) exclude
 
 getTemplate :: Disposition -> Action String
 getTemplate disposition = getTemplate' (templateFileName disposition)
