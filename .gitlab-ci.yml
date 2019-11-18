@@ -42,7 +42,6 @@ build:mac:
   stage: build
   script:
     - git rev-parse --short HEAD
-    - git checkout $CI_COMMIT_REF_NAME
     - make build
     - cp $(stack path | grep "local-install-root" | awk '{printf "%s/bin/decker",$2}') decker
   cache:
