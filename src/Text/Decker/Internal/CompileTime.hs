@@ -19,8 +19,10 @@ lookupGitCommitId :: Q Exp
 lookupGitCommitId = stringE . strip . fromMaybe "none" =<< runIO gitRevision
 
 lookupCompileDate :: Q Exp
-lookupCompileDate = do
-  date <- runIO $ getCurrentTime >>= return . toGregorian . utctDay
+lookupCompileDate
+  -- date <- runIO $ getCurrentTime >>= return . toGregorian . utctDay
+ = do
+  date <- runIO $ (toGregorian . utctDay) <$> getCurrentTime
   let temp = show date
   (stringE . strip) temp
 

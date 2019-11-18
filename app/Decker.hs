@@ -55,7 +55,7 @@ run :: IO ()
 run = do
   when isDevelopmentVersion $
     printf
-      "WARNING: You are running a development build of decker (version: %s, branch: %s, commit: %s, tag: %s, nightly date: %s). Please be sure that you know what you're doing.\n"
+      "WARNING: You are running a development build of decker (version: %s, branch: %s, commit: %s, tag: %s, build date: %s). Please be sure that you know what you're doing.\n"
       deckerVersion
       deckerGitBranch
       deckerGitCommitId
@@ -91,7 +91,7 @@ run = do
         ", commit: " ++
         deckerGitCommitId ++
         ", tag: " ++
-        deckerGitVersionTag ++ ", nightly date: " ++ deckerCompileDate ++ ")"
+        deckerGitVersionTag ++ ", build date: " ++ deckerCompileDate ++ ")"
       putNormal $ "pandoc version " ++ pandocVersion
       putNormal $ "pandoc-types version " ++ showVersion pandocTypesVersion
     --
