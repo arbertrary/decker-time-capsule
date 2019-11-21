@@ -2,6 +2,7 @@ module Text.Decker.Reader.Markdown
   ( readAndProcessMarkdown
   ) where
 
+import Text.Decker.Filter.CrossRef
 import Text.Decker.Filter.Filter
 import Text.Decker.Filter.IncludeCode
 import Text.Decker.Filter.Macro
@@ -90,6 +91,7 @@ readAndProcessMarkdown markdownFile disp = do
             , includeCode
             , provisionResources
             , renderQuizzes
+            , processCrossRefs
             , processSlides
             , renderMediaTags
             , extractFigures
@@ -111,6 +113,7 @@ readMetaMarkdown markdownFile = do
   let filePandoc@(Pandoc fileMeta _) =
         readMarkdownOrThrow pandocReaderOpts markdown
   additionalMeta <- getAdditionalMeta fileMeta
+  putNormal $ show fileMeta
   let combinedMeta = mergePandocMeta' additionalMeta globalMeta
   let generateIds = getMetaBoolOrElse "generate-ids" False combinedMeta
   Pandoc _ fileBlocks <- maybeGenerateIds generateIds filePandoc

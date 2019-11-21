@@ -72,6 +72,7 @@ dependencies:
   - network-uri
   - pandoc
   - pandoc-citeproc
+  - pandoc-crossref
   - pandoc-types
   - process
   - pureMD5
