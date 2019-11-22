@@ -1,20 +1,6 @@
 {-- Author: Henrik Tramberend <henrik@tramberend.de> --}
 module Decker where
 
-import Text.Decker.Filter.Scorm
-import Text.Decker.Internal.Exception
-import Text.Decker.Internal.External
-import Text.Decker.Internal.Flags (hasPreextractedResources)
-import Text.Decker.Internal.Helper
-import Text.Decker.Internal.Meta
-import Text.Decker.Project.Project
-import Text.Decker.Project.Shake
-import Text.Decker.Project.Version
-import Text.Decker.Resource.Resource
-import Text.Decker.Server.Dachdecker
-import Text.Decker.Writer.Format
-import Text.Decker.Writer.Html
-import Text.Decker.Writer.Pdf
 import Control.Concurrent
 import Control.Exception
 import Control.Lens ((^.))
@@ -30,6 +16,20 @@ import Development.Shake.FilePath
 import qualified System.Directory as Dir
 import System.Environment.Blank
 import System.IO
+import Text.Decker.Filter.Scorm
+import Text.Decker.Internal.Exception
+import Text.Decker.Internal.External
+import Text.Decker.Internal.Flags (hasPreextractedResources)
+import Text.Decker.Internal.Helper
+import Text.Decker.Internal.Meta
+import Text.Decker.Project.Project
+import Text.Decker.Project.Shake
+import Text.Decker.Project.Version
+import Text.Decker.Resource.Resource
+import Text.Decker.Server.Dachdecker
+import Text.Decker.Writer.Format
+import Text.Decker.Writer.Html
+import Text.Decker.Writer.Pdf
 import Text.Groom
 import qualified Text.Mustache as M ()
 import Text.Pandoc
@@ -69,7 +69,14 @@ run = do
   let serverUrl = "http://localhost:" ++ show serverPort
   let indexSource = (directories ^. project) </> "index.md"
   let index = (directories ^. public) </> "index.html"
-  let cruft = ["index.md.generated", "log", "//.shake", "generated", "code"]
+  let cruft =
+        [ "index.md.generated"
+        , "log"
+        , "//.shake"
+        , "generated"
+        , "code"
+        , "SCORM-package.zip"
+        ]
   let pdfMsg =
         "\n# To use 'decker pdf' or 'decker pdf-decks', Google Chrome has to be installed.\n" ++
         "# Windows: Currently 'decker pdf' does not work on Windows.\n" ++
@@ -149,7 +156,6 @@ run = do
       need ["html"]
       let publicDir = directories ^. public
       createScormPackage (directories ^. project) publicDir
-
     priority 2 $
       "//*-deck.html" %> \out -> do
         needGlobalMetaFile
@@ -303,10 +309,6 @@ waitForYes = do
   hFlush stdout
   input <- getLine
   unless (input == "y") waitForYes
-
-manifestComplete :: IO ()
-manifestComplete = do
-  putStr "\nManifest file has been created.\n"
 
 needGlobalMetaFile :: Action ()
 needGlobalMetaFile = do

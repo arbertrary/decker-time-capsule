@@ -24,21 +24,38 @@ import Text.Pandoc
 import Text.Pandoc.Shared
 import Text.Pandoc.Walk
 import Text.Printf
-import Text.Regex.TDFA
+
+import Control.Lens ((^.))
+import Control.Monad.IO.Class
+
+import Text.Decker.Internal.Meta
+
+--scorm libraries
+import Text.Decker.Project.Project
+
+scormQuiz :: Meta -> IO Bool
+scormQuiz meta =
+  case getMetaBool "scorm" meta of
+    Just _ -> return True
+    Nothing -> return False
 
 -- | Render all types of questions
 renderQuizzes :: Pandoc -> Decker Pandoc
 renderQuizzes pandoc = do
-  let mc = walk renderMultipleChoice pandoc
+  dirs <- liftIO projectDirectories
+  meta <- liftIO $ readMetaData $ dirs ^. project
+  isScorm <- liftIO $ scormQuiz meta
+  let mc =
+        if isScorm
+          then walk renderScormMC pandoc
+          else walk renderMultipleChoice pandoc
   let match = walk renderMatching mc
   let blank = walk renderBlanktext match
   return $ walk renderFreetextQuestion blank
 
--- | Renders a multiple choice question
 -- A multiple choice question is a bullet list in the style of a task list.
 -- A div class survey is created around the bullet list
 renderMultipleChoice :: Block -> Block
--- BulletList which qualifies as survey
 renderMultipleChoice (BulletList blocks@((firstBlock:_):_))
   | checkIfMC firstBlock =
     Div
@@ -52,6 +69,13 @@ renderMultipleChoice (BulletList blocks@((firstBlock:_):_))
       [Str "Show Solution"] ++ [toHtml "</button>"]
 -- Default pass through
 renderMultipleChoice block = block
+
+-- | Renders a multiple choice question for SCORM
+renderScormMC :: Block -> Block
+renderScormMC (BulletList blocks@((firstBlock:_):_))
+  | checkIfMC firstBlock =
+    Div ("", ["scorm-survey"], []) [BulletList (map multipleChoiceHtml blocks)]
+renderScormMC block = block
 
 -- | Renders a freetext question from a bullet list with special syntax
 renderFreetextQuestion :: Block -> Block
