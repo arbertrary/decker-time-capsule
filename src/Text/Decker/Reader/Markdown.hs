@@ -113,7 +113,6 @@ readMetaMarkdown markdownFile = do
   let filePandoc@(Pandoc fileMeta _) =
         readMarkdownOrThrow pandocReaderOpts markdown
   additionalMeta <- getAdditionalMeta fileMeta
-  putNormal $ show fileMeta
   let combinedMeta = mergePandocMeta' additionalMeta globalMeta
   let generateIds = getMetaBoolOrElse "generate-ids" False combinedMeta
   Pandoc _ fileBlocks <- maybeGenerateIds generateIds filePandoc
