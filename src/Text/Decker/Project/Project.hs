@@ -219,7 +219,9 @@ makeRelativeTo dir file =
    in normalise $ invertPath d </> f
 
 invertPath :: FilePath -> FilePath
-invertPath fp = joinPath $ map (const "..") $ filter ("." /=) $ splitPath fp
+invertPath fp =
+  joinPath $
+  map (const $ ".." ++ [pathSeparator]) $ filter ("." /=) $ splitPath fp
 
 removeCommonPrefix :: (FilePath, FilePath) -> (FilePath, FilePath)
 removeCommonPrefix =
