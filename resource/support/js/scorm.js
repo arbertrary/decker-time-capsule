@@ -55,7 +55,6 @@ var API = null;
 
 function ScormProcessInitialize() {
     var result;
-
     API = getAPI();
 
     if (API == null) {
@@ -149,7 +148,8 @@ var startTimeStamp, reachedEnd, bookmark, h, v, f = null,
 
 //Create function handlers for the loading and unloading of the page
 function doStart() {
-
+    // Format MC questions
+    scormMC();
     /* record the time that the learner started the SCO to report the total time 
        initialize communication with LMS   */
     startTimeStamp = new Date();
@@ -181,12 +181,10 @@ function doStart() {
     }
     /* save the current location as the bookmark; */
     ScormProcessSetValue("cmi.core.lesson_location", [h, v, f].join());
-
     Reveal.slide(h, v, f);
 }
-
 function doUnload() {
-
+    console.log("Scorm has ended.");
     /* don't call this function twice */
     if (processedUnload == true) { return; }
     processedUnload = true;
@@ -295,13 +293,128 @@ function ConvertMilliSecondsToSCORMTime(intTotalMilliseconds, blnIncludeFraction
     }
     return strCMITimeSpan;
 }
+// Add ID to each question, highlight selected response, add submit button to end
+function scormMC() {
+    const questions = document.getElementsByClassName("scorm-survey");
+
+    let question_num = 1;
+    for (let question of questions) {
+        question.setAttribute("id", question_num.toString());
+        question_num += 1;
+
+        const answerDivs = question.getElementsByTagName("li");
+        let defBorder = answerDivs[0].style.border;
+
+        // color the chosen answer(s)
+        let answer_num = 0;
+        for (let ad of answerDivs) {
+            ad.addEventListener("click", function () {
+                if (!this.classList.contains("selected")) {
+                    this.classList.add("selected");
+                    this.style.border = "thick solid black";
+                    this.style.backgroundColor = "#dcdcdc";
+                } else {
+                    this.classList.remove("selected");
+                    this.style.border = defBorder;
+                    this.style.backgroundColor = "#FFF";
+                }
+            });
+            answer_num += 1;
+        }
+    }
+
+    var submitButton = document.createElement('button');
+    submitButton.innerHTML = "Submit All";
+    submitButton.id = "submitButton";
+    submitButton.addEventListener('click', gradeScormMC);
+    questions[questions.length - 1].appendChild(submitButton);
+}
+// Replace all whitespace
+function FormatChoiceResponse(value) {
+    var newValue = new String(value);
+    newValue = newValue.replace(/\W/g, "_");
+    newValue = newValue.replace(/^_/, "");
+    return newValue;
+}
+// Disable Submit button, grade each question, submit interaction data and score to LMS
+function gradeScormMC() {
+    const questions = document.getElementsByClassName("scorm-survey");
+    var correctCount = 0;
+    var totalQuestions = questions.length;
+    var questionID = "";
+    var weight = null;
+
+    for (let question of questions) {
+        questionID = question.id;
+        let answered = false;
+        var learnerResponse, correctAnswer = null;
+        const type = "choice";
+        weight = question.parentElement.getAttribute("data-points");
+        const answers = question.getElementsByClassName("answer");
+
+        // disable answer, get learner response and correct response
+        for (let answer of answers) {
+            answer.parentElement.style.pointerEvents = "none";
+            if (answer.parentElement.classList.contains("selected")) {
+                answered = true;
+                learnerResponse = answer.firstElementChild.innerHTML;
+                learnerResponse = FormatChoiceResponse(learnerResponse);
+            }
+
+            if (answer.classList.contains("lft")) {
+                correctAnswer = answer.firstElementChild.innerHTML;
+                correctAnswer = FormatChoiceResponse(correctAnswer);
+            }
+        }
+
+        var p = document.createElement('p');
+        var t = document.createTextNode('');
+        t.nodeValue = "Incorrect";
+        p.style.color = "#cc0000";
+        // if question was answered, check if response is correct
+        var feedback = null;
+        if (answered) {
+            feedback = (correctAnswer == learnerResponse) ? true : false;
+            if (feedback) {
+                correctCount++;
+                t.nodeValue = "Correct!";
+                p.style.color = "#009933";
+            }
+        }
+
+        p.appendChild(t);
+        question.parentElement.insertBefore(p, question.parentElement.childNodes[0]);
+
+        // submit question data to LMS 
+        if (learnerResponse == null) { learnerResponse = "not_answered"; }
+        RecordQuestion(questionID, type, learnerResponse, feedback, weight);
+    }
+
+    var finalResult = "";
+    var score = Math.round(correctCount * 100 / totalQuestions);
+    finalResult = "Your final score is: " + score + ".\n";
+    var resultsPara = document.createElement('p');
+    var resultsText = document.createTextNode(finalResult);
+    resultsPara.appendChild(resultsText);
+    questions[totalQuestions - 1].appendChild(resultsPara);
+
+    // submit score to LMS
+    RecordTest(score);
+}
 //Used to record the details of the question
-function RecordQuestion(id, type, weight, response, result) {
-    ScormProcessSetValue("cmi.interactions.n.id", id);
-    ScormProcessSetValue("cmi.interactions.n.type", type);
-    ScormProcessSetValue("cmi.interactions.n.weighting", weight);
-    ScormProcessSetValue("cmi.interactions.n.student_response", response);
-    ScormProcessSetValue("cmi.interactions.n.result", result);
+function RecordQuestion(id, type, response, feedback, weight) {
+    console.log("Submitting to LMS: id: " + id + ", type: " + type +
+        ", response: " + response + ", feedback: " + feedback + ", weight: " + weight);
+    var nextIndex = ScormProcessGetValue("cmi.interactions._count", true);
+    ScormProcessSetValue("cmi.interactions." + nextIndex + ".id", id);
+    ScormProcessSetValue("cmi.interactions." + nextIndex + ".type", type);
+    ScormProcessSetValue("cmi.interactions." + nextIndex + ".student_response", response);
+    if (feedback) {
+        ScormProcessSetValue("cmi.interactions." + nextIndex + ".result", "correct");
+    } else {
+        ScormProcessSetValue("cmi.interactions." + nextIndex + ".result", "wrong");
+    }
+    ScormProcessSetValue("cmi.interactions." + nextIndex + ".weighting", weight);
 }
 //Used to record the results of a test; passes in score as a percentage
 function RecordTest(score) {
@@ -313,8 +426,7 @@ function RecordTest(score) {
     //consider 70% to be passing
     if (score >= 70) {
         ScormProcessSetValue("cmi.core.lesson_status", "passed");
-    }
-    else {
+    } else {
         ScormProcessSetValue("cmi.core.lesson_status", "failed");
     }
 }

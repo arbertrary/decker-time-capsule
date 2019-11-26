@@ -3,7 +3,6 @@ var quizModule = {
         var initialMatchings = initMatching();
         matchings(initialMatchings);
         multipleChoice();
-        scormMC();
         freetextAnswerButtons();
     }
 }
@@ -249,7 +248,7 @@ function multipleChoice() {
                 this.disabled = true;
                 for (let answer of answers) {
                     var answer_div = answer.getElementsByClassName("answer")[0];
-                    const is_right = answer_div.classList.contains("right");
+                    const is_right = answer_div.classList.contains("lft");
                     answer.style.backgroundColor = (is_right) ? "#97ff7a" : "#ff7a7a";
                     const tooltips = answer.getElementsByClassName("tooltip");
                     for (let tooltip of tooltips) {
@@ -294,107 +293,5 @@ function freetextAnswerButtons() {
                 return false;
             }
         }
-    }
-}
-
-/******************************************
- *     SCORM Functionality
- *****************************************/
-
-// Add ID to each question, highlight selected response
-function scormMC() {
-    const questions = document.getElementsByClassName("scorm-survey");
-
-    let question_num = 1;
-    for (let question of questions) {
-        question.setAttribute("id", question_num.toString());
-        question_num += 1;
-
-        const answerDivs = question.getElementsByTagName("li");
-        let defBorder = answerDivs[0].style.border;
-
-        // color the chosen answer(s)
-        let answer_num = 0;
-        for (let ad of answerDivs) {
-            ad.addEventListener("click", function () {
-                if (this.style.border == defBorder) {
-                    if (!this.classList.contains("selected")) {
-                        this.className += " selected";
-                        this.style.border = "thick solid black";
-                        this.style.backgroundColor = "#dcdcdc";
-                    }
-                }
-                else {
-                    this.style.border = defBorder;
-                }
-            });
-            answer_num += 1;
-        }
-    }
-    var submitButton = document.createElement('button');
-    submitButton.innerHTML = "Submit All";
-    submitButton.className = "submitButton";
-    questions[questions.length - 1].appendChild(submitButton);
-    submitButton.onclick = function () {
-        this.disabled = true;
-        const questions = document.getElementsByClassName("scorm-survey");
-        var correctCount = 0;
-        var totalQuestions = questions.length;
-        var questionID = "";
-        var weight = null;
-
-        for (let question of questions) {
-            questionID = question.id;
-            let answered = false;
-            var learnerResponse, correctAnswer = "";
-            const type = "choice";
-            weight = question.parentElement.getAttribute("data-points");
-            const answers = question.getElementsByClassName("answer");
-
-            // disable answer, get learner response and correct response
-            for (let answer of answers) {
-                answer.parentElement.style.pointerEvents = "none";
-                if (answer.parentElement.classList.contains("selected")) {
-                    answered = true;
-                    learnerResponse = answer.firstElementChild.innerHTML;
-                } else continue;
-                if (answer.classList.contains("right")) {
-                    correctAnswer = answer.firstElementChild.innerHTML;
-                } else continue;
-            }
-
-            var correctNode = document.createElement('p');
-            var correctText = document.createTextNode('');
-            // if question was answered, check if response is correct
-            let wasCorrect = false;
-            if (answered) {
-                wasCorrect = (correctAnswer == learnerResponse);
-                if (wasCorrect) {
-                    correctCount++;
-                    correctText.nodeValue = "Correct";
-                    correctNode.style.color = "#009933";
-                } else {
-                    correctText.nodeValue = "Incorrect";
-                    correctNode.style.color = "#cc0000";
-                }
-            }
-
-            correctNode.appendChild(correctText);
-            question.parentElement.insertBefore(correctNode, question.parentElement.childNodes[0]);
-
-            // submit question to lms 
-            RecordQuestion(questionID, type, weight, learnerResponse, wasCorrect);
-        }
-
-        var finalResult = "";
-        var score = Math.round(correctCount * 100 / totalQuestions);
-        finalResult = "You answered " + correctCount.toString() + " out of " + totalQuestions.toString() + " questions correctly.\n" +
-            "Your final score is: " + score + ".\n"
-        var resultsPara = document.createElement('p');
-        var resultsText = document.createTextNode(finalResult);
-        resultsPara.appendChild(resultsText);
-        questions[totalQuestions - 1].appendChild(resultsPara);
-
-        RecordTest(score);
     }
 }
