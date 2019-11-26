@@ -52,7 +52,7 @@ $endif$
     var link = document.createElement( 'link' );
     link.rel = 'stylesheet';
     link.type = 'text/css';
-    link.href = window.location.search.match( /print-pdf/gi ) ? '$decker-support-dir$/vendor/reveal/css/print/pdf.css' : '$decker-support-dir$/vendor/reveal/css/print/paper.css';
+    link.href = window.location.search.match( /print-pdf/gi ) ? String.raw`$decker-support-dir$/vendor/reveal/css/print/pdf.css` : String.raw`$decker-support-dir$/vendor/reveal/css/print/paper.css`;
     document.getElementsByTagName( 'head' )[0].appendChild( link );
   </script>
   <!--[if lt IE 9]>
