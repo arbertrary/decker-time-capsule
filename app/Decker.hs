@@ -46,12 +46,13 @@ ttt =
 main :: IO ()
 main = do
   args <- getArgs
-  if length args == 1 && head args == "format"
-    then formatMarkdown
-    else case head args of
+  if length args == 1
+    then case head args of
+           "format" -> formatMarkdown
            "example" -> writeExampleProject
            "tutorial" -> writeTutorialProject
            _ -> run
+    else run
 
 run :: IO ()
 run = do
@@ -81,7 +82,7 @@ run = do
   runDecker $
   --
    do
-    want ["html"]
+    want ["targets"]
     --
     phony "version" $ do
       putNormal $
@@ -93,6 +94,10 @@ run = do
         deckerGitCommitId ++ ", tag: " ++ deckerGitVersionTag ++ ")"
       putNormal $ "pandoc version " ++ pandocVersion
       putNormal $ "pandoc-types version " ++ showVersion pandocTypesVersion
+    --
+    phony "targets" $ do
+      text <- getTemplate' "template/target-page.md"
+      liftIO $ putStr text
     --
     phony "decks" $ do
       need ["support"]

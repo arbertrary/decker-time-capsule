@@ -16,6 +16,8 @@ templates =
   , "template/handout.tex"
   , "template/page.html"
   , "template/page.tex"
+  , "template/help-page.md"
+  , "template/target-page.md"
   ]
 
 data Template =

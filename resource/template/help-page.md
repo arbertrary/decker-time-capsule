@@ -130,11 +130,6 @@ decker [options] [target]
 
 :   Recursively removes all generated files from the project directory.
 
-`decker plan`
-
-:   Prints a list of all source files found in the project directory and the
-    targets calculated from them.
-
 `decker publish`
 
 :   Publishes the generated files to a remote location using `rsync` if the
