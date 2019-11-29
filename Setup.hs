@@ -18,12 +18,32 @@ import System.FilePath
 import System.FilePath.Glob
 import System.IO
 import System.IO.Extra
+import Text.Sass.Compilation
+import Text.Sass.Options
 
 -- main = defaultMain
-main = defaultMainWithHooks simpleUserHooks {postCopy = appendResourceArchive}
+-- main = defaultMainWithHooks simpleUserHooks {postCopy = appendResourceArchive}
+main =
+  defaultMainWithHooks
+    simpleUserHooks {postBuild = compileSass, postCopy = appendResourceArchive}
 
 resourceDir = "./resource"
 
+compileSass ::
+     Args -> BuildFlags -> PackageDescription -> LocalBuildInfo -> IO ()
+compileSass args flags descr info = do
+  let cssDir = resourceDir </> "support" </> "css"
+  let files = map (cssDir </>) ["decker.scss", "handout.scss", "page.scss"]
+  mapM_ compileSingleSass files
+
+compileSingleSass :: FilePath -> IO ()
+compileSingleSass file = do
+  f <- compileFile file defaultSassOptions
+  case f of
+    Right s -> writeFile (replaceExtension file ".css") s
+    Left e -> putStrLn "ERROR WHEN COMPILING SASS"
+
+-- postConf :: Args -> ConfigFlags -> PackageDescription -> LocalBuildInfo -> IO ()
 appendResourceArchive ::
      Args -> CopyFlags -> PackageDescription -> LocalBuildInfo -> IO ()
 appendResourceArchive args flags descr info = do
