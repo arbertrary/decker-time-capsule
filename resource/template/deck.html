@@ -106,7 +106,7 @@ $endfor$
 </head>
 $if(scorm)$
 <script src="$decker-support-dir$/js/scorm.js"></script>
-<body onload="doStart();" onbeforeunload="doUnload();">
+<body oncontextmenu="return false;" onload="doStart();" onbeforeunload="doUnload();">
 $else$
 <body>
 $endif$
