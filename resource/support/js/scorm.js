@@ -342,14 +342,13 @@ function gradeScormMC() {
     var correctCount = 0;
     var totalQuestions = questions.length;
     var questionID = "";
-    var weight = null;
+    var weight = 100 / questions.length;
 
     for (let question of questions) {
         questionID = question.id;
         let answered = false;
         var learnerResponse, correctAnswer = null;
         const type = "choice";
-        weight = question.parentElement.getAttribute("data-points");
         const answers = question.getElementsByClassName("answer");
 
         // disable answer, get learner response and correct response
@@ -387,6 +386,9 @@ function gradeScormMC() {
 
         // submit question data to LMS 
         if (learnerResponse == null) { learnerResponse = "not_answered"; }
+        if (weight == null) {
+
+        }
         RecordQuestion(questionID, type, learnerResponse, feedback, weight);
     }
 
@@ -421,10 +423,11 @@ function RecordTest(score) {
     ScormProcessSetValue("cmi.core.score.raw", score);
     ScormProcessSetValue("cmi.core.score.min", "0");
     ScormProcessSetValue("cmi.core.score.max", "100");
+    var passingGrade = document.getElementById("slideContent").getAttribute("data-grade");
 
     //if we get a test result, set the lesson status to passed/failed instead of completed
-    //consider 70% to be passing
-    if (score >= 70) {
+    //passing grade is specified in decker.yaml
+    if (score >= passingGrade) {
         ScormProcessSetValue("cmi.core.lesson_status", "passed");
     } else {
         ScormProcessSetValue("cmi.core.lesson_status", "failed");

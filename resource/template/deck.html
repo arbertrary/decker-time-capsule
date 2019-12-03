@@ -114,8 +114,15 @@ $for(include-before)$
 $include-before$
 $endfor$
   <div class="reveal">
+  $if(scorm)$
+    $if(passing-grade)$
+      <div class="slides" id="slideContent" data-grade="$passing-grade$">
+    $else$
+      <div class="slides" id="slideContent" data-grade="70">
+    $endif$
+  $else$
     <div class="slides" id="slideContent">
-
+  $endif$
 $if(title)$
 <section id="$idprefix$title-slide">
   <h1 class="title">$title$</h1>

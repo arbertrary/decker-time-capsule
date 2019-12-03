@@ -153,9 +153,15 @@ run = do
     phony "index" $ need ["support", index]
     --
     phony "scorm" $ do
-      need ["html"]
-      let publicDir = directories ^. public
-      createScormPackage (directories ^. project) publicDir
+      meta <- liftIO $ readMetaData $ directories ^. project
+      case getMetaBool "scorm" meta of
+        Just True -> do
+          need ["html"]
+          let publicDir = directories ^. public
+          createScormPackage (directories ^. project) publicDir
+        Nothing ->
+          throw $
+          YamlException "Please indicate \"scorm: true\" in decker.yaml."
     priority 2 $
       "//*-deck.html" %> \out -> do
         needGlobalMetaFile
