@@ -142,7 +142,6 @@ function ScormProcessSetValue(element, value) {
 /* *************************************
      API Functions
 ************************************** */
-
 var startTimeStamp, reachedEnd, bookmark, h, v, f = null,
     processedUnload = false;
 
@@ -338,6 +337,7 @@ function FormatChoiceResponse(value) {
 }
 // Disable Submit button, grade each question, submit interaction data and score to LMS
 function gradeScormMC() {
+    document.getElementById("submitButton").style.pointerEvents = "none";
     const questions = document.getElementsByClassName("scorm-survey");
     var correctCount = 0;
     var totalQuestions = questions.length;
@@ -386,9 +386,6 @@ function gradeScormMC() {
 
         // submit question data to LMS 
         if (learnerResponse == null) { learnerResponse = "not_answered"; }
-        if (weight == null) {
-
-        }
         RecordQuestion(questionID, type, learnerResponse, feedback, weight);
     }
 
@@ -405,8 +402,6 @@ function gradeScormMC() {
 }
 //Used to record the details of the question
 function RecordQuestion(id, type, response, feedback, weight) {
-    console.log("Submitting to LMS: id: " + id + ", type: " + type +
-        ", response: " + response + ", feedback: " + feedback + ", weight: " + weight);
     var nextIndex = ScormProcessGetValue("cmi.interactions._count", true);
     ScormProcessSetValue("cmi.interactions." + nextIndex + ".id", id);
     ScormProcessSetValue("cmi.interactions." + nextIndex + ".type", type);
