@@ -1,5 +1,4 @@
-[![pipeline
-status](https://gitlab2.informatik.uni-wuerzburg.de/decker/decker/badges/master/pipeline.svg)](https://gitlab2.informatik.uni-wuerzburg.de/decker/decker/commits/master)
+[![pipeline status](https://gitlab2.informatik.uni-wuerzburg.de/decker/decker/badges/master/pipeline.svg)](https://gitlab2.informatik.uni-wuerzburg.de/decker/decker/commits/master)
 
 # decker
 
@@ -34,24 +33,18 @@ Use appropriate tooling. I use:
 
 ### Templates and CSS
 
-To interactively work on the template, CSS and Javascript files in
-`resource/template` and `resource/support` run Decker as
-`stack run decker server`. This will automatically incorporate all changes and
-reload the documents in the browser.
+To interactively work on the template, CSS and Javascript files in `resource/template` and `resource/support` run Decker as `stack run decker server`. This will automatically incorporate all changes and reload the documents in the browser.
 
 ## External tools
 
 Decker uses a few external tools that need to be installed on the system:
 
 -   [*ssh*](https://www.openssh.com) for publishing slide decks and resources
--   [*rsync*](http://formulae.brew.sh/repos/Homebrew/homebrew-core/formula/rsync)
-    for publishing slide decks and resources
--   [*LaTeX* with pdflatex](https://www.latex-project.org) to generate LaTeX in
-    PDF-files and embedded Tikz figures
+-   [*rsync*](http://formulae.brew.sh/repos/Homebrew/homebrew-core/formula/rsync) for publishing slide decks and resources
+-   [*LaTeX* with pdflatex](https://www.latex-project.org) to generate LaTeX in PDF-files and embedded Tikz figures
 -   [*Graphviz*](http://graphviz.org) to generate graphs using `dot`
 -   [*Gnuplot*](http://gnuplot.sourceforge.net) to generate graphs using `dot`
--   [*pdf2svg*](https://github.com/dawbarton/pdf2svg) to generate SVG files from
-    PDF documents
+-   [*pdf2svg*](https://github.com/dawbarton/pdf2svg) to generate SVG files from PDF documents
 -   *libbzip2-dev*
 -   [*NodeJS*](https://nodejs.org/) as a prerequisite for Yarn
 -   [*coreutils*](https://www.gnu.org/software/coreutils/) the GNU coreutils
@@ -68,33 +61,26 @@ For the rest follow instructions on their respective webites.
 
 ## Usage
 
-*decker* behaves very much like a build tool. It works recursively on the
-current directory and all subdirectories. Markdown files ending on `.md` in
-those directories are processed and converted to either a reveal.js slide show,
-a HTML document, or a PDF document, depending on the file name.
+*decker* behaves very much like a build tool. It works recursively on the current directory and all subdirectories. Markdown files ending on `.md` in those directories are processed and converted to either a reveal.js slide show, a HTML document, or a PDF document, depending on the file name.
 
 -   `*-deck.md`
 
-    Files with this ending are processed as silde decks. From one source file
-    potentially four different targets can be generated:
+    Files with this ending are processed as silde decks. From one source file potentially four different targets can be generated:
 
     -   `*-deck.html` A reveal.js based slide show
-    -   `*-handout.hmtl` A HTML document containing the speaker notes to the
-        slide show.
+    -   `*-handout.hmtl` A HTML document containing the speaker notes to the slide show.
     -   `*-deck.pdf` A PDF version of the slide show
     -   `*-handout.pdf` A PDF version of the handout
 
 -   `*-page.md`
 
-    Markdown files ending on `*-page.md` are translated into corresponding HTML
-    or PDF documents.
+    Markdown files ending on `*-page.md` are translated into corresponding HTML or PDF documents.
 
 ## *decker* targets
 
 -   `decker version`
 
-    Prints the current decker version and branch as well as the current pandoc
-    version.
+    Prints the current decker version and branch as well as the current pandoc version.
 
 -   `decker help`
 
@@ -102,9 +88,7 @@ a HTML document, or a PDF document, depending on the file name.
 
 -   `decker info`
 
-    Prints information about the current project's directories, the targets
-    (files which will be generated) and the meta data options which are found in
-    top level `decker.yaml` file.
+    Prints information about the current project's directories, the targets (files which will be generated) and the meta data options which are found in top level `decker.yaml` file.
 
 -   `decker html`
 
@@ -122,87 +106,88 @@ a HTML document, or a PDF document, depending on the file name.
 
     Builds PDF versions of all slide decks.
 
-    To use `decker pdf` or `decker pdf-decks`, Google Chrome has to be
-    installed.\
-    **Windows:** Currently `decker pdf` does not work on Windows. Please add
-    `print: true` or `menu: true` to your slide deck and use the print button in
-    the menu or on the title slide. **MacOS:** Follow the Google Chrome
-    installer instructions. **Google Chrome.app** has to be located in either
-    `/Applications/Google Chrome.app` or
-    `/Users/username/Applications/Google Chrome.app` Alternatively you can add
-    `chrome` to `$PATH`.\
+    To use `decker pdf` or `decker pdf-decks`, Google Chrome has to be installed.\
+    **Windows:** Currently `decker pdf` does not work on Windows. Please add `print: true` or `menu: true` to your slide deck and use the print button in the menu or on the title slide. **MacOS:** Follow the Google Chrome installer instructions. **Google Chrome.app** has to be located in either `/Applications/Google Chrome.app` or `/Users/username/Applications/Google Chrome.app` Alternatively you can add `chrome` to `$PATH`.\
     **Linux:** `chrome` has to be on `$PATH`.
 
 -   `decker watch`
 
-    Builds HTML versions of all documents and then watches for document changes.
-    Each change to a watched document triggers a rebuild. Watching can be
-    terminated with `^C`.
+    Builds HTML versions of all documents and then watches for document changes. Each change to a watched document triggers a rebuild. Watching can be terminated with `^C`.
 
 -   `decker server`
 
-    Like `decker watch`. Additionally a local web server is started that serves
-    the generated HTML files. The `*-deck.html` file is openend in the browser.
-    Changed files are reloaded in the browser. (still requires `livereloadx`)
+    Like `decker watch`. Additionally a local web server is started that serves the generated HTML files. The `*-deck.html` file is openend in the browser. Changed files are reloaded in the browser. (still requires `livereloadx`)
 
 -   `decker example`
 
-    Write a few example files to the current directory. To start exploring
-    decker type
+    Write a few example files to the current directory. To start exploring decker type
 
     ``` {.bash}
     $ decker example
     $ decker server
     ```
 
-    and make some changes to the Markdown files. `example-deck.md` contains the
-    source code for a slide deck that explains most of the available features
-    for creating slide decks.
+    and make some changes to the Markdown files. `example-deck.md` contains the source code for a slide deck that explains most of the available features for creating slide decks.
 
 -   `decker tutorial`
 
-    Like `example` but copies extended example/tutorial slide decks to the
-    current directory.
+    Like `example` but copies extended example/tutorial slide decks to the current directory.
 
 -   `decker clean`
 
-    Recursively removes all generated files from the current directory (i.e. the
-    `public` folder). Also removes cached resources witch version number lower
-    than the current version.
+    Recursively removes all generated files from the current directory (i.e. the `public` folder). Also removes cached resources witch version number lower than the current version.
 
 -   `decker publish`
 
-    Publish the generated files to a remote location using `rsync` if the
-    location is specified in the meta data. The keys `rsync-destination.host`
-    and `rsync-destination.path` specify the publishing destination.
+    Publish the generated files to a remote location using `rsync` if the location is specified in the meta data. The keys `rsync-destination.host` and `rsync-destination.path` specify the publishing destination.
+
+-   `decker scorm`
+
+    Build a scorm package that may be uploaded to a Learning Management System. Must have the following defined in decker.yaml: 'course', 'author', 'version', 'scorm:true', (optional 'passing-grade' will set the minimum passing grade).
+
+## Publishing SCORM Content
+
+Decker presentations can generate Scorm 1.2 compliant quizzes. Use the command 'decker scorm' to create a scorm package to be uploaded to a LMS.
+
+The following must be defined in decker.yaml:
+
+-   course: your-course-name
+-   author: author-name
+-   version: course-version (ie 1.0)
+-   scorm: true
+-   passing-grade: \#\# (optional; if not defined, passing grade is 60%)
+
+Only single-response, multiple-choice questions in one markdown file are supported. All questions are weighted equally.
+
+#### The following interactions will be sent to the LMS:
+
+-   completion status (not attempted, incomplete, completed)
+-   current location in presentation
+-   time spent in presentation
+-   question type (choice)
+-   question text
+-   student response
+-   result (correct, wrong)
+-   question weight
+-   possible minimum score
+-   possible maximum score
+-   raw score received
+-   lesson status (passed, failed)
 
 ## Contributions
 
 ### Pull requests
 
-Contributions are accepted via pull requests. Before working on a feature,
-please write up an issue and discuss it with the other developers. For each
-implemented feature, increment the version number in `package.yaml`. Breaking
-changes increment the second number. Fixes increment the third number.
+Contributions are accepted via pull requests. Before working on a feature, please write up an issue and discuss it with the other developers. For each implemented feature, increment the version number in `package.yaml`. Breaking changes increment the second number. Fixes increment the third number.
 
 ### CI build checks
 
-The decker repository has a GitLab CI runner configured, that builds and runs
-all tests for each commit on every branch. Look at the status display for recent
-run of the [CI pipelines](pipelines).
+The decker repository has a GitLab CI runner configured, that builds and runs all tests for each commit on every branch. Look at the status display for recent run of the [CI pipelines](pipelines).
 
 ### Haskell source code formatting
 
-Haskell soure code readability depends heavily on consistent formatting
-conventions. With decker, formatting is automated using the excellent
-[hindent]() tool. Formatting is checked for each commit that is uploaded to the
-GitLab repository.
+Haskell soure code readability depends heavily on consistent formatting conventions. With decker, formatting is automated using the excellent [hindent]() tool. Formatting is checked for each commit that is uploaded to the GitLab repository.
 
 ## Compile Flags
 
-The Decker executable contains per default all necessary supporting files and
-extracts them on the first run. Some packaging solutions prefer to already
-extract the files during the installation. To support this, a compile flag
-`preextractedresources` is available which instructs Decker to work with the
-already extracted resource files. Invoke
-`stack --flag decker:preextractedresources` to compile such a version.
+The Decker executable contains per default all necessary supporting files and extracts them on the first run. Some packaging solutions prefer to already extract the files during the installation. To support this, a compile flag `preextractedresources` is available which instructs Decker to work with the already extracted resource files. Invoke `stack --flag decker:preextractedresources` to compile such a version.
