@@ -3,6 +3,7 @@
   Description: Provides functionality for creating different types of quiz questions
   Author: Jan-Philipp Stauffert <jan-philipp.stauffert@uni-wuerzburg.de> 
   Author: Armin Bernstetter <armin.bernstetter@uni-wuerzburg.de>
+  Author: Samantha Monty <samantha.monty@uni-wuerzburg.de>
   
   This module enables creating different types of quiz questions in decker.
   Currently possible: 
@@ -15,23 +16,18 @@ module Text.Decker.Filter.Quiz
   ( renderQuizzes
   ) where
 
-import Text.Decker.Filter.Util
-import Text.Decker.Internal.Common
-
+import Control.Lens ((^.))
+import Control.Monad.IO.Class
 import Data.List
 import Data.List.Split
+import Text.Decker.Filter.Util
+import Text.Decker.Internal.Common
+import Text.Decker.Internal.Meta
+import Text.Decker.Project.Project
 import Text.Pandoc
 import Text.Pandoc.Shared
 import Text.Pandoc.Walk
 import Text.Printf
-
-import Control.Lens ((^.))
-import Control.Monad.IO.Class
-
-import Text.Decker.Internal.Meta
-
---scorm libraries
-import Text.Decker.Project.Project
 
 scormQuiz :: Meta -> IO Bool
 scormQuiz meta =
@@ -45,9 +41,13 @@ renderQuizzes pandoc = do
   dirs <- liftIO projectDirectories
   meta <- liftIO $ readMetaData $ dirs ^. project
   isScorm <- liftIO $ scormQuiz meta
+  let scheme =
+        case getMetaString "grading-scheme" meta of
+          Just a -> a
+          Nothing -> "single"
   let mc =
         if isScorm
-          then walk renderScormMC pandoc
+          then walk renderScormMC $ addInstructions pandoc scheme
           else walk renderMultipleChoice pandoc
   let match = walk renderMatching mc
   let blank = walk renderBlanktext match
@@ -69,6 +69,34 @@ renderMultipleChoice (BulletList blocks@((firstBlock:_):_))
       [Str "Show Solution"] ++ [toHtml "</button>"]
 -- Default pass through
 renderMultipleChoice block = block
+
+-- Add a single slide with quiz instructions to the front of the slide deck
+-- reads decker.yaml for "grading" scheme
+addInstructions :: Pandoc -> String -> Pandoc
+addInstructions (Pandoc meta blocks) scheme =
+  Pandoc
+    meta
+    (Header 1 ("", [], []) [Str "Quiz Instructions"] : Para [text] : blocks)
+  where
+    gradingScheme =
+      case scheme of
+        "BV1" ->
+          "You may select more than one response per question.  " ++
+          "You will receive 1 point for each correct response, and will lose 1 point for each incorrect repsonse. " ++
+          "It is possible that all responses are correct or all responses are incorrect. "
+        "BV2" ->
+          "You may select more than one response per question.  " ++
+          "You will receive 1 point for each correct response. " ++
+          "It is possible that all responses are correct or all responses are incorrect. "
+        "BV3" -> "Please select only one response per question. "
+        "BV4" -> "Please select only one response per question. "
+        _ -> "Please select only one response per question. "
+    text =
+      Str $
+      "This is a multiple-choice quiz. " ++
+      gradingScheme ++
+      "At the end of the quiz, click the Submit All button to submit your responses. " ++
+      "You may change a response at any time before submitting."
 
 -- | Renders a multiple choice question for SCORM
 renderScormMC :: Block -> Block

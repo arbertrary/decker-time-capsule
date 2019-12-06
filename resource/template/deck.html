@@ -116,9 +116,17 @@ $endfor$
   <div class="reveal">
   $if(scorm)$
     $if(passing-grade)$
-      <div class="slides" id="slideContent" data-grade="$passing-grade$">
+      $if(grading-scheme)$
+        <div class="slides" id="slideContent" data-grade="$passing-grade$" data-grading-scheme="$grading-scheme$">
+      $else$
+        <div class="slides" id="slideContent" data-grade="$passing-grade$">
+      $endif$
     $else$
-      <div class="slides" id="slideContent" data-grade="70">
+      $if(grading-scheme)$
+        <div class="slides" id="slideContent" data-grade="70" data-grading-scheme="$grading-scheme$">
+      $else$
+        <div class="slides" id="slideContent" data-grade="70">
+      $endif$
     $endif$
   $else$
     <div class="slides" id="slideContent">
