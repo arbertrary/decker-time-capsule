@@ -3,6 +3,7 @@
   Description: Provides functionality for creating different types of quiz questions
   Author: Jan-Philipp Stauffert <jan-philipp.stauffert@uni-wuerzburg.de> 
   Author: Armin Bernstetter <armin.bernstetter@uni-wuerzburg.de>
+  Author: Samantha Monty <samantha.monty@uni-wuerzburg.de>
   
   This module enables creating different types of quiz questions in decker.
   Currently possible: 
@@ -15,23 +16,19 @@ module Text.Decker.Filter.Quiz
   ( renderQuizzes
   ) where
 
-import Text.Decker.Filter.Util
-import Text.Decker.Internal.Common
-
+import Control.Lens ((^.))
+import Control.Monad.IO.Class
 import Data.List
 import Data.List.Split
+import Text.Decker.Filter.Scorm (addInstructions)
+import Text.Decker.Filter.Util
+import Text.Decker.Internal.Common
+import Text.Decker.Internal.Meta
+import Text.Decker.Project.Project
 import Text.Pandoc
 import Text.Pandoc.Shared
 import Text.Pandoc.Walk
 import Text.Printf
-
-import Control.Lens ((^.))
-import Control.Monad.IO.Class
-
-import Text.Decker.Internal.Meta
-
---scorm libraries
-import Text.Decker.Project.Project
 
 scormQuiz :: Meta -> IO Bool
 scormQuiz meta =
@@ -47,7 +44,7 @@ renderQuizzes pandoc = do
   isScorm <- liftIO $ scormQuiz meta
   let mc =
         if isScorm
-          then walk renderScormMC pandoc
+          then walk renderScormMC $ addInstructions pandoc meta
           else walk renderMultipleChoice pandoc
   let match = walk renderMatching mc
   let blank = walk renderBlanktext match

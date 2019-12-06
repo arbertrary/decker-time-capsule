@@ -145,7 +145,6 @@ function ScormProcessSetValue(element, value) {
 var startTimeStamp, reachedEnd, bookmark, h, v, f = null,
     processedUnload = false;
 
-//Create function handlers for the loading and unloading of the page
 function doStart() {
     // Format MC questions
     scormMC();
@@ -206,7 +205,6 @@ function doUnload() {
     prompt the user if exit before course complete */
     reachedEnd = Reveal.isLastSlide();
 
-    var currentSlide = document.querySelector('#slideContent>.slide.present');
     if (reachedEnd) {
         ScormProcessSetValue("cmi.core.lesson_status", "completed");
         ScormProcessSetValue("cmi.core.exit", "");
@@ -292,11 +290,11 @@ function ConvertMilliSecondsToSCORMTime(intTotalMilliseconds, blnIncludeFraction
     }
     return strCMITimeSpan;
 }
-// Add ID to each question, highlight selected response, add submit button to end
 function scormMC() {
-    const questions = document.getElementsByClassName("scorm-survey");
-
+    var questions = document.getElementsByClassName("scorm-survey");
     let question_num = 1;
+
+    // Insert slide before first question slide that explains test based on grading scheme
     for (let question of questions) {
         question.setAttribute("id", question_num.toString());
         question_num += 1;
@@ -321,107 +319,127 @@ function scormMC() {
             answer_num += 1;
         }
     }
-
-    var submitButton = document.createElement('button');
-    submitButton.innerHTML = "Submit All";
-    submitButton.id = "submitButton";
-    submitButton.addEventListener('click', gradeScormMC);
-    questions[questions.length - 1].appendChild(submitButton);
 }
-// Replace all whitespace
 function FormatChoiceResponse(value) {
     var newValue = new String(value);
     newValue = newValue.replace(/\W/g, "_");
     newValue = newValue.replace(/^_/, "");
     return newValue;
 }
-// Disable Submit button, grade each question, submit interaction data and score to LMS
+function Question(id, type, selectedAnswers, correctAnswers, possiblePoints, points) {
+    this.id = id;
+    this.type = type;
+    this.selectedAnswers = selectedAnswers;
+    this.correctAnswers = correctAnswers;
+    this.possiblePoints = possiblePoints;
+    this.points = points;
+}
 function gradeScormMC() {
     document.getElementById("submitButton").style.pointerEvents = "none";
     const questions = document.getElementsByClassName("scorm-survey");
-    var correctCount = 0;
-    var totalQuestions = questions.length;
-    var questionID = "";
-    var weight = 100 / questions.length;
+    var questionArray = [];
+    var gradingScheme = document.getElementById("slideContent").getAttribute("data-grading-scheme");
+    var totalPossible = 0; var totalEarned = 0;
 
     for (let question of questions) {
-        questionID = question.id;
-        let answered = false;
-        var learnerResponse, correctAnswer = null;
-        const type = "choice";
-        const answers = question.getElementsByClassName("answer");
+        var points = 0;
+        var chosen, answerText;
+        var correct = true;
+        var selectedAnswers = []; var correctAnswers = [];
+        var questionID = question.id;
+        const allAnswers = question.getElementsByClassName("answer");
+        var possiblePoints;
 
         // disable answer, get learner response and correct response
-        for (let answer of answers) {
-            answer.parentElement.style.pointerEvents = "none";
-            if (answer.parentElement.classList.contains("selected")) {
-                answered = true;
-                learnerResponse = answer.firstElementChild.innerHTML;
-                learnerResponse = FormatChoiceResponse(learnerResponse);
-            }
+        for (let answer of allAnswers) {                                        // for each answer  
+            answer.parentElement.style.pointerEvents = "none";                  // deactivate answer button  
+            answerText = FormatChoiceResponse(answer.firstElementChild.innerHTML);
+            var p = document.createElement('p');
+            p.style.color = "#009933";
+            var t = document.createTextNode('');
+            p.appendChild(t);
+            question.parentElement.insertBefore(p, question.parentElement.childNodes[0]);
+            chosen = answer.parentElement.classList.contains("selected");
 
-            if (answer.classList.contains("lft")) {
-                correctAnswer = answer.firstElementChild.innerHTML;
-                correctAnswer = FormatChoiceResponse(correctAnswer);
+            // tally points for answers
+            if (answer.classList.contains("lft")) {             // if correct answer
+                correctAnswers.push(answerText);
+                if (chosen) {                                   // if correct and chosen
+                    selectedAnswers.push(answerText);
+                    if (gradingScheme == "BV1" || gradingScheme == "BV2" || gradingScheme == "BV3") {
+                        points++;
+                    }
+                } else {                                        // if correct and not chosen
+                    if (gradingScheme == "BV1" || gradingScheme == "BV3") {
+                        points--;
+                    }
+                }
+            } else {                                            // if incorrect answer
+                if (chosen) {                                   // if incorrect and chosen
+                    selectedAnswers.push(answerText);
+                    if (gradingScheme == "BV1" || gradingScheme == "BV3") {
+                        points--;
+                    }
+                } else {                                        // if incorrect and not chosen
+                    if (gradingScheme == "BV1" || gradingScheme == "BV2") {
+                        points++;
+                    }
+                }
             }
         }
+        // provide feedback to learner
+        // possible earned points varies by grading scheme
+        if (gradingScheme == "single" || gradingScheme == "BV4") {
+            possiblePoints = 1;
+            if (selectedAnswers.length == correctAnswers.length) {
+                for (var i = 0; i < selectedAnswers.length; i++) {
+                    if (selectedAnswers[i] !== correctAnswers[i]) { correct = false; }
+                }
+            } else { correct = false; }
 
-        var p = document.createElement('p');
-        var t = document.createTextNode('');
-        t.nodeValue = "Incorrect";
-        p.style.color = "#cc0000";
-        // if question was answered, check if response is correct
-        var feedback = null;
-        if (answered) {
-            feedback = (correctAnswer == learnerResponse) ? true : false;
-            if (feedback) {
-                correctCount++;
-                t.nodeValue = "Correct!";
-                p.style.color = "#009933";
+            if (correct) {
+                t.nodeValue = "Correct";
+                points = 1;
+            } else {
+                t.nodeValue = "Incorrect";
+                p.style.color = "#cc0000";
             }
+        } else if (gradingScheme == "BV1" || gradingScheme == "BV2") {
+            possiblePoints = allAnswers.length;
+            if (points < 0) { points = 0; }
+            t.nodeValue = "You received " + points + " out of " + possiblePoints + " possible points.";
+        } else {
+            possiblePoints = correctAnswers.length;
+            if (points < 0) { points = 0; }
+            t.nodeValue = "You received " + points + " out of " + possiblePoints + " possible points.";
         }
-
-        p.appendChild(t);
-        question.parentElement.insertBefore(p, question.parentElement.childNodes[0]);
-
-        // submit question data to LMS 
-        if (learnerResponse == null) { learnerResponse = "not_answered"; }
-        RecordQuestion(questionID, type, learnerResponse, feedback, weight);
+        totalEarned += points;
+        totalPossible += possiblePoints;
+        questionArray.push(new Question(questionID, "choice", selectedAnswers, correctAnswers, possiblePoints, points));
     }
-
-    var finalResult = "";
-    var score = Math.round(correctCount * 100 / totalQuestions);
-    finalResult = "Your final score is: " + score + ".\n";
-    var resultsPara = document.createElement('p');
-    var resultsText = document.createTextNode(finalResult);
-    resultsPara.appendChild(resultsText);
-    questions[totalQuestions - 1].appendChild(resultsPara);
-
-    // submit score to LMS
-    RecordTest(score);
+    var submitMessage = document.createElement('p');
+    submitMessage.style.color = "#009933";
+    submitMessage.innerHTML = "Your answers have been submitted. Your score is " +
+        totalEarned + " out of " + totalPossible +
+        " possible points. You may now close the window.";
+    document.getElementById("submitSlide").appendChild(submitMessage);
+    // Submit quiz to LMS
+    RecordTest(questionArray, totalEarned, totalPossible);
 }
-//Used to record the details of the question
-function RecordQuestion(id, type, response, feedback, weight) {
-    var nextIndex = ScormProcessGetValue("cmi.interactions._count", true);
-    ScormProcessSetValue("cmi.interactions." + nextIndex + ".id", id);
-    ScormProcessSetValue("cmi.interactions." + nextIndex + ".type", type);
-    ScormProcessSetValue("cmi.interactions." + nextIndex + ".student_response", response);
-    if (feedback) {
-        ScormProcessSetValue("cmi.interactions." + nextIndex + ".result", "correct");
-    } else {
-        ScormProcessSetValue("cmi.interactions." + nextIndex + ".result", "wrong");
+function RecordTest(questions, totalEarned, totalPossible) {
+    for (let question of questions) {
+        var nextIndex = ScormProcessGetValue("cmi.interactions._count");
+        ScormProcessSetValue("cmi.interactions." + nextIndex + ".id", question.id);
+        ScormProcessSetValue("cmi.interactions." + nextIndex + ".type", question.type);
+        ScormProcessSetValue("cmi.interactions." + nextIndex + ".student_response", question.selectedAnswers);
+        ScormProcessSetValue("cmi.interactions." + nextIndex + ".weighting", question.points);
     }
-    ScormProcessSetValue("cmi.interactions." + nextIndex + ".weighting", weight);
-}
-//Used to record the results of a test; passes in score as a percentage
-function RecordTest(score) {
-    ScormProcessSetValue("cmi.core.score.raw", score);
+    ScormProcessSetValue("cmi.core.score.raw", totalEarned);
     ScormProcessSetValue("cmi.core.score.min", "0");
-    ScormProcessSetValue("cmi.core.score.max", "100");
-    var passingGrade = document.getElementById("slideContent").getAttribute("data-grade");
+    ScormProcessSetValue("cmi.core.score.max", totalPossible);
 
-    //if we get a test result, set the lesson status to passed/failed instead of completed
-    //passing grade is specified in decker.yaml
+    var score = (totalEarned / totalPossible) * 100;
+    var passingGrade = parseInt(document.getElementById("slideContent").getAttribute("data-grade"));
     if (score >= passingGrade) {
         ScormProcessSetValue("cmi.core.lesson_status", "passed");
     } else {

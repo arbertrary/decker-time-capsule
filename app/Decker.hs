@@ -162,6 +162,7 @@ run = do
         Nothing ->
           throw $
           YamlException "Please indicate \"scorm: true\" in decker.yaml."
+    --
     priority 2 $
       "//*-deck.html" %> \out -> do
         needGlobalMetaFile
