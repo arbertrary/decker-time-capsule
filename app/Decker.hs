@@ -1,6 +1,7 @@
 {-- Author: Henrik Tramberend <henrik@tramberend.de> --}
 module Decker where
 
+import Text.Decker.Internal.Common
 import Text.Decker.Internal.Exception
 import Text.Decker.Internal.External
 import Text.Decker.Internal.Helper
@@ -9,6 +10,7 @@ import Text.Decker.Project.Project
 import Text.Decker.Project.Shake
 import Text.Decker.Project.Version
 import Text.Decker.Resource.Resource
+import Text.Decker.Resource.Zip (zipDirectory)
 import Text.Decker.Server.Dachdecker
 import Text.Decker.Writer.Format
 import Text.Decker.Writer.Html
@@ -103,6 +105,19 @@ run = do
       need ["support", "publish-annotations"]
       allHtmlA >>= need
       need ["index"]
+    --
+    phony "zip" $ do
+      meta <- metaA
+      case provisioningFromMeta meta of
+        Copy -> do
+          need ["html"]
+          let src = directories ^. public
+          let out = takeBaseName (directories ^. project) ++ "-public.zip"
+          putNormal $ "Creating zip archive " ++ out
+          runAfter $ zipDirectory src out
+        _ ->
+          putNormal
+            "To make sure all needed support files are included in the zip file you need to use \"provisioning: Copy\""
     --
     phony "pdf" $ do
       putNormal pdfMsg

@@ -2,6 +2,7 @@ module Text.Decker.Resource.Zip
   ( extractResourceEntries
   , extractResourceEntry
   , extractResourceEntryList
+  , zipDirectory
   ) where
 
 import Text.Decker.Internal.Exception
@@ -63,3 +64,8 @@ extractResources = do
     Dir.createDirectoryIfMissing True dataDir
     withArchive deckerExecutable (unpackInto dataDir)
     putStrLn $ "# resources extracted to " ++ dataDir
+
+zipDirectory :: FilePath -> FilePath -> IO ()
+zipDirectory src out = do
+  let archive = packDirRecur Deflate mkEntrySelector src
+  createArchive out archive
