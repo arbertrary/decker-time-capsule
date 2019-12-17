@@ -20,7 +20,7 @@ Other Targets:
     index           Builds only the index file
     decks           Builds only the slide decks (ending in `*-deck.md`)
     info            Prints information about directories and target files
-    publish-annotations     Publish 
+    publish-annotations     Publish your sketch-pad annotations
     fast
 
 
