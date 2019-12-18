@@ -88,7 +88,10 @@ addInstructions (Pandoc meta blocks) scheme =
           "You may select more than one response per question.  " ++
           "You will receive 1 point for each correct response. " ++
           "It is possible that all responses are correct or all responses are incorrect. "
-        "BV3" -> "Please select only one response per question. "
+        "BV3" ->
+          "You may select more than one response per question.  " ++
+          "You will receive 1 point for each correct response. " ++
+          "It is possible that all responses are correct or all responses are incorrect. "
         "BV4" -> "Please select only one response per question. "
         _ -> "Please select only one response per question. "
     text =

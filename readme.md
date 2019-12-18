@@ -161,13 +161,13 @@ The following must be defined in decker.yaml:
 
 #### Grading Scheme:
 
-For multiple choice quizzes, grades are tallied following one of five grading schemes. A cover slide will appear at the front of the quiz with instructions about the grading of the quiz. Specify the grading scheme in decker.yaml as 'grading-scheme'. The default scheme is 'single'.
+For multiple choice quizzes, grades are tallied following one of five grading schemes. A cover slide will appear at the front of the quiz with instructions about the grading of the quiz. Specify the grading scheme in decker.yaml as 'grading-scheme'.
 
--   single: Only one answer per question is allowed. All questions are weighted equally.
--   BV1: Multiple answers per question are allowed. One point is awarded for each correct response, including those left blank. One point is deducted for each incorrect response. It is possible that all responses may be correct or all responses may be incorrect for a question.
+-   single: Only one answer per question is allowed.
+-   BV1: Multiple answers per question are allowed. One point is awarded for each correct response, including those correctly left blank. One point is deducted for each incorrect response. It is possible that all responses may be correct or all responses may be incorrect for a question. Total possible points equals number of possible answers.
 -   BV2: Same as BV1, but no points are deducted for incorrect responses.
--   BV3: Not yet supported.
--   BV4: Not yet supported.
+-   BV3: Multiple answers per question are allowed. One point is awarded for each correct response. Points are not awarded for blank answers. One point is deducted for each incorrect response. It is possible that all responses may be correct or all responses may be incorrect for a question. Total possible points equals number of correct answers.
+-   BV4: Multiple answers per question are allowed. If all correct responses are selected, 1 point is earned. If not, 0 points are earned.
 
 #### The following interactions will be sent to the LMS:
 

@@ -346,16 +346,15 @@ function gradeScormMC() {
     const questions = document.getElementsByClassName("scorm-survey");
     var questionArray = [];
     var gradingScheme = document.getElementById("slideContent").getAttribute("data-grading-scheme");
-    console.log("Found grading scheme: " + gradingScheme);
 
     for (let question of questions) {
         var points = 0;
         var chosen, answerText;
-        var correct = null;
+        var correct = true;
         var selectedAnswers = []; var correctAnswers = [];
         var questionID = question.id;
         const allAnswers = question.getElementsByClassName("answer");
-        var possiblePoints = allAnswers.length;
+        var possiblePoints;
 
         // disable answer, get learner response and correct response
         for (let answer of allAnswers) {                                        // for each answer  
@@ -368,65 +367,60 @@ function gradeScormMC() {
             question.parentElement.insertBefore(p, question.parentElement.childNodes[0]);
             chosen = answer.parentElement.classList.contains("selected");
 
-            if (gradingScheme == "BV1") {                                       // if grading scheme = BV1
-                if (answer.classList.contains("lft")) {                         // if answer is correct                        
-                    correctAnswers.push(answerText);                            // push to correctArray
-                    if (chosen) {                                               // and if selected
-                        selectedAnswers.push(answerText);                       // push to chosenArray
-                        points++;                                               // and add a point
-                    } else { points--; }                                        // if correct and not selected, subtract a point
-                } else {                                                        // if answer is wrong
-                    if (chosen) {                                               // and if selected
-                        selectedAnswers.push(answerText);                       // push to chosenArray
-                        points--;                                               // and subtract a point
-                    } else { points++; }                                        // if wrong and not selected, add a point
-                }
-            }
-            else if (gradingScheme == "BV2") {
-                if (answer.classList.contains("lft")) {
-                    correctAnswers.push(answerText);
-                    if (chosen) {
-                        selectedAnswers.push(answerText);
+            // tally points for answers
+            if (answer.classList.contains("lft")) {             // if correct answer
+                correctAnswers.push(answerText);
+                if (chosen) {                                   // if correct and chosen
+                    selectedAnswers.push(answerText);
+                    if (gradingScheme == "BV1" || gradingScheme == "BV2" || gradingScheme == "BV3") {
                         points++;
                     }
-                } else {
-                    if (chosen) {
-                        selectedAnswers.push(answerText);
-                    } else { points++; }
+                } else {                                        // if correct and not chosen
+                    if (gradingScheme == "BV1" || gradingScheme == "BV3") {
+                        points--;
+                    }
                 }
-            }
-            else if (gradingScheme == "single") {                               // else if single scheme
-                if (chosen) {                                                   // if answer is chosen
-                    selectedAnswers.push(answerText);                           // mark as learner response
-                    if (answer.classList.contains("lft")) {                     // and if answer is correct
-                        correctAnswers.push(answerText);                        // mark as correct response
+            } else {                                            // if incorrect answer
+                if (chosen) {                                   // if incorrect and chosen
+                    selectedAnswers.push(answerText);
+                    if (gradingScheme == "BV1" || gradingScheme == "BV3") {
+                        points--;
+                    }
+                } else {                                        // if incorrect and not chosen
+                    if (gradingScheme == "BV1" || gradingScheme == "BV2") {
+                        points++;
                     }
                 }
             }
         }
-
-        if (gradingScheme = "single") {
-            possiblePoints = 1;
-        }
         // provide feedback to learner
-        if (gradingScheme == "BV1" || gradingScheme == "BV2" || gradingScheme == "BV3") {
+        // possible earned points varies by grading scheme
+        if (gradingScheme == "single" || gradingScheme == "BV4") {
+            possiblePoints = 1;
+            if (selectedAnswers.length == correctAnswers.length) {
+                for (var i = 0; i < selectedAnswers.length; i++) {
+                    if (selectedAnswers[i] !== correctAnswers[i]) { correct = false; }
+                }
+            } else { correct = false; }
+
+            if (correct) {
+                t.nodeValue = "Correct";
+                points = 1;
+            } else {
+                t.nodeValue = "Incorrect";
+                p.style.color = "#cc0000";
+            }
+        } else if (gradingScheme == "BV1" || gradingScheme == "BV2") {
+            possiblePoints = allAnswers.length;
+            if (points < 0) { points = 0; }
+            t.nodeValue = "You received " + points + " out of " + possiblePoints + " possible points.";
+        } else {
+            possiblePoints = correctAnswers.length;
             if (points < 0) { points = 0; }
             t.nodeValue = "You received " + points + " out of " + possiblePoints + " possible points.";
         }
-        if (gradingScheme == "single")
-            if (selectedAnswers.length == correctAnswers.length && selectedAnswers[0] === correctAnswers[0]) {
-                correct = true;
-            } else { correct = false; }
-        if (correct) {
-            t.nodeValue = "Correct";
-            points = 1;
-        } else {
-            t.nodeValue = "Incorrect";
-            p.style.color = "#cc0000";
-        }
 
         questionArray.push(new Question(questionID, "choice", selectedAnswers, correctAnswers, possiblePoints, points));
-        console.log("Pushing question " + questionID + " for " + points + " out of " + possiblePoints + "\n");
     }
     // Submit quiz to LMS
     RecordTest(questionArray);
@@ -441,12 +435,10 @@ function RecordTest(questions) {
         ScormProcessSetValue("cmi.interactions." + nextIndex + ".weighting", question.points);
         totalEarned += question.points;
         totalPossible += question.possiblePoints;
-        console.log("Question: " + question.id + ", Selected: " + question.selectedAnswers + ", Worth: " + question.points + " points.\n");
     }
     ScormProcessSetValue("cmi.core.score.raw", totalEarned);
     ScormProcessSetValue("cmi.core.score.min", "0");
     ScormProcessSetValue("cmi.core.score.max", totalPossible);
-    console.log("Total earned: " + totalEarned + " of " + totalPossible + " points.\n");
 
     var score = (totalEarned / totalPossible) * 100;
     var passingGrade = parseInt(document.getElementById("slideContent").getAttribute("data-grade"));
