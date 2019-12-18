@@ -400,36 +400,36 @@ function gradeScormMC() {
                     selectedAnswers.push(answerText);                           // mark as learner response
                     if (answer.classList.contains("lft")) {                     // and if answer is correct
                         correctAnswers.push(answerText);                        // mark as correct response
-                        if (selectedAnswers.length == correctAnswers.length) {
-                            correct = true;
-                        }
-                        break;
                     }
                 }
             }
         }
 
+        if (gradingScheme = "single") {
+            possiblePoints = 1;
+        }
         // provide feedback to learner
         if (gradingScheme == "BV1" || gradingScheme == "BV2" || gradingScheme == "BV3") {
             if (points < 0) { points = 0; }
             t.nodeValue = "You received " + points + " out of " + possiblePoints + " possible points.";
-        } else if (gradingScheme == "single") {
-            if (correct) {
-                t.nodeValue = "Correct";
-                points = allAnswers.length;
-            } else {
-                t.nodeValue = "Incorrect";
-                p.style.color = "#cc0000";
-                points = 0;
-            }
-            possiblePoints = allAnswers.length;
+        }
+        if (gradingScheme == "single")
+            if (selectedAnswers.length == correctAnswers.length && selectedAnswers[0] === correctAnswers[0]) {
+                correct = true;
+            } else { correct = false; }
+        if (correct) {
+            t.nodeValue = "Correct";
+            points = 1;
+        } else {
+            t.nodeValue = "Incorrect";
+            p.style.color = "#cc0000";
         }
 
         questionArray.push(new Question(questionID, "choice", selectedAnswers, correctAnswers, possiblePoints, points));
-
-        // Submit quiz to LMS
-        RecordTest(questionArray);
+        console.log("Pushing question " + questionID + " for " + points + " out of " + possiblePoints + "\n");
     }
+    // Submit quiz to LMS
+    RecordTest(questionArray);
 }
 function RecordTest(questions) {
     var totalEarned = 0; var totalPossible = 0;
@@ -441,10 +441,12 @@ function RecordTest(questions) {
         ScormProcessSetValue("cmi.interactions." + nextIndex + ".weighting", question.points);
         totalEarned += question.points;
         totalPossible += question.possiblePoints;
+        console.log("Question: " + question.id + ", Selected: " + question.selectedAnswers + ", Worth: " + question.points + " points.\n");
     }
     ScormProcessSetValue("cmi.core.score.raw", totalEarned);
     ScormProcessSetValue("cmi.core.score.min", "0");
     ScormProcessSetValue("cmi.core.score.max", totalPossible);
+    console.log("Total earned: " + totalEarned + " of " + totalPossible + " points.\n");
 
     var score = (totalEarned / totalPossible) * 100;
     var passingGrade = parseInt(document.getElementById("slideContent").getAttribute("data-grade"));

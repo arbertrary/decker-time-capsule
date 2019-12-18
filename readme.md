@@ -156,8 +156,18 @@ The following must be defined in decker.yaml:
 -   version: course-version (ie 1.0)
 -   scorm: true
 -   passing-grade: \#\# (optional; if not defined, passing grade is 60%)
+-   grading-scheme: single \| BV1 \| BV2 \| BV3 \| BV4 (enter only one)
+-   provisioning: copy
 
-Only single-response, multiple-choice questions in one markdown file are supported. All questions are weighted equally.
+#### Grading Scheme:
+
+For multiple choice quizzes, grades are tallied following one of five grading schemes. A cover slide will appear at the front of the quiz with instructions about the grading of the quiz. Specify the grading scheme in decker.yaml as 'grading-scheme'. The default scheme is 'single'.
+
+-   single: Only one answer per question is allowed. All questions are weighted equally.
+-   BV1: Multiple answers per question are allowed. One point is awarded for each correct response, including those left blank. One point is deducted for each incorrect response. It is possible that all responses may be correct or all responses may be incorrect for a question.
+-   BV2: Same as BV1, but no points are deducted for incorrect responses.
+-   BV3: Not yet supported.
+-   BV4: Not yet supported.
 
 #### The following interactions will be sent to the LMS:
 
