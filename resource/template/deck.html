@@ -100,12 +100,12 @@ $endif$
 <script src="$decker-support-dir$/vendor/reveal/js/reveal.js"></script>
   <script src="$decker-support-dir$/vendor/jquery.js"></script>
   <script src="$decker-support-dir$/vendor/piklor.js"></script>
+  <script src="$decker-support-dir$/js/scorm.js"></script>
 $for(header-includes)$
   $header-includes$
 $endfor$
 </head>
 $if(scorm)$
-<script src="$decker-support-dir$/js/scorm.js"></script>
 <body oncontextmenu="return false;" onload="doStart();" onbeforeunload="doUnload();">
 $else$
 <body>

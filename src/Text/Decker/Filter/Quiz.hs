@@ -41,13 +41,10 @@ renderQuizzes pandoc = do
   dirs <- liftIO projectDirectories
   meta <- liftIO $ readMetaData $ dirs ^. project
   isScorm <- liftIO $ scormQuiz meta
-  let scheme =
-        case getMetaString "grading-scheme" meta of
-          Just a -> a
-          Nothing -> "single"
   let mc =
         if isScorm
-          then walk renderScormMC $ addInstructions pandoc scheme
+          then walk renderScormMC pandoc
+          -- then walk renderScormMC $ addInstructions pandoc meta
           else walk renderMultipleChoice pandoc
   let match = walk renderMatching mc
   let blank = walk renderBlanktext match
@@ -72,28 +69,31 @@ renderMultipleChoice block = block
 
 -- Add a single slide with quiz instructions to the front of the slide deck
 -- reads decker.yaml for "grading" scheme
-addInstructions :: Pandoc -> String -> Pandoc
-addInstructions (Pandoc meta blocks) scheme =
-  Pandoc
-    meta
-    (Header 1 ("", [], []) [Str "Quiz Instructions"] : Para [text] : blocks)
+addInstructions :: Pandoc -> Meta -> Pandoc
+addInstructions pandoc@(Pandoc meta blocks) metadata =
+  case title == "Generated Index" of
+    True -> pandoc
+    False ->
+      Pandoc
+        meta
+        (Header 1 ("", [], []) [Str "Quiz Instructions"] : Para [text] : blocks)
   where
+    title =
+      case getMetaString "title" metadata of
+        Just a -> a
+        Nothing -> ""
+    select =
+      "You may select more than one response per question. You will receive 1 point for each correct response. "
+    lose = "You will lose 1 point for each incorrect response. "
+    allCorrect =
+      "It is possible that all responses are correct or all responses are incorrect. "
+    one = "Please select only one response per question. "
     gradingScheme =
-      case scheme of
-        "BV1" ->
-          "You may select more than one response per question.  " ++
-          "You will receive 1 point for each correct response, and will lose 1 point for each incorrect repsonse. " ++
-          "It is possible that all responses are correct or all responses are incorrect. "
-        "BV2" ->
-          "You may select more than one response per question.  " ++
-          "You will receive 1 point for each correct response. " ++
-          "It is possible that all responses are correct or all responses are incorrect. "
-        "BV3" ->
-          "You may select more than one response per question.  " ++
-          "You will receive 1 point for each correct response. " ++
-          "It is possible that all responses are correct or all responses are incorrect. "
-        "BV4" -> "Please select only one response per question. "
-        _ -> "Please select only one response per question. "
+      case getMetaString "grading-scheme" metadata of
+        Just "BV1" -> select ++ lose ++ allCorrect
+        Just "BV2" -> select ++ allCorrect
+        Just "BV3" -> select ++ allCorrect
+        _ -> one
     text =
       Str $
       "This is a multiple-choice quiz. " ++
