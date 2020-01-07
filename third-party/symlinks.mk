@@ -24,7 +24,6 @@ thebelab: thebelab/lib/index.js
 	@cp thebelab/lib/*.{js,map} $(support)/thebelab
 
 jquery: jquery/dist/jquery.min.js
-	@mkdir -p $(support)/mathjax/{jax/input,jax/output}
 	@cp jquery/dist/jquery.min.js $(support)/jquery.js
 
 mathjax:
