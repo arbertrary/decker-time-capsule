@@ -43,8 +43,7 @@ renderQuizzes pandoc = do
   isScorm <- liftIO $ scormQuiz meta
   let mc =
         if isScorm
-          then walk renderScormMC pandoc
-          -- then walk renderScormMC $ addInstructions pandoc meta
+          then walk renderScormMC $ addInstructions pandoc meta
           else walk renderMultipleChoice pandoc
   let match = walk renderMatching mc
   let blank = walk renderBlanktext match
@@ -68,20 +67,17 @@ renderMultipleChoice (BulletList blocks@((firstBlock:_):_))
 renderMultipleChoice block = block
 
 -- Add a single slide with quiz instructions to the front of the slide deck
--- reads decker.yaml for "grading" scheme
 addInstructions :: Pandoc -> Meta -> Pandoc
 addInstructions pandoc@(Pandoc meta blocks) metadata =
-  case title == "Generated Index" of
-    True -> pandoc
-    False ->
+  case getMetaString "title" meta of
+    Just "Generated Index" -> pandoc
+    _ ->
       Pandoc
         meta
-        (Header 1 ("", [], []) [Str "Quiz Instructions"] : Para [text] : blocks)
+        (Header 1 ("instructions", [], []) [Str "Quiz Instructions"] :
+         Para [text] : blocks)
+    Nothing -> pandoc
   where
-    title =
-      case getMetaString "title" metadata of
-        Just a -> a
-        Nothing -> ""
     select =
       "You may select more than one response per question. You will receive 1 point for each correct response. "
     lose = "You will lose 1 point for each incorrect response. "
