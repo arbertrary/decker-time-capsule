@@ -148,10 +148,6 @@ var startTimeStamp, reachedEnd, bookmark, h, v, f = null,
 function doStart() {
     // Format MC questions
     scormMC();
-    // Add slide to beginning of deck with instructions
-    addQuizInstructions();
-    // Add slide to end of deck to submit quiz responses
-    addSubmitSlide();
     /* record the time that the learner started the SCO to report the total time 
        initialize communication with LMS   */
     startTimeStamp = new Date();
@@ -429,64 +425,6 @@ function gradeScormMC() {
     document.getElementById("submitSlide").appendChild(submitMessage);
     // Submit quiz to LMS
     RecordTest(questionArray, totalEarned, totalPossible);
-}
-function addQuizInstructions() {
-    var select = "You may select more than one response per question. You will receive 1 point for each correct response. "
-    var lose = "You will lose 1 point for each incorrect response. "
-    var allCorrect = "It is possible that all responses are correct or all responses are incorrect. "
-    var gradingScheme = document.getElementById("slideContent").getAttribute("data-grading-scheme");
-    var scheme;
-    if (gradingScheme == "BV1") {
-        scheme = select + lose + allCorrect;
-    } else if (gradingScheme == "BV2" || gradingScheme == "BV3") {
-        scheme = select + allCorrect;
-    } else {
-        scheme = "Please select only one response per question. ";
-    }
-    var text = "This is a multiple-choice quiz. " +
-        scheme +
-        "At the end of the quiz, click the Submit All button to submit your responses. " +
-        "You may change a response at any time before submitting.";
-    var h = document.createElement('h1');
-    h.innerHTML = "Quiz Instructions";
-    var p = document.createElement('p');
-    p.innerHTML = text;;
-    var newSlide = document.createElement("section");
-    newSlide.classList.add("slide", "level1", "future");
-    newSlide.id = "instructionsSlide";
-    newSlide.style.display = "none";
-    newSlide.setAttribute("aria-hidden", "true");
-    newSlide.setAttribute("hidden", "");
-    newSlide.appendChild(h);
-    newSlide.appendChild(p);
-    var slides = document.querySelector(".reveal .slides");
-    slides.insertBefore(newSlide, slides.firstChild);
-    document.querySelector('.navigate-right').classList.add('enabled');
-    Reveal.sync();
-}
-function addSubmitSlide() {
-    var h = document.createElement('h1');
-    h.innerHTML = "Submit Quiz";
-    var p = document.createElement('p');
-    p.innerHTML = "Click the button below to submit your responses.";
-    var b = document.createElement('button');
-    b.id = "submitButton";
-    b.type = "button";
-    b.addEventListener('click', gradeScormMC);
-    b.innerHTML = "Submit All";
-    var submitSlide = document.createElement("section");
-    submitSlide.classList.add("slide", "level1", "future");
-    submitSlide.id = "submitSlide";
-    submitSlide.style.display = "none";
-    submitSlide.setAttribute("aria-hidden", "true");
-    submitSlide.setAttribute("hidden", "");
-    submitSlide.appendChild(h);
-    submitSlide.appendChild(p);
-    submitSlide.appendChild(b);
-    var slides = document.querySelector(".reveal .slides");
-    slides.appendChild(submitSlide);
-    document.querySelector('.navigate-right').classList.add('enabled');
-    Reveal.sync();
 }
 function RecordTest(questions, totalEarned, totalPossible) {
     for (let question of questions) {

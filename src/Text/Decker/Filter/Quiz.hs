@@ -20,6 +20,7 @@ import Control.Lens ((^.))
 import Control.Monad.IO.Class
 import Data.List
 import Data.List.Split
+import Text.Decker.Filter.Scorm (addInstructions)
 import Text.Decker.Filter.Util
 import Text.Decker.Internal.Common
 import Text.Decker.Internal.Meta
@@ -65,37 +66,6 @@ renderMultipleChoice (BulletList blocks@((firstBlock:_):_))
       [Str "Show Solution"] ++ [toHtml "</button>"]
 -- Default pass through
 renderMultipleChoice block = block
-
--- Add a single slide with quiz instructions to the front of the slide deck
-addInstructions :: Pandoc -> Meta -> Pandoc
-addInstructions pandoc@(Pandoc meta blocks) metadata =
-  case getMetaString "title" meta of
-    Just "Generated Index" -> pandoc
-    _ ->
-      Pandoc
-        meta
-        (Header 1 ("instructions", [], []) [Str "Quiz Instructions"] :
-         Para [text] : blocks)
-    Nothing -> pandoc
-  where
-    select =
-      "You may select more than one response per question. You will receive 1 point for each correct response. "
-    lose = "You will lose 1 point for each incorrect response. "
-    allCorrect =
-      "It is possible that all responses are correct or all responses are incorrect. "
-    one = "Please select only one response per question. "
-    gradingScheme =
-      case getMetaString "grading-scheme" metadata of
-        Just "BV1" -> select ++ lose ++ allCorrect
-        Just "BV2" -> select ++ allCorrect
-        Just "BV3" -> select ++ allCorrect
-        _ -> one
-    text =
-      Str $
-      "This is a multiple-choice quiz. " ++
-      gradingScheme ++
-      "At the end of the quiz, click the Submit All button to submit your responses. " ++
-      "You may change a response at any time before submitting."
 
 -- | Renders a multiple choice question for SCORM
 renderScormMC :: Block -> Block
