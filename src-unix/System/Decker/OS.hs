@@ -17,10 +17,10 @@ defaultProvisioning = SymLink
 urlPath :: FilePath -> FilePath
 urlPath path = path
 
-preextractedResourceFolder :: IO FilePath
-preextractedResourceFolder = do
-  exep <- getExecutablePath
-  return $ joinPath [(takeDirectory exep), "..", "Resources", "resource"]
+-- preextractedResourceFolder :: IO FilePath
+-- preextractedResourceFolder = do
+--   exep <- getExecutablePath
+--   return $ joinPath [(takeDirectory exep), "..", "Resources", "resource"]
 
 -- Look for chrome executable on $PATH
 chromeExecutable :: IO (Either String String)

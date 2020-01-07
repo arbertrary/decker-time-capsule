@@ -2,7 +2,7 @@
 module System.Decker.OS
   ( defaultProvisioning
   , urlPath
-  , preextractedResourceFolder
+  -- , preextractedResourceFolder
   , chrome
   ) where
 
@@ -17,10 +17,10 @@ defaultProvisioning = Copy
 urlPath :: FilePath -> FilePath
 urlPath path = intercalate "/" (splitDirectories path)
 
-preextractedResourceFolder :: IO FilePath
-preextractedResourceFolder = do
-  exep <- getExecutablePath
-  return $ joinPath [(takeDirectory exep), "..", "resource"]
+-- preextractedResourceFolder :: IO FilePath
+-- preextractedResourceFolder = do
+--   exep <- getExecutablePath
+--   return $ joinPath [(takeDirectory exep), "..", "resource"]
 
 -- start chrome from cmd
 chrome :: IO (Either String String)
