@@ -34,9 +34,6 @@ profile: build-profile
 	stack exec -- decker clean
 	stack exec --work-dir .stack-work-profile -- decker +RTS -p
 
-# preextracted: resources
-# 	stack build --flag decker:preextractedresources
-
 dist: install
 	rm -rf dist
 	mkdir -p dist
@@ -56,5 +53,3 @@ clean:
 	rm -rf resource/support/vendor
 
 .PHONY: build clean test install dist docs 
-# resources 
-# preextracted
