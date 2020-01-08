@@ -23,7 +23,9 @@ Write-Output "Building standalone binary"
 `resource/support/vendor` as done in `third-party/symlinks.mk`. Once that
 works, pre-extraction is obsolete because everything is read directly from
 the embedded ZIP archive. #>
-# & git submodule update --init
+
+& stack clean
+& git submodule update --init
 & .\third-party\vendor.ps1
 # & .\third-party\test.ps1
 Set-Location (Split-Path $PSScriptRoot -Parent)

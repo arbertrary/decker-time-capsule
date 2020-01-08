@@ -1,7 +1,9 @@
-Write-Output "THIS IS A TEST SCRIPT"
+$current = Split-Path -parent $PSCommandPath
+$parent = Split-Path $current -parent
+$support = Resolve-Path "$parent\resource\support\vendor"
+$support = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath("$parent\resource\support\vendor")
 
-Write-Output "$PSScriptRoot"
-
-# $test = "($PSScriptRoot).Directory.Parent.FullName\resource\support\vendor"
-$test = ($PSScriptRoot).parent.FullName
-Write-Output ($PSScriptRoot).parent.FullName"\resource\support\vendor"
+Write-Output "$current"
+Write-Output "$parent"
+Write-Output "$support"
+Write-Output "$test"
