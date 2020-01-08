@@ -2,7 +2,7 @@
 module System.Decker.OS
   ( defaultProvisioning
   , urlPath
-  , preextractedResourceFolder
+  -- , preextractedResourceFolder
   , chrome
   ) where
 
