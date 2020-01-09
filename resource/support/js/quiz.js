@@ -1,6 +1,8 @@
 var quizModule = {
     quiz: function () {
-        var initialMatchings = initMatching();
+        blanktextButtons();
+        // blanktext();
+        initialMatchings = initMatching();
         matchings(initialMatchings);
         multipleChoice();
         freetextAnswerButtons();

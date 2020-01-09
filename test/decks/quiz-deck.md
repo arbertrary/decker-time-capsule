@@ -1,5 +1,6 @@
 ---
 SCORM: True
+history: True
 ---
 
 # Blank Text with Multiple Choice
