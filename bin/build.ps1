@@ -4,7 +4,6 @@
 .DESCRIPTION
     Build script to build Decker for windows. Allows to set the build
     mode via parameters for custom builds in the CI pipeline.
-
 #>
 Param(
     [switch] $skiptemplates,
@@ -19,7 +18,6 @@ Write-Output "Building standalone binary"
 & stack clean
 & git submodule update --init
 & .\third-party\vendor.ps1
-# & .\third-party\test.ps1
 Set-Location (Split-Path $PSScriptRoot -Parent)
 & stack build -j4
 

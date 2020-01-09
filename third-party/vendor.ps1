@@ -8,7 +8,6 @@
 
 $third = Split-Path -parent $PSCommandPath
 $decker = Split-Path $third -parent
-# $support = Resolve-Path "$decker\resource\support\vendor"
 $support = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath("$decker\resource\support\vendor")
 
 # Build jquery
@@ -29,15 +28,15 @@ Write-Output ("Copy dependencies to " + $support)
 New-Item -Path $support -Force -ItemType "directory"
 Set-Location $third
 
-# copy jquery
+# Copy jquery
 Copy-Item "$third\jquery\dist\jquery.min.js" "$support\jquery.js -Force"
 
-# copy thebelab
+# Copy thebelab
 New-Item -Path "$support\thebelab" -Force -ItemType "directory"
 Copy-Item $third\thebelab\lib\*.js "$support\thebelab" -Force
 Copy-Item $third\thebelab\lib\*.map "$support\thebelab" -Force
 
-# copy mathjax
+# Copy mathjax
 New-Item -Path "$support\mathjax\jax\input" -Force -ItemType "directory"
 New-Item -Path "$support\mathjax\jax\output" -Force -ItemType "directory"
 Foreach ($i in ("MathJax.js", "config", "jax\input\TeX", "jax\output\SVG", "jax\element", "extensions")) {
@@ -72,13 +71,13 @@ Copy-Item -Recurse "$third\mb-reveal-plugins\whiteboard" "$support\whiteboard" -
 # Copy Charts
 Copy-Item -Recurse "$third\mb-reveal-plugins\charts" "$support\charts" -Force
 
-# copy math
+# Copy math
 Copy-Item -Recurse "$third\mb-reveal-plugins\math" "$support\math" -Force
 
-# copy highlight
+# Copy highlight
 Copy-Item -Recurse "$third\mb-reveal-plugins\highlight" "$support\highlight" -Force
 
-# copy fontawesome
+# Copy fontawesome
 New-Item "$support\fontawesome" -Force -ItemType "directory"
 Foreach ($i in ( "js", "css", "webfonts", "svgs", "sprites")) {
   Copy-Item -Recurse "$third\Font-Awesome\js-packages\@fortawesome\fontawesome-free\$i" "$support\fontawesome\$i" -Force
