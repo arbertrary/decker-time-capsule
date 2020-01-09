@@ -303,7 +303,6 @@ function scormMC() {
         let defBorder = answerDivs[0].style.border;
 
         // color the chosen answer(s)
-        let answer_num = 0;
         for (let ad of answerDivs) {
             ad.addEventListener("click", function () {
                 if (!this.classList.contains("selected")) {
@@ -316,7 +315,6 @@ function scormMC() {
                     this.style.backgroundColor = "#FFF";
                 }
             });
-            answer_num += 1;
         }
     }
 }

@@ -29,6 +29,7 @@ import Text.Pandoc
 import Text.Pandoc.Shared
 import Text.Pandoc.Walk
 import Text.Printf
+import Text.Regex.TDFA
 
 scormQuiz :: Meta -> IO Bool
 scormQuiz meta =
@@ -113,10 +114,10 @@ multipleChoiceHtml (prelude:rest) =
   where
     (cls, prelude') =
       case prelude of
-        Para ((Str "{X}"):prest) -> (["lft"], Para prest)
-        Para ((Str "{"):Space:(Str "}"):prest) -> (["rgh"], Para prest)
-        Plain ((Str "{X}"):prest) -> (["lft"], Para prest)
-        Plain ((Str "{"):Space:(Str "}"):prest) -> (["rgh"], Para prest)
+        Para ((Str "{X}"):prest) -> (["right"], Para prest)
+        Para ((Str "{"):Space:(Str "}"):prest) -> (["wrong"], Para prest)
+        Plain ((Str "{X}"):prest) -> (["right"], Para prest)
+        Plain ((Str "{"):Space:(Str "}"):prest) -> (["wrong"], Para prest)
         prest -> ([], prest)
 
 -- if there is a bullet list create a div class tooltip around
