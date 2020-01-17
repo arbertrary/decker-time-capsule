@@ -33,3 +33,5 @@ hideInactiveCursor: true
 hideCursorTime: 2000
 transition: "none"
 backgroundTransition: "none"
+scorm: false
+graded: false

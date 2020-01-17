@@ -82,14 +82,22 @@
 
 .reveal button,
 .reveal .freetextInput,
-.reveal .blankInput{
+.reveal .blankInput, 
+.reveal .submitButton {
   border-radius: 0.5em;
   font-size: inherit;
   font-family: inherit;
   outline: none;
   clear: both;
 }
-
+.reveal .submitButton {
+  display: inline;
+  margin: 0.5em 0.5em 0 0;
+}
+#studentComments {
+  font-size: 1em;
+  font-family: inherit;
+}
 .reveal .blankSelect{
   font-size: inherit;
 }
@@ -157,16 +165,13 @@
   margin-left: -30px;
 }
 
-.reveal .survey,
-.reveal .scorm-survey {
+.reveal .survey {
   text-align: center;
 }
-.reveal .survey div p,
-.reveal .scorm-survey div p {
+.reveal .survey div p {
   margin: 0;
 }
-.reveal .survey ul,
-.reveal .scorm-survey ul {
+.reveal .survey ul {
   list-style-type: none;
   display: flex;
   flex-direction: column;
@@ -174,8 +179,7 @@
   flex-wrap: wrap;
   padding: 5pt;
 }
-.reveal .survey li,
-.reveal .scorm-survey li {
+.reveal .survey li {
   flex-grow: 1;
   border: 1pt #111 dashed;
   padding-left: 1em;
@@ -184,12 +188,10 @@
   margin: 0.55em;
   flex-basis: 30%;
 }
-.reveal .survey li:hover,
-.reveal .scorm-survey li:hover {
+.reveal .survey li:hover {
   background-color: gainsboro;
 }
-.reveal .survey .tooltip,
-.reveal .scorm-survey .tooltip {
+.reveal .survey .tooltip {
   display: none;
 }
 
