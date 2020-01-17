@@ -9,18 +9,22 @@ var quizModule = {
 }
 
 var question_num = 0;
-function Question(id, type, selectedAnswers, correctAnswers, points, result) {
-    this.id = id;
-    this.type = type;
-    this.selectedAnswers = selectedAnswers;
-    this.correctAnswers = correctAnswers;
-    this.points = points;
-    this.result = result;
+class Question {
+    constructor(id, type, selectedAnswers, correctAnswers, points, result) {
+        this.id = id;
+        this.type = type;
+        this.selectedAnswers = selectedAnswers;
+        this.correctAnswers = correctAnswers;
+        this.points = points;
+        this.result = result;
+    }
 }
-function QuizResult(q, e, p) {
-    this.questions = q;
-    this.earned = e;
-    this.possible = p;
+class QuizResult {
+    constructor(q, e, p) {
+        this.questions = q;
+        this.earned = e;
+        this.possible = p;
+    }
 }
 /* ************************
   MULTIPLE CHOICE QUESTIONS
@@ -119,89 +123,6 @@ function correctMCScorm() {
     }
     return new QuizResult(questionArray, totalEarned, totalPossible);
 }
-// function correctMCScormPoints() {
-//     var questionArray = [];
-//     var possible = 0; var totalPossible = 0; var earned = 0; var totalEarned = 0;
-
-//     const questions = document.getElementsByClassName("survey");
-//     var gradingScheme = document.getElementById("slideContent").getAttribute("data-grading-scheme");
-
-//     for (let question of questions) {
-//         question.id = question_num.toString();
-//         question_num++;
-//         var selectedAnswers = []; var correctAnswers = [];
-//         const allAnswers = question.getElementsByClassName("answer");
-//         let chosen, answerText;
-//         let result = "correct";
-
-//         // disable answer, get learner response and correct response
-//         for (let answer of allAnswers) {                                        // for each answer  
-//             answer.parentElement.style.pointerEvents = "none";                  // deactivate answer button  
-//             answerText = FormatChoiceResponse(answer.querySelector('p').innerHTML);
-//             var p = document.createElement('p');
-//             p.style.color = "#009933";
-//             var t = document.createTextNode('');
-//             p.appendChild(t);
-//             question.parentElement.insertBefore(p, question.parentElement.childNodes[0]);
-//             chosen = answer.parentElement.classList.contains("selected");
-
-//             // tally points for answers
-//             if (answer.classList.contains("right")) {             // if correct answer
-//                 correctAnswers.push(answerText);
-//                 if (chosen) {                                   // if correct and chosen
-//                     selectedAnswers.push(answerText);
-//                     if (gradingScheme == "BV1" || gradingScheme == "BV2" || gradingScheme == "BV3") {
-//                         earned++;
-//                     }
-//                 } else {                                        // if correct and not chosen
-//                     if (gradingScheme == "BV1" || gradingScheme == "BV3") {
-//                         earned--;
-//                     }
-//                 }
-//             } else {                                            // if incorrect answer
-//                 if (chosen) {                                   // if incorrect and chosen
-//                     selectedAnswers.push(answerText);
-//                     if (gradingScheme == "BV1" || gradingScheme == "BV3") {
-//                         earned--;
-//                     }
-//                 } else {                                        // if incorrect and not chosen
-//                     if (gradingScheme == "BV1" || gradingScheme == "BV2") {
-//                         earned++;
-//                     }
-//                 }
-//             }
-//         }
-//         // provide feedback to learner  - possible earned points varies by grading scheme
-//         if (gradingScheme == "single" || gradingScheme == "BV4") {
-//             possible = 1;
-//             if (selectedAnswers.length == correctAnswers.length) {
-//                 for (var i = 0; i < selectedAnswers.length; i++) {
-//                     if (selectedAnswers[i] !== correctAnswers[i]) { result = "wrong"; }
-//                 }
-//             } else { result = "wrong"; }
-
-//             if (result == "correct") {
-//                 t.nodeValue = "Correct";
-//                 earned = 1;
-//             } else {
-//                 t.nodeValue = "Incorrect";
-//                 p.style.color = "#cc0000";
-//             }
-//         } else if (gradingScheme == "BV1" || gradingScheme == "BV2") {
-//             possible = allAnswers.length;
-//             if (earned < 0) { earned = 0; }
-//             t.nodeValue = "You received " + earned + " out of " + possible + " possible points.";
-//         } else {
-//             possible = correctAnswers.length;
-//             if (earned < 0) { earned = 0; }
-//             t.nodeValue = "You received " + earned + " out of " + possible + " possible points.";
-//         }
-//         totalEarned += earned;
-//         totalPossible += possible;
-//         questionArray.push(new Question(question.id, "choice", selectedAnswers, correctAnswers, earned, result));
-//     }
-//     return new QuizResult(questionArray, totalEarned, totalPossible);
-// }
 /* ************************
      BLANK TEXT QUESTIONS
 *************************** */
@@ -392,6 +313,7 @@ function correctFrees() {
             if (selectedAnswer == correctAnswer) {
                 input.style.backgroundColor = "rgb(151, 255, 122)";
                 earned = individualPoints;
+                console.log("free earned " + earned);
                 totalEarned += earned;
             } else {
                 input.style.backgroundColor = "rgb(250, 121, 121)";
@@ -646,12 +568,15 @@ function gradeQuiz() {
     let btResults = correctBlanks();
     let ftResults = correctFrees();
     let matchResults = correctMatches();
-    let allQuestions = mcResults.questions + btResults.questions + ftResults.questions + matchResults.questions;
+    let allQuestions = [];
+    allQuestions.push(mcResults.questions);
+    allQuestions.push(btResults.questions);
+    allQuestions.push(ftResults.questions);
+    allQuestions.push(matchResults.questions);
     let totalEarned = mcResults.earned + btResults.earned + ftResults.earned + matchResults.earned;
     let totalPossible = mcResults.possible + btResults.possible + ftResults.possible + matchResults.possible;
     let score = ((totalEarned / totalPossible) * 100).toPrecision(2);
 
-    // add to final slide
     let submitMessage = document.createElement('p');
     submitMessage.style.color = "#009933";
     submitMessage.innerHTML = "Your answers have been submitted. Your score is " + score + "%.";
