@@ -181,4 +181,4 @@ addInstructions pandoc@(Pandoc meta blocks) metadata =
       ]
     submitText = Str "Click the button below to submit your responses."
     button =
-      "<button id=\"submitButton\" type=\"button\" onclick=\"gradeScormMC()\">Submit All</button>"
+      "<button id=\"submitButton\" type=\"button\" onclick=\"gradeQuiz()\">Submit All</button>"

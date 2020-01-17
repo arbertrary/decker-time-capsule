@@ -29,27 +29,24 @@ import Text.Pandoc
 import Text.Pandoc.Shared
 import Text.Pandoc.Walk
 import Text.Printf
-import Text.Regex.TDFA
-
-scormQuiz :: Meta -> IO Bool
-scormQuiz meta =
-  case getMetaBool "scorm" meta of
-    Just _ -> return True
-    Nothing -> return False
 
 -- | Render all types of questions
 renderQuizzes :: Pandoc -> Decker Pandoc
 renderQuizzes pandoc = do
   dirs <- liftIO projectDirectories
   meta <- liftIO $ readMetaData $ dirs ^. project
-  isScorm <- liftIO $ scormQuiz meta
-  let mc =
-        if isScorm
-          then walk renderScormMC $ addInstructions pandoc meta
-          else walk renderMultipleChoice pandoc
-  let match = walk renderMatching mc
-  let blank = walk renderBlanktext match
-  return $ walk renderFreetextQuestion blank
+  case getMetaBool "scorm" meta of
+    Just True ->
+      return $
+      walk renderMatching $
+      walk renderScormMatching $
+      walk renderScormFree $
+      walk renderScormBlank $ walk renderScormMC $ addInstructions pandoc meta
+    _ ->
+      return $
+      walk renderMatching $
+      walk renderFreetextQuestion $
+      walk renderBlanktext $ walk renderMultipleChoice pandoc
 
 -- A multiple choice question is a bullet list in the style of a task list.
 -- A div class survey is created around the bullet list
@@ -63,7 +60,9 @@ renderMultipleChoice (BulletList blocks@((firstBlock:_):_))
     answerButton =
       Para $
       [LineBreak] ++
-      [toHtml "<button class=\"mcAnswerButton\" type=\"button\">"] ++
+      [ toHtml
+          "<button class=\"mcAnswerButton\" onclick=\"correctMC(this)\"type=\"button\">"
+      ] ++
       [Str "Show Solution"] ++ [toHtml "</button>"]
 -- Default pass through
 renderMultipleChoice block = block
@@ -72,8 +71,23 @@ renderMultipleChoice block = block
 renderScormMC :: Block -> Block
 renderScormMC (BulletList blocks@((firstBlock:_):_))
   | checkIfMC firstBlock =
-    Div ("", ["scorm-survey"], []) [BulletList (map multipleChoiceHtml blocks)]
+    Div ("", ["survey"], []) [BulletList (map multipleChoiceHtml blocks)]
 renderScormMC block = block
+
+-- | Renders a "blanktext" Cloze question from a definition list with special syntax
+renderBlanktext :: Block -> Block
+renderBlanktext dl@(DefinitionList items) =
+  case traverse checkIfBlanktext items of
+    Just l -> Div ("", [], []) (map blanktextHtml l)
+    Nothing -> dl
+renderBlanktext block = block
+
+renderScormBlank :: Block -> Block
+renderScormBlank dl@(DefinitionList items) =
+  case traverse checkIfBlanktext items of
+    Just l -> Div ("", ["blankText"], []) (map blankHtmlScorm l)
+    Nothing -> dl
+renderScormBlank block = block
 
 -- | Renders a freetext question from a bullet list with special syntax
 renderFreetextQuestion :: Block -> Block
@@ -86,6 +100,14 @@ renderFreetextQuestion bl@(BulletList ((firstBlock:_):(sndBlock:_):_)) =
     _ -> bl
 renderFreetextQuestion block = block
 
+renderScormFree :: Block -> Block
+renderScormFree bl@(BulletList ((firstBlock:_):(sndBlock:_):_)) =
+  case (checkIfFreetextQuestion firstBlock, checkIfFreetextAnswer sndBlock) of
+    (Just q, Just a) ->
+      Div ("", ["freetextQuestion"], []) [Para $ ftHtmlScorm q (stringify a)]
+    _ -> bl
+renderScormFree block = block
+
 -- | Renders a "matching" question from a definition list with special syntax
 renderMatching :: Block -> Block
 renderMatching dl@(DefinitionList items) =
@@ -94,13 +116,12 @@ renderMatching dl@(DefinitionList items) =
     Nothing -> dl
 renderMatching block = block
 
--- | Renders a "blanktext" Cloze question from a definition list with special syntax
-renderBlanktext :: Block -> Block
-renderBlanktext dl@(DefinitionList items) =
-  case traverse checkIfBlanktext items of
-    Just l -> Div ("", [], []) (map blanktextHtml l)
+renderScormMatching :: Block -> Block
+renderScormMatching dl@(DefinitionList items) =
+  case traverse checkIfMatching items of
+    Just l -> matchingHtmlScorm l
     Nothing -> dl
-renderBlanktext block = block
+renderScormMatching block = block
 
 {-
 Functions that create lower level Html Elements for the question types using Pandocs Block/Inline Data types
@@ -138,13 +159,19 @@ blanktextHtml (inlines, blocks) =
       Para $
       [toHtml "<button class=\"btAnswerButton\" type=\"button\">"] ++
       [Str "Show Solution"] ++ [toHtml "</button>"]
-    -- | Split the Blanktext Inline into a List of strings. 
-    -- The list elements are either simple text or a String of answer options that gets processed later
-    splitBlankText :: [Inline] -> [String]
-    splitBlankText inlines =
-      concatMap
-        (split (startsWith "{"))
-        (split (endsWith "}") (stringify inlines))
+
+blankHtmlScorm :: ([Inline], [Block]) -> Block
+blankHtmlScorm (inlines, blocks) = Div ("", [], []) ([title] ++ selects)
+  where
+    title = Header 2 ("", [], []) inlines
+    selects = map html blocks
+    html (Plain x) = Para (blanktextHtmlAnswers $ splitBlankText x)
+
+-- | Split the Blanktext Inline into a List of strings. 
+-- The list elements are either simple text or a String of answer options that gets processed later
+splitBlankText :: [Inline] -> [String]
+splitBlankText inlines =
+  concatMap (split (startsWith "{")) (split (endsWith "}") (stringify inlines))
 
 -- | Takes the List of Strings (text + possible answer options) and if it's an answer list generate a dropdown menu
 blanktextHtmlAnswers :: [String] -> [Inline]
@@ -185,6 +212,11 @@ blanktextHtmlAnswers =
            x
            x)
 
+wrapDrop :: [[Inline]] -> Block
+wrapDrop inlines = Div ("", ["dropzones"], []) dropzones
+  where
+    dropzones = (\i -> Div ("", ["dropzone"], []) [Plain i]) <$> inlines
+
 -- | Creates the html representation for a matching question
 matchingHtml :: [([Inline], [[Block]])] -> Block
 matchingHtml dListItems =
@@ -202,10 +234,20 @@ matchingHtml dListItems =
       [toHtml "</button>"] ++
       [toHtml "<button class=\"retryButton\" type=\"button\">"] ++
       [Str "Retry"] ++ [toHtml "</button>"]
-    wrapDrop :: [[Inline]] -> Block
-    wrapDrop inlines = Div ("", ["dropzones"], []) dropzones
-      where
-        dropzones = (\i -> Div ("", ["dropzone"], []) [Plain i]) <$> inlines
+
+matchingHtmlScorm :: [([Inline], [[Block]])] -> Block
+matchingHtmlScorm dListItems =
+  Div ("", ["matching"], []) [dropzones, dragzone, retryButton]
+  where
+    (inlines, blocks) = unzip dListItems
+    draggable = Div ("", ["draggable"], [("draggable", "true")])
+    dragzone = Div ("", ["dragzone"], []) (fmap draggable (concat blocks))
+    dropzones = wrapDrop inlines
+    retryButton =
+      Para $
+      [LineBreak] ++
+      [toHtml "<button class=\"retryButton\" type=\"button\">"] ++
+      [Str "Retry"] ++ [toHtml "</button>"]
 
 -- 
 freetextQuestionHtml :: [Inline] -> String -> [Inline]
@@ -221,6 +263,18 @@ freetextQuestionHtml question answer =
   [LineBreak] ++
   [toHtml "<button class=\"freetextAnswerButton\" type=\"button\">"] ++
   [Str "Show Solution"] ++ [toHtml "</button>"] ++ [toHtml "</form>"]
+
+ftHtmlScorm :: [Inline] -> String -> [Inline]
+ftHtmlScorm question answer =
+  [toHtml "<form onSubmit=\"return false;\">"] ++
+  question ++
+  [LineBreak] ++
+  [ toHtml
+      ("<input type=\"text\" answer=\"" ++
+       answer ++ "\" class=\"freetextInput\">")
+  ] ++
+  -- 
+  [LineBreak] ++ [toHtml "</form>"]
 
 -- | Check if a DefinitionList is a blank text question
 checkIfBlanktext :: ([Inline], [[Block]]) -> Maybe ([Inline], [Block])
