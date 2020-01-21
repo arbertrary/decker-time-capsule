@@ -37,11 +37,20 @@ renderQuizzes pandoc = do
   meta <- liftIO $ readMetaData $ dirs ^. project
   case getMetaBool "scorm" meta of
     Just True ->
-      return $
-      walk renderMatching $
-      walk renderScormMatching $
-      walk renderScormFree $
-      walk renderScormBlank $ walk renderScormMC $ addInstructions pandoc meta
+      case getMetaBool "graded" meta of
+        Just True ->
+          return $
+          walk renderMatching $
+          walk renderScormMatching $
+          walk renderScormFree $
+          walk renderScormBlank $
+          walk renderScormMC $ addInstructions pandoc meta
+        _ ->
+          return $
+          walk renderMatching $
+          walk renderFreetextQuestion $
+          walk renderBlanktext $
+          walk renderMultipleChoice $ addInstructions pandoc meta
     _ ->
       return $
       walk renderMatching $

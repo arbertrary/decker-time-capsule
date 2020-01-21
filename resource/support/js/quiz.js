@@ -10,6 +10,7 @@ var quizModule = {
 
 var questionArray = [];
 var totalEarned = 0; var totalPossible = 0; var question_num = 1;
+var graded = document.getElementById('slideContent').getAttribute("graded");
 class Question {
     constructor(id, type, selectedAnswers, correctAnswers, weight, earned, result) {
         this.id = id;
@@ -56,20 +57,29 @@ function FormatChoiceResponse(value) {
 }
 function correctMC(button) {
     const survey = button.closest(".survey");
+    survey.id = question_num.toString();
+    question_num++;
     const answers = survey.getElementsByTagName("li");
-    const defBorder = answers[0].style.border;
-    let answered = false;
+    var selectedAnswer = null; var correctAnswer;
     for (let answer of answers) {
-        if (answer.style.border == defBorder) { continue; }
-        else { answered = true; }
+        if (answer.classList.contains("selected")) {
+            selectedAnswer = FormatChoiceResponse(answer.querySelector('p').innerHTML);
+        } else { continue; }
     }
 
-    if (answered) {
+    if (selectedAnswer != null) {
         this.disabled = true;
         for (let answer of answers) {
+            var result = "";
             var answer_div = answer.querySelector(".answer");
-            const is_right = answer_div.classList.contains("right");
-            answer.style.backgroundColor = (is_right) ? "#97ff7a" : "#ff7a7a";
+            if (answer_div.classList.contains("right")) {
+                correctAnswer = FormatChoiceResponse(answer.querySelector('p').innerHTML);
+                answer.style.backgroundColor = "#97ff7a";
+                result = "correct";
+            } else {
+                answer.style.backgroundColor = "#ff7a7a";
+                result = "wrong";
+            }
             const tooltips = answer.getElementsByClassName("tooltip");
             for (let tooltip of tooltips) {
                 tooltip.style.display = "inline";
@@ -81,6 +91,7 @@ function correctMC(button) {
         alert("No answer chosen!");
         return false;
     }
+    questionArray.push(new Question(survey.id, "choice", selectedAnswer, correctAnswer, 0, 0, result));
 }
 function correctMCScorm() {
     var weight = 0; var earned = 0;
@@ -133,83 +144,61 @@ function correctMCScorm() {
 /* ************************
      BLANK TEXT QUESTIONS
 *************************** */
-// For a given blanktext HTML Element returns a Map containing all wrong and correct selects and blanks
-function blanktextCorrect(blanktext) {
-    var selects = blanktext.getElementsByClassName("blankSelect");
-    const blanks = blanktext.getElementsByClassName("blankInput");
-    var wrongSelects = []; var correctSelects = []; var wrongBlanks = []; var correctBlanks = [];
-
-    for (let s of selects) {
-        const correct = s.options[s.selectedIndex].getAttribute("answer");
-        if (correct == "true") {
-            correctSelects.push(s);
-        }
-        else {
-            wrongSelects.push(s);
-        }
-    }
-
-    for (let b of blanks) {
-        const correct = b.getAttribute("answer").trim();
-        if (b.value.toLowerCase().trim() == correct.toLowerCase()) {
-            correctBlanks.push(b);
-        }
-        else {
-            wrongBlanks.push(b);
-        }
-    }
-    const ret = new Map([["correctSelects", correctSelects], ["wrongSelects", wrongSelects], ["wrongBlanks", wrongBlanks], ["correctBlanks", correctBlanks]]);
-    return ret;
-
-}
 function blanktextButtons() {
     var btButtons = document.getElementsByClassName("btAnswerButton");
     for (let i = 0; i < btButtons.length; i++) {
         const button = btButtons[i];
         button.onclick = function () {
             var blanktext = this.closest(".blankText");
-
-            var results = blanktextCorrect(blanktext);
-            var correctSelects = results.get("correctSelects");
-            var wrongSelects = results.get("wrongSelects");
-            var correctBlanks = results.get("correctBlanks");
-            var wrongBlanks = results.get("wrongBlanks");
-
-            for (let w of wrongSelects) {
-                w.style.backgroundColor = "rgb(255, 122, 122)";
-                for (let o of w.options) {
-                    if (o.getAttribute("answer") == "true") {
-                        o.textContent += " ✓";
+            var selects = blanktext.getElementsByClassName("blankSelect");
+            var inputs = blanktext.getElementsByClassName("blankInput");
+            for (let input of inputs) {
+                input.id = question_num.toString();
+                question_num++;
+                let result = null;
+                let correctAnswer = input.getAttribute("answer").toLowerCase().trim();
+                let selectedAnswer = input.value.toLowerCase().trim();
+                if (selectedAnswer) {
+                    input.disabled = true;
+                    if (selectedAnswer == correctAnswer) {
+                        input.style.backgroundColor = "rgb(151, 255, 122)";
+                        result = "correct";
                     } else {
-                        o.textContent += " ✗";
+                        input.style.backgroundColor = "rgb(250, 121, 121)";
+                        result = "wrong";
+                    }
+                } else {
+                    alert("Please complete all questions.");
+                    return false;
+                }
+                questionArray.push(new Question(input.id, "fill-in", selectedAnswer, correctAnswer, 0, 0, result));
+            }
+            for (let select of selects) {
+                select.id = question_num.toString();
+                question_num++;
+                let result = null;
+                let correctAnswer = "";
+                for (let o of select.options) {
+                    if (o.getAttribute("answer") == "true") {
+                        correctAnswer = o.value;
                     }
                 }
-            }
-
-            for (let c of correctSelects) {
-                c.style.backgroundColor = "rgb(151, 255, 122)";
-                for (let o of c.options) {
-                    if (o.getAttribute("answer") == "true") {
-                        o.textContent += " ✓";
+                let selectedAnswer = select.options[select.selectedIndex].value;
+                if (selectedAnswer) {
+                    select.disabled = true;
+                    if (selectedAnswer == correctAnswer) {
+                        select.style.backgroundColor = "rgb(151, 255, 122)";
+                        result = "correct";
                     } else {
-                        o.textContent += " ✗";
+                        select.style.backgroundColor = "rgb(250, 121, 121)";
+                        result = "wrong";
                     }
+                } else {
+                    alert("Please complete all questions.");
+                    return false;
                 }
+                questionArray.push(new Question(select.id, "choice", selectedAnswer, correctAnswer, 0, 0, result));
             }
-
-            for (let w of wrongBlanks) {
-                w.style.backgroundColor = "rgb(255, 122, 122)";
-                w.value += " (" + w.getAttribute("answer") + ")";
-                w.setAttribute("size", w.value.length);
-                w.disabled = true;
-            }
-
-            for (let c of correctBlanks) {
-                c.style.backgroundColor = "rgb(151, 255, 122)";
-                c.setAttribute("size", c.value.length);
-                c.disabled = true;
-            }
-            this.disabled = true;
         }
     }
 }
@@ -296,25 +285,33 @@ function freetextAnswerButtons() {
     const answerButtons = document.getElementsByClassName('freetextAnswerButton');
     for (let button of answerButtons) {
         button.onclick = function () {
-            var questionField = this.parentElement.getElementsByClassName('freetextInput')[0];
+            var input = this.parentElement.querySelector('.freetextInput');
+            input.id = question_num.toString();
+            question_num++;
+            let result = null;
             // Has the user entered anything?
-            if (questionField.value) {
-                var answer = questionField.getAttribute("answer").trim();
-                if (questionField.value.toLowerCase().trim() == answer.toLowerCase()) {
-                    questionField.style.backgroundColor = "rgb(151, 255, 122)";
+            let correctAnswer = input.getAttribute("answer").toLowerCase().trim();
+            let selectedAnswer = input.value.toLowerCase().trim();
+            if (selectedAnswer) {
+                var answer = input.getAttribute("answer").trim();
+                if (selectedAnswer == correctAnswer) {
+                    input.style.backgroundColor = "rgb(151, 255, 122)";
+                    result = "correct";
                 }
                 else {
-                    questionField.style.backgroundColor = "rgb(255, 122, 122)";
-                    questionField.value += " (" + answer + ")";
+                    input.style.backgroundColor = "rgb(255, 122, 122)";
+                    input.value += " (" + answer + ")";
+                    result = "wrong";
                 }
-                questionField.setAttribute("size", questionField.value.length);
-                questionField.disabled = true;
+                input.setAttribute("size", input.value.length);
+                input.disabled = true;
                 this.disabled = true;
             }
             else {
                 alert("No answer entered!");
                 return false;
             }
+            questionArray.push(new Question(input.id, "fill-in", selectedAnswer, correctAnswer, 0, 0, result));
         }
     }
 }
@@ -495,6 +492,9 @@ function matchingAnswerButtons(initialMatchings) {
     for (let button of answerButtons) {
         button.onclick = function () {
             var matchingField = this.closest(".matching");
+            matchingField.id = question_num.toString();
+            question_num++;
+            var selectedAnswers = []; var correctAnswers = [];
             var dropzones = matchingField.getElementsByClassName("dropzone");
 
             // Alert if there's any empty dropzone (i.e. not all pairs are completed)
@@ -509,12 +509,27 @@ function matchingAnswerButtons(initialMatchings) {
             // Correct match pairs
             for (let drop of dropzones) {
                 var first = drop.getElementsByClassName("draggable")[0];
-                if (first.id.replace("drag", "") == drop.id.replace("drop", "")) {  // if correct
+                selectedAnswers.push(getAns(drop));
+                var dropID = drop.id.replace("drop", "");
+                var img = drop.querySelector('img');
+                var dropImgID = "dropImg" + dropID;
+
+                if (first.id.replace("drag", "") == dropID) {  // if correct
                     drop.style.backgroundColor = "rgb(151, 255, 122)";
                     first.setAttribute("draggable", "false");
-                } else {                                                            // if incorrect
+                    correctAnswers.push(getAns(drop));
+                } else {
                     drop.style.backgroundColor = "rgb(255, 122, 122)";
                     first.setAttribute("draggable", "false");
+                    var dragText = FormatChoiceResponse(document.getElementById("drag" + dropID).innerText);
+                    var dropText = (img == null) ? drop.childNodes[0].nodeValue.toString() : document.getElementById(dropImgID).src.replace(/^.*[\\\/]/, '');
+                    correctAnswers.push(FormatChoiceResponse(dropText + ":" + dragText));
+                }
+            }
+            var result = "correct";
+            for (var i = 0; i < selectedAnswers.length; i++) {
+                if (selectedAnswers[i] !== correctAnswers[i]) {
+                    result = "wrong";
                 }
             }
             // Get the initial and current states of the dragzones
@@ -527,6 +542,7 @@ function matchingAnswerButtons(initialMatchings) {
             reloadMath();
 
             this.disabled = true;
+            questionArray.push(new Question(matchingField.id, "matching", selectedAnswers, correctAnswers, 0, 0, result));
         }
     }
 }
@@ -601,11 +617,12 @@ function drop(ev) {
         SCORM FUNCTIONS
 *************************** */
 function gradeQuiz() {
-    correctMCScorm();
-    correctBlanks();
-    correctFrees();
-    correctMatches();
-
+    if (graded) {
+        correctMCScorm();
+        correctBlanks();
+        correctFrees();
+        correctMatches();
+    }
     document.getElementById("submitButton").style.pointerEvents = "none";
     let submitMessage = document.createElement('p');
     submitMessage.style.color = "#009933";
@@ -621,20 +638,25 @@ function RecordTest() {
         ScormProcessSetValue("cmi.interactions." + nextIndex + ".id", question.id);
         ScormProcessSetValue("cmi.interactions." + nextIndex + ".type", question.type);
         ScormProcessSetValue("cmi.interactions." + nextIndex + ".student_response", question.selectedAnswers);
-        ScormProcessSetValue("cmi.interactions." + nextIndex + ".weighting", question.weight);
-        ScormProcessSetValue("cmi.interactions." + nextIndex + ".result", question.result);
         ScormProcessSetValue("cmi.interactions." + nextIndex + ".correct_responses.0.pattern", question.correctAnswers);
+        ScormProcessSetValue("cmi.interactions." + nextIndex + ".result", question.result);
         // console.log("cmi.interactions." + nextIndex + ".id: " + question.id);
         // console.log("cmi.interactions." + nextIndex + ".type: " + question.type);
         // console.log("cmi.interactions." + nextIndex + ".student_response: " + JSON.stringify(question.selectedAnswers));
-        // console.log("cmi.interactions." + nextIndex + ".weighting: " + question.weight);
-        // console.log("cmi.interactions." + nextIndex + ".result: " + question.result);
         // console.log("cmi.interactions." + nextIndex + ".correct_responses.0.pattern: " + JSON.stringify(question.correctAnswers));
+        // console.log("cmi.interactions." + nextIndex + ".result: " + question.result);
+        if (graded) {
+            ScormProcessSetValue("cmi.interactions." + nextIndex + ".weighting", question.weight);
+            // console.log("cmi.interactions." + nextIndex + ".weighting: " + question.weight);
+        }
     }
-    let score = Math.round((totalEarned / totalPossible) * 100);
-    ScormProcessSetValue("cmi.core.score.raw", score);
-    ScormProcessSetValue("cmi.core.score.min", "0");
-    ScormProcessSetValue("cmi.core.score.max", "100");
+    if (graded) {
+        let score = Math.round((totalEarned / totalPossible) * 100);
+        ScormProcessSetValue("cmi.core.score.raw", score);
+        ScormProcessSetValue("cmi.core.score.min", "0");
+        ScormProcessSetValue("cmi.core.score.max", "100");
+        // console.log(" score:" + score);
+    }
 }
 function ScormProcessGetValue(element) {
     var result;
