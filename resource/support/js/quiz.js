@@ -8,22 +8,17 @@ var quizModule = {
     }
 }
 
-var question_num = 0;
+var questionArray = [];
+var totalEarned = 0; var totalPossible = 0; var question_num = 1;
 class Question {
-    constructor(id, type, selectedAnswers, correctAnswers, points, result) {
+    constructor(id, type, selectedAnswers, correctAnswers, weight, earned, result) {
         this.id = id;
         this.type = type;
         this.selectedAnswers = selectedAnswers;
         this.correctAnswers = correctAnswers;
-        this.points = points;
+        this.weight = weight;
+        this.earned = earned;
         this.result = result;
-    }
-}
-class QuizResult {
-    constructor(q, e, p) {
-        this.questions = q;
-        this.earned = e;
-        this.possible = p;
     }
 }
 /* ************************
@@ -56,7 +51,7 @@ function multipleChoice() {
 function FormatChoiceResponse(value) {
     var newValue = new String(value);
     newValue = newValue.replace(/^_/, "");
-    newValue = newValue.replace(/(?=.)(^\[)?((\\n)+)?(\])?/, "");
+    newValue = newValue.replace(/(?=.)(^\[)?((\\n)+)?(\])?(\\n)/, "");
     return newValue;
 }
 function correctMC(button) {
@@ -88,40 +83,52 @@ function correctMC(button) {
     }
 }
 function correctMCScorm() {
-    var questionArray = [];
-    var possible = 0; var totalPossible = 0; var earned = 0; var totalEarned = 0;
+    var weight = 0; var earned = 0;
 
     const questions = document.getElementsByClassName("survey");
     for (let question of questions) {
         question.id = question_num.toString();
         question_num++;
-        possible = Number(question.parentElement.getAttribute('data-points'));
-        totalPossible += possible;
-        let result = null;
+        weight = Number(question.parentElement.getAttribute('data-points'));
+        let result = "wrong";
         const allAnswers = question.getElementsByClassName("answer");
-        var selectedAnswer, correctAnswer;
+        var selectedAnswer = null; var correctAnswer;
 
-        // disable answer, get learner response and correct response
-        for (let answer of allAnswers) {                                        // for each answer  
-            answer.parentElement.style.pointerEvents = "none";                  // deactivate answer button  
+        // get correct and selected answers
+        for (let answer of allAnswers) {
+            answer.parentElement.style.pointerEvents = "none";
             let answerText = FormatChoiceResponse(answer.querySelector('p').innerHTML);
-            if (answer.parentElement.classList.contains("selected")) {
-                answer.parentElement.style.backgroundColor = "rgb(250, 121, 121)";
-                result = "wrong";
+            if (answer.parentElement.classList.contains("selected")) {              // if selected
                 selectedAnswer = answerText;
-            }
-            if (answer.classList.contains("right")) {
-                answer.parentElement.style.backgroundColor = "rgb(151, 255, 122)";
-                result = "correct";
-                earned = possible;
-                correctAnswer = answerText;
+                if (answer.classList.contains("right")) {                           // and correct
+                    correctAnswer = answerText;
+                    answer.parentElement.style.backgroundColor = "rgb(151, 255, 122)";
+                } else {                                                            // and incorrect
+                    answer.parentElement.style.backgroundColor = "rgb(250, 121, 121)";
+                }
+            } else {                                                                // if not selected
+                if (answer.classList.contains("right")) {                           // and correct
+                    correctAnswer = answerText;
+                    answer.parentElement.style.backgroundColor = "rgb(151, 255, 122)";
+                }
             }
         }
+        if (selectedAnswer) {
+            if (selectedAnswer == correctAnswer) {
+                result = "correct";
+                earned = weight;
+            }
+        } else {
+            selectedAnswer = "no answer given";
+        }
+
         totalEarned += earned;
-        totalPossible += possible;
-        questionArray.push(new Question(question.id, "choice", selectedAnswer, correctAnswer, earned, result));
+        totalPossible += weight;
+        questionArray.push(new Question(question.id, "choice", selectedAnswer, correctAnswer, weight, earned, result));
+        // console.log("pushing question " + question.id + ", choice, weight: " + weight + ", earned: " + earned + ", result: " + result);
+        // console.log(" selected: " + selectedAnswer.toString());
+        // console.log(" correct: " + correctAnswer.toString());
     }
-    return new QuizResult(questionArray, totalEarned, totalPossible);
 }
 /* ************************
      BLANK TEXT QUESTIONS
@@ -207,61 +214,80 @@ function blanktextButtons() {
     }
 }
 function correctBlanks() {
-    var questionArray = [];
-    var possible = 0; var totalPossible = 0; var earned = 0; var totalEarned = 0;
+    var weight = 0;
     var result;
-
     var questions = document.getElementsByClassName("blankText");
     for (let question of questions) {
-        possible = Number(question.parentElement.getAttribute('data-points'));
-        totalPossible += possible;
         // get selected/corrected for blanks
         var inputs = question.getElementsByTagName('input');
         var selects = question.getElementsByTagName('select');
-        var individualPoints = possible / (inputs.length + selects.length);
+        var totalPoints = Number(question.parentElement.getAttribute('data-points'));
+        totalPossible += totalPoints;
+        var weight = totalPoints / (inputs.length + selects.length);
         for (let input of inputs) {
+            var earned = 0;
             input.id = question_num.toString();
             question_num++;
-            result = "correct";
+            result = null;
             input.disabled = true;
-            let selectedAnswer = input.value.toLowerCase().trim();
             let correctAnswer = input.getAttribute("answer").toLowerCase().trim();
-            if (selectedAnswer == correctAnswer) {
-                input.style.backgroundColor = "rgb(151, 255, 122)";
-                earned = individualPoints;
-                totalEarned += earned;
+            let selectedAnswer = input.value.toLowerCase().trim();
+            if (selectedAnswer) {
+                if (selectedAnswer == correctAnswer) {
+                    input.style.backgroundColor = "rgb(151, 255, 122)";
+                    earned = weight;
+                    totalEarned += earned;
+                    result = "correct";
+                } else {
+                    input.style.backgroundColor = "rgb(250, 121, 121)";
+                    result = "wrong";
+                }
             } else {
+                selectedAnswer = "no answer given";
                 input.style.backgroundColor = "rgb(250, 121, 121)";
                 result = "wrong";
             }
-            questionArray.push(new Question(input.id, "fill-in", selectedAnswer, correctAnswer, earned, result));
+            questionArray.push(new Question(input.id, "fill-in", selectedAnswer, correctAnswer, weight, earned, result));
+            // console.log("pushing question " + input.id + ", blank fill in, weight: " + weight + ", earned: " + earned + ", result: " + result);
+            // console.log(" selected: " + selectedAnswer.toString());
+            // console.log(" correct: " + correctAnswer.toString());
         }
 
         // get selected/corrected for selects
         for (let select of selects) {
+            var earned = 0;
             select.id = question_num.toString();
             question_num++;
-            result = "correct";
+            result = null;
             select.disabled = true;
-            let selectedAnswer = select.options[select.selectedIndex].value;
             let correctAnswer = "";
             for (let o of select.options) {
                 if (o.getAttribute("answer") == "true") {
                     correctAnswer = o.value;
                 }
             }
-            if (selectedAnswer == correctAnswer) {
-                select.style.backgroundColor = "rgb(151, 255, 122)";
-                earned = possible;
-                totalEarned += earned;
+            let selectedAnswer = select.options[select.selectedIndex].value;
+            if (selectedAnswer) {
+                if (selectedAnswer == correctAnswer) {
+                    select.style.backgroundColor = "rgb(151, 255, 122)";
+                    earned = weight;
+                    totalEarned += earned;
+                    result = "correct";
+                } else {
+                    select.style.backgroundColor = "rgb(250, 121, 121)";
+                    result = "wrong";
+                }
             } else {
-                select.style.backgroundColor = "rgb(250, 121, 121)";
+                selectedAnswer = "no answer given";
                 result = "wrong";
+                select.style.backgroundColor = "rgb(250, 121, 121)";
             }
-            questionArray.push(new Question(select.id, "choice", selectedAnswer, correctAnswer, earned, result));
+            questionArray.push(new Question(select.id, "choice", selectedAnswer, correctAnswer, weight, earned, result));
+            // console.log("pushing question " + select.id + ", blank choice, weight: " + weight + ", earned: " + earned + ", result: " + result);
+            // console.log(" selected: " + selectedAnswer.toString());
+            // console.log(" correct: " + correctAnswer.toString());
         }
     }
-    return new QuizResult(questionArray, totalEarned, totalPossible);
 }
 /* ************************
      FREE TEXT QUESTIONS
@@ -293,36 +319,43 @@ function freetextAnswerButtons() {
     }
 }
 function correctFrees() {
-    var questionArray = [];
-    var possible = 0; var totalPossible = 0; var earned = 0; var totalEarned = 0;
-
+    var weight = 0;
     var questions = document.getElementsByClassName("freetextQuestion");
     for (let question of questions) {
-        possible = Number(question.parentElement.getAttribute('data-points'));
-        totalPossible += possible;
+        var totalWeight = Number(question.parentElement.getAttribute('data-points'));
+        totalPossible += totalWeight;
 
         var inputs = question.getElementsByTagName('input');
-        var individualPoints = possible / inputs.length;
+        var weight = totalWeight / inputs.length;
         for (let input of inputs) {
+            var earned = 0;
             input.id = question_num.toString();
             question_num++;
-            var result = "correct";
+            var result = null;
             input.disabled = true;
-            let selectedAnswer = input.value.toLowerCase().trim();
             let correctAnswer = input.getAttribute("answer").toLowerCase().trim();
-            if (selectedAnswer == correctAnswer) {
-                input.style.backgroundColor = "rgb(151, 255, 122)";
-                earned = individualPoints;
-                console.log("free earned " + earned);
-                totalEarned += earned;
+            let selectedAnswer = input.value.toLowerCase().trim();
+            if (selectedAnswer) {
+                if (selectedAnswer == correctAnswer) {
+                    input.style.backgroundColor = "rgb(151, 255, 122)";
+                    earned = weight;
+                    totalEarned += earned;
+                    result = "correct";
+                } else {
+                    input.style.backgroundColor = "rgb(250, 121, 121)";
+                    result = "wrong";
+                }
             } else {
+                selectedAnswer = "no answer given";
                 input.style.backgroundColor = "rgb(250, 121, 121)";
                 result = "wrong";
             }
-            questionArray.push(new Question(input.id, "fill-in", selectedAnswer, correctAnswer, earned, result));
+            questionArray.push(new Question(input.id, "fill-in", selectedAnswer, correctAnswer, weight, earned, result));
+            // console.log("pushing question " + input.id + ", freetext, weight: " + weight + ", earned: " + earned + ", result: " + result);
+            // console.log(" selected: " + selectedAnswer.toString());
+            // console.log(" correct: " + correctAnswer.toString());
         }
     }
-    return new QuizResult(questionArray, totalEarned, totalPossible);
 }
 /* ************************
      MATCHING QUESTIONS
@@ -499,35 +532,38 @@ function matchingAnswerButtons(initialMatchings) {
 }
 function correctMatches() {
     const questions = document.getElementsByClassName("matching");
-    var questionArray = [];
-    var totalPossible = 0; var totalEarned = 0;
 
     for (let question of questions) {
         question.id = question_num.toString();
         question_num++;
         var selectedAnswers = []; var correctAnswers = [];
         let earned = 0;
-        var possible = Number(question.parentElement.getAttribute('data-points'));
-        totalPossible += possible;
+        var weight = Number(question.parentElement.getAttribute('data-points'));
+        totalPossible += weight;
         var dropzones = question.getElementsByClassName("dropzone");
 
         // Correct match pairs
         for (let drop of dropzones) {
             var first = drop.getElementsByClassName("draggable")[0];
-            var dropID = drop.id.replace("drop", "");
-            var img = drop.querySelector('img');
-            var dropImgID = "dropImg" + dropID;
-            selectedAnswers.push(getAns(drop));
-            if (first.id.replace("drag", "") == dropID) {                       // if correct, push to correctAnswers
-                drop.style.backgroundColor = "rgb(151, 255, 122)";
-                first.setAttribute("draggable", "false");
-                correctAnswers.push(getAns(drop));
-            } else {                                                            // if incorrect, get correct answers to push
-                drop.style.backgroundColor = "rgb(255, 122, 122)";
-                first.setAttribute("draggable", "false");
-                var dragText = FormatChoiceResponse(document.getElementById("drag" + dropID).innerText);
-                var dropText = (img == null) ? drop.childNodes[0].nodeValue.toString() : document.getElementById(dropImgID).src.replace(/^.*[\\\/]/, '');
-                correctAnswers.push(FormatChoiceResponse(dropText + ":" + dragText));
+            if (first) {
+                selectedAnswers.push(getAns(drop));
+                var dropID = drop.id.replace("drop", "");
+                var img = drop.querySelector('img');
+                var dropImgID = "dropImg" + dropID;
+
+                if (first.id.replace("drag", "") == dropID) {                       // if correct, push to correctAnswers
+                    drop.style.backgroundColor = "rgb(151, 255, 122)";
+                    first.setAttribute("draggable", "false");
+                    correctAnswers.push(getAns(drop));
+                } else {                                                            // if incorrect, get correct answers to push
+                    drop.style.backgroundColor = "rgb(255, 122, 122)";
+                    first.setAttribute("draggable", "false");
+                    var dragText = FormatChoiceResponse(document.getElementById("drag" + dropID).innerText);
+                    var dropText = (img == null) ? drop.childNodes[0].nodeValue.toString() : document.getElementById(dropImgID).src.replace(/^.*[\\\/]/, '');
+                    correctAnswers.push(FormatChoiceResponse(dropText + ":" + dragText));
+                }
+            } else {
+                selectedAnswers.push("no answer given");
             }
         }
         var result = "correct";
@@ -537,12 +573,14 @@ function correctMatches() {
             }
         }
         if (result == "correct") {
-            earned = possible;
+            earned = weight;
             totalEarned += earned;
         }
-        questionArray.push(new Question(question.id, "matching", selectedAnswers, correctAnswers, earned, result));
+        questionArray.push(new Question(question.id, "matching", selectedAnswers, correctAnswers, weight, earned, result));
+        // console.log("pushing question " + question.id + ", matching, weight: " + weight + ", earned: " + earned + ", result: " + result);
+        // console.log(" selected: " + JSON.stringify(selectedAnswers));
+        // console.log(" correct: " + JSON.stringify(correctAnswers));
     }
-    return new QuizResult(questionArray, totalEarned, totalPossible);
 }
 function allowDrop(ev) {
     ev.preventDefault();
@@ -563,48 +601,40 @@ function drop(ev) {
         SCORM FUNCTIONS
 *************************** */
 function gradeQuiz() {
-    document.getElementById("submitButton").style.pointerEvents = "none";
-    let mcResults = correctMCScorm();
-    let btResults = correctBlanks();
-    let ftResults = correctFrees();
-    let matchResults = correctMatches();
-    let allQuestions = [];
-    allQuestions.push(mcResults.questions);
-    allQuestions.push(btResults.questions);
-    allQuestions.push(ftResults.questions);
-    allQuestions.push(matchResults.questions);
-    let totalEarned = mcResults.earned + btResults.earned + ftResults.earned + matchResults.earned;
-    let totalPossible = mcResults.possible + btResults.possible + ftResults.possible + matchResults.possible;
-    let score = ((totalEarned / totalPossible) * 100).toPrecision(2);
+    correctMCScorm();
+    correctBlanks();
+    correctFrees();
+    correctMatches();
 
+    document.getElementById("submitButton").style.pointerEvents = "none";
     let submitMessage = document.createElement('p');
     submitMessage.style.color = "#009933";
-    submitMessage.innerHTML = "Your answers have been submitted. Your score is " + score + "%.";
+    submitMessage.innerHTML = "Your answers have been submitted.";
     document.getElementById("submitSlide").appendChild(submitMessage);
 
-    RecordTest(allQuestions, totalEarned, totalPossible);
+    RecordTest();
+    questionArray = []; totalEarned = 0; totalPossible = 0;
 }
-function RecordTest(questions, totalEarned, totalPossible) {
-    for (let question of questions) {
+function RecordTest() {
+    for (let question of questionArray) {
         var nextIndex = ScormProcessGetValue("cmi.interactions._count");
         ScormProcessSetValue("cmi.interactions." + nextIndex + ".id", question.id);
         ScormProcessSetValue("cmi.interactions." + nextIndex + ".type", question.type);
         ScormProcessSetValue("cmi.interactions." + nextIndex + ".student_response", question.selectedAnswers);
-        ScormProcessSetValue("cmi.interactions." + nextIndex + ".weighting", question.points);
+        ScormProcessSetValue("cmi.interactions." + nextIndex + ".weighting", question.weight);
         ScormProcessSetValue("cmi.interactions." + nextIndex + ".result", question.result);
         ScormProcessSetValue("cmi.interactions." + nextIndex + ".correct_responses.0.pattern", question.correctAnswers);
+        // console.log("cmi.interactions." + nextIndex + ".id: " + question.id);
+        // console.log("cmi.interactions." + nextIndex + ".type: " + question.type);
+        // console.log("cmi.interactions." + nextIndex + ".student_response: " + JSON.stringify(question.selectedAnswers));
+        // console.log("cmi.interactions." + nextIndex + ".weighting: " + question.weight);
+        // console.log("cmi.interactions." + nextIndex + ".result: " + question.result);
+        // console.log("cmi.interactions." + nextIndex + ".correct_responses.0.pattern: " + JSON.stringify(question.correctAnswers));
     }
-    ScormProcessSetValue("cmi.core.score.raw", totalEarned);
+    let score = Math.round((totalEarned / totalPossible) * 100);
+    ScormProcessSetValue("cmi.core.score.raw", score);
     ScormProcessSetValue("cmi.core.score.min", "0");
-    ScormProcessSetValue("cmi.core.score.max", totalPossible);
-
-    var score = (totalEarned / totalPossible) * 100;
-    var passingGrade = parseInt(document.getElementById("slideContent").getAttribute("data-grade"));
-    if (score >= passingGrade) {
-        ScormProcessSetValue("cmi.core.lesson_status", "passed");
-    } else {
-        ScormProcessSetValue("cmi.core.lesson_status", "failed");
-    }
+    ScormProcessSetValue("cmi.core.score.max", "100");
 }
 function ScormProcessGetValue(element) {
     var result;
