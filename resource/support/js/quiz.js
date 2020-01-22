@@ -31,6 +31,8 @@ function multipleChoice() {
     for (let question of questions) {
         question.setAttribute("data-survey-num", survey_num.toString());
         survey_num += 1;
+        question.id = question_num.toString();
+        question_num++;
         // add event listener to color the chosen answer(s)
         const allAnswers = question.getElementsByTagName("li");
         var defBorder = allAnswers[0].style.border;
@@ -47,6 +49,42 @@ function multipleChoice() {
                 }
             });
         }
+        var answerButton = question.querySelector(".mcAnswerButton");
+        if (answerButton != null) {
+            answerButton.onclick = function () {
+                var selectedAnswer = null; var correctAnswer;
+                for (let answer of allAnswers) {
+                    if (answer.classList.contains("selected")) {
+                        selectedAnswer = FormatChoiceResponse(answer.querySelector('p').innerHTML);
+                    } else { continue; }
+                }
+                if (selectedAnswer != null) {
+                    this.disabled = true;
+                    for (let answer of allAnswers) {
+                        var result = "";
+                        var answer_div = answer.querySelector(".answer");
+                        if (answer_div.classList.contains("right")) {
+                            correctAnswer = FormatChoiceResponse(answer.querySelector('p').innerHTML);
+                            answer.style.backgroundColor = "#97ff7a";
+                            result = "correct";
+                        } else {
+                            answer.style.backgroundColor = "#ff7a7a";
+                            result = "wrong";
+                        }
+                        const tooltips = answer.getElementsByClassName("tooltip");
+                        for (let tooltip of tooltips) {
+                            tooltip.style.display = "inline";
+                        }
+                        answer.style.pointerEvents = "none";
+                    }
+                }
+                else {
+                    alert("No answer chosen!");
+                    return false;
+                }
+                questionArray.push(new Question(question.id, "choice", selectedAnswer, correctAnswer, 0, 0, result));
+            }
+        }
     }
 }
 function FormatChoiceResponse(value) {
@@ -55,45 +93,7 @@ function FormatChoiceResponse(value) {
     newValue = newValue.replace(/(?=.)(^\[)?((\\n)+)?(\])?(\\n)/, "");
     return newValue;
 }
-function correctMC(button) {
-    const survey = button.closest(".survey");
-    survey.id = question_num.toString();
-    question_num++;
-    const answers = survey.getElementsByTagName("li");
-    var selectedAnswer = null; var correctAnswer;
-    for (let answer of answers) {
-        if (answer.classList.contains("selected")) {
-            selectedAnswer = FormatChoiceResponse(answer.querySelector('p').innerHTML);
-        } else { continue; }
-    }
-
-    if (selectedAnswer != null) {
-        this.disabled = true;
-        for (let answer of answers) {
-            var result = "";
-            var answer_div = answer.querySelector(".answer");
-            if (answer_div.classList.contains("right")) {
-                correctAnswer = FormatChoiceResponse(answer.querySelector('p').innerHTML);
-                answer.style.backgroundColor = "#97ff7a";
-                result = "correct";
-            } else {
-                answer.style.backgroundColor = "#ff7a7a";
-                result = "wrong";
-            }
-            const tooltips = answer.getElementsByClassName("tooltip");
-            for (let tooltip of tooltips) {
-                tooltip.style.display = "inline";
-            }
-            answer.style.pointerEvents = "none";
-        }
-    }
-    else {
-        alert("No answer chosen!");
-        return false;
-    }
-    questionArray.push(new Question(survey.id, "choice", selectedAnswer, correctAnswer, 0, 0, result));
-}
-function correctMCScorm() {
+function scormMC() {
     var weight = 0; var earned = 0;
 
     const questions = document.getElementsByClassName("survey");
@@ -202,7 +202,7 @@ function blanktextButtons() {
         }
     }
 }
-function correctBlanks() {
+function scormBlanktext() {
     var weight = 0;
     var result;
     var questions = document.getElementsByClassName("blankText");
@@ -315,7 +315,7 @@ function freetextAnswerButtons() {
         }
     }
 }
-function correctFrees() {
+function scormFreetext() {
     var weight = 0;
     var questions = document.getElementsByClassName("freetextQuestion");
     for (let question of questions) {
@@ -407,7 +407,6 @@ function matchings(initialMatchings) {
     // Order of execution here is important. 
     // matchingAnswerButton has to be first so the sample solution is in the correct order. Very dubious hack
 
-    var matches = document.getElementsByClassName("matching");
     matchingAnswerButtons(initialMatchings);
     shuffleDraggables();
     retryButtons(initialMatchings);
@@ -546,7 +545,7 @@ function matchingAnswerButtons(initialMatchings) {
         }
     }
 }
-function correctMatches() {
+function scormMatching() {
     const questions = document.getElementsByClassName("matching");
 
     for (let question of questions) {
@@ -617,12 +616,11 @@ function drop(ev) {
         SCORM FUNCTIONS
 *************************** */
 function gradeQuiz() {
-    if (graded) {
-        correctMCScorm();
-        correctBlanks();
-        correctFrees();
-        correctMatches();
-    }
+    scormMC();
+    scormBlanktext();
+    scormFreetext();
+    scormMatching();
+
     document.getElementById("submitButton").style.pointerEvents = "none";
     let submitMessage = document.createElement('p');
     submitMessage.style.color = "#009933";
@@ -630,7 +628,6 @@ function gradeQuiz() {
     document.getElementById("submitSlide").appendChild(submitMessage);
 
     RecordTest();
-    questionArray = []; totalEarned = 0; totalPossible = 0;
 }
 function RecordTest() {
     for (let question of questionArray) {

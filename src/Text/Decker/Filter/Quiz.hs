@@ -35,27 +35,19 @@ renderQuizzes :: Pandoc -> Decker Pandoc
 renderQuizzes pandoc = do
   dirs <- liftIO projectDirectories
   meta <- liftIO $ readMetaData $ dirs ^. project
+  let decks =
+        walk renderMatching $
+        walk renderFreetextQuestion $
+        walk renderBlanktext $ walk renderMultipleChoice pandoc
+  let scormDecks =
+        walk renderScormMatching $
+        walk renderScormFree $ walk renderScormBlank $ walk renderScormMC pandoc
   case getMetaBool "scorm" meta of
     Just True ->
       case getMetaBool "graded" meta of
-        Just True ->
-          return $
-          walk renderMatching $
-          walk renderScormMatching $
-          walk renderScormFree $
-          walk renderScormBlank $
-          walk renderScormMC $ addInstructions pandoc meta
-        _ ->
-          return $
-          walk renderMatching $
-          walk renderFreetextQuestion $
-          walk renderBlanktext $
-          walk renderMultipleChoice $ addInstructions pandoc meta
-    _ ->
-      return $
-      walk renderMatching $
-      walk renderFreetextQuestion $
-      walk renderBlanktext $ walk renderMultipleChoice pandoc
+        Just True -> return $ addInstructions scormDecks meta
+        _ -> return $ addInstructions decks meta
+    _ -> return decks
 
 -- A multiple choice question is a bullet list in the style of a task list.
 -- A div class survey is created around the bullet list
@@ -69,9 +61,7 @@ renderMultipleChoice (BulletList blocks@((firstBlock:_):_))
     answerButton =
       Para $
       [LineBreak] ++
-      [ toHtml
-          "<button class=\"mcAnswerButton\" onclick=\"correctMC(this)\"type=\"button\">"
-      ] ++
+      [toHtml "<button class=\"mcAnswerButton\" type=\"button\">"] ++
       [Str "Show Solution"] ++ [toHtml "</button>"]
 -- Default pass through
 renderMultipleChoice block = block
