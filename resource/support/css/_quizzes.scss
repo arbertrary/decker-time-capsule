@@ -139,3 +139,46 @@
         }
     }
 }
+
+.reveal {
+
+    // Multiple Choice        
+    .scorm-survey {
+
+        // To align solution button in center
+        text-align: center;
+
+        // To avoid that MC boxes are bigger when used directly below lvl 1 header 
+        div p {
+            margin: 0;
+        }
+
+        ul {
+            list-style-type: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            padding: 5pt;
+        }
+
+        li {
+            flex-grow: 1;
+            border: 1pt #111 dashed;
+            padding-left: 1em;
+            padding-right: 1em;
+            border-radius: 0.5em;
+            margin: 0.55em;
+            flex-basis: 30%;
+
+        }
+
+        li:hover {
+            background-color: rgb(220, 220, 220);
+        }
+
+        .tooltip {
+            display: none;
+        }
+    }
+}

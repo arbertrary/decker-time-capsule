@@ -157,13 +157,16 @@
   margin-left: -30px;
 }
 
-.reveal .survey {
+.reveal .survey,
+.reveal .scorm-survey {
   text-align: center;
 }
-.reveal .survey div p {
+.reveal .survey div p,
+.reveal .scorm-survey div p {
   margin: 0;
 }
-.reveal .survey ul {
+.reveal .survey ul,
+.reveal .scorm-survey ul {
   list-style-type: none;
   display: flex;
   flex-direction: column;
@@ -171,7 +174,8 @@
   flex-wrap: wrap;
   padding: 5pt;
 }
-.reveal .survey li {
+.reveal .survey li,
+.reveal .scorm-survey li {
   flex-grow: 1;
   border: 1pt #111 dashed;
   padding-left: 1em;
@@ -180,10 +184,12 @@
   margin: 0.55em;
   flex-basis: 30%;
 }
-.reveal .survey li:hover {
+.reveal .survey li:hover,
+.reveal .scorm-survey li:hover {
   background-color: gainsboro;
 }
-.reveal .survey .tooltip {
+.reveal .survey .tooltip,
+.reveal .scorm-survey .tooltip {
   display: none;
 }
 
