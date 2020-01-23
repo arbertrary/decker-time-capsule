@@ -44,7 +44,7 @@ if ($local) {
     
     New-Item -Path "$deckerpath\bin" -Force -ItemType "directory"
 
-    Copy-Item "$exepath" "$binpath\decker.exe"
+    Copy-Item "$exepath" "$deckerpath\bin\decker.exe"
 
     $version = Get-Content .\package.yaml | Select-String -Pattern "version: "
     $version = $version -replace "\s+", " "
