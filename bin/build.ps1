@@ -16,10 +16,11 @@ if (-Not $skiptemplates) {
 }
 
 Write-Output "Building standalone binary"
-& stack clean
 & git submodule update --init
 & .\third-party\vendor.ps1
+
 Set-Location (Split-Path $PSScriptRoot -Parent)
+& stack clean
 & stack build -j4
 
 

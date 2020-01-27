@@ -10,6 +10,7 @@ $third = Split-Path -parent $PSCommandPath
 $decker = Split-Path $third -parent
 $support = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath("$decker\resource\support\vendor")
 
+
 # Build jquery
 Set-Location "$third\jquery"
 & npm run build
@@ -25,6 +26,7 @@ Set-Location "$third\Chart.js"
 & npx rollup -c rollup.config.js
 
 Write-Output ("Copy dependencies to " + $support)
+Remove-Item $support -Recurse -Force
 New-Item -Path $support -Force -ItemType "directory"
 Set-Location $third
 
