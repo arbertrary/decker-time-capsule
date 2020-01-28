@@ -156,10 +156,15 @@ addInstructions pandoc@(Pandoc meta blocks) metadata =
     _ -> Pandoc meta (blocks ++ submitSlide)
   where
     submitSlide =
-      [ Header 1 ("submitSlide", [], []) [Str "Submit Quiz"]
+      [ Header 1 ("submitSlide", [], []) [Str "Thank you!"]
       , Para [submitText]
+      , RawBlock "html" comments
       , RawBlock "html" button
       ]
-    submitText = Str "Click the button below to submit your responses."
+    submitText =
+      Str
+        "Please enter any comments and then click the button below to complete the course."
+    comments =
+      "<textarea id=\"studentComments\" rows=\"8\" cols=\"50\"></textarea>"
     button =
-      "<button id=\"submitButton\" type=\"button\" onclick=\"gradeQuiz()\">Submit All</button>"
+      "<button class=\"submitButton\" type=\"button\" onclick=\"submitScorm()\">Complete</button>"

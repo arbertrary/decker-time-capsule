@@ -7,32 +7,12 @@ var quizModule = {
         matchings(initialMatchings);
     }
 }
-
-var questionArray = [];
-var totalEarned = 0; var totalPossible = 0; var question_num = 1;
-var graded = document.getElementById('slideContent').getAttribute("graded");
-class Question {
-    constructor(id, type, selectedAnswers, correctAnswers, weight, earned, result) {
-        this.id = id;
-        this.type = type;
-        this.selectedAnswers = selectedAnswers;
-        this.correctAnswers = correctAnswers;
-        this.weight = weight;
-        this.earned = earned;
-        this.result = result;
-    }
-}
 /* ************************
   MULTIPLE CHOICE QUESTIONS
 *************************** */
 function multipleChoice() {
     const questions = document.getElementsByClassName("survey");
-    let survey_num = 0;
     for (let question of questions) {
-        question.setAttribute("data-survey-num", survey_num.toString());
-        survey_num += 1;
-        question.id = question_num.toString();
-        question_num++;
         // add event listener to color the chosen answer(s)
         const allAnswers = question.getElementsByTagName("li");
         var defBorder = allAnswers[0].style.border;
@@ -52,7 +32,7 @@ function multipleChoice() {
         var answerButton = question.querySelector(".mcAnswerButton");
         if (answerButton != null) {
             answerButton.onclick = function () {
-                var selectedAnswer = null; var correctAnswer;
+                var selectedAnswer = null;
                 for (let answer of allAnswers) {
                     if (answer.classList.contains("selected")) {
                         selectedAnswer = FormatChoiceResponse(answer.querySelector('p').innerHTML);
@@ -61,29 +41,17 @@ function multipleChoice() {
                 if (selectedAnswer != null) {
                     this.disabled = true;
                     for (let answer of allAnswers) {
-                        var result = "";
                         var answer_div = answer.querySelector(".answer");
-                        if (answer_div.classList.contains("right")) {
-                            correctAnswer = FormatChoiceResponse(answer.querySelector('p').innerHTML);
-                            answer.style.backgroundColor = "#97ff7a";
-                            result = "correct";
-                        } else {
-                            answer.style.backgroundColor = "#ff7a7a";
-                            result = "wrong";
-                        }
+                        answer_div.classList.contains("right") ? answer.style.backgroundColor = "#97ff7a" : answer.style.backgroundColor = "#ff7a7a";
                         const tooltips = answer.getElementsByClassName("tooltip");
                         for (let tooltip of tooltips) {
                             tooltip.style.display = "inline";
                         }
                         answer.style.pointerEvents = "none";
                     }
-                }
-                else {
+                } else {
                     alert("No answer chosen!");
                     return false;
-                }
-                if (graded) {
-                    questionArray.push(new Question(question.id, "choice", selectedAnswer, correctAnswer, 0, 0, result));
                 }
             }
         }
@@ -107,32 +75,17 @@ function blanktextButtons() {
             var selects = blanktext.getElementsByClassName("blankSelect");
             var inputs = blanktext.getElementsByClassName("blankInput");
             for (let input of inputs) {
-                input.id = question_num.toString();
-                question_num++;
-                let result = null;
                 let correctAnswer = input.getAttribute("answer").toLowerCase().trim();
                 let selectedAnswer = input.value.toLowerCase().trim();
                 if (selectedAnswer) {
                     input.disabled = true;
-                    if (selectedAnswer == correctAnswer) {
-                        input.style.backgroundColor = "rgb(151, 255, 122)";
-                        result = "correct";
-                    } else {
-                        input.style.backgroundColor = "rgb(250, 121, 121)";
-                        result = "wrong";
-                    }
+                    selectedAnswer == correctAnswer ? input.style.backgroundColor = "rgb(151, 255, 122)" : input.style.backgroundColor = "rgb(250, 121, 121)";
                 } else {
                     alert("Please complete all questions.");
                     return false;
                 }
-                if (graded) {
-                    questionArray.push(new Question(input.id, "fill-in", selectedAnswer, correctAnswer, 0, 0, result));
-                }
             }
             for (let select of selects) {
-                select.id = question_num.toString();
-                question_num++;
-                let result = null;
                 let correctAnswer = "";
                 for (let o of select.options) {
                     if (o.getAttribute("answer") == "true") {
@@ -142,19 +95,10 @@ function blanktextButtons() {
                 let selectedAnswer = select.options[select.selectedIndex].value;
                 if (selectedAnswer) {
                     select.disabled = true;
-                    if (selectedAnswer == correctAnswer) {
-                        select.style.backgroundColor = "rgb(151, 255, 122)";
-                        result = "correct";
-                    } else {
-                        select.style.backgroundColor = "rgb(250, 121, 121)";
-                        result = "wrong";
-                    }
+                    selectedAnswer == correctAnswer ? select.style.backgroundColor = "rgb(151, 255, 122)" : select.style.backgroundColor = "rgb(250, 121, 121)";
                 } else {
                     alert("Please complete all questions.");
                     return false;
-                }
-                if (graded) {
-                    questionArray.push(new Question(select.id, "choice", selectedAnswer, correctAnswer, 0, 0, result));
                 }
             }
         }
@@ -168,9 +112,6 @@ function freetextAnswerButtons() {
     for (let button of answerButtons) {
         button.onclick = function () {
             var input = this.parentElement.querySelector('.freetextInput');
-            input.id = question_num.toString();
-            question_num++;
-            let result = null;
             // Has the user entered anything?
             let correctAnswer = input.getAttribute("answer").toLowerCase().trim();
             let selectedAnswer = input.value.toLowerCase().trim();
@@ -178,12 +119,10 @@ function freetextAnswerButtons() {
                 var answer = input.getAttribute("answer").trim();
                 if (selectedAnswer == correctAnswer) {
                     input.style.backgroundColor = "rgb(151, 255, 122)";
-                    result = "correct";
                 }
                 else {
                     input.style.backgroundColor = "rgb(255, 122, 122)";
                     input.value += " (" + answer + ")";
-                    result = "wrong";
                 }
                 input.setAttribute("size", input.value.length);
                 input.disabled = true;
@@ -192,9 +131,6 @@ function freetextAnswerButtons() {
             else {
                 alert("No answer entered!");
                 return false;
-            }
-            if (graded) {
-                questionArray.push(new Question(input.id, "fill-in", selectedAnswer, correctAnswer, 0, 0, result));
             }
         }
     }
@@ -318,27 +254,11 @@ function shuffleArray(array) {
 
     return array;
 }
-function getAns(drop) {
-    var dropID = drop.id.replace("drop", "");
-    var dropImgID = "dropImg" + dropID;
-    var img = drop.querySelector('img');
-    var ans;
-    if (img == null) {
-        ans = FormatChoiceResponse(drop.innerText);
-    } else {
-        ans = img.src.replace(/^.*[\\\/]/, '') + ":" + FormatChoiceResponse(drop.querySelector('div').innerHTML);
-        img.id = dropImgID;
-    }
-    return ans;
-}
 function matchingAnswerButtons(initialMatchings) {
     var answerButtons = document.getElementsByClassName("matchingAnswerButton");
     for (let button of answerButtons) {
         button.onclick = function () {
             var matchingField = this.closest(".matching");
-            matchingField.id = question_num.toString();
-            question_num++;
-            var selectedAnswers = []; var correctAnswers = [];
             var dropzones = matchingField.getElementsByClassName("dropzone");
 
             // Alert if there's any empty dropzone (i.e. not all pairs are completed)
@@ -353,27 +273,14 @@ function matchingAnswerButtons(initialMatchings) {
             // Correct match pairs
             for (let drop of dropzones) {
                 var first = drop.getElementsByClassName("draggable")[0];
-                selectedAnswers.push(getAns(drop));
                 var dropID = drop.id.replace("drop", "");
-                var img = drop.querySelector('img');
-                var dropImgID = "dropImg" + dropID;
 
                 if (first.id.replace("drag", "") == dropID) {  // if correct
                     drop.style.backgroundColor = "rgb(151, 255, 122)";
                     first.setAttribute("draggable", "false");
-                    correctAnswers.push(getAns(drop));
                 } else {
                     drop.style.backgroundColor = "rgb(255, 122, 122)";
                     first.setAttribute("draggable", "false");
-                    var dragText = FormatChoiceResponse(document.getElementById("drag" + dropID).innerText);
-                    var dropText = (img == null) ? drop.childNodes[0].nodeValue.toString() : document.getElementById(dropImgID).src.replace(/^.*[\\\/]/, '');
-                    correctAnswers.push(FormatChoiceResponse(dropText + ":" + dragText));
-                }
-            }
-            var result = "correct";
-            for (var i = 0; i < selectedAnswers.length; i++) {
-                if (selectedAnswers[i] !== correctAnswers[i]) {
-                    result = "wrong";
                 }
             }
             // Get the initial and current states of the dragzones
@@ -387,9 +294,6 @@ function matchingAnswerButtons(initialMatchings) {
 
             this.disabled = true;
             this.nextSibling.disabled = true;
-            if (graded) {
-                questionArray.push(new Question(matchingField.id, "matching", selectedAnswers, correctAnswers, 0, 0, result));
-            }
         }
     }
 }
@@ -407,304 +311,4 @@ function drop(ev) {
     }
     ev.target.appendChild(document.getElementById(data));
     ev.target.disabled = true;
-}
-/* ************************
-        SCORM FUNCTIONS
-*************************** */
-function scormMC() {
-    var weight = 0; var earned = 0;
-
-    const questions = document.getElementsByClassName("survey");
-    for (let question of questions) {
-        question.id = question_num.toString();
-        question_num++;
-        weight = Number(question.parentElement.getAttribute('data-points'));
-        let result = "wrong";
-        const allAnswers = question.getElementsByClassName("answer");
-        var selectedAnswer = null; var correctAnswer;
-
-        // get correct and selected answers
-        for (let answer of allAnswers) {
-            answer.parentElement.style.pointerEvents = "none";
-            let answerText = FormatChoiceResponse(answer.querySelector('p').innerHTML);
-            if (answer.parentElement.classList.contains("selected")) {              // if selected
-                selectedAnswer = answerText;
-                if (answer.classList.contains("right")) {                           // and correct
-                    correctAnswer = answerText;
-                    answer.parentElement.style.backgroundColor = "rgb(151, 255, 122)";
-                } else {                                                            // and incorrect
-                    answer.parentElement.style.backgroundColor = "rgb(250, 121, 121)";
-                }
-            } else {                                                                // if not selected
-                if (answer.classList.contains("right")) {                           // and correct
-                    correctAnswer = answerText;
-                    answer.parentElement.style.backgroundColor = "rgb(151, 255, 122)";
-                }
-            }
-        }
-        if (selectedAnswer) {
-            if (selectedAnswer == correctAnswer) {
-                result = "correct";
-                earned = weight;
-            }
-        } else {
-            selectedAnswer = "no answer given";
-        }
-
-        totalEarned += earned;
-        totalPossible += weight;
-        questionArray.push(new Question(question.id, "choice", selectedAnswer, correctAnswer, weight, earned, result));
-        // console.log("pushing question " + question.id + ", choice, weight: " + weight + ", earned: " + earned + ", result: " + result);
-        // console.log(" selected: " + selectedAnswer.toString());
-        // console.log(" correct: " + correctAnswer.toString());
-    }
-}
-function scormBlanktext() {
-    var weight = 0;
-    var result;
-    var questions = document.getElementsByClassName("blankText");
-    for (let question of questions) {
-        // get selected/corrected for blanks
-        var inputs = question.getElementsByTagName('input');
-        var selects = question.getElementsByTagName('select');
-        var totalPoints = Number(question.parentElement.getAttribute('data-points'));
-        totalPossible += totalPoints;
-        var weight = totalPoints / (inputs.length + selects.length);
-        for (let input of inputs) {
-            var earned = 0;
-            input.id = question_num.toString();
-            question_num++;
-            result = null;
-            input.disabled = true;
-            let correctAnswer = input.getAttribute("answer").toLowerCase().trim();
-            let selectedAnswer = input.value.toLowerCase().trim();
-            if (selectedAnswer) {
-                if (selectedAnswer == correctAnswer) {
-                    input.style.backgroundColor = "rgb(151, 255, 122)";
-                    earned = weight;
-                    totalEarned += earned;
-                    result = "correct";
-                } else {
-                    input.style.backgroundColor = "rgb(250, 121, 121)";
-                    result = "wrong";
-                }
-            } else {
-                selectedAnswer = "no answer given";
-                input.style.backgroundColor = "rgb(250, 121, 121)";
-                result = "wrong";
-            }
-            questionArray.push(new Question(input.id, "fill-in", selectedAnswer, correctAnswer, weight, earned, result));
-            // console.log("pushing question " + input.id + ", blank fill in, weight: " + weight + ", earned: " + earned + ", result: " + result);
-            // console.log(" selected: " + selectedAnswer.toString());
-            // console.log(" correct: " + correctAnswer.toString());
-        }
-
-        // get selected/corrected for selects
-        for (let select of selects) {
-            var earned = 0;
-            select.id = question_num.toString();
-            question_num++;
-            result = null;
-            select.disabled = true;
-            let correctAnswer = "";
-            for (let o of select.options) {
-                if (o.getAttribute("answer") == "true") {
-                    correctAnswer = o.value;
-                }
-            }
-            let selectedAnswer = select.options[select.selectedIndex].value;
-            if (selectedAnswer) {
-                if (selectedAnswer == correctAnswer) {
-                    select.style.backgroundColor = "rgb(151, 255, 122)";
-                    earned = weight;
-                    totalEarned += earned;
-                    result = "correct";
-                } else {
-                    select.style.backgroundColor = "rgb(250, 121, 121)";
-                    result = "wrong";
-                }
-            } else {
-                selectedAnswer = "no answer given";
-                result = "wrong";
-                select.style.backgroundColor = "rgb(250, 121, 121)";
-            }
-            questionArray.push(new Question(select.id, "choice", selectedAnswer, correctAnswer, weight, earned, result));
-            // console.log("pushing question " + select.id + ", blank choice, weight: " + weight + ", earned: " + earned + ", result: " + result);
-            // console.log(" selected: " + selectedAnswer.toString());
-            // console.log(" correct: " + correctAnswer.toString());
-        }
-    }
-}
-function scormFreetext() {
-    var weight = 0;
-    var questions = document.getElementsByClassName("freetextQuestion");
-    for (let question of questions) {
-        var totalWeight = Number(question.parentElement.getAttribute('data-points'));
-        totalPossible += totalWeight;
-
-        var inputs = question.getElementsByTagName('input');
-        var weight = totalWeight / inputs.length;
-        for (let input of inputs) {
-            var earned = 0;
-            input.id = question_num.toString();
-            question_num++;
-            var result = null;
-            input.disabled = true;
-            let correctAnswer = input.getAttribute("answer").toLowerCase().trim();
-            let selectedAnswer = input.value.toLowerCase().trim();
-            if (selectedAnswer) {
-                if (selectedAnswer == correctAnswer) {
-                    input.style.backgroundColor = "rgb(151, 255, 122)";
-                    earned = weight;
-                    totalEarned += earned;
-                    result = "correct";
-                } else {
-                    input.style.backgroundColor = "rgb(250, 121, 121)";
-                    result = "wrong";
-                }
-            } else {
-                selectedAnswer = "no answer given";
-                input.style.backgroundColor = "rgb(250, 121, 121)";
-                result = "wrong";
-            }
-            questionArray.push(new Question(input.id, "fill-in", selectedAnswer, correctAnswer, weight, earned, result));
-            // console.log("pushing question " + input.id + ", freetext, weight: " + weight + ", earned: " + earned + ", result: " + result);
-            // console.log(" selected: " + selectedAnswer.toString());
-            // console.log(" correct: " + correctAnswer.toString());
-        }
-    }
-}
-function scormMatching() {
-    const questions = document.getElementsByClassName("matching");
-
-    for (let question of questions) {
-        question.id = question_num.toString();
-        question_num++;
-        var selectedAnswers = []; var correctAnswers = [];
-        let earned = 0;
-        var weight = Number(question.parentElement.getAttribute('data-points'));
-        totalPossible += weight;
-        var dropzones = question.getElementsByClassName("dropzone");
-        question.querySelector(".retryButton").disabled = true;
-
-        // Correct match pairs
-        for (let drop of dropzones) {
-            var first = drop.getElementsByClassName("draggable")[0];
-            if (first) {
-                selectedAnswers.push(getAns(drop));
-                var dropID = drop.id.replace("drop", "");
-                var img = drop.querySelector('img');
-                var dropImgID = "dropImg" + dropID;
-
-                if (first.id.replace("drag", "") == dropID) {                       // if correct, push to correctAnswers
-                    drop.style.backgroundColor = "rgb(151, 255, 122)";
-                    first.setAttribute("draggable", "false");
-                    correctAnswers.push(getAns(drop));
-                } else {                                                            // if incorrect, get correct answers to push
-                    drop.style.backgroundColor = "rgb(255, 122, 122)";
-                    first.setAttribute("draggable", "false");
-                    var dragText = FormatChoiceResponse(document.getElementById("drag" + dropID).innerText);
-                    var dropText = (img == null) ? drop.childNodes[0].nodeValue.toString() : document.getElementById(dropImgID).src.replace(/^.*[\\\/]/, '');
-                    correctAnswers.push(FormatChoiceResponse(dropText + ":" + dragText));
-                }
-            } else {
-                selectedAnswers.push("no answer given");
-            }
-        }
-        var result = "correct";
-        for (var i = 0; i < selectedAnswers.length; i++) {                  // check if all matches are correct
-            if (selectedAnswers[i] !== correctAnswers[i]) {
-                result = "wrong";
-            }
-        }
-        if (result == "correct") {
-            earned = weight;
-            totalEarned += earned;
-        }
-        questionArray.push(new Question(question.id, "matching", selectedAnswers, correctAnswers, weight, earned, result));
-        // console.log("pushing question " + question.id + ", matching, weight: " + weight + ", earned: " + earned + ", result: " + result);
-        // console.log(" selected: " + JSON.stringify(selectedAnswers));
-        // console.log(" correct: " + JSON.stringify(correctAnswers));
-    }
-}
-function gradeQuiz() {
-    scormMC();
-    scormBlanktext();
-    scormFreetext();
-    scormMatching();
-
-    document.getElementById("submitButton").style.pointerEvents = "none";
-    let submitMessage = document.createElement('p');
-    submitMessage.style.color = "#009933";
-    submitMessage.innerHTML = "Your answers have been submitted.";
-    document.getElementById("submitSlide").appendChild(submitMessage);
-
-    RecordTest();
-}
-function RecordTest() {
-    for (let question of questionArray) {
-        var nextIndex = ScormProcessGetValue("cmi.interactions._count");
-        ScormProcessSetValue("cmi.interactions." + nextIndex + ".id", question.id);
-        ScormProcessSetValue("cmi.interactions." + nextIndex + ".type", question.type);
-        ScormProcessSetValue("cmi.interactions." + nextIndex + ".student_response", question.selectedAnswers);
-        ScormProcessSetValue("cmi.interactions." + nextIndex + ".correct_responses.0.pattern", question.correctAnswers);
-        ScormProcessSetValue("cmi.interactions." + nextIndex + ".result", question.result);
-        // console.log("cmi.interactions." + nextIndex + ".id: " + question.id);
-        // console.log("cmi.interactions." + nextIndex + ".type: " + question.type);
-        // console.log("cmi.interactions." + nextIndex + ".student_response: " + JSON.stringify(question.selectedAnswers));
-        // console.log("cmi.interactions." + nextIndex + ".correct_responses.0.pattern: " + JSON.stringify(question.correctAnswers));
-        // console.log("cmi.interactions." + nextIndex + ".result: " + question.result);
-        if (graded) {
-            ScormProcessSetValue("cmi.interactions." + nextIndex + ".weighting", question.weight);
-            // console.log("cmi.interactions." + nextIndex + ".weighting: " + question.weight);
-        }
-    }
-    if (graded) {
-        let score = Math.round((totalEarned / totalPossible) * 100);
-        ScormProcessSetValue("cmi.core.score.raw", score);
-        ScormProcessSetValue("cmi.core.score.min", "0");
-        ScormProcessSetValue("cmi.core.score.max", "100");
-        // console.log(" score:" + score);
-    }
-}
-function ScormProcessGetValue(element) {
-    var result;
-
-    if (initialized == false || finishCalled == true) { return; }
-
-    result = API.LMSGetValue(element);
-
-    if (result == "") {
-
-        var errorNumber = API.LMSGetLastError();
-
-        if (errorNumber != "0") {
-            var errorString = API.LMSGetErrorString(errorNumber);
-            var diagnostic = API.LMSGetDiagnostic(errorNumber);
-
-            var errorDescription = "Number: " + errorNumber + "\nDescription: " + errorString + "\nDiagnostic: " + diagnostic;
-
-            alert("Error - Could not retrieve a value from the LMS.\n\n" + errorDescription);
-            return "";
-        }
-    }
-    return result;
-}
-function ScormProcessSetValue(element, value) {
-    var result;
-
-    if (initialized == false || finishCalled == true) { return; }
-
-    result = API.LMSSetValue(element, value);
-
-    if (result == "false") {
-        var errorNumber = API.LMSGetLastError();
-        var errorString = API.LMSGetErrorString(errorNumber);
-        var diagnostic = API.LMSGetDiagnostic(errorNumber);
-
-        var errorDescription = "Number: " + errorNumber + "\nDescription: " + errorString + "\nDiagnostic: " + diagnostic;
-
-        alert("Error - Could not store a value in the LMS.\n\nYour results may not be recorded.\n\n" + errorDescription);
-        return;
-    }
 }

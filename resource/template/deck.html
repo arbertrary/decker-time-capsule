@@ -106,7 +106,7 @@ $for(header-includes)$
 $endfor$
 </head>
 $if(scorm)$
-<body oncontextmenu="return false;" onload="doStart();" onbeforeunload="doUnload();">
+<body oncontextmenu="return false;" onload="doStart();">
 $else$
 <body>
 $endif$
@@ -114,7 +114,11 @@ $for(include-before)$
 $include-before$
 $endfor$
   <div class="reveal">
-    <div class="slides" id="slideContent" graded="$graded$">
+    $if(graded)$
+      <div class="slides" id="slideContent" data-graded="$graded$">
+    $else$
+      <div class="slides" id="slideContent" data-graded="false">
+    $endif$
 $if(title)$
 <section id="$idprefix$title-slide">
   <h1 class="title">$title$</h1>
