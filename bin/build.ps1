@@ -10,17 +10,25 @@ Param(
     [switch] $preparepackage,
     [switch] $local
 )
+
+$deckerdir = Split-Path $PSScriptRoot -Parent
+
 Write-Output "Building Windows Decker"
 if (-Not $skiptemplates) {
     Write-Output "Copying resources to resource directory is not available at the moment. See the Makefile for assistance."
 }
+
+Write-Output "Cleaning before new build"
+& stack clean
+Remove-Item "$deckerdir\resource\support\vendor" -Recurse -Force
+Remove-Item "$deckerdir\public" -Recurse -Force
+
 
 Write-Output "Building standalone binary"
 & git submodule update --init
 & .\third-party\vendor.ps1
 
 Set-Location (Split-Path $PSScriptRoot -Parent)
-& stack clean
 & stack build -j4
 
 
@@ -51,4 +59,8 @@ if ($local) {
     $version = $version -replace "\s+", " "
     $version = ($version -split " ")[1]
     Write-Output $version > "$deckerpath\version.txt"
+    $docs = [Environment]::GetFolderPath("MyDocuments")
+
+    Write-Warning "To call decker from anywhere on the PowerShell command line create a file $docs\WindowsPowerShell\Profile.ps1, add the following line and restart your PowerShell session!"
+    Write-Output '$Env:Path += ";${Env:ProgramFiles(x86)}\Decker\bin"'
 }
