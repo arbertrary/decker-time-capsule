@@ -11,24 +11,38 @@ Param(
     [switch] $local
 )
 
+
+<# Check if running as Administrator #>
+$currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+$admin = $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+
+if (-Not $admin -And $local) {
+    Write-Error "You are not running as admin but using the -local parameter. Decker will not be copied to ${Env:ProgramFiles(x86)}"
+}
+
 $deckerdir = Split-Path $PSScriptRoot -Parent
 
-Write-Output "Building Windows Decker"
+
+Write-Host "Building Windows Decker" -ForegroundColor Green
 if (-Not $skiptemplates) {
     Write-Output "Copying resources to resource directory is not available at the moment. See the Makefile for assistance."
 }
 
-Write-Output "Cleaning before new build"
+<# Cleanup of old files #> 
+Write-Host "Cleaning before new build" -ForegroundColor Green
 & stack clean
 Remove-Item "$deckerdir\resource\support\vendor" -Recurse -Force
 Remove-Item "$deckerdir\public" -Recurse -Force
 
 
-Write-Output "Building standalone binary"
+Write-Host "Starting build of standalone binary" -ForegroundColor Green
 & git submodule update --init
 & .\third-party\vendor.ps1
 
+# Return to the decker root directory
 Set-Location (Split-Path $PSScriptRoot -Parent)
+
+Write-Host "Compiling the Haskell source code" -ForegroundColor Green
 & stack build -j4
 
 
@@ -44,12 +58,14 @@ if ($preparepackage) {
 }
 
 # If it's a local install, copy the program Decker to C:\ProgramFiles (x86)\Decker
-# C:\ProgramFiles (x86)\bin needs to be on PATH to execute decker from anywhere
+# C:\ProgramFiles (x86)\Decker\bin needs to be on PATH to execute decker from anywhere
 # needs Admin Rights
 if ($local) {
     $exepath = (Join-Path ($(stack path | Select-String -Pattern "local-install-root") -split " ")[1] "bin\decker.exe")
 
     $deckerpath = "${Env:ProgramFiles(x86)}\Decker"
+    Write-Host "Copying the decker executable to $deckerpath\bin" -ForegroundColor Green
+
     
     New-Item -Path "$deckerpath\bin" -Force -ItemType "directory"
 
@@ -61,6 +77,6 @@ if ($local) {
     Write-Output $version > "$deckerpath\version.txt"
     $docs = [Environment]::GetFolderPath("MyDocuments")
 
-    Write-Warning "To call decker from anywhere on the PowerShell command line create a file $docs\WindowsPowerShell\Profile.ps1, add the following line and restart your PowerShell session!"
-    Write-Output '$Env:Path += ";${Env:ProgramFiles(x86)}\Decker\bin"'
+    Write-Host "To call decker from anywhere on the PowerShell command line create a file $docs\WindowsPowerShell\Profile.ps1, add the following line and restart your PowerShell session!" -ForegroundColor Green
+    Write-Host '$Env:Path += ";${Env:ProgramFiles(x86)}\Decker\bin"' -ForegroundColor Green
 }
