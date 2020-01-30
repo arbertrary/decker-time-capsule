@@ -20,7 +20,7 @@ function multipleChoice() {
             answer.addEventListener("click", function () {
                 if (!this.classList.contains("selected")) {
                     this.classList.add("selected");
-                    this.style.border = "thick solid black";
+                    this.style.border = "solid black";
                     this.style.backgroundColor = "#dcdcdc";
                 } else {
                     this.classList.remove("selected");
@@ -79,27 +79,42 @@ function blanktextButtons() {
                 let selectedAnswer = input.value.toLowerCase().trim();
                 if (selectedAnswer) {
                     input.disabled = true;
-                    selectedAnswer == correctAnswer ? input.style.backgroundColor = "rgb(151, 255, 122)" : input.style.backgroundColor = "rgb(250, 121, 121)";
+                    if (selectedAnswer == correctAnswer) {
+                        input.style.backgroundColor = "rgb(151, 255, 122)";
+                        input.setAttribute("size", input.value.length);
+                    } else {
+                        input.style.backgroundColor = "rgb(255, 122, 122)";
+                        input.value += " (" + input.getAttribute("answer") + ")";
+                        input.setAttribute("size", input.value.length);
+                    }
                 } else {
                     alert("Please complete all questions.");
                     return false;
                 }
             }
             for (let select of selects) {
-                let correctAnswer = "";
+                var correctAnswer;
                 for (let o of select.options) {
                     if (o.getAttribute("answer") == "true") {
-                        correctAnswer = o.value;
+                        correctAnswer = o;
                     }
                 }
-                let selectedAnswer = select.options[select.selectedIndex].value;
-                if (selectedAnswer) {
-                    select.disabled = true;
-                    selectedAnswer == correctAnswer ? select.style.backgroundColor = "rgb(151, 255, 122)" : select.style.backgroundColor = "rgb(250, 121, 121)";
-                } else {
-                    alert("Please complete all questions.");
-                    return false;
+                var selectedAnswer = select.options[select.selectedIndex];
+            }
+
+            if (selectedAnswer) {
+                for (let s of selects) {
+                    if (s == correctAnswer) {
+                        s.style.backgroundColor = "rgb(151, 255, 122)";
+                        s.textContent += " ✓";
+                    } else {
+                        s.style.backgroundColor = "rgb(250, 121, 121)";
+                        s.textContent += " ✗";
+                    }
                 }
+            } else {
+                alert("Please complete all questions.");
+                return false;
             }
         }
     }

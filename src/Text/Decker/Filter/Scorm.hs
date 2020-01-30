@@ -26,7 +26,7 @@ import Data.Yaml (YamlException(YamlException))
 import Development.Shake hiding (doesDirectoryExist)
 import qualified System.Directory as Dir
 import System.FilePath
-import Text.Decker.Internal.Meta (getMetaString, readMetaData)
+import Text.Decker.Internal.Meta (getMetaInt, getMetaString, readMetaData)
 import Text.Pandoc
 import Text.XML.Unresolved (def, renderLBS)
 
@@ -153,18 +153,44 @@ addInstructions :: Pandoc -> Meta -> Pandoc
 addInstructions pandoc@(Pandoc meta blocks) metadata =
   case getMetaString "title" meta of
     Just "Generated Index" -> pandoc
-    _ -> Pandoc meta (blocks ++ submitSlide)
+    _ -> Pandoc meta (instructionSlide ++ pointsSlide ++ blocks)
   where
-    submitSlide =
-      [ Header 1 ("submitSlide", [], []) [Str "Thank you!"]
-      , Para [submitText]
-      , RawBlock "html" comments
-      , RawBlock "html" button
+    instructionSlide =
+      [ Header 1 ("instructionsSlide", [], []) [Str "Instructions"]
+      , Para [Str read]
+      , BulletList
+          [ [Para [Str understand]]
+          , [Para [Str mc]]
+          , [Para (Str points : pointSpan)]
+          ]
       ]
-    submitText =
-      Str
-        "Please enter any comments and then click the button below to complete the course."
-    comments =
-      "<textarea id=\"studentComments\" rows=\"8\" cols=\"50\"></textarea>"
-    button =
-      "<button class=\"submitButton\" type=\"button\" onclick=\"submitScorm()\">Complete</button>"
+    read =
+      "Carefully read and understand the following directions before you start."
+    understand =
+      "Be sure to read the exercises carefully. First understand, then solve!"
+    mc = "Multiple choice questions may have several correct answers."
+    points = "The maximum number of points to achieve is "
+    pointSpan =
+      [ RawInline
+          "html"
+          "<span id =\"maxPoints\" style=\"font-weight:bold;\"></span>."
+      ]
+    pointsSlide =
+      [ Header 1 ("pointsSlide", [], []) [Str "Points Calculation"]
+      , Para
+          (Str pointsCalc : Strong [Emph [Str " c/a * max"]] : [Str " where:"])
+      , BulletList
+          [ [Para (Emph [Str "max "] : [Str max])]
+          , [Para (Emph [Str "a "] : [Str a])]
+          , [Para (Emph [Str "c "] : [Str c])]
+          ]
+      , Para [Str select]
+      ]
+    pointsCalc = "The points per exercise are calculated as follows:"
+    max = "is the maximum number of points for that exercise."
+    a =
+      "is the overall number of possible alternative answers provided for that exercise."
+    c =
+      "is the number of correct answers given minus the number of incorrect answers given. Correct answers are all answers which are selected and correct and those left unselected and not correct."
+    select =
+      "Selecting none or all boxes of an exercise will result in a score of 0 points for that exercise."
