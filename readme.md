@@ -16,11 +16,25 @@ chmod a+x decker
 
 ## Installation from source
 
-1.  Install [stack](https://docs.haskellstack.org/en/stable/README/).
+1.  Install [stack](https://docs.haskellstack.org/en/stable/README/) and [Node.js](https://www.npmjs.com/get-npm) (for `npm`)
 2.  Clone this repo.
 3.  `cd decker`
 4.  `git submodule update --init --recursive`
 5.  `make install`
+
+## Installation from source on Windows
+
+Instead of a `makefile` we use a PowerShell script on Windows to install decker from source
+
+1. `cd decker`
+2. `.\bin\build.ps1`
+
+If you want to copy `decker` to `C:\Program Files (x86)` you can call `.\bin\build.ps1 -local`. This needs a PowerShell session with administrator rights.
+
+To then call decker from anywhere on the PowerShell command line create a file `C:\Users\username\Documents\WindowsPowerShell\Profile.ps1`, add the following line and restart your PowerShell session!
+
+```$Env:Path += ";${Env:ProgramFiles(x86)}\Decker\bin"```
+
 
 ## Development
 
@@ -53,7 +67,7 @@ Decker uses a few external tools that need to be installed on the system:
 -   [*pdf2svg*](https://github.com/dawbarton/pdf2svg) to generate SVG files from
     PDF documents
 -   *libbzip2-dev*
--   [*NodeJS*](https://nodejs.org/) as a prerequisite for Yarn
+-   [*NodeJS*](https://nodejs.org/) to install JavaScript dependencies
 -   [*coreutils*](https://www.gnu.org/software/coreutils/) the GNU coreutils
 
 ### Installation of external tools on macOS
