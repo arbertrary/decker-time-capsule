@@ -46,7 +46,7 @@ renderQuizzes pandoc = do
     Just True ->
       case getMetaBool "graded" meta of
         Just True -> return $ addInstructions scormDecks meta
-        _ -> return $ addInstructions decks meta
+        _ -> return $ decks
     _ -> return decks
 
 -- A multiple choice question is a bullet list in the style of a task list.

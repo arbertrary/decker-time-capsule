@@ -75,47 +75,46 @@ function blanktextButtons() {
             var selects = blanktext.getElementsByClassName("blankSelect");
             var inputs = blanktext.getElementsByClassName("blankInput");
             for (let input of inputs) {
-                let correctAnswer = input.getAttribute("answer").toLowerCase().trim();
-                let selectedAnswer = input.value.toLowerCase().trim();
-                if (selectedAnswer) {
-                    input.disabled = true;
-                    if (selectedAnswer == correctAnswer) {
-                        input.style.backgroundColor = "rgb(151, 255, 122)";
-                        input.setAttribute("size", input.value.length);
-                    } else {
-                        input.style.backgroundColor = "rgb(255, 122, 122)";
-                        input.value += " (" + input.getAttribute("answer") + ")";
-                        input.setAttribute("size", input.value.length);
+                var correctInput = input.getAttribute("answer").toLowerCase().trim();
+                try { var selectedInput = input.value.toLowerCase().trim(); }
+                catch (e) {
+                    if (e instanceof ReferenceError || selectedInput == "") {
+                        alert("Please complete all questions.");
+                        this.disabled = false;
+                        return false;
                     }
+                }
+                input.disabled = true;
+                if (selectedInput == correctInput) {
+                    input.style.backgroundColor = "rgb(151, 255, 122)";
+                    input.setAttribute("size", input.value.length);
                 } else {
-                    alert("Please complete all questions.");
-                    return false;
+                    input.style.backgroundColor = "rgb(255, 122, 122)";
+                    input.value += " (" + input.getAttribute("answer") + ")";
+                    input.setAttribute("size", input.value.length);
                 }
             }
             for (let select of selects) {
-                var correctAnswer;
+                var correctSelect = null;
+                try { var selectedSelect = select.options[select.selectedIndex]; }
+                catch (e) {
+                    if (e instanceof ReferenceError || selectedSelect == " " || selectedSelect == "") {
+                        alert("Please complete all questions.");
+                        this.disabled = false;
+                        return false;
+                    }
+                }
                 for (let o of select.options) {
                     if (o.getAttribute("answer") == "true") {
-                        correctAnswer = o;
+                        correctSelect = o;
                     }
                 }
-                var selectedAnswer = select.options[select.selectedIndex];
-            }
-
-            if (selectedAnswer) {
-                for (let s of selects) {
-                    if (s == correctAnswer) {
-                        s.style.backgroundColor = "rgb(151, 255, 122)";
-                        s.textContent += " ✓";
-                    } else {
-                        s.style.backgroundColor = "rgb(250, 121, 121)";
-                        s.textContent += " ✗";
-                    }
+                correctSelect == selectedSelect ? select.style.backgroundColor = "rgb(151, 255, 122)" : select.style.backgroundColor = "rgb(250, 121, 121)";
+                for (let o of select.options) {
+                    o == correctSelect ? o.style.backgroundColor = "rgb(151, 255, 122)" : o.style.backgroundColor = "rgb(250, 121, 121)";
                 }
-            } else {
-                alert("Please complete all questions.");
-                return false;
             }
+            this.disabled = true;
         }
     }
 }

@@ -199,6 +199,12 @@ function doStart() {
     /* save the current location as the bookmark; */
     ScormProcessSetValue("cmi.core.lesson_location", [h, v, f].join());
     Reveal.slide(h, v, f);
+
+    var slides = document.querySelector('.slides');
+    var graded = slides.getAttribute('data-graded');
+    if (graded == "true") {
+        slides.removeAttribute("onbeforeunload");
+    }
 }
 function doUnload() {
     console.log("Scorm has ended.");
@@ -222,6 +228,7 @@ function doUnload() {
 
     /* record interaction data */
     submitScorm();
+
     /* course is complete when last slide is reached
     prompt the user if exit before course complete */
     reachedEnd = Reveal.isLastSlide();
@@ -318,19 +325,22 @@ function FormatChoiceResponse(value) {
     return newValue;
 }
 function scormMC() {
+    var graded = document.querySelector('.slides').getAttribute('data-graded');
     var surveys = document.getElementsByClassName("survey");
     for (let survey of surveys) {
         let totalWeight = Number(survey.parentElement.getAttribute('data-points')) || 0;
-        // totalPossible += weight;
         let allAnswers = survey.getElementsByTagName("li");
-        var selectedAnswers = []; var correctAnswers = [];
+        var selectedAnswers = []; var correctAnswers = []; var correctResponses = []; var correct = 0;
         for (var answer of allAnswers) {
             if (answer.classList.contains("selected")) {
                 selectedAnswers.push(FormatChoiceResponse(answer.querySelector('p').innerHTML));
             } else { continue; }
         }
+        var earned;
         if (selectedAnswers.length == 0) {
-            continue;
+            if (graded) {
+                earned = 0;
+            } else { continue; }
         }
         for (let answer of allAnswers) {
             answer.style.pointerEvents = "none";
@@ -341,28 +351,30 @@ function scormMC() {
             var answer_div = answer.querySelector(".answer");
             if (answer_div.classList.contains("right")) {
                 correctAnswers.push(FormatChoiceResponse(answer.querySelector('p').innerHTML));
-                answer.style.backgroundColor = "rgb(151, 255, 122)";
+                if (answer.classList.contains("selected")) {
+                    correctResponses.push(answer);
+                    answer.style.backgroundColor = "rgb(151, 255, 122)";
+                    correct++;
+                } else { answer.style.backgroundColor = "rgb(250, 121, 121)"; }
             } else {
-                answer.style.backgroundColor = "rgb(250, 121, 121)";
-            }
-        }
-        var right = 0; var earned = 0;
-        let total = correctAnswers.length;
-        let weight = totalWeight / total;
-        if (selectedAnswers.length == correctAnswers.length) {
-            for (let i = 0; i < selectedAnswers.length; i++) {
-                if (correctAnswers.includes(selectedAnswers[i])) {
-                    totalEarned += weight;
-                    earned += weight;
-                    right++;
+                if (!answer.classList.contains("selected")) {
+                    answer.style.backgroundColor = "rgb(250, 121, 121)";
+                } else {
+                    correctResponses.push(answer);
+                    answer.style.backgroundColor = "rgb(151, 255, 122)";
+                    correct++;
                 }
             }
         }
-        var result = right.toString() + "/" + total.toString();
+
+        earned = (selectedAnswers.length == allAnswers.length) ? 0 : Math.round((correctResponses.length / allAnswers.length) * totalWeight);
+        totalEarned += earned;
+        var result = correct.toString() + "/" + allAnswers.length.toString();
         questionArray.push(new Question("choice", selectedAnswers, correctAnswers, earned, result));
-        // console.log("pushing new choice, weight: " + weight + ", result: " + result);
-        // console.log(" selected: " + selectedAnswer.toString());
-        // console.log(" correct: " + correctAnswer.toString());
+        // console.log("pushing choice, earned: " + earned + ", result: " + result);
+        // console.log(" selected: " + selectedAnswers);
+        // console.log(" correctAnswers: " + correctAnswers);
+        // console.log(" correctResponses: " + JSON.stringify(correctResponses));
     }
 }
 function scormBlank() {
@@ -371,7 +383,6 @@ function scormBlank() {
         var inputs = text.getElementsByClassName("blankInput");
         var selects = text.getElementsByClassName("blankSelect");
         var totalPoints = Number(text.closest("section").getAttribute('data-points'));
-        // totalPossible += totalPoints;
         var weight = (totalPoints / (inputs.length + selects.length));
         for (let input of inputs) {
             let result = null;
@@ -425,7 +436,6 @@ function scormFree() {
     for (let input of inputs) {
         var result = null;
         var totalWeight = Number(input.closest('section').getAttribute('data-points'));
-        // totalPossible += totalWeight;
         var weight = totalWeight / inputs.length;
         var correctAnswer = input.getAttribute("answer").toLowerCase().trim();
         var selectedAnswer = input.value.toLowerCase().trim();
@@ -528,7 +538,7 @@ function submitScorm() {
     scormFree();
     scormMatch();
 
-    var graded = document.getElementById('slideContent').getAttribute('data-graded');
+    var graded = document.querySelector('.slides').getAttribute('data-graded');
     for (let question of questionArray) {
         var nextIndex = ScormProcessGetValue("cmi.interactions._count");
         ScormProcessSetValue("cmi.interactions." + nextIndex + ".id", nextIndex);
@@ -536,19 +546,24 @@ function submitScorm() {
         ScormProcessSetValue("cmi.interactions." + nextIndex + ".result", question.result);
         ScormProcessSetValue("cmi.interactions." + nextIndex + ".student_response", question.selectedAnswer);
         ScormProcessSetValue("cmi.interactions." + nextIndex + ".correct_responses.0.pattern", question.correctAnswer);
-        console.log("scorm " + nextIndex + ", " + question.type + ", " + question.result);
+        console.log("to scorm " + nextIndex + ", " + question.type + ", " + question.result);
         console.log(" selected: " + question.selectedAnswer);
         console.log(" correct: " + question.correctAnswer);
-
-        if (graded == "true") {
+        if (graded) {
             ScormProcessSetValue("cmi.interactions." + nextIndex + ".weighting", question.weight);
             console.log(" weight: " + question.weight);
         }
     }
-    if (graded == "true") {
+    if (graded) {
         var score = Math.round((totalEarned / totalPossible) * 100);
         ScormProcessSetValue("cmi.core.score.raw", score);
         ScormProcessSetValue("cmi.core.score.min", "0");
         ScormProcessSetValue("cmi.core.score.max", "100");
+        console.log("earned/possible = score " + totalEarned + "/" + totalPossible + " = " + score);
+
+        var submitMessage = document.createElement('p');
+        submitMessage.style.color = "#009933";
+        submitMessage.innerHTML = "Thank you. Your responses have been submitted. You may now close this window.";
+        document.getElementById("submitSlide").appendChild(submitMessage);
     }
 }

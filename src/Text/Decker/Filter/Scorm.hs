@@ -26,7 +26,7 @@ import Data.Yaml (YamlException(YamlException))
 import Development.Shake hiding (doesDirectoryExist)
 import qualified System.Directory as Dir
 import System.FilePath
-import Text.Decker.Internal.Meta (getMetaInt, getMetaString, readMetaData)
+import Text.Decker.Internal.Meta (getMetaString, readMetaData)
 import Text.Pandoc
 import Text.XML.Unresolved (def, renderLBS)
 
@@ -153,7 +153,7 @@ addInstructions :: Pandoc -> Meta -> Pandoc
 addInstructions pandoc@(Pandoc meta blocks) metadata =
   case getMetaString "title" meta of
     Just "Generated Index" -> pandoc
-    _ -> Pandoc meta (instructionSlide ++ pointsSlide ++ blocks)
+    _ -> Pandoc meta (instructionSlide ++ pointsSlide ++ blocks ++ submitSlide)
   where
     instructionSlide =
       [ Header 1 ("instructionsSlide", [], []) [Str "Instructions"]
@@ -194,3 +194,12 @@ addInstructions pandoc@(Pandoc meta blocks) metadata =
       "is the number of correct answers given minus the number of incorrect answers given. Correct answers are all answers which are selected and correct and those left unselected and not correct."
     select =
       "Selecting none or all boxes of an exercise will result in a score of 0 points for that exercise."
+    submitSlide =
+      [ Header 1 ("submitSlide", [], []) [Str "Submit Responses"]
+      , Para [Str text]
+      , RawBlock "html" button
+      ]
+    text =
+      "Click the button below to submit your responses. Be sure that you have completed each exercise."
+    button =
+      "<button id=\"submitButton\" type=\"button\" onclick=\"doUnload()\">Submit All</button>"
