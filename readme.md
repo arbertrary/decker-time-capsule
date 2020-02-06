@@ -31,7 +31,7 @@ Instead of a `makefile` we use a PowerShell script on Windows to install decker 
 
 If you want to copy `decker` to `C:\Program Files (x86)` you can call `.\bin\build.ps1 -local`. This needs a PowerShell session with administrator rights.
 
-To then call decker from anywhere on the PowerShell command line create a file `C:\Users\username\Documents\WindowsPowerShell\Profile.ps1`, add the following line and restart your PowerShell session!
+To then call decker from anywhere on the PowerShell command line create a PowerShell profile file, add the following line, and restart your PowerShell session!
 
 ```$Env:Path += ";${Env:ProgramFiles(x86)}\Decker\bin"```
 

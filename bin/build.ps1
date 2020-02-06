@@ -61,7 +61,7 @@ if ($preparepackage) {
 # C:\ProgramFiles (x86)\Decker\bin needs to be on PATH to execute decker from anywhere
 # needs Admin Rights
 if ($local) {
-    $exepath = (Join-Path ($(stack path | Select-String -Pattern "local-install-root") -split " ")[1] "bin\decker.exe")
+    $exepath = (Join-Path ($(stack path | Select-String -Pattern "local-install-root") -split ": ")[1] "bin\decker.exe")
 
     $deckerpath = "${Env:ProgramFiles(x86)}\Decker"
     Write-Host "Copying the decker executable to $deckerpath\bin" -ForegroundColor Green
@@ -77,6 +77,6 @@ if ($local) {
     Write-Output $version > "$deckerpath\version.txt"
     $docs = [Environment]::GetFolderPath("MyDocuments")
 
-    Write-Host "To call decker from anywhere on the PowerShell command line create a file $docs\WindowsPowerShell\Profile.ps1, add the following line and restart your PowerShell session!" -ForegroundColor Green
+    Write-Host "To then call decker from anywhere on the PowerShell command line create a PowerShell profile file, add the following line, and restart your PowerShell session!" -ForegroundColor Green
     Write-Host '$Env:Path += ";${Env:ProgramFiles(x86)}\Decker\bin"' -ForegroundColor Green
 }
