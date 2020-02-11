@@ -201,8 +201,7 @@ function doStart() {
     Reveal.slide(h, v, f);
 
     var slides = document.querySelector('.slides');
-    var graded = slides.getAttribute('data-graded');
-    if (graded == "true") {
+    if (slides.getAttribute('data-graded') == "true") {
         slides.removeAttribute("onbeforeunload");
     }
 }
@@ -538,7 +537,7 @@ function submitScorm() {
     scormFree();
     scormMatch();
 
-    var graded = document.querySelector('.slides').getAttribute('data-graded');
+    var graded = (document.querySelector('.slides').getAttribute('data-graded') == "true") ? true : false;
     for (let question of questionArray) {
         var nextIndex = ScormProcessGetValue("cmi.interactions._count");
         ScormProcessSetValue("cmi.interactions." + nextIndex + ".id", nextIndex);
