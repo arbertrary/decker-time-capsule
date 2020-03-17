@@ -3,7 +3,7 @@
 	url = https://github.com/twbs/bootstrap.git
 [submodule "third-party/reveal.js"]
 	path = third-party/reveal.js
-	url = https://github.com/hakimel/reveal.js.git
+	url = https://github.com/HCI-Uni-Wuerzburg/reveal.js.git
 [submodule "third-party/jquery"]
 	path = third-party/jquery
 	url = https://github.com/jquery/jquery.git

@@ -13,7 +13,6 @@ else {
 // Fix some decker-specific things after Reveal
 // has been initialized
 function deckerStart() {
-  fixAutoplayWithStart();
   currentDate();
   addSourceCodeLabels();
   prepareTaskLists();
@@ -25,19 +24,6 @@ function prepareTaskLists() {
   for (let cb of document.querySelectorAll('.reveal ul.task-list>li>input[type="checkbox"]')) {
     var li = cb.parentElement;
     li.classList.add(cb.checked ? "task-yes" : "task-no");
-  }
-}
-
-
-function fixAutoplayWithStart() {
-  for (let vid of document.getElementsByTagName("video")) {
-    vid.addEventListener('play', (e) => {
-      const timeRegex = /#t=(\d+)/;
-      const matches = e.target.currentSrc.match(timeRegex);
-      if (matches !== null && matches.length > 0) {
-        e.target.currentTime = matches[1];
-      }
-    });
   }
 }
 
@@ -133,40 +119,40 @@ function prepareCodeHighlighting() {
 
 
 function prepareFullscreenIframes() {
-    for (let iframe of document.querySelectorAll('iframe.decker')) {
-        var parent = iframe.parentElement;
+  for (let iframe of document.querySelectorAll('iframe.decker')) {
+    var parent = iframe.parentElement;
 
-        var div = document.createElement("div");
-        div.classList.add("fs-container");
-        div.style.width  = iframe.style.width;
-        div.style.height = iframe.style.height;
-    
-        var btn = document.createElement("button");
-        btn.classList.add("fs-button");
-        btn.innerHTML = '<i class="fas fa-expand-arrows-alt" style="font-size:20px"></i>';
-        div.btn = btn;
+    var div = document.createElement("div");
+    div.classList.add("fs-container");
+    div.style.width = iframe.style.width;
+    div.style.height = iframe.style.height;
 
-        parent.insertBefore(div, iframe);
-        div.appendChild(iframe);
-        div.appendChild(btn);
+    var btn = document.createElement("button");
+    btn.classList.add("fs-button");
+    btn.innerHTML = '<i class="fas fa-expand-arrows-alt" style="font-size:20px"></i>';
+    div.btn = btn;
 
-        iframe.style.width  = "100%";
-        iframe.style.height = "100%";
+    parent.insertBefore(div, iframe);
+    div.appendChild(iframe);
+    div.appendChild(btn);
 
-        btn.onclick = function() { 
-            var container = this.parentElement;
-            if (document.fullscreenElement == container)
-                document.exitFullscreen();
-            else 
-                container.requestFullscreen();
-        }; 
+    iframe.style.width = "100%";
+    iframe.style.height = "100%";
 
-        div.onfullscreenchange = function() {
-            if (document.fullscreenElement == this)
-                this.btn.innerHTML = '<i class="fas fa-compress-arrows-alt"></i>';
-            else
-                this.btn.innerHTML = '<i class="fas fa-expand-arrows-alt"></i>';
-        };
-    }
+    btn.onclick = function () {
+      var container = this.parentElement;
+      if (document.fullscreenElement == container)
+        document.exitFullscreen();
+      else
+        container.requestFullscreen();
+    };
+
+    div.onfullscreenchange = function () {
+      if (document.fullscreenElement == this)
+        this.btn.innerHTML = '<i class="fas fa-compress-arrows-alt"></i>';
+      else
+        this.btn.innerHTML = '<i class="fas fa-expand-arrows-alt"></i>';
+    };
+  }
 }
 

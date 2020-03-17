@@ -1,5 +1,5 @@
 ---
-history: true
+history: True
 title: 'Image, Audio and Video Handling'
 ---
 
@@ -39,7 +39,7 @@ title: 'Image, Audio and Video Handling'
 
 # Local Video 1
 
-![](movie.mp4){.controls .autoplay}
+![](movie.mp4){.controls}
 
 # Local Video 2
 
@@ -47,15 +47,21 @@ title: 'Image, Audio and Video Handling'
 
 # Local Video 3
 
-![](movie.mp4){.controls .autoplay}
+![](movie.mp4){.controls .autoplay .loop}
 
 # Local Video 4
 
-![](movie.mp4){.controls start="0.2" stop="0.5"}
+![](pacman-perfect-game.mp4){start="20" stop="30"}
 
 # Local Video 5
 
-![](movie.mp4){.controls .autoplay .loop}
+![](pacman-perfect-game.mp4){.controls .autoplay start="20"}
+
+# Local Video 6
+
+![](pacman-perfect-game.mp4){.controls .autoplay start="30" stop="40"}
+
+# ![](pacman-perfect-game.mp4){.controls .autoplay start="40" stop="50"}
 
 # 3 Images in a Row
 
@@ -71,8 +77,7 @@ Caption: Three in a row. With a caption below all three.
 | ![:cinema: :cinema: :smile:](movie.mp4){.controls .loop}
 | ![This has it's own caption.](include/06-metal.png)
 
-Caption: Three somethings in a row. With a caption below all three. The
-second one is a :cinema:.
+Caption: Three somethings in a row. With a caption below all three. The second one is a :cinema:.
 
 # PDF
 
@@ -85,4 +90,3 @@ second one is a :cinema:.
 # Image with incorrect URL
 
 ![A non existing (local) image.](this-does-not-exist.png)
-

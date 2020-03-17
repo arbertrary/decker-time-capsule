@@ -7,10 +7,10 @@
 -- under the `decker` key in the meta data of the resulting document.
 module Text.Decker.Filter.Decker where
 
+import Text.Decker.Filter.Attrib
+import Text.Decker.Filter.Monad
 import Text.Decker.Internal.Meta
 import Text.Decker.Project.Project
-import Text.Decker.Filter.Monad
-import Text.Decker.Filter.Attrib
 
 import Control.Monad.Catch
 import Data.Digest.Pure.MD5
@@ -512,7 +512,11 @@ mediaFragment = do
   return $
     if Text.null start && Text.null stop
       then ""
-      else "t=" <> start <> "," <> stop
+      else if Text.null stop
+             then "t=" <> start
+             else if Text.null start
+                    then "t=0," <> stop
+                    else "t=" <> start <> "," <> stop
 
 videoHtml :: URI -> [Inline] -> Attrib Html
 videoHtml uri caption = do
