@@ -52,7 +52,7 @@ You can also add actual blank texts by providing only one option inside the curl
 : pair with A
 
 {match} Haskell
-: ![](img/haskell.png)
+: ![](img/haskell-logo.png)
 
 ...
 ```
@@ -63,7 +63,7 @@ You can also add actual blank texts by providing only one option inside the curl
 : pair with A
 
 {match} Haskell 
-: ![](img/haskell.png)
+: ![](img/haskell-logo.png)
 
 {match} B
 : drag to B

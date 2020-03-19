@@ -541,6 +541,10 @@ body {
   font-size: 1em;
 }
 
+.reveal .backgrounds .slide-background .inverse {
+  background-color: #000;
+}
+
 .reveal section.white, .reveal section.inverse, .reveal section.has-dark-background {
   color: #fff;
 }
