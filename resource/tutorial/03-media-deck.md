@@ -1,29 +1,27 @@
 ---
+chalkboard: True
+history: True
 title: Decker Media Guide
-history: true
-vertical-slides: true
-chalkboard: true
+vertical-slides: True
 ---
 
 # Images
 
-![](img/haskell-logo.png){width="30%"}
+![](img/haskell.png){width="30%"}
 
-## {.small}
+##  {.small}
 
     ![Image Caption](image-file-location){css-formatting}
 
-    ![](img/haskell-logo.png){width="30%"}
-
+    ![](img/haskell.png){width="30%"}
 
 # Fullscreen Images
 
 Fullscreen images are added to the slide header. Do not give the slide a title.
 
-    # ![](img/haskell-logo.png)
+    # ![](img/haskell.png)
 
-# ![](img/haskell-logo.png) {.sub data-menu-title="Fullscreen Images Example"}
-
+# ![](img/haskell.png) {.sub data-menu-title="Fullscreen Images Example"}
 
 # Videos {.columns}
 
@@ -33,7 +31,7 @@ Fullscreen images are added to the slide header. Do not give the slide a title.
 
 ![Autoplay](movies/jmu-hci-intro.mp4){controls="true" data-autoplay="true" width="450px"}
 
-## {.right}
+##  {.right}
 
 ![Start Time](movies/jmu-hci-intro.mp4){controls="true" start="1" width="450px"}
 
@@ -41,7 +39,7 @@ Fullscreen images are added to the slide header. Do not give the slide a title.
 
 # Video Syntax {.sub}
 
-## {.x-small}
+##  {.x-small}
 
     ![Controls](movies/jmu-hci-intro.mp4){controls="true"}
 
@@ -57,13 +55,13 @@ Fullscreen images are added to the slide header. Do not give the slide a title.
 
     ![](youtube://qEcmwHRG2Mo){width="75%" start="10"} 
 
-# External Videos Syntax {.sub} 
+# External Videos Syntax {.sub}
 
 Include YouTube and Vimeo videos or Twitch channels in presentations. Replace `service` with `youtube`, `vimeo` or `twitch` and add the video id or twitch channel name (replaces `video-id`). The video ID is usually found in the URL.
 
     ![](service://video-id){css-formatting}
 
-## {.example}
+##  {.example}
 
 **YouTube example:** https://www.youtube.com/watchv=<u>qEcmwHRG2Mo</u>\
 **YouTube video ID:** qEcmwHRG2Mo
@@ -74,7 +72,7 @@ Add fullscreen videos to the slide header. Do not include a slide title.
 
     # ![](movies/jmu-hci-intro.mp4){controls="true"}
 
-# ![](movies/jmu-hci-intro.mp4){data-menu-title="Fullscreen Videos Example" controls="true" .sub}
+# ![](movies/jmu-hci-intro.mp4){.sub data-menu-title="Fullscreen Videos Example" controls="true"}
 
 # Audio {.columns}
 
@@ -82,29 +80,29 @@ Add fullscreen videos to the slide header. Do not include a slide title.
 
 ![Controls](audio/blackbird.mp3){controls="true"}
 
-##  { .right .example}
+##  {.right .example}
 
 ![Autoplay](audio/blackbird.mp3){controls="true" data-autoplay="true"}
 
-## {.small .bottom}
+##  {.small .bottom}
 
     ![Controls](audio/blackbird.mp3){controls="true"}
 
     ![Autoplay](audio/blackbird.mp3){controls="true" data-autoplay="true"}
 
-# External Websites 
+# External Websites
 
-Include external websites using the `{.iframe}` tag.  
+Include external websites using the `{.iframe}` tag.
 
-## {style="font-size:24px"} 
+##  {style="font-size:24px"}
 
     ![](https://www.uni-wuerzburg.de/){height="20em" .iframe}
 
 # ![](https://www.uni-wuerzburg.de/){.iframe .sub height="20em" data-menu-title="Fullscreen Videos Example"}
 
-# Embed PDF Documents 
+# Embed PDF Documents
 
-## {style="font-size:24px"}
+##  {style="font-size:24px"}
 
     # ![](http://pandoc.org/MANUAL.pdf)
 
@@ -112,12 +110,12 @@ Include external websites using the `{.iframe}` tag.
 
 # Whiteboard
 
-Use the Whiteboard to dynamically make notes on presentations. 
+Use the Whiteboard to dynamically make notes on presentations.
 
-## {style="font-size:24px"}
+##  {style="font-size:24px"}
 
 | Icon / Key                                                           | Function               |
-| :------------------------------------------------------------------- | :--------------------- |
+|:---------------------------------------------------------------------|:-----------------------|
 | <i class="fas fa-pen"></i>                                           | make notes on slides   |
 | <i class="fas fa-eraser"></i>                                        | use an eraser          |
 | <i class="fas fa-edit"></i>                                          | open the whiteboard    |
@@ -130,7 +128,7 @@ Use the Whiteboard to dynamically make notes on presentations.
 
 Add **`{.notes}`** to a slide header to create notes that appear in the speaker view. The slide is used as the speaker notes for the slide above it. (Press **`s`** to access speaker view.)
 
-## {.small}
+##  {.small}
 
     # Why Gamify? {.notes}
 
@@ -138,7 +136,6 @@ Add **`{.notes}`** to a slide header to create notes that appear in the speaker 
     - Make the non-game experience more rewarding.
     - Motivation has limits. A large leaderboard divide may
       cause the player to abandon the game.
-
 
 # Why Gamify? {.notes}
 
