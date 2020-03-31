@@ -597,16 +597,6 @@ body {
     font-size:   1.5em;
 }
 
-
-/*********************************************
- * MARIO: image sequence, shown one after the other
- *********************************************/
-
-.fragment.sequence:not(.current-fragment) {
-    display: none;
-}
-
-
 /*********************************************
  * MARIO: COMMENT BUBBLES
  *********************************************/
@@ -733,58 +723,6 @@ body {
 /* MARIO: fix menu positioning */
 .reveal .slide-number {
   position: fixed;
-}
-
-
-/*********************************************
- * MARIO: Task lists
- *********************************************/
-
-/* hide checkbox */
-.reveal .task-list li>input[type="checkbox"] {
-    display: none;
-}
-/* hide item bullets */
-.reveal .task-list li {
-    list-style-type: none;
-    margin-left: 0.5em;
-}
-.reveal .task-list li::before {
-    margin-right: 0.25em;
-}
-/* default: check boxes */
-.reveal .task-list li.task-yes::before {
-    content: "\2612";
-}
-.reveal .task-list li.task-no::before {
-    content: "\2610";
-}
-/* class "check-cross" */
-.reveal .check-cross .task-list li.task-yes::before {
-    font-weight: bold;
-    color: green; 
-    content: "✓";
-}
-.reveal .check-cross .task-list li.task-no::before {
-    font-weight: bold;
-    color: red; 
-    content: "✗";
-}
-/* class "plus-minus" */
-.reveal .plus-minus .task-list li.task-yes::before {
-    color: green; 
-    content: "\2295";
-}
-.reveal .plus-minus .task-list li.task-no::before {
-    color: red; 
-    content: "\2296";
-}
-/* class "thumb" */
-.reveal .thumb .task-list li.task-yes::before {
-    content: "👍";
-}
-.reveal .thumb .task-list li.task-no::before {
-    content: "👎";
 }
 
 /*********************************************
