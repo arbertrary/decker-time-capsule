@@ -5,128 +5,171 @@ title: Decker Quiz Overview
 
 # Introduction
 
--   This slide deck shows how to create simple quizzes with different question types for a self-learning scenario.
--   Currently supported:
-    -   "Fill-in-the-blank" questions/Cloze tests
-    -   Matching/pairing questions
-    -   Multiple choice questions
-    -   Freetext questions
+This slide deck shows how to create simple quizzes with different question types for a self-learning scenario.
 
-# Blank Text/Multiple Choice
+Question types:
 
-``` {.markdown}
-{blanktext} Optional Title
-: Decker is a software built using the programming language 
-{Scala|!Haskell|Java|Ruby} and builds upon 
-{LaTeX Beamer|!RevealJS|PowerPoint}.
+- Multiple choice questions
+- Insert choice questions
+- Freetext questions
+- Matching questions
 
-{blanktext}
-: You {can't|!can} create blanktext questions without title
+# Multiple Choice Question
+
+## Which file format does decker use? {.qmc}
+
+- [ ] .docx
+- [ ] .csv
+  - Incorrect. Decker does not use comma separated value files.
+- [ ] .xml
+  - Incorrect.
+- [x] .md
+  - Correct! Decker uses markdown files with the .md extension.
+
+# Multiple Choice Syntax {.sub}
+
+- add {.qmc} to the level 2 header
+- each answer is listed with a hyphen and brackets **- [ ]**
+- an X indicates a correct answer **- [X]**
+- tooltips are indented furthur
+
+# Multiple Choice Example {.sub}
+
+## {.x-small}
+
+```{.markdown}
+## Which file format does decker use? {.qmc}
+
+- [ ] .docx
+    - Incorrect. This is the standard format for Microsoft Word documents.
+- [ ] .csv
+    - Incorrect. Decker does not use comma separated value files.
+- [ ] .xml
+    - Incorrect.
+- [x] .md
+    - Correct! Decker uses markdown files with the .md extension.
 ```
 
-# Blank Text/Multiple Choice
+# Insert Choice Question
 
-{blanktext} Optional Title
-:   Decker is a software built using the programming language {Scala\|!Haskell\|Java\|Ruby} and builds upon {LaTeX Beamer\|!RevealJS\|PowerPoint}.
+## The Residence Palace {.qic}
 
-{blanktext}
-:   You {can't\|!can} create blanktext questions without title
+The Würzburg Residence Palace is nicknamed the
 
-# "Fill-in-the-blank" questions/Cloze tests
+- [ ] “Weisser Saal”
+  - Incorrect. The Weisser Saal or White Hall in Rococo style was the audience chamber and is dominated by the stucco decorations of Antonio Bossi.
+- [x] “Castle above all Castles”
+  - Correct! The Residence Palace is one of Europe’s most renowned Baroque castles and has been registered as a UNESCO World Cultural Heritage Site in 1981.
+- [ ] “The Imperial Hall”
+  - Incorrect. This hall was used to receive visiting dignitaries, including the Emperors-to-be on their voyage to Frankfurt and on the return trip to Vienna.
 
-You can also add actual blank texts by providing only one option inside the curly brackets. Or combine both.
+# Insert Choice Syntax {.sub}
 
-``` {.markdown}
-{blanktext}
-: These tests are called {Cloze} tests and are {!useful|useless}. 
+- add {.qic} to the level 2 header
+- each answer is listed with a hyphen and brackets **- [ ]**
+- an X indicates a correct answer **- [X]**
+- tooltips are indented furthur
+
+# Insert Choice Example {.sub}
+
+## {.x-small}
+
+```{.markdown}
+## The Residence Palace {.qic}
+
+The Würzburg Residence Palace is nicknamed the
+
+- [ ] “Weisser Saal”
+    - Incorrect. The Weisser Saal or White Hall in Rococo style was the audience chamber
+      and is dominated by the stucco decorations of Antonio Bossi.
+- [x] “Castle above all Castles”
+    - Correct! The Residence Palace is one of Europe’s most renowned Baroque castles and
+      has been registered as a UNESCO World Cultural Heritage Site in 1981.
+- [ ] “The Imperial Hall”
+    - Incorrect. This hall was used to receive visiting dignitaries, including the
+      Emperors-to-be on their voyage to Frankfurt and on the return trip to Vienna.
 ```
 
-{blanktext}
-:   These tests are called {Cloze} tests and are {!useful\|useless}.
+# Freetext Question
 
-# Matching Questions Syntax
+## The Residence Palace {.qft}
 
--   This type of questions asks to create pairs by dragging each element from a number of elements to the corresponding area.
--   Currently only supports exact 1:1 pairing.
+In the Würzburg Residence you can find the largest fresco in the world which is 677m² in size. Where is this fresco located?
 
-``` {.markdown}
-{match} A
+- ceiling
+  - Giovanni Battista Tiepolo, summoned specially from Venice for the purpose, decorated the ceiling of the grand staircase vault in 1752/53 with the largest ceiling fresco ever painted.
+- Decke
+- Obergrenze
+
+# Freetext Syntax {.sub}
+
+- add {.qft} to the level 2 header
+- each _correct_ answer is listed with a hyphen **-**
+- tooltips are indented furthur
+
+# Freetext Example {.sub}
+
+## {.x-small}
+
+```
+## The Residence Palace {.qft}
+
+In the Würzburg Residence you can find the largest fresco in the world which is 677m²
+in size. Where is this fresco located?
+
+- ceiling
+  - Giovanni Battista Tiepolo, summoned specially from Venice for the purpose, decorated
+  the ceiling of the grand staircase vault in 1752/53 with the largest ceiling fresco
+  ever painted.
+- Decke
+- Obergrenze
+```
+
+# Matching Question
+
+## Complete the matches {.qmi}
+
+A
 : pair with A
 
-{match} Haskell
+Haskell
 : ![](img/haskell.png)
 
-...
+B
+: drag to B
+
+decker
+: [decker](http://go.uniwue.de/decker)
+
+!
+: $x = {-b \pm \sqrt{b^2-4ac} \over 2a}$
+
+# Matching Syntax {.sub}
+
+- add {.qmi} to the level 2 header
+- list answers under match items
+- preceed each answer with a colon `:`
+- distractor answers are listed with an exclamation point `!`
+
+# Matching Example {.sub}
+
+## {.x-small}
+
+```{.markdown}
+## Question: Match the pair {.qmi}
+
+A
+: pair with A
+
+Haskell
+: ![](img/haskell.png)
+
+B
+: drag to B
+
+decker
+: [decker](http://go.uniwue.de/decker)
+
+!
+: $x = {-b \pm \sqrt{b^2-4ac} \over 2a}$
 ```
-
-# Matching Questions
-
-{match} A
-:   pair with A
-
-{match} Haskell
-:   ![](img/haskell.png)
-
-{match} B
-:   drag to B
-
-{match} decker
-:   [decker](http://go.uniwue.de/decker)
-
-{match} C
-:   $\Leftarrow$ C
-
-# Freetext Questions Syntax
-
--   Freetext questions consist of a bullet list of two elements with specific syntax
--   Two separate questions have to be separated for example by using a level two header
-
-``` {.markdown}
-* {?} Question text
-* {!} Correct solution
-
-## 
-
-* {?} Question 2
-* {!} Answer
-```
-
-# Freetext Questions {layout="columns"}
-
-##  {.left}
-
--   {?} $2*2=~?$
--   {!} 4
-
-## 
-
--   {?} The Answer to the Ultimate Question of Life, the Universe, and Everything is ...?
--   {!} 42
-
-##  {.right}
-
--   {?} Is this a question?
--   {!} yes
-
-## 
-
--   {?} Name the capital of Germany
--   {!} Berlin
-
-# Multiple Choice Questions Syntax
-
-``` {.markdown}
-* { } wrong answer
-* { } another wrong answer
-* {X} correct answer
-* { } wrong answer again
-```
-
-# Multiple Choice Questions
-
-## Question: Which file format does decker use? {.question}
-
--   { } .docx
--   { } .csv
--   { } .xml
--   {X} .md

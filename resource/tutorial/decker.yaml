@@ -7,13 +7,15 @@ hash: true
 help: true
 hideInactiveCursor: true
 hideCursorTime: 2000
+history: true
 keyboard: true
 menu: true
 overview: true
 progress: true
 provisioning: Copy
 rsync-destination: # publishing to a remote location (example)
-    host: git@gitlab2.informatik.uni-wuerzburg.de
-    path: /some/path
+  host: git@gitlab2.informatik.uni-wuerzburg.de
+  path: /some/path
 touch: true
 transition: "none"
+vertical-slides: True

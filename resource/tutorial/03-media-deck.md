@@ -1,146 +1,168 @@
 ---
-chalkboard: True
-history: True
 title: Decker Media Guide
-vertical-slides: True
+whiteboard: "03-media-annot.json"
 ---
 
-# Images
+# Images {.columns}
 
-![](img/haskell.png){width="30%"}
+## {.right}
 
-##  {.small}
+![Haskell Logo](img/haskell.png){width="30%"}
 
-    ![Image Caption](image-file-location){css-formatting}
+## {.x-small .bottom}
 
-    ![](img/haskell.png){width="30%"}
+```{.yaml}
+![Image Caption](image-file-location){css-formatting}
+
+![Haskell Logo](img/haskell.png){width="30%"}
+```
 
 # Fullscreen Images
 
 Fullscreen images are added to the slide header. Do not give the slide a title.
 
-    # ![](img/haskell.png)
+## {.small}
+
+```{.markdown}
+# ![](img/haskell.png)
+```
 
 # ![](img/haskell.png) {.sub data-menu-title="Fullscreen Images Example"}
 
 # Videos {.columns}
 
-##  {.left}
+## {.left}
 
-![Controls](movies/jmu-hci-intro.mp4){controls="true" width="450px"}
+![Controls](movies/jmu-hci-intro.mp4){.controls width="450px"}
 
-![Autoplay](movies/jmu-hci-intro.mp4){controls="true" data-autoplay="true" width="450px"}
+![Autoplay](movies/jmu-hci-intro.mp4){.controls .autoplay width="450px"}
 
-##  {.right}
+## {.right}
 
-![Start Time](movies/jmu-hci-intro.mp4){controls="true" start="1" width="450px"}
+![Start Time](movies/jmu-hci-intro.mp4){.controls start="1" width="450px"}
 
-![Looping](movies/jmu-hci-intro.mp4){controls="true" data-autoplay="true" loop="true" width="450px"}
+![Looping](movies/jmu-hci-intro.mp4){.controls .autoplay .loop width="450px"}
 
 # Video Syntax {.sub}
 
-##  {.x-small}
+## {.small}
 
-    ![Controls](movies/jmu-hci-intro.mp4){controls="true"}
+```{.yaml}
+![Controls](movies/jmu-hci-intro.mp4){.controls}
 
-    ![Autoplay](movies/jmu-hci-intro.mp4){controls="true" data-autoplay="true"}
+![Autoplay](movies/jmu-hci-intro.mp4){.controls .autoplay}
 
-    ![Start Time](movies/jmu-hci-intro.mp4){controls="true" data-autoplay="true" start="1"}
+![Start Time](movies/jmu-hci-intro.mp4){.controls start="1"}
 
-    ![Looping](movies/jmu-hci-intro.mp4){controls="true" data-autoplay="true" loop="true"}
+![Looping](movies/jmu-hci-intro.mp4){.controls .autoplay .loop}
+```
 
 # External Videos
 
-![](youtube://qEcmwHRG2Mo){width="75%" start="10"}
+![Red-winged Blackbird](vimeo:20027678){autoplay="1" width="70%" start="8"}
 
-    ![](youtube://qEcmwHRG2Mo){width="75%" start="10"} 
+## {.small}
 
-# External Videos Syntax {.sub}
+```{.yaml}
+![Vimeo](vimeo:20027678){width="85%" start="8"}
+```
 
-Include YouTube and Vimeo videos or Twitch channels in presentations. Replace `service` with `youtube`, `vimeo` or `twitch` and add the video id or twitch channel name (replaces `video-id`). The video ID is usually found in the URL.
+# External Videos Syntax
 
-    ![](service://video-id){css-formatting}
+## {.small}
 
-##  {.example}
+```{.yaml}
+![caption](service:video-id){css-formatting}
+```
 
-**YouTube example:** https://www.youtube.com/watchv=<u>qEcmwHRG2Mo</u>\
-**YouTube video ID:** qEcmwHRG2Mo
+##
+
+Replace `service` with `youtube`, `vimeo` or `twitch`. Replace `video-id` with the actual video id or twitch channel name, usually found in the URL:
+
+## {.example}
+
+**YouTube:** https://youtu.be/<u>qEcmwHRG2Mo</u>\
+**Vimeo:** https://vimeo.com/<u>9698387</u>\
+**Twitch:** https://www.twitch.tv/<u>ieeevr2020_great_room_1</u>
+
+# YouTube Video
+
+![HCI Würzburg](youtube:qEcmwHRG2Mo){autoplay="1"}
 
 # Fullscreen Videos
 
 Add fullscreen videos to the slide header. Do not include a slide title.
 
-    # ![](movies/jmu-hci-intro.mp4){controls="true"}
+## {.small}
 
-# ![](movies/jmu-hci-intro.mp4){.sub data-menu-title="Fullscreen Videos Example" controls="true"}
+```{.markdown}
+# ![](movies/jmu-hci-intro.mp4){.controls}
+```
+
+# ![](movies/jmu-hci-intro.mp4) {.sub .controls data-menu-title="Fullscreen Videos Example"}
 
 # Audio {.columns}
 
-##  {.left .example}
+## {.left .example}
 
-![Controls](audio/blackbird.mp3){controls="true"}
+![Controls & Loop](audio/blackbird.mp3){.controls .loop}
 
-##  {.right .example}
+## {.right .example}
 
-![Autoplay](audio/blackbird.mp3){controls="true" data-autoplay="true"}
+![Autoplay & Muted](audio/blackbird.mp3){.controls .autoplay .muted}
 
-##  {.small .bottom}
+## {.small .bottom}
 
-    ![Controls](audio/blackbird.mp3){controls="true"}
+```{.yaml}
+![Controls](audio/blackbird.mp3){.controls .loop}
 
-    ![Autoplay](audio/blackbird.mp3){controls="true" data-autoplay="true"}
+![Autoplay & Muted](audio/blackbird.mp3){.controls .autoplay .muted}
+```
 
-# External Websites
+# External Websites & PDFs
 
-Include external websites using the `{.iframe}` tag.
+Use the `{.iframe}` tag to embed external websites and PDF Documents.
 
-##  {style="font-size:24px"}
+## {.small}
 
-    ![](https://www.uni-wuerzburg.de/){height="20em" .iframe}
+```{.markdown}
+# ![](https://www.uni-wuerzburg.de/){.iframe}
 
-# ![](https://www.uni-wuerzburg.de/){.iframe .sub height="20em" data-menu-title="Fullscreen Videos Example"}
+# ![](http://pandoc.org/MANUAL.pdf){.iframe}
+```
 
-# Embed PDF Documents
+# ![](https://www.uni-wuerzburg.de/){datamenu-title="External Websites Example" .iframe .sub }
 
-##  {style="font-size:24px"}
+# ![](http://pandoc.org/MANUAL.pdf){.iframe .sub data-menu-title="Embed PDFs Example"}
 
-    # ![](http://pandoc.org/MANUAL.pdf)
+# Virtual Tables
 
-# ![](http://pandoc.org/MANUAL.pdf){.sub data-menu-title="Embed PDFs Example"}
+$$
+\begin{eqnarray*}
+a &=& b \\
+a^2 &=& ab \\
+2a^2 &=& a^2 + ab \\
+2a^2-2ab &=& a^2 - ab \\
+2a(a-b) &=& a (a-b) \\
+2a &=& a \\
+2 &=& 1
+\end{eqnarray*}
+$$
 
-# Whiteboard
+# Virtual Tables Syntax {.sub}
 
-Use the Whiteboard to dynamically make notes on presentations.
+## {.small}
 
-##  {style="font-size:24px"}
-
-| Icon / Key                                                           | Function               |
-|:---------------------------------------------------------------------|:-----------------------|
-| <i class="fas fa-pen"></i>                                           | make notes on slides   |
-| <i class="fas fa-eraser"></i>                                        | use an eraser          |
-| <i class="fas fa-edit"></i>                                          | open the whiteboard    |
-| <i class="fas fa-edit"></i> + <i class="fas fa-pen"></i>             | draw on the whiteboard |
-| <i class="fas fa-edit"></i> + <i class="fas fa-pen"></i> + `<ENTER>` | extend the whiteboard  |
-| <i class="fas fa-magic"></i>                                         | use a laser pointer    |
-| `<del>`                                                              | clear slide            |
-
-# Speaker Notes
-
-Add **`{.notes}`** to a slide header to create notes that appear in the speaker view. The slide is used as the speaker notes for the slide above it. (Press **`s`** to access speaker view.)
-
-##  {.small}
-
-    # Why Gamify? {.notes}
-
-    - Games are among the most powerful motivational tools.
-    - Make the non-game experience more rewarding.
-    - Motivation has limits. A large leaderboard divide may
-      cause the player to abandon the game.
-
-# Why Gamify? {.notes}
-
--   Games are among the most powerful motivational tools.
-
--   Make the non-game experience more rewarding
-
--   Motivation has limits. A large leaderboard divide may cause the player to abandon the game.
+```{.markdown}
+$$
+\begin{eqnarray*}
+a &=& b \\
+a^2 &=& ab \\
+2a^2 &=& a^2 + ab \\
+2a^2-2ab &=& a^2 - ab \\
+2a(a-b) &=& a (a-b) \\
+2a &=& a \\
+2 &=& 1
+\end{eqnarray*}
+$$
+```
