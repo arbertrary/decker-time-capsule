@@ -4,38 +4,39 @@ module Text.Decker.Filter.Filter
   , Disposition(..)
   , processPandoc
   , processSlides
-  , useCachedImages
   , escapeToFilePath
-  , extractLocalImagePathes
   , renderMediaTags
   , extractFigures
   , iframeExtensions
   , audioExtensions
   , videoExtensions
   , convertMediaAttributes
+  , filterNotebookSlides
+  , wrapSlidesinDivs
   ) where
 
-import Text.Decker.Filter.Layout
-import Text.Decker.Filter.MarioCols
-import Text.Decker.Filter.Slide
-import Text.Decker.Internal.Common
-import Text.Decker.Internal.Meta
-
 import Control.Exception
+import Control.Lens
 import Control.Monad.Loops as Loop
 import Control.Monad.State
 import Data.Default ()
 import Data.List
 import Data.List.Split
 import Data.Maybe
+import qualified Data.Text as Text
+import qualified Data.Text.IO as Text
 import Development.Shake (Action)
 import qualified Network.URI as U
-import System.Directory
 import System.FilePath
 import Text.Blaze (customAttribute)
 import Text.Blaze.Html.Renderer.String
 import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
+import Text.Decker.Filter.Layout
+import Text.Decker.Filter.MarioCols
+import Text.Decker.Filter.Slide
+import Text.Decker.Internal.Common
+import Text.Decker.Internal.Meta
 import Text.Pandoc
 import Text.Pandoc.Definition ()
 import Text.Pandoc.Lens
@@ -50,7 +51,7 @@ processPandoc ::
   -> Pandoc
   -> Action Pandoc
 processPandoc transform base disp prov pandoc =
-  evalStateT (transform pandoc) (DeckerState base disp prov 0 [] [])
+  evalStateT (transform pandoc) (DeckerState base disp prov)
 
 -- | Split join columns with CSS3. Must be performed after `wrapBoxes`.
 splitJoinColumns :: Slide -> Decker Slide
@@ -63,11 +64,18 @@ splitJoinColumns slide@(Slide header body) = do
             wrapRow row@(first:_)
               | hasClass "split" first = [Div ("", ["css-columns"], []) row]
             wrapRow row = row
+    Disposition Handout Html ->
+      return $ Slide header $ concatMap wrapRow rowBlocks
+      where rowBlocks =
+              split (keepDelimsL $ whenElt (hasAnyClass ["split", "join"])) body
+            wrapRow row@(first:_)
+              | hasClass "split" first = [Div ("", ["css-columns"], []) row]
+            wrapRow row = row
     Disposition _ _ -> return slide
 
 -- All fragment related classes from reveal.js have to be moved to the enclosing
 -- DIV element. Otherwise to many fragments are produced.
-fragmentRelated :: [String]
+fragmentRelated :: [Text.Text]
 fragmentRelated =
   [ "fragment"
   , "grow"
@@ -82,7 +90,7 @@ fragmentRelated =
   , "highlight-blu"
   ]
 
-deFragment :: [String] -> [String]
+deFragment :: [Text.Text] -> [Text.Text]
 deFragment = filter (`notElem` fragmentRelated)
 
 allImages :: Inline -> [Inline]
@@ -137,6 +145,7 @@ handleBackground slide@(Slide header blocks) =
     transform ("color", value) = ("data-background-color", value)
     transform ("interactive", value) = ("data-background-interactive", value)
     transform kv = kv
+    srcAttribute :: Text.Text -> [Text.Text] -> (Text.Text, Text.Text)
     srcAttribute src cls =
       case classifyFilePath src cls of
         VideoMedia -> ("data-background-video", src)
@@ -145,21 +154,29 @@ handleBackground slide@(Slide header blocks) =
         ImageMedia -> ("data-background-image", src)
 
 -- | Wrap boxes around H2 headers and the following content. All attributes are
--- promoted from the H2 header to the enclosing DIV.
+-- promoted from the H2 header to the enclosing DIV. Since Pandoc 2.9 the class
+-- "column" needs to be added to boxes to prevent sectioning by the Pandoc
+-- writer (see `Text.Pandoc.Shared.makeSections`). This must only be done for
+-- slide decks, not for handouts or pages.
 wrapBoxes :: Slide -> Decker Slide
 wrapBoxes slide@(Slide header body) = do
   disp <- gets disposition
   case disp of
+    Disposition Deck Html -> return $ Slide header $ concatMap (wrap True) boxes
+    Disposition _ Html -> return $ Slide header $ concatMap (wrap False) boxes
     Disposition _ Latex -> return slide
-    Disposition _ Html -> return $ Slide header $ concatMap wrap boxes
   where
     boxes = split (keepDelimsL $ whenElt isBoxDelim) body
-    wrap (Header 2 (id_, cls, kvs) text:blocks) =
-      [ Div
-          ("", "box" : cls, kvs)
-          (Header 2 (id_, deFragment cls, kvs) text : blocks)
-      ]
-    wrap box = box
+    wrap isDeck (Header 2 (id_, cls, kvs) text:blocks) =
+      let tags =
+            if isDeck
+              then ["box", "columns"]
+              else ["box"]
+       in [ Div
+              ("", tags ++ cls, kvs)
+              (Header 2 (id_, deFragment cls, kvs) text : blocks)
+          ]
+    wrap _ box = box
 
 -- | Map over all active slides in a deck. 
 mapSlides :: (Slide -> Decker Slide) -> Pandoc -> Decker Pandoc
@@ -167,9 +184,31 @@ mapSlides action (Pandoc meta blocks) = do
   slides <- selectActiveContent (toSlides blocks)
   Pandoc meta . fromSlides <$> mapM action slides
 
+filterNotebookSlides :: Pandoc -> Pandoc
+filterNotebookSlides (Pandoc meta blocks) =
+  let inNotebook = fromSlides $ filter notebook (toSlides blocks)
+      stripped = walk strip inNotebook
+      strip (Header level _ inlines) = Header level nullAttr inlines
+      strip (CodeBlock (_, classes, _) code)
+        | "code" `notElem` classes = CodeBlock nullAttr code
+      strip block = block
+      notebook slide = "notebook" `elem` (view (attributes . attrClasses) slide)
+   in Pandoc meta (deDiv stripped)
+
+wrapSlidesinDivs :: Pandoc -> Pandoc
+wrapSlidesinDivs (Pandoc meta blocks) =
+  Pandoc meta $ fromSlidesWrapped $ toSlides blocks
+
 selectActiveSlideContent :: Slide -> Decker Slide
 selectActiveSlideContent (Slide header body) =
   Slide header <$> selectActiveContent body
+
+-- Splice all the Divs back into the stream of Blocks 
+deDiv :: [Block] -> [Block]
+deDiv = foldr flatten []
+  where
+    flatten (Div attr blocks) result = blocks ++ result
+    flatten block result = block : result
 
 -- | Slide specific processing.
 processSlides :: Pandoc -> Decker Pandoc
@@ -199,9 +238,13 @@ selectActiveContent fragments = do
   disp <- gets disposition
   return $
     case disp of
-      Disposition Deck _ -> dropByClass ["handout"] fragments
-      Disposition Handout _ -> dropByClass ["deck", "notes"] fragments
-      Disposition Page _ -> dropByClass ["notes", "deck", "handout"] fragments
+      Disposition Deck _ -> dropByClass ["comment", "handout"] fragments
+      Disposition Handout _ ->
+        dropByClass ["comment", "deck", "notes"] fragments
+      Disposition Page _ ->
+        dropByClass ["comment", "notes", "deck", "handout"] fragments
+      Disposition Notebook _ ->
+        dropByClass ["comment", "notes", "deck", "handout"] fragments
 
 escapeToFilePath :: String -> FilePath
 escapeToFilePath = map repl
@@ -210,26 +253,6 @@ escapeToFilePath = map repl
       if c `elem` [':', '!', '/']
         then '|'
         else c
-
-useCachedImages :: FilePath -> Inline -> IO Inline
-useCachedImages cacheDir image@(Image (ident, cls, values) inlines (url, imgTitle)) = do
-  let cached = cacheDir </> escapeToFilePath url
-  exists <- doesFileExist cached
-  if exists
-    then return
-           (Image (ident, "cached" : cls, values) inlines (cached, imgTitle))
-    else return image
-useCachedImages _ inline = return inline
-
-localImagePath :: Inline -> [FilePath]
-localImagePath (Image _ _ (url, _)) =
-  if isHttpUri url
-    then []
-    else [url]
-localImagePath _ = []
-
-extractLocalImagePathes :: Pandoc -> [FilePath]
-extractLocalImagePathes = Text.Pandoc.Walk.query localImagePath
 
 isHttpUri :: String -> Bool
 isHttpUri url =
@@ -261,9 +284,9 @@ uriPathExtension reference =
     Nothing -> takeExtension reference
     Just uri -> takeExtension (U.uriPath uri)
 
-classifyFilePath :: FilePath -> [String] -> MediaType
+classifyFilePath :: Text.Text -> [Text.Text] -> MediaType
 classifyFilePath name cls =
-  case uriPathExtension name of
+  case uriPathExtension (Text.unpack name) of
     ext
       | ext `elem` videoExtensions -> VideoMedia
     ext
@@ -278,16 +301,18 @@ renderMediaTag :: Disposition -> Inline -> Action Inline
 renderMediaTag disp (Image attrs@(ident, cls, values) [] (url, tit)) =
   liftIO imageVideoTag
   where
+    urlS = Text.unpack url
     imageVideoTag =
-      if uriPathExtension url == ".svg" && "embed" `elem` cls
+      if uriPathExtension urlS == ".svg" && "embed" `elem` cls
         then do
-          fileContent <- catch (readFile url) svgLoadErrorHandler
+          fileContent <- catch (Text.readFile urlS) svgLoadErrorHandler
           return $
             if attrs /= nullAttr
               then Span (ident, cls, values) [toHtml fileContent]
               else toHtml fileContent
         else return $
              toHtml $
+             Text.pack $
              renderHtml $
              if "iframe" `elem` cls
                then mediaTag (H.iframe "Browser does not support iframe.")
@@ -299,10 +324,11 @@ renderMediaTag disp (Image attrs@(ident, cls, values) [] (url, tit)) =
         IframeMedia -> mediaTag (H.iframe "Browser does not support iframe.")
         ImageMedia -> mediaTag H.img
     appendAttr element (key, value) =
-      element H.! customAttribute (H.stringTag key) (H.toValue value)
+      element H.!
+      customAttribute (H.stringTag $ Text.unpack key) (H.toValue value)
     mediaTag tag =
       ifNotEmpty A.id ident $
-      ifNotEmpty A.class_ (unwords cls) $
+      ifNotEmpty A.class_ (Text.unwords cls) $
       ifNotEmpty A.title tit $ foldl appendAttr tag transformedValues
     ifNotEmpty attr value element =
       if value == ""
@@ -316,7 +342,7 @@ renderMediaTag disp (Image attrs@(ident, cls, values) [] (url, tit)) =
       case classifyFilePath url cls of
         VideoMedia -> lazyLoad $ retrieveVideoStart $ transformImageSize values
         _ -> lazyLoad (transformImageSize values, Nothing)
-    lazyLoad (vs, (Just start)) = (srcAttr, url ++ "#t=" ++ start) : vs
+    lazyLoad (vs, (Just start)) = (srcAttr, url <> "#t=" <> start) : vs
     lazyLoad (vs, Nothing) = (srcAttr, url) : vs
 renderMediaTag disp (Image (ident, cls, values) inlines (url, tit)) = do
   image <- renderMediaTag disp (Image attrsForward [] (url, tit))
@@ -330,7 +356,7 @@ renderMediaTag disp (Image (ident, cls, values) inlines (url, tit)) = do
 -- | return inline if it is no image
 renderMediaTag _ inline = return inline
 
-svgLoadErrorHandler :: IOException -> IO String
+svgLoadErrorHandler :: IOException -> IO Text.Text
 svgLoadErrorHandler _ = return "<div>Couldn't load SVG</div>"
 
 -- | Converts attributes 
@@ -345,8 +371,8 @@ convertMediaAttributeGatherStyle (id, cls, vals) = (id, cls, vals')
     style_combined =
       if null style_cls
         then []
-        else [("style", intercalate "" $ map snd style_cls)]
-    vals' = style_combined ++ cls'
+        else [("style", Text.intercalate "" $ map snd style_cls)]
+    vals' = style_combined <> cls'
 
 convertMediaAttributeImageSize :: Attr -> Attr
 convertMediaAttributeImageSize (id, cls, vals) = (id, cls, vals_processed)
@@ -355,31 +381,30 @@ convertMediaAttributeImageSize (id, cls, vals) = (id, cls, vals_processed)
     height_attr =
       if null height
         then []
-        else [("style", "height:" ++ snd (head height) ++ ";")]
+        else [("style", "height:" <> snd (head height) <> ";")]
     (width, vals'') = partition (\x -> fst x == "width") vals'
     width_attr =
       if null width
         then []
-        else [("style", "width:" ++ snd (head width) ++ ";")]
+        else [("style", "width:" <> snd (head width) <> ";")]
     vals_processed = vals'' ++ height_attr ++ width_attr
 
 -- | small wrapper around @RawInline (Format "html")@
 --   as this is less line-noise in the filters and the
 --   intent is more clear.
-toHtml :: String -> Inline
+toHtml :: Text.Text -> Inline
 toHtml = RawInline (Format "html")
 
 -- | Mimic pandoc for handling the 'width' and 'height' attributes of images.
 -- That is, transfer 'width' and 'height' attribute values to css style values
 -- and add them to the 'style' attribute value.
-transformImageSize :: [(String, String)] -> [(String, String)]
+transformImageSize :: [(Text.Text, Text.Text)] -> [(Text.Text, Text.Text)]
 transformImageSize attributes =
-  let style :: [String]
+  let style :: [Text.Text]
       style =
-        delete "" $
-        split (dropDelims $ oneOf ";") $
+        Text.splitOn ";" $
         fromMaybe "" $ snd <$> find (\(k, _) -> k == "style") attributes
-      unstyled :: [(String, String)]
+      unstyled :: [(Text.Text, Text.Text)]
       unstyled = filter (\(k, _) -> k /= "style") attributes
       unsized =
         filter (\(k, _) -> k /= "width") $
@@ -389,12 +414,12 @@ transformImageSize attributes =
         , snd <$> find (\(k, _) -> k == "height") unstyled)
       sizeStyle =
         case size of
-          (Just w, Just h) -> ["width:" ++ w, "height:" ++ h]
-          (Just w, Nothing) -> ["width:" ++ w, "height:auto"]
-          (Nothing, Just h) -> ["width:auto", "height:" ++ h]
+          (Just w, Just h) -> ["width:" <> w, "height:" <> h]
+          (Just w, Nothing) -> ["width:" <> w, "height:auto"]
+          (Nothing, Just h) -> ["width:auto", "height:" <> h]
           (Nothing, Nothing) -> []
-      css = style ++ sizeStyle
-      styleAttr = ("style", intercalate ";" $ reverse $ "" : css)
+      css = style <> sizeStyle
+      styleAttr = ("style", Text.intercalate ";" $ reverse $ "" : css)
    in if null css
         then unstyled
         else styleAttr : unsized
@@ -411,7 +436,8 @@ extractFigure (Para content) =
 extractFigure b = b
 
 -- | Retrieves the start attribute for videos to append it to the url
-retrieveVideoStart :: [(String, String)] -> ([(String, String)], Maybe String)
+retrieveVideoStart ::
+     [(Text.Text, Text.Text)] -> ([(Text.Text, Text.Text)], Maybe Text.Text)
 retrieveVideoStart attributes = (attributeRest, urlStartMarker)
   where
     attributeRest = filter (\(k, _) -> k /= "start") attributes

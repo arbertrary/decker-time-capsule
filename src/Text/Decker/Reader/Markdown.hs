@@ -2,137 +2,160 @@ module Text.Decker.Reader.Markdown
   ( readAndProcessMarkdown
   ) where
 
+import Text.Decker.Filter.Decker
 import Text.Decker.Filter.Filter
 import Text.Decker.Filter.IncludeCode
 import Text.Decker.Filter.Macro
-import Text.Decker.Filter.MarioMedia
 import Text.Decker.Filter.Quiz
 import Text.Decker.Filter.Render
 import Text.Decker.Filter.ShortLink
 import Text.Decker.Internal.Common
 import Text.Decker.Internal.Exception
+import Text.Decker.Internal.Helper
 import Text.Decker.Internal.Meta
 import Text.Decker.Project.Project
 import Text.Decker.Project.Shake
-import Text.Decker.Project.Sketch
 import Text.Decker.Project.Version
 import Text.Decker.Resource.Resource
-import Text.Pandoc.Lens
 
 import Control.Exception
 import Control.Monad
 import Control.Monad.Loops
 import Control.Monad.State
-import Data.ByteString.Char8 as B
+import Data.Maybe
+import Data.Text (Text)
 import qualified Data.Text as T
-import Data.Text.Encoding as E
-import Development.Shake
+import qualified Data.Text.IO as T
+import Development.Shake hiding (Resource)
 import Development.Shake.FilePath as SFP
+import System.Directory
 import Text.CSL.Pandoc
-import qualified Text.Mustache as M
-import qualified Text.Mustache.Types as MT
 import Text.Pandoc
 
 -- Transitively splices all include files into the pandoc document.
-processIncludes :: FilePath -> Pandoc -> Action Pandoc
-processIncludes baseDir (Pandoc meta blocks) =
-  Pandoc meta <$> processBlocks baseDir blocks
+processIncludes :: Meta -> FilePath -> Pandoc -> Action Pandoc
+processIncludes globalMeta topBaseDir (Pandoc meta blocks) =
+  Pandoc meta <$> processBlocks blocks
   where
-    processBlocks :: FilePath -> [Block] -> Action [Block]
-    processBlocks base blcks =
-      Prelude.concat . Prelude.reverse <$> foldM (include base) [] blcks
-    include :: FilePath -> [[Block]] -> Block -> Action [[Block]]
-    include base result (Para [Link _ [Str ":include"] (url, _)]) = do
-      includeFile <- urlToFilePathIfLocal base url
+    processBlocks :: [Block] -> Action [Block]
+    processBlocks blcks =
+      Prelude.concat . Prelude.reverse <$> foldM include [] blcks
+    include :: [[Block]] -> Block -> Action [[Block]]
+    include result (Para [Link _ [Str ":include"] (url, _)]) = do
+      includeFile <- urlToFilePathIfLocal topBaseDir (T.unpack url)
       need [includeFile]
-      Pandoc _ b <- readMetaMarkdown includeFile
-      included <- processBlocks (takeDirectory includeFile) b
+      Pandoc _ b <- readMetaMarkdown globalMeta topBaseDir includeFile
+      included <- processBlocks b
       return $ included : result
-    include _ result block = return $ [block] : result
+    include result block = return $ [block] : result
 
--- | Fixes pandoc escaped # markup in mustache template {{}} markup.
-fixMustacheMarkupText :: T.Text -> T.Text
-fixMustacheMarkupText content =
-  T.replace
-    (T.pack "{{\\#")
-    (T.pack "{{#")
-    (T.replace (T.pack "{{\\^") (T.pack "{{^") content)
-
--- | Reads a markdownfile, expands the included files, and substitutes mustache
--- template variables and calls need.
-readAndProcessMarkdown :: FilePath -> Disposition -> Action Pandoc
-readAndProcessMarkdown markdownFile disp = do
-  pandoc@(Pandoc meta _) <-
-    readMetaMarkdown markdownFile >>= processIncludes baseDir
-  processPandoc (pipeline meta) baseDir disp (provisioningFromMeta meta) pandoc
+-- | Runs a new style decker filter. That means
+--
+-- 1. Put the decker path info into the documents meta data
+-- 2. Run the filter.
+-- 3. Take the resource info from the document meta data and
+--    a) Call need on every dependency.
+--    b) Provision the resources (copy to public)
+-- 4. Remove all traces of this from the meta data
+-- 
+runDeckerFilter ::
+     (Pandoc -> IO Pandoc) -> FilePath -> FilePath -> Pandoc -> Action Pandoc
+runDeckerFilter filter topBase docBase pandoc@(Pandoc meta blocks) = do
+  -- | Augment document meta.
+  let deckerMeta =
+        setTextMetaValue "decker.base-dir" (T.pack docBase) $
+        setTextMetaValue "decker.top-base-dir" (T.pack topBase) meta
+  (Pandoc resultMeta resultBlocks) <- liftIO $ filter (Pandoc deckerMeta blocks)
+  processedMeta <- processMeta resultMeta
+  return (Pandoc processedMeta resultBlocks)
   where
-    baseDir = takeDirectory markdownFile
-    pipeline meta =
-      case getMetaBool "mario" meta of
-        Just True ->
-          concatM
-            [ evaluateShortLinks
-            , expandDeckerMacros
-            , renderCodeBlocks
-            , includeCode
-            , provisionResources
-            , renderQuizzes
-            , processSlides
-            , marioMedia
-            , processCitesWithDefault
-            , appendScripts
-            ]
-        _ ->
-          concatM
-            [ evaluateShortLinks
-            , expandDeckerMacros
-            , renderCodeBlocks
-            , includeCode
-            , provisionResources
-            , renderQuizzes
-            , processSlides
-            , renderMediaTags
-            , extractFigures
-            , processCitesWithDefault
-            , appendScripts
-            ]
+    processMeta meta = do
+      let (resources :: [(Text, Resource)]) =
+            fromMaybe [] $
+            getMetaValue "decker.filter.resources" meta >>= fromMetaValue
+      mapM_ (processResource . snd) resources
+      -- TODO Remove resource info from meta data
+      return meta
+      where
+        processResource resource@(Resource source target url) = do
+          let method = provisioningFromMeta meta
+          need [source]
+          publishResource method topBase resource
+
+-- | Runs the new decker media filter.
+deckerMediaFilter topBase docBase (Pandoc meta blocks) =
+  runDeckerFilter (mediaFilter options) topBase docBase (Pandoc meta blocks)
+  where
+    options =
+      def
+        { writerTemplate = Nothing
+        , writerHTMLMathMethod = MathJax "Handled by reveal.js in the template"
+        , writerExtensions =
+            (enableExtension Ext_auto_identifiers . enableExtension Ext_emoji)
+              pandocExtensions
+        }
+
+-- | The old style decker filter pipeline with Mario's media handling.
+marioPipeline =
+  concatM
+    [ evaluateShortLinks
+    , expandDeckerMacros
+    , renderCodeBlocks
+    , includeCode
+    , provisionResources
+    , renderQuizzes
+    , processSlides
+    , processCitesWithDefault
+    ]
+
+-- | The old style decker filter pipeline.
+deckerPipeline =
+  concatM
+    [ evaluateShortLinks
+    , expandDeckerMacros
+    , renderCodeBlocks
+    , includeCode
+    , provisionResources
+    , renderQuizzes
+    , processSlides
+    , processCitesWithDefault
+    ]
+
+-- | Reads a markdownfile, expands the included files, and calls need.
+readAndProcessMarkdown :: Meta -> FilePath -> Disposition -> Action Pandoc
+readAndProcessMarkdown meta markdownFile disp
+  -- TODO decide whether absolute or relative is better
+  -- let topLevelBase = makeRelative projectDir $ takeDirectory markdownFile
+ = do
+  topLevelBase <- liftIO $ makeAbsolute $ takeDirectory markdownFile
+  let provisioning = provisioningFromMeta meta
+  readMetaMarkdown meta topLevelBase markdownFile >>=
+    processIncludes meta topLevelBase >>=
+    processPandoc deckerPipeline topLevelBase disp provisioning
 
 -- | Reads a markdown file and returns a pandoc document. Handles meta data
 -- extraction and template substitution. All references to local resources are
 -- converted to absolute pathes.
-readMetaMarkdown :: FilePath -> Action Pandoc
-readMetaMarkdown markdownFile = do
+readMetaMarkdown :: Meta -> FilePath -> FilePath -> Action Pandoc
+readMetaMarkdown globalMeta topLevelBase markdownFile = do
   projectDir <- projectA
+  docBase <- liftIO $ makeAbsolute $ takeDirectory markdownFile
   need [markdownFile]
-  -- Global meta data for this directory from decker.yaml and specified additional files
-  globalMeta <- globalMetaA
-  -- markdown <- liftIO $ T.readFile markdownFile
-  markdown <- liftIO $ E.decodeUtf8 <$> B.readFile markdownFile
-  let filePandoc@(Pandoc fileMeta _) =
+  markdown <- liftIO $ T.readFile markdownFile
+  let filePandoc@(Pandoc fileMeta fileBlocks) =
         readMarkdownOrThrow pandocReaderOpts markdown
-  additionalMeta <- getAdditionalMeta fileMeta
+  additionalMeta <- getAdditionalMeta docBase fileMeta
   let combinedMeta = mergePandocMeta' additionalMeta globalMeta
-  let generateIds = getMetaBoolOrElse "generate-ids" False combinedMeta
-  Pandoc _ fileBlocks <- maybeGenerateIds generateIds filePandoc
-  -- combine the meta data with preference on the embedded data
-  let mustacheMeta = toMustacheMeta combinedMeta
-   -- use mustache to substitute
-  let substituted = substituteMetaData markdown mustacheMeta
-  -- read markdown with substitutions again
-  let Pandoc _ substitudedBlocks =
-        readMarkdownOrThrow pandocReaderOpts substituted
   versionCheck combinedMeta
   let writeBack = getMetaBoolOrElse "write-back.enable" False combinedMeta
-  when (generateIds || writeBack) $
-    writeToMarkdownFile markdownFile (Pandoc fileMeta fileBlocks)
-  mapResources
-    (urlToFilePathIfLocal (takeDirectory markdownFile))
-    (Pandoc combinedMeta substitudedBlocks)
-  where
-    maybeGenerateIds doit pandoc =
-      if doit
-        then liftIO $ provideSlideIds pandoc
-        else return pandoc
+  when writeBack $ writeToMarkdownFile markdownFile (Pandoc fileMeta fileBlocks)
+  -- This is the new media filter. Runs right after reading. Because every matched
+  -- document fragment is converted to raw HTML, the following old style filters
+  -- will not see them.
+  filtered <-
+    deckerMediaFilter topLevelBase docBase (Pandoc combinedMeta fileBlocks)
+  -- TODO remove once old style filters are migrated
+  mapResources (urlToFilePathIfLocal topLevelBase) filtered
 
 readMarkdownOrThrow :: ReaderOptions -> T.Text -> Pandoc
 readMarkdownOrThrow opts markdown =
@@ -140,13 +163,37 @@ readMarkdownOrThrow opts markdown =
     Right pandoc -> pandoc
     Left errMsg -> throw $ PandocException (show errMsg)
 
+-- | Writes a pandoc document atomically to a markdown file. 
+writeToMarkdownFile :: FilePath -> Pandoc -> Action ()
+writeToMarkdownFile filepath pandoc@(Pandoc pmeta _) = do
+  template <-
+    liftIO
+      (compileTemplate "" "$if(titleblock)$\n$titleblock$\n\n$endif$\n\n$body$" >>=
+       handleLeftM)
+  let columns = getMetaIntOrElse "write-back.line-columns" 80 pmeta
+  let wrapOpt "none" = WrapNone
+      wrapOpt "preserve" = WrapPreserve
+      wrapOpt _ = WrapAuto
+  let wrap = getMetaTextOrElse "write-back.line-wrap" "none" pmeta
+  let extensions =
+        (disableExtension Ext_simple_tables .
+         disableExtension Ext_multiline_tables .
+         disableExtension Ext_grid_tables .
+         disableExtension Ext_raw_html . enableExtension Ext_auto_identifiers)
+          pandocExtensions
+  let options =
+        def
+          { writerTemplate = Just template
+          , writerExtensions = extensions
+          , writerColumns = columns
+          , writerWrapText = wrapOpt wrap
+          , writerSetextHeaders = False
+          }
+  markdown <- liftIO $ runIO (writeMarkdown options pandoc) >>= handleError
+  fileContent <- liftIO $ T.readFile filepath
+  when (markdown /= fileContent) $
+    withTempFile
+      (\tmp -> liftIO $ T.writeFile tmp markdown >> renameFile tmp filepath)
+
 processCitesWithDefault :: Pandoc -> Decker Pandoc
 processCitesWithDefault = lift . liftIO . processCites'
-
-substituteMetaData :: T.Text -> MT.Value -> T.Text
-substituteMetaData source metaData = do
-  let fixed = fixMustacheMarkupText source
-  let result = M.compileTemplate "internal" fixed
-  case result of
-    Right template -> M.substituteValue template metaData
-    Left errMsg -> throw $ MustacheException (show errMsg)

@@ -1,14 +1,25 @@
-
-quizModule = {
-    quiz: function () {
-        blanktextButtons();
-        // blanktext();
-        initialMatchings = initMatching();
-        matchings(initialMatchings);
-        multipleChoice();
-        freetextAnswerButtons();
+// I am not exactly sure why this is needed 
+// but without it e.g. the math in matching questions is not reloaded
+if (typeof Reveal === 'undefined') {
+    console.error("quiz.js has to be loaded after reveal.js");
+}
+else {
+    if (Reveal.isReady()) {
+        quiz();
+    } else {
+        Reveal.addEventListener("ready", quiz);
     }
 }
+
+
+function quiz() {
+    blanktextButtons();
+    initialMatchings = initMatching();
+    matchings(initialMatchings);
+    multipleChoice();
+    freetextAnswerButtons();
+}
+
 
 // For a given blanktext HTML Element returns a Map containing all wrong and correct selects and blanks
 function blanktextCorrect(blanktext) {
@@ -153,21 +164,6 @@ function matchings(initialMatchings) {
     retryButtons(initialMatchings);
 }
 
-// Copied from revealjs/math.js
-function reloadMath() {
-    // Typeset followed by an immediate reveal.js layout since
-    // the typesetting process could affect slide height
-    MathJax.Hub.Queue(['Typeset', MathJax.Hub]);
-    MathJax.Hub.Queue(Reveal.layout);
-
-    // Reprocess equations in slides when they turn visible
-    Reveal.addEventListener('slidechanged', function (event) {
-
-        MathJax.Hub.Queue(['Typeset', MathJax.Hub, event.currentSlide]);
-
-    });
-}
-
 // Configure retryButtons
 function retryButtons(initialMatchings) {
     var buttons = document.getElementsByClassName("retryButton");
@@ -180,7 +176,6 @@ function retryButtons(initialMatchings) {
             curr.parentNode.replaceChild(initial, curr);
             // Call matchings once again to reset everything. e.g the shuffling etc
             matchings(initialMatchings);
-            reloadMath();
         }
     }
 }
@@ -263,8 +258,7 @@ function matchingAnswerButtons(initialMatchings) {
                 drag.setAttribute("draggable", false);
             }
             // replace the empty dropzone with the correct/sample solution
-            matchingField.replaceChild(initialDragzone, currDragzone);
-            reloadMath();
+            //matchingField.replaceChild(initialDragzone, currDragzone);
 
             this.nextSibling.disabled = true;
             this.disabled = true;

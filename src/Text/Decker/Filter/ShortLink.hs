@@ -9,7 +9,7 @@ import Text.Decker.Internal.Meta
 
 import Data.List
 import Data.List.Split
-import Data.Maybe
+import qualified Data.Text as Text
 import Network.URI
 import Text.Pandoc
 import Text.Pandoc.Definition ()
@@ -26,11 +26,11 @@ evalLinks meta (Image attr alt (url, title)) =
   Image attr alt (evalUrl meta url, title)
 evalLinks meta inline = inline
 
-evalUrl :: Meta -> String -> String
+evalUrl :: Meta -> Text.Text -> Text.Text
 evalUrl meta url =
-  case parseURI url of
+  case parseURI (Text.unpack url) of
     Just uri
-      | (not . null . uriScheme) uri -> fromMaybe url (evalUri meta uri)
+      | (not . null . uriScheme) uri -> maybe url Text.pack (evalUri meta uri)
     Nothing -> url
 
 evalUri :: Meta -> URI -> Maybe String

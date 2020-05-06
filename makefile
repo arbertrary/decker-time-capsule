@@ -7,16 +7,25 @@ local-bin-path := $(HOME)/.local/bin
 
 decker-name := $(base-name)-$(version)-$(branch)-$(commit)
 
+stack-build-opts := --fast --ghc-options "-j4 +RTS -A128m -n2m -qg -RTS"
+
+build: 
+	rm decker.cabal
+	stack build
+
 clean-build: clean
 	git submodule update --init
 	make -f symlinks.mk -C third-party all
-	stack build
-
-build: 
-	stack build
+	rm decker.cabal
+	stack build $(stack-build-options)
 
 less:
-	stack build 2>&1 | less
+	rm decker.cabal
+	stack build 2>&1 | less 
+
+resource-zip:
+	rm -f resource/decker-resources.zip
+	(cd resource; zip -qr decker-resources.zip example support template tutorial)
 
 install: clean-build
 	mkdir -p $(local-bin-path)
@@ -28,6 +37,7 @@ version:
 	@echo "$(decker-name)"
 
 build-profile:
+	rm decker.cabal
 	stack build --work-dir .stack-work-profile --profile
 
 profile: build-profile
@@ -42,14 +52,17 @@ dist: install
 	rm dist/$(decker-name)
 
 test:
-	stack test
+	stack test $(stack-build-options) -j1
 
 watch:
-	stack test --file-watch
+	stack test $(stack-build-options) -j1 --file-watch
+
+server:
+	stack run -- decker server
 
 clean:
 	stack clean
 	rm -rf dist public
 	rm -rf resource/support/vendor
 
-.PHONY: build clean test install dist docs 
+.PHONY: build clean test install dist docs resource-zip
