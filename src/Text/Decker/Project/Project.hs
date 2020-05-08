@@ -3,7 +3,7 @@
 module Text.Decker.Project.Project
   ( resourcePaths
   , scanTargetsToFile
-  , deckerResourceDir
+  -- , deckerResourceDir
   , removeCommonPrefix
   , isPrefix
   , makeRelativeTo
@@ -26,8 +26,6 @@ module Text.Decker.Project.Project
   , handouts
   , handoutsPdf
   , annotations
-  , projectDir
-  , publicDir
   , project
   , public
   , support
@@ -39,15 +37,13 @@ module Text.Decker.Project.Project
   , fromMetaValue
   , toMetaValue
   , readTargetsFile
+  , sourceForTarget
   ) where
 
 import Text.Decker.Internal.Common
-
--- import Text.Decker.Internal.Flags
 import Text.Decker.Internal.Helper
 import Text.Decker.Internal.Meta
 import Text.Decker.Project.Glob
-import Text.Decker.Project.Version
 
 import Control.Lens hiding ((.=))
 import Data.Aeson
@@ -172,14 +168,12 @@ provisioningFromMeta meta =
  -absRefResource resource =
  -  return $ show $ URI "file" Nothing (sourceFile resource) "" ""
  -}
-
 {-
  -relRefResource :: FilePath -> Resource -> IO FilePath
  -relRefResource base resource = do
  -  let relPath = makeRelativeTo base (sourceFile resource)
  -  return $ show $ URI "file" Nothing relPath "" ""
  -}
-
 -- | Find the project directory. 
 -- 1. First upwards directory containing `decker.yaml`
 -- 2. First upwards directory containing `.git`
@@ -214,13 +208,14 @@ projectDirectories = do
   let transientDir = projectDir </> deckerFiles
   return (ProjectDirs projectDir publicDir supportDir transientDir)
 
-deckerResourceDir :: IO FilePath
-deckerResourceDir =
-  D.getXdgDirectory
-    D.XdgData
-    ("decker" ++
-     "-" ++ deckerVersion ++ "-" ++ deckerGitBranch ++ "-" ++ deckerGitCommitId)
-
+{-
+ -deckerResourceDir :: IO FilePath
+ -deckerResourceDir =
+ -  D.getXdgDirectory
+ -    D.XdgData
+ -    ("decker" ++
+ -     "-" ++ deckerVersion ++ "-" ++ deckerGitBranch ++ "-" ++ deckerGitCommitId)
+ -}
 {-
  --- | Get the absolute paths of resource folders 
  --- with version numbers older than the current one
@@ -238,7 +233,6 @@ deckerResourceDir =
  -        _:x:y:z:_ -> convert [x, y, z] < currentVersion
  -        _ -> False
  -}
-
 resourcePaths :: ProjectDirs -> FilePath -> URI -> Resource
 resourcePaths dirs base uri =
   Resource
@@ -254,39 +248,6 @@ resourcePaths dirs base uri =
           (uriQuery uri)
           (uriFragment uri)
     }
-
--- | Express the second path argument as relative to the first. 
--- Both arguments are expected to be absolute pathes. 
-makeRelativeTo :: FilePath -> FilePath -> FilePath
-makeRelativeTo dir file =
-  let (d, f) = removeCommonPrefix (normalise dir, normalise file)
-   in normalise $ invertPath d </> f
-
-invertPath :: FilePath -> FilePath
-invertPath fp = joinPath $ map (const "..") $ filter ("." /=) $ splitPath fp
-
-removeCommonPrefix :: (FilePath, FilePath) -> (FilePath, FilePath)
-removeCommonPrefix =
-  mapTuple joinPath . removeCommonPrefix_ . mapTuple splitDirectories
-  where
-    removeCommonPrefix_ :: ([FilePath], [FilePath]) -> ([FilePath], [FilePath])
-    removeCommonPrefix_ (al@(a:as), bl@(b:bs))
-      | a == b = removeCommonPrefix_ (as, bs)
-      | otherwise = (al, bl)
-    removeCommonPrefix_ pathes = pathes
-
-isPrefix :: FilePath -> FilePath -> Bool
-isPrefix prefix whole = isPrefix_ (splitPath prefix) (splitPath whole)
-  where
-    isPrefix_ :: Eq a => [a] -> [a] -> Bool
-    isPrefix_ (a:as) (b:bs)
-      | a == b = isPrefix_ as bs
-      | otherwise = False
-    isPrefix_ [] _ = True
-    isPrefix_ _ _ = False
-
-mapTuple :: (t1 -> t) -> (t1, t1) -> (t, t)
-mapTuple f (a, b) = (f a, f b)
 
 deckSuffix = "-deck.md"
 
@@ -310,6 +271,32 @@ indexSuffix = "-deck-index.yaml"
 
 sourceSuffixes = [deckSuffix, pageSuffix, annotationSuffix, indexSuffix]
 
+-- Sources for all targets
+sourceMap =
+  [ (deckHTMLSuffix, deckSuffix)
+  , (deckPDFSuffix, deckHTMLSuffix)
+  , (handoutHTMLSuffix, deckSuffix)
+  , (handoutPDFSuffix, deckSuffix)
+  , (pageHTMLSuffix, pageSuffix)
+  , (pagePDFSuffix, pageSuffix)
+  , (annotationSuffix, annotationSuffix)
+  ]
+
+-- Replaces a known target suffix with the matching source suffix or fails.
+swapSourceSuffix :: FilePath -> FilePath
+swapSourceSuffix path =
+  let swapped =
+        listToMaybe $
+        mapMaybe (\(t, s) -> fmap (<> s) $ stripSuffix t path) sourceMap
+   in case swapped of
+        Just source -> source
+        Nothing -> error $ "Cannot find known target suffix: " <> toText path
+
+-- Calculate the source path for a known target or fails.
+sourceForTarget :: Meta -> FilePath -> FilePath
+sourceForTarget meta path = projectDir meta </> makeRelativeTo (publicDir meta) (swapSourceSuffix path)
+
+-- Never include these directories in anything.
 alwaysExclude = ["public", deckerFiles, "dist", ".git", ".vscode"]
 
 excludeDirs :: Meta -> [String]
@@ -361,9 +348,3 @@ scanTargets meta dirs = do
  -          Nothing -> "https://dach.decker.informatik.uni-wuerzburg.de"
  -  return url
  -}
-
-projectDir :: Meta -> FilePath
-projectDir = lookupMetaOrElse "." "decker.directories.project"
-
-publicDir :: Meta -> FilePath
-publicDir = lookupMetaOrElse "." "decker.directories.public"

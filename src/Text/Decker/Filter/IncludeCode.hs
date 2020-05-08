@@ -6,6 +6,7 @@ module Text.Decker.Filter.IncludeCode
   ) where
 
 import Text.Decker.Internal.Common
+import Text.Decker.Internal.Meta
 
 import Control.Monad.Except
 import Control.Monad.Reader
@@ -224,13 +225,13 @@ stringTup (k, v) = (Text.unpack k, Text.unpack v)
 
 textTup (k, v) = (Text.pack k, Text.pack v)
 
-includeCodeA' :: Block -> Action (Either InclusionError Block)
-includeCodeA' cb@(CodeBlock (id', classes, attrs) _) =
+includeCodeA' :: FilePath -> Block -> Action (Either InclusionError Block)
+includeCodeA' project  cb@(CodeBlock (id', classes, attrs) _) =
   let attrs' = map stringTup attrs
       classes' = map Text.unpack classes
    in case parseInclusion (HM.fromList attrs') of
         Right (Just spec) -> do
-          local <- urlToFilePathIfLocal "." (include spec)
+          local <- urlToFilePathIfLocal project "." (include spec)
           need [local]
           inclusion <- liftIO $ runInclusion' spec {include = local} allSteps
           case inclusion of
@@ -245,12 +246,12 @@ includeCodeA' cb@(CodeBlock (id', classes, attrs) _) =
                       contents))
         Right Nothing -> return (Right cb)
         Left err -> return (Left err)
-includeCodeA' pi@(Para [Image (id', classes, attrs) _ (url, _)]) =
+includeCodeA' project pi@(Para [Image (id', classes, attrs) _ (url, _)]) =
   let attrs' = map stringTup attrs
       classes' = map Text.unpack classes
    in case parseInclusionUrl (Text.unpack url) of
         Right (Just rawSpec) -> do
-          local <- urlToFilePathIfLocal "." (include rawSpec)
+          local <- urlToFilePathIfLocal project "." (include rawSpec)
           need [local]
           let spec = rawSpec {include = local}
           inclusion <- liftIO $ runInclusion' spec allSteps
@@ -266,13 +267,14 @@ includeCodeA' pi@(Para [Image (id', classes, attrs) _ (url, _)]) =
                       contents))
         Right Nothing -> return (Right pi)
         Left err -> return (Left err)
-includeCodeA' x = return (Right x)
+includeCodeA' _ x = return (Right x)
 
 -- | A Pandoc filter that includes code snippets from
 -- external files. Shake Action version.
-includeCodeA :: Maybe Format -> Block -> Action Block
-includeCodeA _ block = do
-  result <- includeCodeA' block
+includeCodeA :: Meta -> Block -> Action Block
+includeCodeA meta block = do
+  let project = projectDir meta
+  result <- includeCodeA' project block
   case result of
     Left err -> liftIO $ printAndFail err
     Right block -> return block
@@ -280,6 +282,6 @@ includeCodeA _ block = do
 -- start snippet includeCode
 includeCode :: Pandoc -> Decker Pandoc
 includeCode (Pandoc meta blocks) = do
-  included <- lift $ walkM (includeCodeA Nothing) blocks
+  included <- lift $ walkM (includeCodeA meta) blocks
   return $ Pandoc meta included
 -- end snippet includeCode

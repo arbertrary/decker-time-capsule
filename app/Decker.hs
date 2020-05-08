@@ -53,7 +53,7 @@ prepCaches ::
 prepCaches directories = do
   let deckerMetaFile = (directories ^. project) </> "decker.yaml"
   let deckerTargetsFile = (directories ^. transient) </> "targets.yaml"
-  getGlobalMeta <- ($ deckerMetaFile) <$> newCache readStaticMetaData
+  getGlobalMeta <- ($ deckerMetaFile) <$> newCache (readStaticMetaData directories)
   getTargets <- ($ deckerTargetsFile) <$> newCache readTargetsFile
   getTemplate <-
     newCache
@@ -150,16 +150,18 @@ run = do
     --
     alternatives $ do
       (directories ^. public) <//> "*-deck.html" %> \out -> do
-        src <- calcSource "-deck.html" "-deck.md" out
+        meta <- getGlobalMeta
+        let src = sourceForTarget meta out
+        need [src]
         let annotDst = replaceSuffix "-deck.html" "-annot.json" out
-        annotSrc <- calcSource' annotDst
+        let annotSrc = sourceForTarget meta annotDst
         exists <- liftIO $ Dir.doesFileExist annotSrc
         when exists $ need [annotDst]
-        meta <- getGlobalMeta
         markdownToHtmlDeck meta getTemplate src out
       --
       (directories ^. public) <//> "*-deck.pdf" %> \out -> do
-        let src = replaceSuffix "-deck.pdf" "-deck.html" out
+        meta <- getGlobalMeta
+        let src = sourceForTarget meta out
         need [src]
         putNormal $ "Started: " ++ src ++ " -> " ++ out
         runHttpServer serverPort directories Nothing
@@ -173,27 +175,33 @@ run = do
           Left msg -> error msg
       --
       (directories ^. public) <//> "*-handout.html" %> \out -> do
-        src <- calcSource "-handout.html" "-deck.md" out
         meta <- getGlobalMeta
+        let src = sourceForTarget meta out
+        need [src]
         markdownToHtmlHandout meta getTemplate src out
       --
       (directories ^. public) <//> "*-handout.pdf" %> \out -> do
-        src <- calcSource "-handout.pdf" "-deck.md" out
         meta <- getGlobalMeta
+        let src = sourceForTarget meta out
+        need [src]
         markdownToPdfHandout meta getTemplate src out
       --
       (directories ^. public) <//> "*-page.html" %> \out -> do
-        src <- calcSource "-page.html" "-page.md" out
         meta <- getGlobalMeta
+        let src = sourceForTarget meta out
+        need [src]
         markdownToHtmlPage meta getTemplate src out
       --
       (directories ^. public) <//> "*-page.pdf" %> \out -> do
-        src <- calcSource "-page.pdf" "-page.md" out
         meta <- getGlobalMeta
+        let src = sourceForTarget meta out
+        need [src]
         markdownToPdfPage meta getTemplate src out
       --
       (directories ^. public) <//> "*-annot.json" %> \out -> do
-        src <- calcSource' out
+        meta <- getGlobalMeta
+        let src = sourceForTarget meta out
+        need [src]
         putNormal $ "# copy (for " <> out <> ")"
         copyFile' src out
       --

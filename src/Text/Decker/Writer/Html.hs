@@ -87,7 +87,7 @@ writeNativeWhileDebugging out mod doc =
 markdownToHtmlDeck :: Meta -> TemplateCache -> FilePath -> FilePath -> Action ()
 markdownToHtmlDeck meta getTemplate markdownFile out = do
   putCurrentDocument out
-  supportDir <- getRelativeSupportDir (takeDirectory out)
+  let supportDir = relativeSupportDir meta (takeDirectory out)
   let disp = Disposition Deck Html
   pandoc@(Pandoc meta _) <- readAndProcessMarkdown meta markdownFile disp
   let highlightStyle =
@@ -126,7 +126,7 @@ writePandocFile fmt options out pandoc =
 markdownToHtmlPage :: Meta -> TemplateCache -> FilePath -> FilePath -> Action ()
 markdownToHtmlPage meta getTemplate markdownFile out = do
   putCurrentDocument out
-  supportDir <- getRelativeSupportDir (takeDirectory out)
+  let supportDir = relativeSupportDir meta (takeDirectory out)
   let disp = Disposition Page Html
   pandoc@(Pandoc docMeta _) <- readAndProcessMarkdown meta markdownFile disp
   template <- getTemplate (templateFile disp)
@@ -151,7 +151,7 @@ markdownToHtmlPage meta getTemplate markdownFile out = do
 markdownToHtmlHandout :: Meta -> TemplateCache -> FilePath -> FilePath -> Action ()
 markdownToHtmlHandout meta getTemplate markdownFile out = do
   putCurrentDocument out
-  supportDir <- getRelativeSupportDir (takeDirectory out)
+  let supportDir = relativeSupportDir meta (takeDirectory out)
   let disp = Disposition Handout Html
   pandoc@(Pandoc docMeta _) <-
     wrapSlidesinDivs <$> readAndProcessMarkdown meta markdownFile disp
@@ -176,7 +176,7 @@ markdownToHtmlHandout meta getTemplate markdownFile out = do
 markdownToNotebook :: Meta -> FilePath -> FilePath -> Action ()
 markdownToNotebook meta markdownFile out = do
   putCurrentDocument out
-  supportDir <- getRelativeSupportDir (takeDirectory out)
+  let supportDir = relativeSupportDir meta (takeDirectory out)
   let disp = Disposition Notebook Html
   pandoc@(Pandoc docMeta _) <-
     filterNotebookSlides <$> readAndProcessMarkdown meta markdownFile disp

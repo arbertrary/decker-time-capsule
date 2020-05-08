@@ -1,16 +1,9 @@
 {-- Author: Henrik Tramberend <henrik@tramberend.de> --}
 module Text.Decker.Project.Shake
   ( runDecker
-  , calcSource
-  , calcSource'
   , currentlyServedPages
-  , getRelativeSupportDir
   , isDevRun
   , openBrowser
-  , projectA
-  , supportA
-  , projectDirsA
-  , publicA
   , publicResource
   , publicResourceA
   , putCurrentDocument
@@ -19,7 +12,7 @@ module Text.Decker.Project.Shake
   , startHttpServer
   , stopHttpServer
   , watchChangesAndRepeat
-  , withShakeLock
+  -- , withShakeLock
   , writeSupportFilesToPublic
   , getAdditionalMeta
   ) where
@@ -68,8 +61,7 @@ data MutableActionState = MutableActionState
 makeLenses ''MutableActionState
 
 data ActionContext = ActionContext
-  { _dirs :: ProjectDirs
-  , _state :: MutableActionState
+  { _state :: MutableActionState
   } deriving (Typeable, Show)
 
 makeLenses ''ActionContext
@@ -129,8 +121,10 @@ handleArguments rules flags targets =
 
 runShakeOnce :: MutableActionState -> Rules () -> IO Bool
 runShakeOnce state rules = do
+  dirs <- projectDirectories
+  createDirectoryIfMissing True (dirs ^. transient)
   context <- initContext state
-  options <- deckerShakeOptions context
+  options <- deckerShakeOptions dirs context
   catchAll
     (shakeArgsWith options deckerFlags (handleArguments rules))
     (putError "Error: ")
@@ -138,7 +132,7 @@ runShakeOnce state rules = do
   forM_ server reloadClients
   keepWatching <- readIORef (state ^. watch)
   when keepWatching $ do
-    let projectDir = context ^. dirs . project
+    let projectDir = dirs ^. project
     meta <- readMetaDataFile (projectDir </> "decker.yaml")
     let exclude = map (projectDir </>) $ excludeDirs meta
     waitForChange projectDir exclude
@@ -146,9 +140,7 @@ runShakeOnce state rules = do
 
 initContext :: MutableActionState -> IO ActionContext
 initContext state = do
-  dirs <- projectDirectories
-  createDirectoryIfMissing True (dirs ^. transient)
-  return $ ActionContext dirs state
+  return $ ActionContext state
 
 cleanup state = do
   srvr <- readIORef $ state ^. server
@@ -162,16 +154,16 @@ watchChangesAndRepeat = do
 putError :: String -> SomeException -> IO ()
 putError prefix (SomeException e) = putStrLn $ prefix ++ show e
 
-deckerShakeOptions :: ActionContext -> IO ShakeOptions
-deckerShakeOptions ctx = do
+deckerShakeOptions :: ProjectDirs -> ActionContext -> IO ShakeOptions
+deckerShakeOptions dirs ctx = do
   cores <- getNumCapabilities
   return $
     shakeOptions
-      { shakeFiles = ctx ^. dirs . transient
+      { shakeFiles = dirs ^. transient
       , shakeExtra = HashMap.insert actionContextKey (toDyn ctx) HashMap.empty
       , shakeThreads = cores
       -- , shakeChange = ChangeModtimeAndDigest
-      , shakeAbbreviations = [(ctx ^. dirs . project ++ "/", "/")]
+      , shakeAbbreviations = [(dirs ^. project ++ "/", "/")]
       }
 
 actionContextKey :: TypeRep
@@ -196,79 +188,44 @@ isDevRun = do
   context <- actionContext
   return (context ^. state . devRun)
 
-getRelativeSupportDir :: FilePath -> Action FilePath
-getRelativeSupportDir from = do
-  sup <- _support . _dirs <$> actionContext
-  return $ makeRelativeTo from sup
-
 writeSupportFilesToPublic :: Meta -> Action ()
 writeSupportFilesToPublic meta = do
   templateSource <-
     liftIO $ calcTemplateSource (lookupMeta "template-source" meta)
-  correct <- correctSupportInstalled templateSource
+  let support = supportDir meta
+  correct <- correctSupportInstalled support templateSource
   if correct
     then putNormal "# support files up to date"
     else do
       putNormal $ "# copy support files from: " <> show templateSource
-      removeSupport
-      extractSupport templateSource
-  copyStaticDirs meta
+      removeSupport support
+      extractSupport support templateSource
 
-copyStaticDirs :: Meta -> Action ()
-copyStaticDirs meta = do
-  public <- publicA
-  project <- projectA
-  let staticSrc = map (project </>) (staticDirs meta)
-  let staticDst = map ((public </>) . stripParentPrefix) (staticDirs meta)
-  liftIO $ zipWithM_ copyDir staticSrc staticDst
-  where
-    stripParentPrefix :: FilePath -> FilePath
-    stripParentPrefix path =
-      if "../" `isPrefixOf` path
-        then stripParentPrefix (drop 3 path)
-        else path
-
-extractSupport :: TemplateSource -> Action ()
-extractSupport templateSource = do
+extractSupport :: FilePath -> TemplateSource -> Action ()
+extractSupport support templateSource = do
   context <- actionContext
-  let supportDir = context ^. dirs . support
   liftIO $ do
-    copySupportFiles templateSource Copy supportDir
-    writeFile (supportDir </> ".origin") (show templateSource)
+    copySupportFiles templateSource Copy support
+    writeFile (support </> ".origin") (show templateSource)
 
-correctSupportInstalled :: TemplateSource -> Action Bool
-correctSupportInstalled templateSource = do
-  context <- actionContext
-  let supportDir = context ^. dirs . support
+correctSupportInstalled :: FilePath -> TemplateSource -> Action Bool
+correctSupportInstalled support templateSource = do
   liftIO $ handleAll (\_ -> return False) $ do
-    installed <- read <$> readFile (supportDir </> ".origin")
+    installed <- read <$> readFile (support </> ".origin")
     return (installed == templateSource)
 
-removeSupport :: Action ()
-removeSupport = do
-  context <- actionContext
-  let supportDir = context ^. dirs . support
-  liftIO $ handleAll (\_ -> return ()) $ removeDirectoryRecursive supportDir
+removeSupport :: FilePath -> Action ()
+removeSupport support = do
+  liftIO $ handleAll (\_ -> return ()) $ removeDirectoryRecursive support
 
 publicResourceA = _publicResource . _state <$> actionContext
 
-projectDirsA :: Action ProjectDirs
-projectDirsA = _dirs <$> actionContext
-
-projectA :: Action FilePath
-projectA = _project <$> projectDirsA
-
-publicA :: Action FilePath
-publicA = _public <$> projectDirsA
-
-supportA :: Action FilePath
-supportA = _support <$> projectDirsA
-
-withShakeLock :: Action a -> Action a
-withShakeLock perform = do
-  r <- _publicResource . _state <$> actionContext
-  withResource r 1 perform
-
+{-
+ -withShakeLock :: Action a -> Action a
+ -withShakeLock perform = do
+ -  r <- _publicResource . _state <$> actionContext
+ -  withResource r 1 perform
+ -}
 -- | Runs the built-in server on the given directory, if it is not already
 -- running.
 runHttpServer :: Int -> ProjectDirs -> Maybe String -> Action ()
@@ -301,52 +258,55 @@ openBrowser url =
      | otherwise ->
        putNormal $ "Unable to open browser on this platform for url: " ++ url
 
-calcSource :: String -> String -> FilePath -> Action FilePath
-calcSource targetSuffix srcSuffix target = do
-  dirs <- projectDirsA
-  let src =
-        (replaceSuffix targetSuffix srcSuffix . combine (dirs ^. project) .
-         makeRelative (dirs ^. public))
-          target
-  need [src]
-  return src
-
--- |  calcSource without the call to need and without the suffix replacement
-calcSource' :: FilePath -> Action FilePath
-calcSource' target = do
-  dirs <- projectDirsA
-  return $ dirs ^. project </> makeRelative (dirs ^. public) target
-
+{-
+ -calcSource :: String -> String -> FilePath -> Action FilePath
+ -calcSource targetSuffix srcSuffix target
+ - = do
+ -  dirs <- projectDirsA
+ -  let src =
+ -        (replaceSuffix targetSuffix srcSuffix . combine (dirs ^. project) .
+ -         makeRelative (dirs ^. public))
+ -          target
+ -  need [src]
+ -  return src
+ -
+ --- |  calcSource without the call to need and without the suffix replacement
+ -calcSource' :: FilePath -> Action FilePath
+ -calcSource' target
+ - = do
+ -  dirs <- projectDirsA
+ -  return $ dirs ^. project </> makeRelative (dirs ^. public) target
+ -}
 putCurrentDocument :: FilePath -> Action ()
 putCurrentDocument out = putNormal $ "# pandoc (for " ++ out ++ ")"
 
 -- Check for additional meta files specified in the Meta option `meta-data`.
 -- Assumes that file are specified with absolute paths.
-getAdditionalMeta :: Meta -> Action Meta
-getAdditionalMeta meta = do
+getAdditionalMeta :: FilePath -> Meta -> Action Meta
+getAdditionalMeta project meta = do
   let moreFiles = lookupMetaOrElse [] "meta-data" meta
-  moreMeta <- traverse readMetaData moreFiles
+  moreMeta <- traverse (readMetaData project) moreFiles
   return $ foldr mergePandocMeta' meta (reverse moreMeta)
 
 -- | Reads a meta data file. All values that are paths to local project files are
 -- made absolute. Files referenced in `meta-data` are recursively loaded and merged.
-readMetaData :: FilePath -> Action Meta
-readMetaData file = do
-  putVerbose $ "# reading meta data from: " <> file
+readMetaData :: FilePath -> FilePath -> Action Meta
+readMetaData project file = do
   need [file]
+  putVerbose $ "# reading meta data from: " <> file
   let base = takeDirectory file
-  project <- projectA
   meta <-
     liftIO $
     (readMetaDataFile file >>= mapMeta (makeAbsolutePathIfLocal project base))
-  getAdditionalMeta meta
+  getAdditionalMeta project meta
 
 -- | Reads static meta data from the `decker.yaml` file in the project root.
 -- Also reads meta data from files listed in `meta-data`
-readStaticMetaData :: FilePath -> Action Meta
-readStaticMetaData file = do
-  dirs <- projectDirsA
-  meta <- setMetaValue "decker.directories" dirs <$> readMetaData file
+readStaticMetaData :: ProjectDirs -> FilePath -> Action Meta
+readStaticMetaData dirs file = do
+  meta <-
+    setMetaValue "decker.directories" dirs <$>
+    readMetaData (dirs ^. project) file
   templateSource <-
     liftIO $ calcTemplateSource (lookupMeta "template-source" meta)
   defaultMeta <- readTemplateMeta templateSource

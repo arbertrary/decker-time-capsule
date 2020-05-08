@@ -5,9 +5,11 @@ module Text.Decker.Project.Version
   , deckerGitVersionTag
   , isDevelopmentVersion
   , versionCheck
+  , warnVersion
   ) where
 
 import Text.Decker.Internal.Meta
+import Text.Decker.Internal.Helper
 
 import Control.Monad
 import Data.List.Extra as List
@@ -19,6 +21,7 @@ import Text.Decker.Internal.CompileTime
 import Text.Pandoc hiding (lookupMeta)
 import Text.Read (readMaybe)
 import Text.Regex.TDFA
+import Text.Printf
 
 -- | The version from the cabal file
 deckerVersion :: String
@@ -73,3 +76,15 @@ versionCheck meta =
       "  - Document version " ++
       version ++
       ". This is decker version " ++ deckerVersion ++ ". Expect problems."
+
+warnVersion :: IO ()
+warnVersion = do
+  devRun <- isDevelopmentRun
+  when (isDevelopmentVersion && not devRun) $
+    printf
+      "WARNING: You are running a development build of decker (version: %s, branch: %s, commit: %s, tag: %s). Please be sure that you know what you're doing.\n"
+      deckerVersion
+      deckerGitBranch
+      deckerGitCommitId
+      deckerGitVersionTag
+

@@ -15,10 +15,16 @@ module Text.Decker.Internal.Meta
   , lookupMetaOrFail
   , mapMeta
   , mapMetaWithKey
+  , relativeSupportDir
   , readMetaDataFile
+  , projectDir
+  , publicDir
+  , supportDir
+  , transientDir
   ) where
 
 import Text.Decker.Internal.Exception
+import Text.Decker.Internal.Helper
 
 import Control.Exception
 import qualified Data.HashMap.Strict as H
@@ -231,4 +237,17 @@ mapMetaWithKey f meta = do
 readMetaDataFile :: FilePath -> IO Meta
 readMetaDataFile file = toPandocMeta <$> Y.decodeFileThrow file
 
+relativeSupportDir :: Meta -> FilePath -> FilePath
+relativeSupportDir meta path = makeRelativeTo path $ supportDir meta
 
+projectDir :: Meta -> FilePath
+projectDir = lookupMetaOrFail "decker.directories.project"
+
+publicDir :: Meta -> FilePath
+publicDir = lookupMetaOrFail "decker.directories.public"
+
+supportDir :: Meta -> FilePath
+supportDir = lookupMetaOrFail "decker.directories.support"
+
+transientDir :: Meta -> FilePath
+transientDir = lookupMetaOrFail "decker.directories.transient"

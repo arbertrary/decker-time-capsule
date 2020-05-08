@@ -19,8 +19,10 @@ includeCode (Pandoc meta blocks) = do
 
 # Include just a range
 
-``` {.haskell include="/src/Text/Decker/Filter/Filter.hs" label="Haskell" startLine="220" endLine="223"}
+``` {.haskell include="/src/Text/Decker/Filter/Filter.hs" label="Haskell" startLine="220" endLine="222"}
 ```
+
+- :shit: Range include seems broken
 
 # Include a tagged snippet
 

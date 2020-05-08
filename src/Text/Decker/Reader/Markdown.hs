@@ -42,7 +42,8 @@ processIncludes globalMeta topBaseDir (Pandoc meta blocks) =
       Prelude.concat . Prelude.reverse <$> foldM include [] blcks
     include :: [[Block]] -> Block -> Action [[Block]]
     include result (Para [Link _ [Str ":include"] (url, _)]) = do
-      includeFile <- urlToFilePathIfLocal topBaseDir (T.unpack url)
+      let project = projectDir globalMeta
+      includeFile <- urlToFilePathIfLocal project topBaseDir (T.unpack url)
       need [includeFile]
       Pandoc _ b <- readMetaMarkdown globalMeta topBaseDir includeFile
       included <- processBlocks b
@@ -61,7 +62,6 @@ processIncludes globalMeta topBaseDir (Pandoc meta blocks) =
 runDeckerFilter ::
      (Pandoc -> IO Pandoc) -> FilePath -> FilePath -> Pandoc -> Action Pandoc
 runDeckerFilter filter topBase docBase pandoc@(Pandoc meta blocks) = do
-  dirs <- projectDirsA
   let deckerMeta =
         setMetaValue "decker.base-dir" docBase $
         setMetaValue "decker.top-base-dir" topBase meta
@@ -109,15 +109,15 @@ readAndProcessMarkdown meta markdownFile disp = do
 -- extraction.
 readMetaMarkdown :: Meta -> FilePath -> FilePath -> Action Pandoc
 readMetaMarkdown globalMeta topLevelBase markdownFile = do
-  projectDir <- projectA
+  let project = projectDir globalMeta
   docBase <- liftIO $ makeAbsolute $ takeDirectory markdownFile
   need [markdownFile]
   markdown <- liftIO $ T.readFile markdownFile
   let Pandoc fileMeta fileBlocks =
         readMarkdownOrThrow pandocReaderOpts markdown
   fileMeta' <-
-    liftIO $ mapMeta (makeAbsolutePathIfLocal projectDir docBase) fileMeta
-  additionalMeta <- getAdditionalMeta fileMeta'
+    liftIO $ mapMeta (makeAbsolutePathIfLocal project docBase) fileMeta
+  additionalMeta <- getAdditionalMeta project fileMeta'
   let combinedMeta = mergePandocMeta' additionalMeta globalMeta
   versionCheck combinedMeta
   let writeBack = lookupMetaOrElse False "write-back.enable" combinedMeta
@@ -130,16 +130,16 @@ readMetaMarkdown globalMeta topLevelBase markdownFile = do
   deckerMediaFilter topLevelBase docBase cited
 
 needMetaResources :: FilePath -> Meta -> Action Meta
-needMetaResources base = mapMetaWithKey needTemplateResources
+needMetaResources base meta = mapMetaWithKey needTemplateResources meta
   where
+    project = projectDir meta
+    public = publicDir meta
     needTemplateResources key value = do
       let path = T.unpack value
       exists <- liftIO $ doesPathExist path
       if exists &&
          (key == "css" || key == "base-css" || "template." `T.isPrefixOf` key)
         then do
-          project <- projectA
-          public <- publicA
           let url = makeRelativeTo base path
           let target = public </> makeRelativeTo project path
           need [target]

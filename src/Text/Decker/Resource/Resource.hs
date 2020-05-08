@@ -10,7 +10,6 @@ module Text.Decker.Resource.Resource
   , urlToFilePathIfLocal
   ) where
 
-import Text.Decker.Project.Shake
 import Text.Decker.Resource.Zip
 
 import Control.Monad.State
@@ -33,14 +32,13 @@ writeTutorialProject = do
   putStrLn $ "Extracting tutorial project to " ++ cwd ++ "."
   extractResourceEntries "tutorial" cwd
 
-urlToFilePathIfLocal :: FilePath -> FilePath -> Action FilePath
-urlToFilePathIfLocal base uri =
+urlToFilePathIfLocal :: FilePath -> FilePath -> FilePath -> Action FilePath
+urlToFilePathIfLocal absRoot base uri =
   case URI.parseRelativeReference uri of
     Nothing -> return uri
     Just relativeUri -> do
       let filePath = URI.uriPath relativeUri
       absBase <- liftIO $ Dir.makeAbsolute base
-      absRoot <- projectA
       let absPath =
             if isAbsolute filePath
               then absRoot </> makeRelative "/" filePath
