@@ -31,24 +31,23 @@ Open the menu <i class="fas fa-bars"></i> and click <i class="fas fa-print"></i>
 
 # Whiteboard
 
-Use the Whiteboard to dynamically make notes on presentations.
+Click <i style="color: rgb(211, 211, 211);" class="fas fa-edit"></i> to open the Whiteboard menu and dynamically make notes on presentations.
 
 ## {.small}
 
-| Icon / Key                                                           | Function               |
-| :------------------------------------------------------------------- | :--------------------- |
-| <i class="fas fa-pen"></i>                                           | make notes on slides   |
-| <i class="fas fa-eraser"></i>                                        | use an eraser          |
-| <i class="fas fa-edit"></i>                                          | open the whiteboard    |
-| <i class="fas fa-edit"></i> + <i class="fas fa-pen"></i>             | draw on the whiteboard |
-| <i class="fas fa-edit"></i> + <i class="fas fa-pen"></i> + `<ENTER>` | extend the whiteboard  |
-| <i class="fas fa-magic"></i>                                         | use a laser pointer    |
-| <i class="fas fa-save"></i>                                          | save whiteboard notes  |
-| `<del>`                                                              | clear slide            |
+| Icon / Key                        | Function                |
+| :-------------------------------- | :---------------------- |
+| <i class="fas fa-magic"></i>      | use a laser pointer     |
+| <i class="fas fa-eraser"></i>     | use an eraser           |
+| <i class="fas fa-pen"></i>        | make notes on slides    |
+| <i class="fas fa-undo"></i>       | undo the last action    |
+| <i class="fas fa-border-all"></i> | show the grid           |
+| <i class="fas fa-plus"></i>       | add a blank slide below |
+| <i class="fas fa-save"></i>       | save whiteboard notes   |
 
 # Save Notes & Drawings
 
-Click <i class="fas fa-save"></i> to save slide notes and whiteboard drawings. A new whiteboard file \* will be created in your project directory ending in -annot.json:
+When you save <i class="fas fa-save"></i> slide notes and whiteboard drawings, a new whiteboard file \* will be created in your project directory ending in -annot.json:
 
 ## {.small}
 
