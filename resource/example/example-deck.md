@@ -1,6 +1,6 @@
 ---
-bibliography: 'example.bib'
-csl: 'chicago-author-date.csl'
+bibliography: "example.bib"
+csl: "chicago-author-date.csl"
 history: True
 table-of-contents: True
 title: Decker Syntax Guide
@@ -21,7 +21,7 @@ Visit <http://pandoc.org> for additional information on Pandoc-Markdown text for
 
 #### Heading 4 (h4) {.example}
 
-## 
+##
 
 Create new slides with a single pound sign (Heading 1)
 
@@ -32,22 +32,22 @@ Create new slides with a single pound sign (Heading 1)
 
 # Text Emphasis
 
-##  {.split}
+## {.split}
 
-### 
+###
 
-##  {.example}
+## {.example}
 
 **This is bold text**\
 **This is bold text**\
-*This is italic text*\
-*This is italic text*\
+_This is italic text_\
+_This is italic text_\
 ~~Strikethrough~~\
 <u>underline</u>\
 H~2~O is a liquid.\
 2^3^ equals 8.
 
-## 
+##
 
     **This is bold text**
     __This is bold text__
@@ -60,7 +60,7 @@ H~2~O is a liquid.\
 
 # Text Size {.columns}
 
-##  {.left}
+## {.left}
 
 ## xx-small Text {.xx-small}
 
@@ -76,7 +76,7 @@ H~2~O is a liquid.\
 
 ## xx-large Text {.xx-large}
 
-##  {.x-small .right}
+## {.x-small .right}
 
     ## xx-small Text {.xx-small}
 
@@ -94,34 +94,34 @@ H~2~O is a liquid.\
 
 # Highlight Text
 
-##  {.small .example}
+## {.small .example}
 
 This splendid palace of the Prince-Bishops is one of the finest secular Baroque buildings in Germany. Built between <mark>1720 and 1744</mark>, one of the most notable features of this UNESCO World Heritage Site is its spectacular monumental staircase hall with its huge fresco by Tiepolo. All told, some <mark>40 rooms are open to visitors, including the White Hall, with its Rococo stucco work, the sumptuously decorated Imperial Hall, the Hall of Mirrors, and the beautiful Court Church</mark>. Although heavily damaged in WWII, much of the building has now been restored to its former glory, a process that took over 42 years to complete.
 
-## 
+##
 
-    Built between <mark>1720 and 1744</mark>    
+    Built between <mark>1720 and 1744</mark>
 
 # Emojis
 
 Decker supports the use of emojis in your presentation.
 
--   Powerpoint: 😢
--   LaTeX-Beamer: 😊
--   Decker: 😍
+- Powerpoint: 😢
+- LaTeX-Beamer: 😊
+- Decker: 😍
 
 # Vertical Slides
 
 Use the `{.sub}` tag to add a slide below. Use the `↓` key or press the spacebar to navigate downward.
 
-##  {.small}
+## {.small}
 
     # Würzburger Residenz {.sub}
 
-    In contrast to the Münchner Residenz, which grew over half of a 
-    millennium and therefore contains stylistically diverse epochs,  
-    the Würzburg Residenz was built from scratch in just under a  
-    generation with brief interruptions.  
+    In contrast to the Münchner Residenz, which grew over half of a
+    millennium and therefore contains stylistically diverse epochs,
+    the Würzburg Residenz was built from scratch in just under a
+    generation with brief interruptions.
 
 # Würzburger Residenz {.sub data-menu-title="Vertical Slides Example"}
 
@@ -147,7 +147,7 @@ Notable for its beautifully restored interior
 
 Use the `{.columns}` tag to create columns. Identify each block with a location tag.
 
-##  {.x-small}
+## {.x-small}
 
     # Multicolumn Slides {.columns}
 
@@ -171,7 +171,7 @@ Use the `{.columns}` tag to create columns. Identify each block with a location 
 
 ## this right column has a width of 25% {.column width="25%"}
 
-##  {.small}
+## {.small}
 
     ## this left column has a width of 70% {.column width=70%}
 
@@ -199,11 +199,11 @@ Use the `{.columns}` tag to create columns. Identify each block with a location 
 
 # Grid Layout Syntax {.sub .columns}
 
-##  {.top}
+## {.top}
 
 Use the `{.grid}` tag to partition the slide into a grid. Identify each block with a location tag.
 
-##  {.x-small .left}
+## {.x-small .left}
 
     # Pick a Number {.grid}
 
@@ -215,7 +215,7 @@ Use the `{.grid}` tag to partition the slide into a grid. Identify each block wi
 
     ## Four {.left}
 
-##  {.x-small .right}
+## {.x-small .right}
 
     ## Five {.center}
 
@@ -231,39 +231,39 @@ Use the `{.grid}` tag to partition the slide into a grid. Identify each block wi
 
 ## Alert Block {.alert .split}
 
--   Alert Text
+- Alert Text
 
 ## Question Block {.question}
 
--   Question text
+- Question text
 
 ## Answer Block {.answer}
 
--   Answer text
+- Answer text
 
 ## Definition Block {.definition}
 
--   Definition text
+- Definition text
 
 ## Observation Block {.observation}
 
--   Observation text
+- Observation text
 
 ## Example Block {.example}
 
--   Example text
+- Example text
 
 ## Equation Block {.equation}
 
--   Equation text
+- Equation text
 
 ## Note Block {.note}
 
--   Note text
+- Note text
 
 # Highlight Blocks Syntax {.columns .sub}
 
-##  {.x-small .left}
+## {.x-small .left}
 
     ## Alert Block {.alert}
 
@@ -281,7 +281,7 @@ Use the `{.grid}` tag to partition the slide into a grid. Identify each block wi
 
     -   Definition text
 
-##  {.x-small .right}
+## {.x-small .right}
 
     ## Observation Block {.observation}
 
@@ -301,11 +301,11 @@ Use the `{.grid}` tag to partition the slide into a grid. Identify each block wi
 
 # Verbatim Code Blocks {.columns}
 
-##  {.top}
+## {.top}
 
 Surround text with **\~\~\~** or **\`\`\`** or indent each line by four spaces to treat text as verbatim.
 
-##  {.right}
+## {.right}
 
     ~~~
     | Key  | Direction |
@@ -316,16 +316,16 @@ Surround text with **\~\~\~** or **\`\`\`** or indent each line by four spaces t
     | `↓`  | down      |
     ~~~
 
-##  {.left}
+## {.left}
 
-## 
+##
 
-## 
+##
 
-## 
+##
 
 | Key | Direction |
-|:----|:----------|
+| :-- | :-------- |
 | `←` | left      |
 | `→` | right     |
 | `↑` | up        |
@@ -345,36 +345,36 @@ Preceed each line with **\>** to quote a block of text:
 
 # Mathematics {.columns}
 
-##  {.top}
+## {.top}
 
--   Enclose math within a line with **\$**
--   Enclose a block of math with **\$\$**
+- Enclose math within a line with **\$**
+- Enclose a block of math with **\$\$**
 
-##  {.left}
+## {.left}
 
-##  {.example}
+## {.example}
 
 To $\infty$ and beyond!
 
-##  {.example}
+## {.example}
 
 $$ e = mc ^ 2 $$
 
-##  {.example}
+## {.example}
 
 $$ \lim_{x \to \infty} \exp(-x) = 0 $$
 
-##  {.right .medium}
+## {.right .medium}
 
-``` {.markdown}
+```{.markdown}
 To $\infty$ and beyond!
 ```
 
-``` {.markdown}
+```{.markdown}
 $$ e = mc ^ 2 $$
 ```
 
-``` {.markdown}
+```{.markdown}
 $$ \lim_{x \to \infty} \exp(-x) = 0 $$
 ```
 
@@ -382,7 +382,7 @@ $$ \lim_{x \to \infty} \exp(-x) = 0 $$
 
 Use the `{.java}` tag to highlight Java code.
 
-``` {.java}
+```{.java}
 String s = "Java highlighting syntax";
 System.out.println (s);
 ```
@@ -396,7 +396,7 @@ System.out.println (s);
 
 Use the `{.javascript}` tag to highlight Javascript code.
 
-``` {.javascript}
+```{.javascript}
 var s = "JavaScript syntax highlighting";
 alert (s);
 ```
@@ -425,7 +425,7 @@ Even colored boxes look ok.
 3.  sugar
 4.  flour
 
-## 
+##
 
     1.  bread
     2.  milk
@@ -434,12 +434,12 @@ Even colored boxes look ok.
 
 ## Enumerated Lists
 
--   Take out trash
--   Vaccuum
-    -   Clean bedroom
--   Wash dishes
+- Take out trash
+- Vaccuum
+  - Clean bedroom
+- Wash dishes
 
-## 
+##
 
      -  Take out trash
      -  Vaccuum
@@ -448,28 +448,28 @@ Even colored boxes look ok.
 
 # Sequential Lists
 
-(1) Salman Rushdie, *The Ground beneath Her Feet* (New York: Henry Holt, 1999), 25.
+(1) Salman Rushdie, _The Ground beneath Her Feet_ (New York: Henry Holt, 1999), 25.
 
-(2) Bob Stewart, "Wag of the Tail: Reflecting on Pet Ownership," in *Enriching Our Lives with Animals*, ed. John Jaimeson, Tony Bannerman and Selena Wong (Toronto, ON: Petlove Press, 2007),100.
+(2) Bob Stewart, "Wag of the Tail: Reflecting on Pet Ownership," in _Enriching Our Lives with Animals_, ed. John Jaimeson, Tony Bannerman and Selena Wong (Toronto, ON: Petlove Press, 2007),100.
 
 Additional sources:
 
-(3) Elliot Antokoletz, *Musical Symbolism in the Operas of Debussy and Bartok* (New York: Oxford University Press, 2008), doi:10.1093/acprof:oso/9780195365825.001.0001.
+(3) Elliot Antokoletz, _Musical Symbolism in the Operas of Debussy and Bartok_ (New York: Oxford University Press, 2008), doi:10.1093/acprof:oso/9780195365825.001.0001.
 
 # Sequential Lists Syntax {.sub}
 
 Use the (@) symbol to automatically number items in a list.\
 Numbered examples do not need to be in a single list.
 
-##  {.x-small}
+## {.x-small}
 
-    (@)  Salman Rushdie, *The Ground beneath Her Feet* (New York: Henry Holt, 1999), 25.  
+    (@)  Salman Rushdie, *The Ground beneath Her Feet* (New York: Henry Holt, 1999), 25.
 
     (@)  Bob Stewart, "Wag of the Tail: Reflecting on Pet Ownership," in *Enriching Our
       Lives with Animals*, ed. John Jaimeson, Tony Bannerman and Selena Wong
-      (Toronto, ON: Petlove Press, 2007),100.  
+      (Toronto, ON: Petlove Press, 2007),100.
 
-    Additional sources:  
+    Additional sources:
 
     (@)  Elliot Antokoletz, *Musical Symbolism in the Operas of Debussy and Bartok*
       (New York: Oxford University Press, 2008),
@@ -489,7 +489,7 @@ Dirk Nowitzki
 
 # Fragments Syntax {.sub}
 
-##  {.small}
+## {.small}
 
     ##  Question {.question}
 
@@ -501,11 +501,11 @@ Dirk Nowitzki
 
 # Fragmented Lists {.columns}
 
-##  {.top}
+## {.top}
 
 Create lists with items that appear sequentially by prepending **\>** to the first item in the list.
 
-##  {.right}
+## {.right}
 
     ## Programming Languages
 
@@ -517,30 +517,30 @@ Create lists with items that appear sequentially by prepending **\>** to the fir
     - PHP
     - Scala
 
-##  {.left}
+## {.left}
 
-## 
+##
 
 ## Programming Languages {.example}
 
-> -   Python
-> -   Javascript
-> -   Java
-> -   C\#
-> -   C++
-> -   PHP
-> -   Scala
+> - Python
+> - Javascript
+> - Java
+> - C\#
+> - C++
+> - PHP
+> - Scala
 
 # Links
 
-##  {.example}
+## {.example}
 
 Visit <http://pandoc.org> for additional information.\
 Read more about building [lists](#lists) in Decker.
 
-##  {.small}
+## {.small}
 
-    Visit [http://pandoc.org](http://pandoc.org) for additional 
+    Visit [http://pandoc.org](http://pandoc.org) for additional
     information.
 
     Read more about building [lists](#lists) in Decker.
@@ -550,19 +550,19 @@ Read more about building [lists](#lists) in Decker.
     [text-to-be-displayed](https://url-of-website)
     [text-to-be-displayed](#slide-id)
 
-*Note:* Slide IDs are entered on the slide header (h1) as follows:
+_Note:_ Slide IDs are entered on the slide header (h1) as follows:
 
     # Slide Title {#slide-id}
 
 # Tables
 
-##  {.example}
+## {.example}
 
-|  Week| Topic                            |     Reading    | Book    |
-|-----:|:---------------------------------|:--------------:|---------|
-|     1| Course Introduction              |    Chapt. 1    | Physics |
-|     2| Inertia, Equilibrium, Kinematics | Chapt. 2, 3, 4 | Physics |
-|     3| Vectors, Momentum, Energy        |   Chapt. 5-8   | Physics |
+| Week | Topic                            |    Reading     | Book    |
+| ---: | :------------------------------- | :------------: | ------- |
+|    1 | Course Introduction              |    Chapt. 1    | Physics |
+|    2 | Inertia, Equilibrium, Kinematics | Chapt. 2, 3, 4 | Physics |
+|    3 | Vectors, Momentum, Energy        |   Chapt. 5-8   | Physics |
 
 : Assignment List
 
@@ -570,7 +570,7 @@ Read more about building [lists](#lists) in Decker.
 
 Use **`|`** and **`-`** to create tables. Align text using **`:`** on the left, right, or on both sides of the hyphens in the header row.
 
-##  {.small}
+## {.small}
 
     Table: Assignment List
 
@@ -584,7 +584,7 @@ Use **`|`** and **`-`** to create tables. Align text using **`:`** on the left, 
 
 ![](img/haskell.png){width="30%"}
 
-##  {.small}
+## {.small}
 
     ![Image Caption](image-file-location){css-formatting}
 
@@ -600,13 +600,13 @@ Fullscreen images are added to the slide header. Do not give the slide a title.
 
 # Videos {.columns}
 
-##  {.left}
+## {.left}
 
 ![Controls](movies/jmu-hci-intro.mp4){controls="true" width="450px"}
 
 ![Autoplay](movies/jmu-hci-intro.mp4){controls="true" data-autoplay="true" width="450px"}
 
-##  {.right}
+## {.right}
 
 ![Start Time](movies/jmu-hci-intro.mp4){controls="true" start="1" width="450px"}
 
@@ -614,7 +614,7 @@ Fullscreen images are added to the slide header. Do not give the slide a title.
 
 # Video Syntax {.sub}
 
-##  {.x-small}
+## {.x-small}
 
     ![Controls](movies/jmu-hci-intro.mp4){controls="true"}
 
@@ -628,7 +628,7 @@ Fullscreen images are added to the slide header. Do not give the slide a title.
 
 ![](youtube://qEcmwHRG2Mo){width="75%" start="10"}
 
-    ![](youtube://qEcmwHRG2Mo){width="75%" start="10"} 
+    ![](youtube://qEcmwHRG2Mo){width="75%" start="10"}
 
 # External Videos Syntax {.sub}
 
@@ -636,7 +636,7 @@ Include YouTube and Vimeo videos or Twitch channels in presentations. Replace `s
 
     ![](service://video-id){css-formatting}
 
-##  {.example}
+## {.example}
 
 **YouTube example:** https://www.youtube.com/watchv=<u>qEcmwHRG2Mo</u>\
 **YouTube video ID:** qEcmwHRG2Mo
@@ -651,15 +651,15 @@ Add fullscreen videos to the slide header. Do not include a slide title.
 
 # Audio {.columns}
 
-##  {.left .example}
+## {.left .example}
 
 ![Controls](audio/blackbird.mp3){controls="true"}
 
-##  {.right .example}
+## {.right .example}
 
 ![Autoplay](audio/blackbird.mp3){controls="true" data-autoplay="true"}
 
-##  {.small .bottom}
+## {.small .bottom}
 
     ![Controls](audio/blackbird.mp3){controls="true"}
 
@@ -669,7 +669,7 @@ Add fullscreen videos to the slide header. Do not include a slide title.
 
 Include external websites using the `{.iframe}` tag.
 
-##  {style="font-size:24px"}
+## {style="font-size:24px"}
 
     ![](https://www.uni-wuerzburg.de/){height="20em" .iframe}
 
@@ -677,7 +677,7 @@ Include external websites using the `{.iframe}` tag.
 
 # Embed PDF Documents
 
-##  {style="font-size:24px"}
+## {style="font-size:24px"}
 
     # ![](http://pandoc.org/MANUAL.pdf)
 
@@ -687,10 +687,10 @@ Include external websites using the `{.iframe}` tag.
 
 Use the Whiteboard to dynamically make notes on presentations.
 
-##  {style="font-size:24px"}
+## {style="font-size:24px"}
 
 | Icon / Key                                                           | Function               |
-|:---------------------------------------------------------------------|:-----------------------|
+| :------------------------------------------------------------------- | :--------------------- |
 | <i class="fas fa-pen"></i>                                           | make notes on slides   |
 | <i class="fas fa-eraser"></i>                                        | use an eraser          |
 | <i class="fas fa-edit"></i>                                          | open the whiteboard    |
@@ -703,7 +703,7 @@ Use the Whiteboard to dynamically make notes on presentations.
 
 Add **`{.notes}`** to a slide header to create notes that appear in the speaker view. The slide is used as the speaker notes for the slide above it. (Press **`s`** to access speaker view.)
 
-##  {.small}
+## {.small}
 
     # Why Gamify? {.notes}
 
@@ -714,23 +714,23 @@ Add **`{.notes}`** to a slide header to create notes that appear in the speaker 
 
 # Why Gamify? {.notes}
 
--   Games are among the most powerful motivational tools.
+- Games are among the most powerful motivational tools.
 
--   Make the non-game experience more rewarding
+- Make the non-game experience more rewarding
 
--   Motivation has limits. A large leaderboard divide may cause the player to abandon the game.
+- Motivation has limits. A large leaderboard divide may cause the player to abandon the game.
 
 # Citations
 
 Add citations to your slide deck. Be sure to include a `csl` and a `bib` file in your YAML header.
 
-##  {.example}
+## {.example}
 
 Have you heard about Space Tentacles [@zimmerer2018space]. According to @zimmerer2018space it is a nice idea.
 
 # Citations Syntax {.sub}
 
-##  {.small}
+## {.small}
 
     ---
     bibliography: 'example.bib'

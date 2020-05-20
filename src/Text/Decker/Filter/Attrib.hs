@@ -101,6 +101,16 @@ injectAttribute (k, v) = modify transform
     transform ((id', cs', kvs'), attr) =
       ((id', cs', (k, v) : filter ((/= k) . fst) kvs'), attr)
 
+injectClass :: Text -> Attrib ()
+injectClass cls = modify transform
+  where
+    transform ((id', cs', kvs'), attr) = ((id', cls : cs', kvs'), attr)
+
+injectClasses :: [Text] -> Attrib ()
+injectClasses cs = modify transform
+  where
+    transform ((id', cs', kvs'), attr) = ((id', cs <> cs', kvs'), attr)
+
 -- | Pushes an additional attribute to the source side of the attribute state.
 -- An existing attribute with the same key is overwritten.
 pushAttribute :: (Text, Text) -> Attrib ()
@@ -196,7 +206,7 @@ takeAllClasses = modify transform
       ((id', cs <> cs', kvs'), (id, [], kvs))
 
 injectBorder = do
-  border <- getMetaBoolOrElse "decker.filter.border" False <$> lift (gets meta)
+  border <- lookupMetaOrElse False "decker.filter.border" <$> lift (gets meta)
   when border $ injectStyle ("border", "2px solid magenta")
 
 takeVideoClasses :: Attrib ()

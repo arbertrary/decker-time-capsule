@@ -17,5 +17,6 @@ progress: true
 touch: true
 transition: "none"
 title: "|title|"
+test123: "test123"
 align-global: left
              

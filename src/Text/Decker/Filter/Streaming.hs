@@ -22,7 +22,7 @@ justToList :: [Maybe a] -> [a]
 justToList = reverse . justToList'
   where
     justToList' ((Just x):xs) = x : justToList xs
-    justToList' (Nothing:_) = []
+    justToList' _ = []
 
 youtubeDefaults =
   [ ("cc_load_policy", "0")
@@ -138,10 +138,13 @@ streamHtml uri caption = do
 streamHtml' :: URI -> [Inline] -> Attrib Html
 streamHtml' uri caption = do
   let scheme = uriScheme uri
-  streamId <-
-    case URI.uriAuthority uri of
-      Right (URI.Authority _ host _) -> pure $ URI.unRText host
-      _ -> return $ uriPath uri
+  {-
+   -streamId <-
+   -  case URI.uriAuthority uri of
+   -    Right (URI.Authority _ host _) -> pure $ URI.unRText host
+   -    _ -> return $ uriPath uri
+   -}
+  let streamId = uriPath uri
   streamUri <-
     case scheme of
       Just "youtube" -> mkYoutubeUri streamId
@@ -153,12 +156,15 @@ streamHtml' uri caption = do
         "Unsupported stream service: " <> toString (fromMaybe "<none>" scheme)
   iframeAttr <- takeIframeAttr >> extractAttr
   wrapperAttr <- takeWrapperAttr >> extractAttr
-  figAttr <- injectBorder >> takeSize >> takeUsual >> extractAttr
   let streamTag = mkStreamTag streamUri wrapperAttr iframeAttr
   case caption of
     [] -> do
-      return $ mkDivTag streamTag figAttr
+      divAttr <-
+        injectClass "nofigure" >> injectBorder >> takeSize >> takeUsual >>
+        extractAttr
+      return $ mkDivTag streamTag divAttr
     caption -> do
+      figAttr <- injectBorder >> takeSize >> takeUsual >> extractAttr
       captionHtml <- lift $ inlinesToHtml caption
       return $ mkFigureTag streamTag captionHtml figAttr
 
@@ -229,7 +235,7 @@ mkMediaTag tag uri dataSrc attr =
 mkStreamTag :: URI -> Attr -> Attr -> Html
 mkStreamTag uri wrapperAttr iframeAttr =
   let inner =
-        mkMediaTag (H.iframe "Iframe showing video here.") uri True iframeAttr
+        mkMediaTag (H.iframe "Iframe showing video here.") uri False iframeAttr
    in mkAttrTag (H.div inner) wrapperAttr
 
 mkDivTag :: Html -> Attr -> Html
