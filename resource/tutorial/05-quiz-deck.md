@@ -1,165 +1,226 @@
 ---
 history: True
 title: Decker Quiz Overview
+history: true
+# vertical-slides: true
 ---
 
 # Introduction
 
 This slide deck shows how to create simple quizzes with different question types for a self-learning scenario.
 
-Question types:
 
-- Multiple choice questions
-- Insert choice questions
-- Freetext questions
-- Matching questions
+# Quiz Syntax
 
-# Multiple Choice Question
+## Class definition
 
-## Which file format does decker use? {.qmc}
+For each question type you can use either of the three tags to create quizzes
 
-- [ ] .docx
-- [ ] .csv
-  - Incorrect. Decker does not use comma separated value files.
-- [ ] .xml
-  - Incorrect.
-- [x] .md
-  - Correct! Decker uses markdown files with the .md extension.
+```
+.quiz-match-items, .quiz-mi, .qmi
 
-# Multiple Choice Syntax {.sub}
+.quiz-multiple-choice, .quiz-mc, .qmc
 
-- add {.qmc} to the level 2 header
-- each answer is listed with a hyphen and brackets **- [ ]**
-- an X indicates a correct answer **- [X]**
-- tooltips are indented furthur
+.quiz-insert-choices, .quiz-ic, .qic 
 
-# Multiple Choice Example {.sub}
-
-## {.x-small}
-
-```{.markdown}
-## Which file format does decker use? {.qmc}
-
-- [ ] .docx
-    - Incorrect. This is the standard format for Microsoft Word documents.
-- [ ] .csv
-    - Incorrect. Decker does not use comma separated value files.
-- [ ] .xml
-    - Incorrect.
-- [x] .md
-    - Correct! Decker uses markdown files with the .md extension.
+.quiz-free-text, .quiz-ft, .qft
 ```
 
-# Insert Choice Question
+# Basic syntax
 
-## The Residence Palace {.qic}
+Questions are defined by level 2 headers. That means creating a question **needs**
 
-The Würzburg Residence Palace is nicknamed the
+```
+## Question title {.qmc}
+```
 
-- [ ] “Weisser Saal”
-  - Incorrect. The Weisser Saal or White Hall in Rococo style was the audience chamber and is dominated by the stucco decorations of Antonio Bossi.
-- [x] “Castle above all Castles”
-  - Correct! The Residence Palace is one of Europe’s most renowned Baroque castles and has been registered as a UNESCO World Cultural Heritage Site in 1981.
-- [ ] “The Imperial Hall”
-  - Incorrect. This hall was used to receive visiting dignitaries, including the Emperors-to-be on their voyage to Frankfurt and on the return trip to Vienna.
+(where `.qmc` can be replaced by any of the other quiz classes)
 
-# Insert Choice Syntax {.sub}
 
-- add {.qic} to the level 2 header
-- each answer is listed with a hyphen and brackets **- [ ]**
-- an X indicates a correct answer **- [X]**
-- tooltips are indented furthur
+The quiz syntax is based on the markdown task list syntax. A markdown task list looks like this
+
+```
+- [ ] This box is not checked
+- [X] This box is checked
+- [ ] Another unchecked box
+```
+
+You can add tooltips by creating a nested list e.g.
+
+```
+- [ ] A
+  - tooltip A
+- [X] B
+  - tooltip B
+```
+
+# Quiz Meta
+
+Add a `YAML` code block to a question to provide meta information on the specific question.
+
+This is work in progress. Currently it does not do anything. (17. Apr 2020)
+````
+``` {.yaml}
+score: 5
+category: FP
+lectureId: fp1
+topic: Functional Programming Introduction
+```
+````
 
 # Insert Choice Example {.sub}
 
-## {.x-small}
+These questions generate quizzes where a user can drag and drop items to sort them into "buckets".
 
-```{.markdown}
-## The Residence Palace {.qic}
+This uses the Pandoc [definition list syntax](https://pandoc.org/MANUAL.html#definition-lists).
 
-The Würzburg Residence Palace is nicknamed the
+You can provide distractor items (items not belonging to any bucket) or empty buckets (no item belonging in those empty buckets) by using the exclamation mark "!".
 
-- [ ] “Weisser Saal”
-    - Incorrect. The Weisser Saal or White Hall in Rococo style was the audience chamber
-      and is dominated by the stucco decorations of Antonio Bossi.
-- [x] “Castle above all Castles”
-    - Correct! The Residence Palace is one of Europe’s most renowned Baroque castles and
-      has been registered as a UNESCO World Cultural Heritage Site in 1981.
-- [ ] “The Imperial Hall”
-    - Incorrect. This hall was used to receive visiting dignitaries, including the
-      Emperors-to-be on their voyage to Frankfurt and on the return trip to Vienna.
-```
-
-# Freetext Question
-
-## The Residence Palace {.qft}
-
-In the Würzburg Residence you can find the largest fresco in the world which is 677m² in size. Where is this fresco located?
-
-- ceiling
-  - Giovanni Battista Tiepolo, summoned specially from Venice for the purpose, decorated the ceiling of the grand staircase vault in 1752/53 with the largest ceiling fresco ever painted.
-- Decke
-- Obergrenze
-
-# Freetext Syntax {.sub}
-
-- add {.qft} to the level 2 header
-- each _correct_ answer is listed with a hyphen **-**
-- tooltips are indented furthur
-
-# Freetext Example {.sub}
-
-## {.x-small}
+# Matching Questions {.sub}
 
 ```
-## The Residence Palace {.qft}
+## Matching Question {.qmi}
 
-In the Würzburg Residence you can find the largest fresco in the world which is 677m²
-in size. Where is this fresco located?
+Question text
 
-- ceiling
-  - Giovanni Battista Tiepolo, summoned specially from Venice for the purpose, decorated
-  the ceiling of the grand staircase vault in 1752/53 with the largest ceiling fresco
-  ever painted.
-- Decke
-- Obergrenze
-```
+BucketA
+: A1
+: A2
 
-# Matching Question
-
-## Complete the matches {.qmi}
-
-A
-: pair with A
-
-Haskell
-: ![](img/haskell.png)
-
-B
-: drag to B
-
-decker
-: [decker](http://go.uniwue.de/decker)
+BucketB
+: B1
 
 !
-: $x = {-b \pm \sqrt{b^2-4ac} \over 2a}$
+: Distractor
 
-# Matching Syntax {.sub}
+Empty Bucket
+: !
+```
 
-- add {.qmi} to the level 2 header
-- list answers under match items
-- preceed each answer with a colon `:`
-- distractor answers are listed with an exclamation point `!`
+# Matching Questions Example
 
-# Matching Example {.sub}
+## Matching Question {.qmi}
 
-## {.x-small}
+Question text
 
-```{.markdown}
-## Question: Match the pair {.qmi}
+BucketA
+: A1
+: A2
 
-A
-: pair with A
+BucketB
+: B1
+
+!
+: Distractor
+
+Empty Bucket
+: !
+
+# Multiple Choice Questions
+
+Classic multiple choice questions
+
+```
+## Multiple Choice Question {.qmc}
+
+Which of these letters is the second in the alphabet?
+
+- [ ] A
+  - nope
+- [X] B
+  - yes
+```
+
+# Multiple Choice Questions Example {.sub}
+
+## Multiple Choice Question {.qmc}
+
+Question text
+
+- [ ] A
+  - nope
+- [X] B
+  - yes
+
+# InsertChoices Questions
+
+This will create a sort of blank text questions.
+If multiple items are provided in the task list, they will be rendered as a drop down menu where the user can click answers.
+
+If only one item/solution is provided it will be rendered as a blank.
+
+```
+## Insert Choices Question {.qic}
+
+- [X] A
+  - of course
+- [ ] B 
+  - uhm ...
+
+is the first letter in the ABC. The second one is
+
+- [ ] B
+  - yep
+
+```
+
+# InsertChoices Questions Example {.sub}
+
+## Insert Choices Question {.qic}
+
+- [X] A
+  - of course
+- [ ] B 
+  - uhm ...
+
+is the first letter in the ABC. The second one is
+
+- [ ] B
+  - yep
+
+
+# FreeText questions
+
+This will create a simple input field/text box where the user can write their answer.
+
+```
+## FreeText Question TL {.qft}
+
+What's the first letter in the alphabet?
+
+- A
+  - yep
+- B
+  - nope
+
+## {.qft}
+
+What's the fourth letter?
+
+- [ ] C
+- [X] D
+
+```
+
+# FreeTExt Question Example {.sub}
+
+## FreeText Question TL {.qft}
+
+What's the first letter in the alphabet?
+
+- A
+  - yep
+- B
+  - nope
+
+## {.qft}
+
+What's the fourth letter?
+
+- [ ] C
+- [X] D
+
+
 
 Haskell
 : ![](img/haskell.png)

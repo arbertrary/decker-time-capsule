@@ -24,12 +24,12 @@ body .decker-handout .page-header small {
 }
 
 body .decker-handout[data-align="center"] > h1,
-body .decker-handout div[data-align="center"] {
+div[data-align="center"] {
   text-align: center;
 }
 
 body .decker-handout[data-align="right"] > h1,
-body .decker-handout div[data-align="right"] {
+div[data-align="right"] {
   text-align: right;
 }
 

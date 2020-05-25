@@ -91,8 +91,8 @@ deckerPipeline =
     -- , renderCodeBlocks
     , includeCode
     -- , provisionResources
-    , renderQuizzes
     , processSlides
+    , handleQuizzes
     -- , processCitesWithDefault
     ]
 
@@ -113,8 +113,7 @@ readMetaMarkdown globalMeta topLevelBase markdownFile = do
   docBase <- liftIO $ makeAbsolute $ takeDirectory markdownFile
   need [markdownFile]
   markdown <- liftIO $ T.readFile markdownFile
-  let Pandoc fileMeta fileBlocks =
-        readMarkdownOrThrow pandocReaderOpts markdown
+  let Pandoc fileMeta fileBlocks = readMarkdownOrThrow pandocReaderOpts markdown
   fileMeta' <-
     liftIO $ mapMeta (makeAbsolutePathIfLocal projectDir docBase) fileMeta
   additionalMeta <- getAdditionalMeta fileMeta'
