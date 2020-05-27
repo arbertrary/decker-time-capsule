@@ -1,14 +1,10 @@
 ---
-history: True
 title: Decker Quiz Overview
-history: true
-# vertical-slides: true
 ---
 
 # Introduction
 
 This slide deck shows how to create simple quizzes with different question types for a self-learning scenario.
-
 
 # Quiz Syntax
 
@@ -21,7 +17,7 @@ For each question type you can use either of the three tags to create quizzes
 
 .quiz-multiple-choice, .quiz-mc, .qmc
 
-.quiz-insert-choices, .quiz-ic, .qic 
+.quiz-insert-choices, .quiz-ic, .qic
 
 .quiz-free-text, .quiz-ft, .qft
 ```
@@ -35,7 +31,6 @@ Questions are defined by level 2 headers. That means creating a question **needs
 ```
 
 (where `.qmc` can be replaced by any of the other quiz classes)
-
 
 The quiz syntax is based on the markdown task list syntax. A markdown task list looks like this
 
@@ -59,6 +54,7 @@ You can add tooltips by creating a nested list e.g.
 Add a `YAML` code block to a question to provide meta information on the specific question.
 
 This is work in progress. Currently it does not do anything. (17. Apr 2020)
+
 ````
 ``` {.yaml}
 score: 5
@@ -139,7 +135,7 @@ Question text
 
 - [ ] A
   - nope
-- [X] B
+- [x] B
   - yes
 
 # InsertChoices Questions
@@ -154,7 +150,7 @@ If only one item/solution is provided it will be rendered as a blank.
 
 - [X] A
   - of course
-- [ ] B 
+- [ ] B
   - uhm ...
 
 is the first letter in the ABC. The second one is
@@ -168,16 +164,15 @@ is the first letter in the ABC. The second one is
 
 ## Insert Choices Question {.qic}
 
-- [X] A
+- [x] A
   - of course
-- [ ] B 
+- [ ] B
   - uhm ...
 
 is the first letter in the ABC. The second one is
 
 - [ ] B
   - yep
-
 
 # FreeText questions
 
@@ -218,9 +213,7 @@ What's the first letter in the alphabet?
 What's the fourth letter?
 
 - [ ] C
-- [X] D
-
-
+- [x] D
 
 Haskell
 : ![](img/haskell.png)
@@ -233,4 +226,7 @@ decker
 
 !
 : $x = {-b \pm \sqrt{b^2-4ac} \over 2a}$
+
+```
+
 ```

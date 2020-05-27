@@ -1,6 +1,6 @@
 ---
 title: Charts, Diagrams, Tables
-chart: true
+chart: "true"
 ---
 
 # Charts from JSON Strings
