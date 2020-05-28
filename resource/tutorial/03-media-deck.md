@@ -1,6 +1,7 @@
 ---
 title: Decker Media Guide
 whiteboard: "03-media-annot.json"
+vertical-slides: "true"
 ---
 
 # Images {.columns}
@@ -9,7 +10,7 @@ whiteboard: "03-media-annot.json"
 
 ![Haskell Logo](img/haskell.png){width="30%"}
 
-## {.x-small .bottom}
+## {.small .bottom}
 
 ```{.yaml}
 ![Image Caption](image-file-location){css-formatting}
@@ -87,7 +88,7 @@ Replace `service` with `youtube`, `vimeo` or `twitch`. Replace `video-id` with t
 
 # YouTube Video
 
-![HCI Würzburg](youtube:qEcmwHRG2Mo){autoplay="1"}
+![HCI Würzburg](youtube:qEcmwHRG2Mo){width=90%}
 
 # Fullscreen Videos
 

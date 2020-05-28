@@ -1,5 +1,6 @@
 ---
 title: Guide to Presenting with Decker
+margin-columns: -0.15
 ---
 
 # General Workflow
@@ -33,17 +34,15 @@ Open the menu <i class="fas fa-bars"></i> and click <i class="fas fa-print"></i>
 
 Click <i style="color: rgb(211, 211, 211);" class="fas fa-edit"></i> to open the Whiteboard menu and dynamically make notes on presentations.
 
-## {.small}
-
-| Icon / Key                        | Function                |
-| :-------------------------------- | :---------------------- |
-| <i class="fas fa-magic"></i>      | use a laser pointer     |
-| <i class="fas fa-eraser"></i>     | use an eraser           |
-| <i class="fas fa-pen"></i>        | make notes on slides    |
-| <i class="fas fa-undo"></i>       | undo the last action    |
-| <i class="fas fa-border-all"></i> | show the grid           |
-| <i class="fas fa-plus"></i>       | add a blank slide below |
-| <i class="fas fa-save"></i>       | save whiteboard notes   |
+| Icon / Key                        | Function                 |
+| :-------------------------------- | ------------------------ |
+| <i class="fas fa-magic"></i>      | use a laser pointer      |
+| <i class="fas fa-eraser"></i>     | use an eraser            |
+| <i class="fas fa-pen"></i>        | make notes on slides     |
+| <i class="fas fa-undo"></i>       | undo the last action     |
+| <i class="fas fa-border-all"></i> | show the background grid |
+| <i class="fas fa-plus"></i>       | add a blank slide below  |
+| <i class="fas fa-save"></i>       | save whiteboard notes    |
 
 # Save Notes & Drawings
 
@@ -58,17 +57,6 @@ When you save <i class="fas fa-save"></i> slide notes and whiteboard drawings, a
     decker.yaml
     example-deck.md
     example-annot.json *
-```
-
-# Using Whiteboard Files
-
-To include these notes and drawings in your next presentation, note the file in [YAML meta](#yaml):
-
-## {.small}
-
-```{.yaml}
-title: Decker Example
-whiteboard: 'example-annot.json'
 ```
 
 # Speaker Notes
@@ -94,32 +82,26 @@ Use the `{.notes}` tag to create notes that appear in the speaker view. The slid
 
 - Motivation has limits. A large leaderboard divide may cause the player to abandon the game.
 
-# Other Features {.columns}
-
-## {.top}
+# Other Features
 
 Use these keys to try out the other Decker features:
-
-## {.definition .left}
 
 `o` - Slide Overview\
 `l` - Laser Pointer\
 `b` - Blackout\
 `f` - Fullscreen
 
-## {.right}
-
-## {.bottom}
+## Zoom
 
 Double-click on any element in your presentation to zoom in.\
 Double-click again to zoom-out.
 
-# Keyboard Shortcut Menu
+# Keyboard Shortcut Menu {.columns}
 
-## {.small .column width="24%"}
+## {.left}
 
 | Key  | Direction |
-| :--- | :-------- |
+| ---- | --------- |
 | `←`  | left      |
 | `→`  | right     |
 | `↑`  | up        |
@@ -129,28 +111,19 @@ Double-click again to zoom-out.
 | home | first     |
 | end  | last      |
 
-## {.small .column width="41%"}
+## {.right}
 
-| Key             | Command         |
-| :-------------- | :-------------- |
-| f               | fullscreen      |
-| s               | speaker notes   |
-| m               | toggle menu     |
-| ctrl + shft + f | toggle search   |
-| q               | toggle quiz     |
-| o               | toggle overview |
-| b               | toggle blackout |
-| esc             | escape feature  |
-
-## {.small .column width="33%"}
-
-| Key    | Command           |
-| :----- | :---------------- |
-| w      | toggle whiteboard |
-| d      | toggle drawing    |
-| e      | toggle eraser     |
-| l      | toggle laser      |
-| delete | clear slide       |
+| Key                 | Command       |
+| ------------------- | ------------- |
+| b                   | blackout      |
+| d                   | drawing       |
+| f                   | fullscreen    |
+| m                   | menu          |
+| o                   | overview      |
+| q                   | quiz          |
+| s                   | speaker notes |
+| w                   | whiteboard    |
+| `ctrl` + `shft` + f | search        |
 
 # Configuration Options {#yaml}
 
@@ -163,8 +136,6 @@ i.e. located at the top of the `*.md` file:
 ```{.yaml}
 ---
 title: Decker Slide Tool Reference Guide
-vertical-slides: true
-menu: false
 bibliography: example.bib
 csl: chicago-author-date.csl
 ---
@@ -172,76 +143,60 @@ csl: chicago-author-date.csl
 
 # Configuration Options
 
-## {.small}
-
-| Parameter         | Options | Effect                                                                 |
-| ----------------- | ------- | ---------------------------------------------------------------------- |
-| `author`          | String  | Displayed on first slide                                               |
-| `date`            | String  | Displayed on first slide (if "today" shows current date as YYYY-MM-DD) |
-| `title`           | String  | Displayed on first slide                                               |
-| `subtitle`        | String  | Displayed on first slide                                               |
-| `width`, `height` | numeric | Define aspect ratio                                                    |
+| Parameter         | Options | Effect                       |
+| ----------------- | ------- | ---------------------------- |
+| `author`          | String  | Show author on first slide   |
+| `date`            | String  | Show date on first slide     |
+| `title`           | String  | Show title on first slide    |
+| `subtitle`        | String  | Show subtitle on first slide |
+| `width`, `height` | numeric | Define aspect ratio          |
 
 # Configuration Options
 
-## {.small}
+The options below all accept either "true" or "false".
 
-| Parameter     | Options           | Effect                                 |
-| ------------- | ----------------- | -------------------------------------- |
-| `menu`        | `true` or `false` | Include menu showing table of contents |
-| `progress`    | `true` or `false` | Turn progress bar on/off               |
-| `slideNumber` | `true` or `false` | Turn slide numbers on/off              |
-| `history`     | `true` or `false` | Show slides in browser history         |
-| `controls`    | `true` or `false` | Turn arrow controls on/off             |
-| `whiteboard`  | `true` or `false` | Include reveal.js whiteboard plugin    |
-| `chart`       | `true` or `false` | Include reveal.js chart plugin         |
+| Parameter     | Effect                                 |
+| ------------- | -------------------------------------- |
+| `menu`        | Include menu showing table of contents |
+| `progress`    | Include a progress bar                 |
+| `slideNumber` | Include slide numbers                  |
+| `history`     | Show slides in browser history         |
+| `controls`    | Include arrow controls                 |
+| `whiteboard`  | Include whiteboard plugin              |
+| `chart`       | Include chart plugin                   |
 
 # Configuration Options
 
-## {.small}
-
-| Parameter      | Options                          | Effect                          |
-| -------------- | -------------------------------- | ------------------------------- |
-| `csl`          | Filepath to .csl file            | Include a citation style (.csl) |
-| `bibliography` | Filepath to .bib file            | Include bibliography            |
-| `css`          | Filepath to .css file            | Additional CSS resources        |
-| `lang`         | Any ISO Language Code (eg. `de`) | HTML content language           |
-| `dir`          | `RTL` or `LTR`                   | Text content direction          |
+| Parameter      | Options           | Effect                          |
+| -------------- | ----------------- | ------------------------------- |
+| `csl`          | filepath          | Include a citation style (.csl) |
+| `bibliography` | filepath          | Include bibliography            |
+| `css`          | filepath          | Additional CSS resources        |
+| `lang`         | ISO language code | HTML content language           |
+| `dir`          | `RTL` or `LTR`    | Text content direction          |
 
 # Decker Commands
 
 Use on the command line after the word `decker` (ie `decker clean`)
 
-## {.definition .small}
-
-| Command   | Function                                                                                                                                                    |
-| :-------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `clean`   | removes all generated files from the `public` directory and clears cached resource folders with version number older than the currently used decker version |
-| `decks`   | creates only HTML slide decks                                                                                                                               |
-| `example` | copies an example project to the current directory                                                                                                          |
-| `help`    | prints a help document to stdout in Markdown format                                                                                                         |
-| `html`    | creates all HTML files without opening a server                                                                                                             |
+| Command   | Function                                                                                                                                                 |
+| :-------- | :------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `clean`   | removes the `public` directory and clears cached resource folders with version number older than the current version                                     |
+| `decks`   | creates HTML slide decks                                                                                                                                 |
+| `example` | copies an example project to the current directory                                                                                                       |
+| `html`    | creates all HTML files without opening a server                                                                                                          |
+| `info`    | prints information about the current project's directories, files that will be generated and meta data options found in the top level `decker.yaml` file |
+| `pdf`     | creates pdf version of all files                                                                                                                         |
 
 # Decker Commands
 
-## {.definition .small}
-
-| Command     | Function                                                                                                                                                 |
-| :---------- | :------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `info`      | prints information about the current project's directories, files that will be generated and meta data options found in the top level `decker.yaml` file |
-| `pdf`       | creates pdf version of all files                                                                                                                         |
-| `pdf-decks` | creates pdf versions only of the html slide decks                                                                                                        |
-| `publish`   | publish generated files to a remote location using `rsync` \*\*                                                                                          |
+| Command     | Function                                                                                                                                                                   |
+| :---------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pdf-decks` | creates pdf versions of the html slide decks                                                                                                                               |
+| `publish`   | publish generated files to a remote location using `rsync` \*\*                                                                                                            |
+| `server`    | like `decker watch` but additionally starts a local web server at the address `localhost:8888` and serves generated HTML files. Changed files are reloaded in the browser. |
+| `watch`     | builds HTML versions of all documents and watches for document changes. Each change to a watched document triggers a rebuild. Watching can be terminated with `Ctrl C`     |
 
 ## {.small}
 
 \*\*_The keys `rsync-destination.host` and `rsync-destination.path` in YAML metadata must specify the publishing destination._
-
-# Decker Commands
-
-## {.definition .small}
-
-| Command  | Function                                                                                                                                                                        |
-| :------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `server` | like `decker watch` but this additionally starts a local web server at the address `localhost:8888` and serves generated HTML files. Changed files are reloaded in the browser. |
-| `watch`  | builds HTML versions of all documents and watches for document changes. Each change to a watched document triggers a rebuild. Watching can be terminated with `Ctrl C`          |

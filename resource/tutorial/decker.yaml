@@ -18,4 +18,3 @@ rsync-destination: # publishing to a remote location (example)
   path: /some/path
 touch: "true"
 transition: "none"
-vertical-slides: "true"

@@ -2,13 +2,16 @@
 bibliography: "example.bib"
 csl: "chicago-author-date.csl"
 title: Decker Syntax Guide
+vertical-slides: "true"
 ---
 
 # About
 
-This syntax guide will highlight some of the main styling features of Decker and provide examples on how to use each feature.
+This guide will highlight some of the main styling features of Decker and provide examples on how to use each feature. Visit <http://pandoc.org> for additional information on Pandoc-Markdown text formatting.
 
-Visit <http://pandoc.org> for additional information on Pandoc-Markdown text formatting.
+## {.example}
+
+In this guide, watch for text with a blue border. These blocks highlight examples of the syntax in action.
 
 # Slide Headers
 
@@ -18,7 +21,7 @@ Visit <http://pandoc.org> for additional information on Pandoc-Markdown text for
 
 #### Heading 4 (h4) {.example}
 
-## {.small}
+##
 
 ```{.markdown}
 # Heading 1 (h1) *new slide created
@@ -31,8 +34,6 @@ Visit <http://pandoc.org> for additional information on Pandoc-Markdown text for
 
 ## {.split}
 
-###
-
 ## {.example}
 
 **This is bold text**\
@@ -44,7 +45,7 @@ _This is italic text_\
 H~2~O is a liquid.\
 2^3^ equals 8.
 
-## {.small}
+##
 
 ```{.markdown}
 **This is bold text**
@@ -61,36 +62,52 @@ _This is italic text_
 
 ## {.left}
 
-## xx-small Text {.xx-small}
+## {.xx-small}
 
-## x-small Text {.x-small}
+xx-small Text
 
-## small Text {.small}
+## {.x-small}
 
-## medium Text {.medium}
+x-small Text
 
-## large Text {.large}
+## {.small}
 
-## x-large Text {.x-large}
+small Text
 
-## xx-large Text {.xx-large}
+## {.medium}
 
-## {.x-small .right}
+medium Text
+
+## {.large}
+
+large Text
+
+## {.x-large}
+
+x-large Text
+
+## {.xx-large}
+
+xx-large Text
+
+## {.right .x-small}
 
 ```{.markdown}
-## xx-small Text {.xx-small}
+## {.xx-small}
 
-## x-small Text {.x-small}
+xx-small Text
 
-## small Text {.small}
+## {.x-small}
 
-## medium Text {.medium}
+x-small Text
 
-## large Text {.large}
+## {.small}
 
-## x-large Text {.x-large}
+small Text
 
-## xx-large Text {.xx-large}
+## {.medium}
+
+medium Text
 ```
 
 # Highlight Text
@@ -174,37 +191,37 @@ Notable for its beautifully restored interior
 
 # Column Widths
 
-## this left column has a width of 70% {.column width="70%"}
+## this left column has a width of 60% {.column width="60%"}
 
 ## this right column has a width of 25% {.column width="25%"}
 
 ## {.small}
 
 ```{.markdown}
-## this left column has a width of 70% {.column width=70%}
+## this left column has a width of 60% {.column width=60%}
 
 ## this right column has a width of 25% {.column width=25%}
 ```
 
 # Grid Layout {.grid}
 
-## One {.top-left .example}
+## One {.top-left}
 
-## Two {.top .example}
+## Two {.top}
 
-## Three {.top-right .example}
+## Three {.top-right}
 
-## Four {.left .example}
+## Four {.left}
 
-## Five {.center .example}
+## Five {.center}
 
-## Six {.right .example}
+## Six {.right}
 
-## Seven {.bottom-left .example}
+## Seven {.bottom-left}
 
-## Eight {.bottom .example}
+## Eight {.bottom}
 
-## Nine {.bottom-right .example}
+## Nine {.bottom-right}
 
 # Grid Layout Syntax {.sub .columns}
 
@@ -250,14 +267,6 @@ Use the `{.grid}` tag to partition the slide into a grid. Identify each block wi
 
 - Question text
 
-## Answer Block {.answer}
-
-- Answer text
-
-## Definition Block {.definition}
-
-- Definition text
-
 ## Observation Block {.observation}
 
 - Observation text
@@ -265,6 +274,14 @@ Use the `{.grid}` tag to partition the slide into a grid. Identify each block wi
 ## Example Block {.example}
 
 - Example text
+
+## Answer Block {.answer}
+
+- Answer text
+
+## Definition Block {.definition}
+
+- Definition text
 
 ## Equation Block {.equation}
 
@@ -276,7 +293,7 @@ Use the `{.grid}` tag to partition the slide into a grid. Identify each block wi
 
 # Highlight Blocks {.columns .sub}
 
-## {.x-small .left}
+## {.small .left}
 
 ```{.markdown}
 ## Alert Block {.alert}
@@ -287,18 +304,6 @@ Use the `{.grid}` tag to partition the slide into a grid. Identify each block wi
 
 -   Question text
 
-## Answer Block {.answer}
-
--   Answer text
-
-## Definition Block {.definition}
-
--   Definition text
-```
-
-## {.x-small .right}
-
-```{.markdown}
 ## Observation Block {.observation}
 
 -   Observation text
@@ -306,6 +311,18 @@ Use the `{.grid}` tag to partition the slide into a grid. Identify each block wi
 ## Example Block {.example}
 
 -   Example text
+```
+
+## {.small .right}
+
+```{.markdown}
+## Answer Block {.answer}
+
+-   Answer text
+
+## Definition Block {.definition}
+
+-   Definition text
 
 ## Equation Block {.equation}
 
@@ -328,7 +345,7 @@ Surround text with **\~\~\~** or **\`\`\`** or indent each line by four spaces t
 
 Use special characters to mark text as **bold** or _italic_, to ~~strikethrough~~ or <u>underline</u>, and to write ~subscript~ or ^superscript^ text.
 
-## {.x-small .right}
+## {.small .right}
 
 ```{.markdown}
 Use special characters to mark
@@ -364,35 +381,31 @@ Preceed each line with **\>** to quote a block of text:
 
 ## {.left}
 
+##
+
 ## {.example}
 
 To $\infty$ and beyond!
 
-## {.example}
-
 $$ e = mc ^ 2 $$
-
-## {.example}
 
 $$ \lim_{x \to \infty} \exp(-x) = 0 $$
 
-## { .right}
+## {.small .right}
 
 ```{.markdown}
 To $\infty$ and beyond!
-```
 
-```{.markdown}
 $$ e = mc ^ 2 $$
-```
 
-```{.markdown}
 $$ \lim_{x \to \infty} \exp(-x) = 0 $$
 ```
 
 # Java Syntax
 
 Use the `{.java}` tag to highlight Java code.
+
+## {.example}
 
 ```{.java}
 String s = "Java highlighting syntax";
@@ -412,6 +425,8 @@ System.out.println (s);
 
 Use the `{.javascript}` tag to highlight Javascript code.
 
+## {.example}
+
 ```{.javascript}
 var s = "JavaScript syntax highlighting";
 alert (s);
@@ -426,19 +441,15 @@ alert (s);
 ~~~
 ```
 
-# Inverse Colors {.inverse}
+# Inverse Colors {.inverse background-color="black"}
 
 ## Color Scheme for Dark Images
 
-Add the `{.inverse}` tag to a slide header.
-
-## Definition Box {.fragment .definition}
-
-Even colored boxes look ok.
+Add `{.inverse background-color="black"}` to a slide header.
 
 # Lists {#lists}
 
-## Ordered Lists {.split}
+## Ordered Lists {.example .split}
 
 1.  bread
 2.  milk
@@ -454,7 +465,7 @@ Even colored boxes look ok.
 4.  flour
 ```
 
-## Enumerated Lists
+## Enumerated Lists {.example}
 
 - Take out trash
 - Vaccuum
@@ -470,83 +481,15 @@ Even colored boxes look ok.
 -  Wash dishes
 ```
 
-# Task Lists {.columns}
-
-## {.left}
-
-- Task List
-  - [x] Mathe
-  - [x] Informatik
-  - [ ] alles andere
-
-## {.thumb}
-
-- Thumbs Up / Down
-  - [x] Mathe
-  - [x] Informatik
-  - [ ] alles andere
-
-## {.right .check-cross}
-
-- Check / Cross
-  - [x] Mathe
-  - [x] Informatik
-  - [ ] alles andere
-
-## {.plus-minus}
-
-- Plus / Minus
-  - [x] Mathe
-  - [x] Informatik
-  - [ ] alles andere
-
-# Task List Syntax {.sub .columns}
-
-## {.small .left}
-
-```{.markdown}
-##
-
--   Task List
-    -   [x] Mathe
-    -   [x] Informatik
-    -   [ ] alles andere
-
-##  {.thumb}
-
--   Thumbs Up / Down
-    -   [x] Mathe
-    -   [x] Informatik
-    -   [ ] alles andere
-```
-
-## {.small .right}
-
-```{.markdown}
-##  {.check-cross}
-
--   Check / Cross
-    -   [x] Mathe
-    -   [x] Informatik
-    -   [ ] alles andere
-
-##  {.plus-minus}
-
--   Plus / Minus
-    -   [x] Mathe
-    -   [x] Informatik
-    -   [ ] alles andere
-```
-
 # Sequential Lists
 
-(1) Salman Rushdie, _The Ground beneath Her Feet_ (New York: Henry Holt, 1999), 25.
+(@) Salman Rushdie, _The Ground beneath Her Feet_ (New York: Henry Holt, 1999), 25.
 
-(2) Bob Stewart, "Wag of the Tail: Reflecting on Pet Ownership," in _Enriching Our Lives with Animals_, ed. John Jaimeson, Tony Bannerman and Selena Wong (Toronto, ON: Petlove Press, 2007),100.
+(@) Bob Stewart, "Wag of the Tail: Reflecting on Pet Ownership," in _Enriching Our Lives with Animals_, ed. John Jaimeson, Tony Bannerman and Selena Wong (Toronto, ON: Petlove Press, 2007),100.
 
 Additional sources:
 
-(3) Elliot Antokoletz, _Musical Symbolism in the Operas of Debussy and Bartok_ (New York: Oxford University Press, 2008), doi:10.1093/acprof:oso/9780195365825.001.0001.
+(@) Elliot Antokoletz, _Musical Symbolism in the Operas of Debussy and Bartok_ (New York: Oxford University Press, 2008), doi:10.1093/acprof:oso/9780195365825.001.0001.
 
 # Sequential Lists Syntax {.sub}
 
