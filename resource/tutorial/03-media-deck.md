@@ -60,7 +60,7 @@ Fullscreen images are added to the slide header. Do not give the slide a title.
 
 # External Videos
 
-![Red-winged Blackbird](vimeo:20027678){autoplay="1" width="70%" start="8"}
+![Red-winged Blackbird](vimeo:20027678){width="70%" start="8"}
 
 ## {.small}
 

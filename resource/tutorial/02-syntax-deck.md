@@ -126,9 +126,30 @@ Built between <mark>1720 and 1744</mark>, one of the finest  ...
 
 Decker supports the use of emojis in your presentation.
 
-- Powerpoint: 😢
-- LaTeX-Beamer: 😊
-- Decker: 😍
+# Emojis
+
+Decker supports the use of emojis in your presentation.
+
+## Faces
+
+😣 😫 😓 😕 😲 ☹️ 😱 😳 🥺 😎 🤠 🤓 🧐 🥳 😍 😘
+😗 😙 😚 ☺️ 🤑 🤪 😤 😠 👿 💀 ☠️ 🤬 😐 😑 😶 🙄
+😏 🤐 😒 😬 🤥 🤨 😪 😴 😌 🤤 😔
+
+## Happy Faces
+
+😁 😂 🤣 😃 😄 😅 😆 😉 😊 🙂 😀 🙃 😇 🤩 🥰 😋 😛 😜 😝
+
+## Unhappy Faces
+
+🙁 😖 😞 😟 😢 😭 😦 😧 😨 😩 😰 😥 😮 😯 😵 😷
+🤒 🤕 🤢 🤧 🤯 🤮 🥵 🥶 🥴
+
+## Others
+
+👁️‍🗨️ 💋 💘 ❤️ 💓 💔 💕 💖 💗 💙 💚 💛 💜 🖤 💝
+💞 💟 ❣️ 💌 💤 💢 💣 💥 💦 💨 💫 💬 🗨️ 🗯️ 💭
+🕳️ 💯 🧡 🤡 👹 👺 👻 👽 👾 🤖
 
 # Vertical Slides
 
@@ -191,9 +212,9 @@ Notable for its beautifully restored interior
 
 # Column Widths
 
-## this left column has a width of 60% {.column width="60%"}
+## this left column has a width of 60% {.column width="60%" .example}
 
-## this right column has a width of 25% {.column width="25%"}
+## this right column has a width of 25% {.column width="25%" .example}
 
 ## {.small}
 

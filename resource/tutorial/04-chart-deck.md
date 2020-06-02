@@ -243,7 +243,3 @@ digraph {
   \draw (0,0) -- (t);
 \end{tikzpicture}
 ```
-
-```
-
-```
