@@ -867,28 +867,80 @@ Irgendwelche Zahlen, 5, 6, 5, 2, 3, 3, 4, 3, 3, 5, 11
 ``
 ```
 
-# Graphs {.columns}
+# Embedded Graphviz (SVG)
 
-## Graphs with [GraphViz](https://www.graphviz.org/) {.left}
-
-```{.dot .render height=300px}
+```{.dot .render width="60%"}
 digraph {
-    node [style = filled]
-    A [fillcolor = red]
-    C [fillcolor = green]
-    D [fillcolor = blue]
-    A -> B
-    A -> C
-    C -> D
-    C -> E
-    C -> F
-    B -> D
+  node [style = filled]
+  A [fillcolor = yellow]
+  A -> B
+  A -> C
+  C -> D
+  C -> E
+  C -> F
+  B -> D
 }
 ```
 
-## Graphs with Tikz/Latex {.right}
+# Graphviz Syntax {.sub}
 
-```{.tikz .render height=500px}
+## {.small}
+
+````{.dot}
+``` {.dot .render width="60%"}
+digraph {
+  node [style = filled]
+  A {fillcolor = yellow}
+  A -> B
+  A -> C
+  C -> D
+  C -> E
+  C -> F
+  B -> D
+}
+```
+````
+
+# Embedded Gnuplot (SVG)
+
+```{.gnuplot .render}
+set samples 20, 20
+set isosamples 20, 20
+set hidden3d back offset 1 trianglepattern 3 undefined 1 altdiagonal bentover
+set style data lines
+set xrange [ -3.00000 : 3.00000 ] noreverse nowriteback
+set yrange [ -2.00000 : 2.00000 ] noreverse nowriteback
+DEBUG_TERM_HTIC = 119
+DEBUG_TERM_VTIC = 118
+splot 1 / (x*x + y*y + 0.5)
+```
+
+# Gnuplot Syntax {.sub}
+
+## {.small}
+
+````{.dot}
+``` {.gnuplot .render}
+set samples 20, 20
+set isosamples 20, 20
+set hidden3d back offset 1 trianglepattern 3 undefined 1 altdiagonal bentover
+set style data lines
+set xrange [ -3.00000 : 3.00000 ] noreverse nowriteback
+set yrange [ -2.00000 : 2.00000 ] noreverse nowriteback
+DEBUG_TERM_HTIC = 119
+DEBUG_TERM_VTIC = 119
+splot 1 / (x*x + y*y + 1)
+```
+````
+
+# Embedded Tikz
+
+```{.tex .render width="50%"}
+\documentclass{standalone}
+\usepackage{tikz}
+\usepackage{verbatim}
+\begin{document}
+\pagestyle{empty}
 \begin{tikzpicture}[scale=3,cap=round]
   % Local definitions
   \def\costhirty{0.8660256}
@@ -940,7 +992,74 @@ digraph {
 
   \draw (0,0) -- (t);
 \end{tikzpicture}
+\end{document}
 ```
+
+# Tikz Syntax {.sub}
+
+## {.x-small}
+
+````{.tex}
+```{.tex .render width="50%"}
+\documentclass{standalone}
+\usepackage{tikz}
+\usepackage{verbatim}
+\begin{document}
+\pagestyle{empty}
+\begin{tikzpicture}[scale=3,cap=round]
+  % Local definitions
+  \def\costhirty{0.8660256}
+
+  % Colors
+  \colorlet{anglecolor}{green!50!black}
+  \colorlet{sincolor}{red}
+  \colorlet{tancolor}{orange!80!black}
+  \colorlet{coscolor}{blue}
+
+  % Styles
+  \tikzstyle{axes}=[]
+  \tikzstyle{important line}=[very thick]
+  \tikzstyle{information text}=[rounded corners,fill=red!10,inner sep=1ex]
+
+  % The graphic
+  \draw[style=help lines,step=0.5cm] (-1.4,-1.4) grid (1.4,1.4);
+
+  \draw (0,0) circle (1cm);
+
+  \begin{scope}[style=axes]
+    \draw[->] (-1.5,0) -- (1.5,0) node[right] {$x$};
+    \draw[->] (0,-1.5) -- (0,1.5) node[above] {$y$};
+
+    \foreach \x/\xtext in {-1, -.5/-\frac{1}{2}, 1}
+      \draw[xshift=\x cm] (0pt,1pt) -- (0pt,-1pt) node[below,fill=white]
+            {$\xtext$};
+
+    \foreach \y/\ytext in {-1, -.5/-\frac{1}{2}, .5/\frac{1}{2}, 1}
+      \draw[yshift=\y cm] (1pt,0pt) -- (-1pt,0pt) node[left,fill=white]
+            {$\ytext$};
+  \end{scope}
+
+  \filldraw[fill=green!20,draw=anglecolor] (0,0) -- (3mm,0pt) arc(0:30:3mm);
+  \draw (15:2mm) node[anglecolor] {$\alpha$};
+
+  \draw[style=important line,sincolor]
+    (30:1cm) -- node[left=1pt,fill=white] {$\sin \alpha$} +(0,-.5);
+
+  \draw[style=important line,coscolor]
+    (0,0) -- node[below=2pt,fill=white] {$\cos \alpha$} (\costhirty,0);
+
+  \draw[style=important line,tancolor] (1,0) --
+    node [right=1pt,fill=white]
+    {
+      $\displaystyle \tan \alpha \color{black}=
+      \frac{ {\color{sincolor}\sin \alpha} }{\color{coscolor}\cos \alpha}$
+    } (intersection of 0,0--30:1cm and 1,0--1,1) coordinate (t);
+
+  \draw (0,0) -- (t);
+\end{tikzpicture}
+\end{document}
+```
+````
 
 # Whiteboard
 
