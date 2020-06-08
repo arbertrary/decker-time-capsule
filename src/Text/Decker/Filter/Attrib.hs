@@ -58,7 +58,16 @@ extractAttr :: Attrib Attr
 extractAttr = do
   (result, remaining) <- get
   put (nullAttr, remaining)
-  return result
+  return $ parseAtt (result, remaining)
+  where
+    parseAtt ((id, [], kv), (_, rmc, _)) = (id, findSub rmc, kv)
+    parseAtt ((id, [rsc], kv), (_, rmc, _)) = (id, rsc : findSub rmc, kv)
+    parseAtt (res, (_, [], _)) = res
+    findSub (x:xs) =
+      case Text.unpack x of
+        "sub" -> [x]
+        _ -> findSub xs
+    findSub [] = []
 
 -- | Removes all values associated with key from the list.
 rmKey :: Eq a => a -> [(a, b)] -> [(a, b)]
