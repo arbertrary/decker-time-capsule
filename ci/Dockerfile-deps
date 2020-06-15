@@ -1,0 +1,8 @@
+ARG IMG_BASE=gitlab2.informatik.uni-wuerzburg.de:4567/decker/decker/master:base
+
+FROM ${IMG_BASE} as deps
+
+WORKDIR /deps
+COPY ./stack.yaml stack.yaml
+COPY ./package.yaml package.yaml
+RUN stack build --only-snapshot

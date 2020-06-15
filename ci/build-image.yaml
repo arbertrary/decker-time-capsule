@@ -11,7 +11,7 @@ image:base:
   stage: base
   script:
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
-    - /kaniko/executor --context=$CI_PROJECT_DIR --dockerfile=$CI_PROJECT_DIR/Dockerfile --target=base --verbosity=warn --destination=$CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:base
+    - /kaniko/executor --context=$CI_PROJECT_DIR --dockerfile=$CI_PROJECT_DIR/ci/Dockerfile-base --target=base --verbosity=warn --destination=$CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:base
   rules:
     - changes:
         - Dockerfile
@@ -28,7 +28,7 @@ image:deps:
   stage: deps
   script:
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
-    - /kaniko/executor --context=$CI_PROJECT_DIR --dockerfile=$CI_PROJECT_DIR/Dockerfile --target=deps --build-arg=IMG_BASE=$CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:base --verbosity=warn --destination=$CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:deps
+    - /kaniko/executor --context=$CI_PROJECT_DIR --dockerfile=$CI_PROJECT_DIR/ci/Dockerfile-deps --target=deps --build-arg=IMG_BASE=$CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:base --verbosity=warn --destination=$CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:deps
   rules:
     - changes:
         - Dockerfile

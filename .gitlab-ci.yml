@@ -12,12 +12,15 @@ ci-img:
       - local: build-image-ci.yaml
     strategy: depend
   rules:
-    - changes:
-        - Dockerfile
+    - if: "!$CI_MERGE_REQUEST_IID"
+      changes:
+        - ci/Dockerfile-base
+        - ci/Dockerfile-deps
+        - ci/Dockerfile-decker
         - stack.yaml
         - package.yaml
         - .gitlab-ci.yaml
-        - build-image-ci.yaml
+        - ci/build-image.yaml
       when: always
 
 .templates:
@@ -178,7 +181,7 @@ deploy:docker:
   stage: deploy
   script:
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:latest --build-arg IMG_DEPS=$CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:deps --verbosity warn
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/ci/Dockerfile-decker --destination $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:latest --build-arg IMG_BASE=$CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:deps --verbosity warn
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: always
