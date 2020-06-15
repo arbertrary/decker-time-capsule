@@ -35,7 +35,7 @@ FROM ${IMG_BASE} as deps
 WORKDIR /deps
 COPY ./stack.yaml stack.yaml
 COPY ./package.yaml package.yaml
-RUN stack build --only-dependencies --only-snapshot
+RUN stack build --only-snapshot
 
 FROM ${IMG_DEPS} as build
 
