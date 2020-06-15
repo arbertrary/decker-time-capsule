@@ -11,6 +11,13 @@ ci-img:
     include:
       - local: build-image-ci.yaml
     strategy: depend
+  rules:
+    - changes:
+        - Dockerfile
+        - stack.yaml
+        - package.yaml
+        - .gitlab-ci.yaml
+      when: always
 
 .templates:
   image: kkarczmarczyk/node-yarn

@@ -17,7 +17,6 @@ image:base:
         - Dockerfile
         - .gitlab-ci.yaml
       when: always
-    - when: manual
 
 image:deps:
   tags:
@@ -36,7 +35,6 @@ image:deps:
         - package.yaml
         - .gitlab-ci.yaml
       when: always
-    - when: manual
   needs:
     - job: image:base
       artifacts: false
