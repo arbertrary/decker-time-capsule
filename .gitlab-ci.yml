@@ -19,6 +19,7 @@ image:base:
   rules:
     - changes:
         - Dockerfile
+        - .gitlab-ci.yaml
       when: always
     - when: manual
 
@@ -37,6 +38,7 @@ image:deps:
         - Dockerfile
         - stack.yaml
         - package.yaml
+        - .gitlab-ci.yaml
       when: always
     - when: manual
   needs:
@@ -73,6 +75,14 @@ build:linux:
     key: stack_work
     paths:
       - .stack-work
+  rules:
+    - changes:
+        - Dockerfile
+        - stack.yaml
+        - package.yaml
+        - .gitlab-ci.yaml
+      when: on_success
+    - when: always
 
 build:mac:
   tags:
@@ -89,6 +99,7 @@ build:mac:
   artifacts:
     paths:
       - decker
+  when: always
 
 build:win:
   tags:
@@ -104,6 +115,7 @@ build:win:
     key: build-win
     paths:
       - .stack-work
+  when: always
 
 test:linux:
   stage: test
