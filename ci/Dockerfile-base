@@ -1,4 +1,5 @@
 FROM ubuntu:bionic as base
+LABEL maintainer="jan-philipp.stauffert@uni-wuerzburg.de"
 
 RUN apt-get update &&	apt-get install -y \
   wget \
