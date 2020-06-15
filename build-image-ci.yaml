@@ -16,6 +16,7 @@ image:base:
     - changes:
         - Dockerfile
         - .gitlab-ci.yaml
+        - build-image-ci.yaml
       when: always
 
 image:deps:
@@ -34,6 +35,7 @@ image:deps:
         - stack.yaml
         - package.yaml
         - .gitlab-ci.yaml
+        - build-image-ci.yaml
       when: always
   needs:
     - job: image:base
