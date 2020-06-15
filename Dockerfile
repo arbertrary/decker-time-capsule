@@ -1,5 +1,7 @@
-# Builds the decker executable
-FROM ubuntu:bionic
+ARG IMG_BASE=base
+ARG IMG_DEPS=deps
+
+FROM ubuntu:bionic as base
 
 RUN apt-get update &&	apt-get install -y \
   wget \
@@ -7,7 +9,8 @@ RUN apt-get update &&	apt-get install -y \
   zip \
   libbz2-dev \
   curl \
-  gnupg
+  gnupg \
+  sassc
 
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
   echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
@@ -18,14 +21,23 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
 #set the encoding on UTF-8, so the parser works correctly, german language is also added for umlaute
 #source of fix: https://blog.mkowalski.net/2016/05/16/solving-locale-issues-with-docker-containers/
 RUN apt-get install --reinstall -y locales && \
-        sed -i 's/# de_DE.UTF-8 UTF-8/de_DE.UTF-8 UTF-8/' /etc/locale.gen && \
-        locale-gen de_DE.UTF-8
+  sed -i 's/# de_DE.UTF-8 UTF-8/de_DE.UTF-8 UTF-8/' /etc/locale.gen && \
+  locale-gen de_DE.UTF-8
 ENV LANG de_DE.UTF-8
 ENV LANGUAGE de_DE
 ENV LC_ALL de_DE.UTF-8
 RUN dpkg-reconfigure --frontend noninteractive locales
 
 RUN wget -qO- https://get.haskellstack.org/ | sh
+
+FROM ${IMG_BASE} as deps
+
+WORKDIR /deps
+COPY ./stack.yaml stack.yaml
+COPY ./package.yaml package.yaml
+RUN stack build --only-dependencies
+
+FROM ${IMG_DEPS} as build
 
 WORKDIR /decker
 COPY . /decker
@@ -35,24 +47,23 @@ RUN make ${MAKE_FLAGS} install
 RUN ldd /root/.local/bin/decker | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' /root/.local/bin
 
 # Image that will execute decker
-FROM ubuntu:bionic
+FROM ubuntu:bionic as decker
 
 RUN apt-get update && apt-get install -y \
-    graphviz \
-    gnuplot \
-    rsync \
-    unzip \
-    zip
+  graphviz \
+  gnuplot \
+  rsync \
+  unzip \
+  zip
 
 ENV PATH="/root/.local/bin:${PATH}"
-COPY --from=0 /root/.local /root/.local
-#COPY --from=0 /root/.stack/snapshots/x86_64-linux-nopie/lts-11.6/8.2.2/share/x86_64-linux-ghc-8.2.2/pandoc-citeproc-0.14.3/locales/locales-en-US.xml /root/.stack/snapshots/x86_64-linux-nopie/lts-11.6/8.2.2/share/x86_64-linux-ghc-8.2.2/pandoc-citeproc-0.14.3/locales/locales-en-US.xml
+COPY --from=build /root/.local /root/.local
 
 #set the encoding on UTF-8, so the parser works correctly, german language is also added for umlaute
 #source of fix: https://blog.mkowalski.net/2016/05/16/solving-locale-issues-with-docker-containers/
 RUN apt-get install --reinstall -y locales && \
-	sed -i 's/# de_DE.UTF-8 UTF-8/de_DE.UTF-8 UTF-8/' /etc/locale.gen && \
-	locale-gen de_DE.UTF-8
+  sed -i 's/# de_DE.UTF-8 UTF-8/de_DE.UTF-8 UTF-8/' /etc/locale.gen && \
+  locale-gen de_DE.UTF-8
 ENV LANG de_DE.UTF-8
 ENV LANGUAGE de_DE
 ENV LC_ALL de_DE.UTF-8

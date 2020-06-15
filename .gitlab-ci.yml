@@ -1,13 +1,51 @@
 stages:
-  - templates
+  - image-base
+  - image-deps
   - build
   - test
   - deploy
   - stop
 
-templates:
+image:base:
+  tags:
+    - docker
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  stage: image-base
+  script:
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --target base --destination $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:base --verbosity=warn
+  rules:
+    - changes:
+        - Dockerfile
+      when: always
+    - when: manual
+
+image:deps:
+  tags:
+    - docker
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  stage: image-deps
+  script:
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --target deps --destination $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:deps --build-arg IMG_BASE=$CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:base --verbosity warn
+  rules:
+    - changes:
+        - Dockerfile
+        - stack.yaml
+        - package.yaml
+      when: always
+    - when: manual
+  needs:
+    - job: image:base
+      artifacts: false
+
+.templates:
   image: kkarczmarczyk/node-yarn
-  stage: templates
+  stage: build
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
   tags:
@@ -23,11 +61,11 @@ build:linux:
   tags:
     - docker
   image:
-    name: fpco/stack-build
+    name: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:deps
     entrypoint: [""]
   script:
-    - STACK_ROOT=`pwd`/.stack make clean-build
-    - cp $(STACK_ROOT=`pwd`/.stack stack path | grep "local-install-root" | awk '{printf "%s/bin/decker",$2}') decker
+    - make clean-build
+    - cp $(stack path | grep "local-install-root" | awk '{printf "%s/bin/decker",$2}') decker
   artifacts:
     paths:
       - decker
@@ -35,7 +73,6 @@ build:linux:
     key: stack_work
     paths:
       - .stack-work
-      - .stack
 
 build:mac:
   tags:
@@ -58,7 +95,7 @@ build:win:
     - win
   stage: build
   script:
-    - '&.\bin\build.ps1 standalone -skiptemplates -preparepackage'
+    - '&.\bin\build.ps1 standalone -preparepackage'
   artifacts:
     paths:
       - decker.exe
@@ -152,6 +189,23 @@ deploy:win:
       when: always
     - if: '$CI_COMMIT_REF_NAME =~ /^v\d\.\d\.\d-patching$/'
       when: always
+
+deploy:docker:
+  tags:
+    - docker
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  stage: deploy
+  script:
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:latest --build-arg IMG_DEPS=$CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:deps --verbosity warn
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - when: always
+  needs:
+    - job: image:deps
+      artifacts: false
 
 review:
   stage: deploy
