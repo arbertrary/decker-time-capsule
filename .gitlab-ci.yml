@@ -42,14 +42,6 @@ build:linux:
     key: stack_work
     paths:
       - .stack-work
-  rules:
-    - changes:
-        - Dockerfile
-        - stack.yaml
-        - package.yaml
-        - .gitlab-ci.yaml
-      when: on_success
-    - when: always
 
 build:mac:
   tags:
