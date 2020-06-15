@@ -1,49 +1,16 @@
 stages:
-  - image-base
-  - image-deps
+  - ci-img
   - build
   - test
   - deploy
   - stop
 
-image:base:
-  tags:
-    - docker
-  image:
-    name: gcr.io/kaniko-project/executor:debug
-    entrypoint: [""]
-  stage: image-base
-  script:
-    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --target base --destination $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:base --verbosity=warn
-  rules:
-    - changes:
-        - Dockerfile
-        - .gitlab-ci.yaml
-      when: always
-    - when: manual
-
-image:deps:
-  tags:
-    - docker
-  image:
-    name: gcr.io/kaniko-project/executor:debug
-    entrypoint: [""]
-  stage: image-deps
-  script:
-    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --target deps --destination $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:deps --build-arg IMG_BASE=$CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:base --verbosity warn
-  rules:
-    - changes:
-        - Dockerfile
-        - stack.yaml
-        - package.yaml
-        - .gitlab-ci.yaml
-      when: always
-    - when: manual
-  needs:
-    - job: image:base
-      artifacts: false
+ci-img:
+  stage: ci-img
+  trigger:
+    include:
+      - local: build-image-ci.yaml
+    strategy: depend
 
 .templates:
   image: kkarczmarczyk/node-yarn
@@ -216,7 +183,7 @@ deploy:docker:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
       when: always
   needs:
-    - job: image:deps
+    - job: ci-img
       artifacts: false
 
 review:
