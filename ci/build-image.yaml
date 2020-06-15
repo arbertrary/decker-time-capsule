@@ -14,9 +14,11 @@ image:base:
     - /kaniko/executor --context=$CI_PROJECT_DIR --dockerfile=$CI_PROJECT_DIR/ci/Dockerfile-base --target=base --verbosity=warn --destination=$CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:base
   rules:
     - changes:
-        - Dockerfile
+        - ci/Dockerfile-base
+        - ci/Dockerfile-deps
+        - ci/Dockerfile-decker
         - .gitlab-ci.yaml
-        - build-image-ci.yaml
+        - ci/build-image.yaml
       when: always
 
 image:deps:
@@ -31,11 +33,13 @@ image:deps:
     - /kaniko/executor --context=$CI_PROJECT_DIR --dockerfile=$CI_PROJECT_DIR/ci/Dockerfile-deps --target=deps --build-arg=IMG_BASE=$CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:base --verbosity=warn --destination=$CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:deps
   rules:
     - changes:
-        - Dockerfile
+        - ci/Dockerfile-base
+        - ci/Dockerfile-deps
+        - ci/Dockerfile-decker
         - stack.yaml
         - package.yaml
         - .gitlab-ci.yaml
-        - build-image-ci.yaml
+        - ci/build-image.yaml
       when: always
   needs:
     - job: image:base
