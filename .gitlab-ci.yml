@@ -16,7 +16,6 @@ ci-img:
       changes:
         - ci/Dockerfile-base
         - ci/Dockerfile-deps
-        - ci/Dockerfile-decker
         - stack.yaml
         - package.yaml
         - .gitlab-ci.yaml
