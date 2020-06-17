@@ -21,6 +21,7 @@ ci-img:
         - .gitlab-ci.yaml
         - ci/build-image.yaml
       when: always
+  resource_group: buildimage
 
 .templates:
   image: kkarczmarczyk/node-yarn
@@ -52,6 +53,8 @@ build:linux:
     key: stack_work
     paths:
       - .stack-work
+  resource_group: buildimage
+  interruptible: true
 
 build:mac:
   tags:
@@ -69,6 +72,7 @@ build:mac:
     paths:
       - decker
   when: always
+  interruptible: true
 
 build:win:
   tags:
@@ -85,13 +89,14 @@ build:win:
     paths:
       - .stack-work
   when: always
+  interruptible: true
 
 test:linux:
   stage: test
   tags:
     - docker
   image:
-    name: fpco/stack-build
+    name: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:deps
     entrypoint: [""]
   script:
     - STACK_ROOT=`pwd`/.stack make test
@@ -103,6 +108,8 @@ test:linux:
   needs:
     - job: build:linux
       artifacts: true
+  interruptible: true
+  resource_group: buildimage
 
 deploy:mac:
   stage: deploy
@@ -125,6 +132,8 @@ deploy:mac:
       when: always
     - if: '$CI_COMMIT_REF_NAME =~ /^v\d\.\d\.\d-patching$/'
       when: always
+  interruptible: true
+  resource_group: deploy_mac
 
 deploy:linux:
   stage: deploy
@@ -147,6 +156,8 @@ deploy:linux:
       when: always
     - if: '$CI_COMMIT_REF_NAME =~ /^v\d\.\d\.\d-patching$/'
       when: always
+  interruptible: true
+  resource_group: deploy_linux
 
 deploy:win:
   stage: deploy
@@ -170,6 +181,8 @@ deploy:win:
       when: always
     - if: '$CI_COMMIT_REF_NAME =~ /^v\d\.\d\.\d-patching$/'
       when: always
+  interruptible: true
+  resource_group: deploy_win
 
 deploy:docker:
   tags:
@@ -187,6 +200,8 @@ deploy:docker:
   needs:
     - job: ci-img
       artifacts: false
+  interruptible: true
+  resource_group: deploy_docker
 
 review:
   stage: deploy
@@ -207,6 +222,7 @@ review:
   needs:
     - job: build:linux
       artifacts: true
+  interruptible: true
 
 stop_review:
   stage: stop
