@@ -15,7 +15,6 @@ image:base:
   rules:
     - changes:
         - ci/Dockerfile-base
-        - .gitlab-ci.yaml
         - ci/build-image.yaml
       when: always
   resource_group: buildimage
@@ -36,7 +35,6 @@ image:deps:
         - ci/Dockerfile-deps
         - stack.yaml
         - package.yaml
-        - .gitlab-ci.yaml
         - ci/build-image.yaml
       when: always
   needs:

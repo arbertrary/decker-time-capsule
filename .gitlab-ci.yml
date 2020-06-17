@@ -18,7 +18,6 @@ ci-img:
         - ci/Dockerfile-deps
         - stack.yaml
         - package.yaml
-        - .gitlab-ci.yaml
         - ci/build-image.yaml
       when: always
 
