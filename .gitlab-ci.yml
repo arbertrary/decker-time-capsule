@@ -21,7 +21,6 @@ ci-img:
         - .gitlab-ci.yaml
         - ci/build-image.yaml
       when: always
-  resource_group: buildimage
 
 .templates:
   image: kkarczmarczyk/node-yarn

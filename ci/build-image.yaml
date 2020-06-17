@@ -18,6 +18,7 @@ image:base:
         - .gitlab-ci.yaml
         - ci/build-image.yaml
       when: always
+  resource_group: buildimage
 
 image:deps:
   tags:
@@ -41,3 +42,4 @@ image:deps:
   needs:
     - job: image:base
       artifacts: false
+  resource_group: buildimage
