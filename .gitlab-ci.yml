@@ -2,6 +2,7 @@ stages:
   - ci-img
   - build
   - test
+  - deploy
 
 ci-img:
   tags:
