@@ -6,44 +6,31 @@ stages:
   - stop
 
 ci-img:
-  stage: ci-img
-  trigger:
-    include:
-      - local: ci/build-image.yaml
-    strategy: depend
-  rules:
-    - if: "$CI_MERGE_REQUEST_IID == null"
-      changes:
-        - ci/Dockerfile-base
-        - ci/Dockerfile-deps
-        - stack.yaml
-        - package.yaml
-        - ci/build-image.yaml
-      when: always
-
-.templates:
-  image: kkarczmarczyk/node-yarn
-  stage: build
-  variables:
-    GIT_SUBMODULE_STRATEGY: recursive
   tags:
     - docker
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  stage: ci-img
   script:
-    - make -f symlinks.mk -C third-party copy=true all
-  artifacts:
-    paths:
-      - resource/support
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - /kaniko/executor --context=$CI_PROJECT_DIR --dockerfile=$CI_PROJECT_DIR/Dockerfile --target=base --verbosity=warn --destination=$CI_REGISTRY_IMAGE:base
+  rules:
+    - changes:
+        - Dockerfile
+      when: always
 
 build:linux:
   stage: build
   tags:
     - docker
   image:
-    name: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:deps
+    name: $CI_REGISTRY_IMAGE:base
     entrypoint: [""]
   script:
-    - make clean-build
-    - cp $(stack path | grep "local-install-root" | awk '{printf "%s/bin/decker",$2}') decker
+    - mkdir -p /cache/decker
+    - STACK_ROOT=/cache/decker make clean-build
+    - cp $(STACK_ROOT=/cache/decker stack path | grep "local-install-root" | awk '{printf "%s/bin/decker",$2}') decker
   artifacts:
     paths:
       - decker
@@ -51,7 +38,6 @@ build:linux:
     key: stack_work
     paths:
       - .stack-work
-  resource_group: buildimage
   interruptible: true
 
 build:mac:
@@ -94,20 +80,18 @@ test:linux:
   tags:
     - docker
   image:
-    name: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:deps
+    name: $CI_REGISTRY_IMAGE:base
     entrypoint: [""]
   script:
-    - STACK_ROOT=`pwd`/.stack make test
+    - STACK_ROOT=/cache/decker make test
   cache:
     key: stack_work
     paths:
       - .stack-work
-      - .stack
   needs:
     - job: build:linux
       artifacts: true
   interruptible: true
-  resource_group: buildimage
 
 deploy:mac:
   stage: deploy
@@ -181,25 +165,6 @@ deploy:win:
       when: always
   interruptible: true
   resource_group: deploy_win
-
-deploy:docker:
-  tags:
-    - docker
-  image:
-    name: gcr.io/kaniko-project/executor:debug
-    entrypoint: [""]
-  stage: deploy
-  script:
-    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/ci/Dockerfile-decker --destination $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:latest --build-arg IMG_BASE=$CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:deps --verbosity warn
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-      when: always
-  needs:
-    - job: ci-img
-      artifacts: false
-  interruptible: true
-  resource_group: deploy_docker
 
 review:
   stage: deploy
