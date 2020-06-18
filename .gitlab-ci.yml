@@ -2,8 +2,6 @@ stages:
   - ci-img
   - build
   - test
-  - deploy
-  - stop
 
 ci-img:
   tags:
@@ -59,6 +57,7 @@ build:mac:
       - decker
   when: always
   interruptible: true
+  needs: []
 
 build:win:
   tags:
@@ -76,6 +75,7 @@ build:win:
       - .stack-work
   when: always
   interruptible: true
+  needs: []
 
 test:linux:
   stage: test
