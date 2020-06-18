@@ -8,7 +8,7 @@ RUN apt-get update &&	apt-get install -y \
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
     echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
     apt-get update && \
-    apt-get install -y yarn npm
+    apt-get install -y yarn npm && npm install npm@latest -g
 
 
 #set the encoding on UTF-8, so the parser works correctly, german language is also added for umlaute
