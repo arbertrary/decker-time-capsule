@@ -14,11 +14,12 @@ ci-img:
   stage: ci-img
   script:
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
-    - /kaniko/executor --context=$CI_PROJECT_DIR --dockerfile=$CI_PROJECT_DIR/Dockerfile --target=base --verbosity=warn --destination=$CI_REGISTRY_IMAGE:base
+    - /kaniko/executor --context=$CI_PROJECT_DIR --dockerfile=$CI_PROJECT_DIR/Dockerfile --target=base --verbosity=warn --destination=$CI_REGISTRY_IMAGE/ci:base
   rules:
     - if: "$CI_MERGE_REQUEST_IID == null"
       changes:
         - Dockerfile
+        - .gitlab-ci.yml
       when: always
 
 build:linux:
@@ -26,7 +27,7 @@ build:linux:
   tags:
     - docker
   image:
-    name: $CI_REGISTRY_IMAGE:base
+    name: $CI_REGISTRY_IMAGE/ci:base
     entrypoint: [""]
   script:
     - mkdir -p /cache/decker
@@ -81,7 +82,7 @@ test:linux:
   tags:
     - docker
   image:
-    name: $CI_REGISTRY_IMAGE:base
+    name: $CI_REGISTRY_IMAGE/ci:base
     entrypoint: [""]
   script:
     - STACK_ROOT=/cache/decker make test
