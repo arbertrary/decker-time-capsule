@@ -1,4 +1,4 @@
-FROM ubuntu:bionic as base
+FROM ubuntu:focal as base
 LABEL maintainer="jan-philipp.stauffert@uni-wuerzburg.de"
 
 RUN apt-get update &&	apt-get install -y \
@@ -39,7 +39,7 @@ RUN make ${MAKE_FLAGS} install
 
 RUN ldd /root/.local/bin/decker | grep "=> /" | awk '{print $3}' | xargs -I '{}' cp -v '{}' /root/.local/bin
 
-FROM ubuntu:bionic as decker
+FROM ubuntu:focal as decker
 
 RUN apt-get update && apt-get install -y \
     graphviz \
