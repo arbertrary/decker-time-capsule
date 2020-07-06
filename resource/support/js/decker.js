@@ -18,6 +18,7 @@ function deckerStart() {
   addSourceCodeLabels();
   prepareTaskLists();
   prepareFullscreenIframes();
+  resizeRelativeSVGS();
 }
 
 
@@ -187,3 +188,46 @@ function prepareFullscreenIframes() {
   }
 }
 
+// Apply relative size to SVG and figure
+function resizeRelativeSVGS() {
+  let svgs = document.getElementsByTagName('svg');
+  const setViewbox = (sw, s) => {
+    let w = s.width.baseVal.value; let h = s.height.baseVal.value;
+    let x = s.x.baseVal.value; let y = s.y.baseVal.value;
+    let spanWidPercent = parseInt(sw.replace('%','')) * 0.01;
+  
+    // apply calculated width/height to SVG
+    s.setAttribute('width', Math.round((spanWidPercent * w)/1000*1000));
+    s.setAttribute('height', Math.round((spanWidPercent * h)/1000*1000));
+  
+    if (spanWidPercent < 1) {        // relative decrease, enlarge viewBox   
+      spanWidPercent = spanWidPercent + 1;
+      let ht = Math.round((spanWidPercent * h)/1000*1000);
+      let wd = Math.round((spanWidPercent * w)/1000*1000);
+      s.setAttribute('viewBox', x + " " + y + " " + wd + " " + ht);
+    } else {                        // relative increase, viewBox remains same (add if not present)  
+      s.setAttribute('viewBox', x + " " + y + " " + w + " " + h);
+    }
+  }
+  for (let s of svgs) {
+    if (s.hasAttribute('xmlns')) {                                  
+      let sp = s.parentElement;
+      let spanWidth = sp.style.width;    
+      let spanHeight = sp.style.height; 
+      if (spanWidth !== '' && spanWidth.includes('%')) {
+        setViewbox(spanWidth, s);
+      } 
+      if (spanHeight !== '' && spanHeight.includes('%')) { 
+        setViewbox(spanHeight, s);
+      };
+      // add calculated size to figure for caption
+      if (sp.parentElement.nodeName === "FIGURE") {                 
+        sp.parentElement.style.height = s.getBBox().height + "px"; 
+        sp.parentElement.style.width = s.getBBox().width + "px";
+      }
+      // remove size from span
+      sp.style.width = null;                                
+      sp.style.height = null;
+    }
+  }
+}
