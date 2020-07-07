@@ -191,41 +191,67 @@ function prepareFullscreenIframes() {
 // Apply relative size to SVG and figure
 function resizeRelativeSVGS() {
   let svgs = document.getElementsByTagName('svg');
-  const setViewbox = (sw, s) => {
-    let w = s.width.baseVal.value; let h = s.height.baseVal.value;
-    let x = s.x.baseVal.value; let y = s.y.baseVal.value;
-    let spanWidPercent = parseInt(sw.replace('%','')) * 0.01;
-  
-    // apply calculated width/height to SVG
-    s.setAttribute('width', Math.round((spanWidPercent * w)/1000*1000));
-    s.setAttribute('height', Math.round((spanWidPercent * h)/1000*1000));
-  
-    if (spanWidPercent < 1) {        // relative decrease, enlarge viewBox   
-      spanWidPercent = spanWidPercent + 1;
-      let ht = Math.round((spanWidPercent * h)/1000*1000);
-      let wd = Math.round((spanWidPercent * w)/1000*1000);
-      s.setAttribute('viewBox', x + " " + y + " " + wd + " " + ht);
-    } else {                        // relative increase, viewBox remains same (add if not present)  
-      s.setAttribute('viewBox', x + " " + y + " " + w + " " + h);
-    }
-  }
   for (let s of svgs) {
-    if (s.hasAttribute('xmlns')) {                                  
-      let sp = s.parentElement;
-      let spanWidth = sp.style.width;    
-      let spanHeight = sp.style.height; 
-      if (spanWidth !== '' && spanWidth.includes('%')) {
-        setViewbox(spanWidth, s);
-      } 
-      if (spanHeight !== '' && spanHeight.includes('%')) { 
-        setViewbox(spanHeight, s);
-      };
-      // add calculated size to figure for caption
-      if (sp.parentElement.nodeName === "FIGURE") {                 
-        sp.parentElement.style.height = s.getBBox().height + "px"; 
-        sp.parentElement.style.width = s.getBBox().width + "px";
+    if (s.hasAttribute('xmlns')) {  
+      // Adjust for relative size changes
+      const setViewbox = (sw, s) => {                        
+        let x = s.x.baseVal.value; let y = s.y.baseVal.value;
+        let w = s.width.baseVal.value; let h = s.height.baseVal.value;
+        let spanWidPercent = parseInt(sw.replace('%','')) * 0.01;
+        s.setAttribute('width', Math.round((spanWidPercent * w)/1000*1000));
+        s.setAttribute('height', Math.round((spanWidPercent * h)/1000*1000));
+      
+        if (spanWidPercent < 1) {        // enlarge viewBox with relative decrease 
+          spanWidPercent = spanWidPercent + 1;
+          let ht = Math.round((spanWidPercent * h)/1000*1000);
+          let wd = Math.round((spanWidPercent * w)/1000*1000);
+          s.setAttribute('viewBox', x + " " + y + " " + wd + " " + ht);
+        } else {                         // viewBox remains same (add if not present) with relative increase 
+          s.setAttribute('viewBox', x + " " + y + " " + w + " " + h);
+        }
       }
-      // remove size from span
+      // Adjust for absolute size changes
+      const setSize = (sw, s, sh) => {   
+        let units = ['cm', 'mm', 'in', 'pt'];
+        let sizes = [37.8, 3.78, 96, 1.333];
+        let wid, ht;
+        let baseWid = s.width.baseVal.value;
+        let baseHt = s.height.baseVal.value;
+        for (let i = 0; i < units.length; i++) {
+          wid = s.width.baseVal.valueAsString.includes(units[i]) ? baseWid * sizes[i] : baseWid;
+          ht = s.height.baseVal.valueAsString.includes(units[i]) ? baseHt * sizes[i] : baseHt;
+        };
+        if (s.getAttribute('viewBox') == null) {
+          let x = s.x.baseVal.value; let y = s.y.baseVal.value;
+          s.setAttribute('viewBox', x + " " + y + " " + wid + " " + ht);
+        };
+        if (sh == null) {
+          s.setAttribute('width', sw);
+          s.removeAttribute('height');
+        } else {    
+          s.setAttribute('width', Math.round((sh.replace(/\D+/g, '')/ht * wid)/1000*1000));
+          s.setAttribute('height', sh);
+        }
+      }                                
+      let sp = s.parentElement;
+      let spanWidth = sp.style.width;
+      let spanHeight = sp.style.height;
+
+      // Determine if width or height is defined
+      if (spanWidth !== '') {            
+        spanWidth.includes('%') ? setViewbox(spanWidth, s) : setSize(spanWidth, s, null);
+      }
+      if (spanHeight !== '') {           
+        spanHeight.includes('%') ? setViewbox(spanHeight, s) : setSize(null, s, spanHeight);
+      }
+      // Add calculated size to figure for caption - only for relative sizes
+      if (sp.parentElement.nodeName === "FIGURE") { 
+        if (spanWidth.includes('%')) {
+          sp.parentElement.style.width = s.width.baseVal.value + "px";
+          sp.parentElement.style.height = s.height.baseVal.value + "px";  
+        }
+      }
+      // Remove sizes from span
       sp.style.width = null;                                
       sp.style.height = null;
     }

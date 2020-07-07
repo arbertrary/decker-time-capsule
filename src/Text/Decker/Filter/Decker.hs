@@ -376,9 +376,9 @@ svgHtml uri caption = do
       mkSvgTag svg <$> extractAttr
     caption -> do
       captionHtml <- lift $ inlinesToHtml caption
-      svgAttr <- takeSizeIf (not . isPercent) >> extractAttr
+      svgAttr <- takeSize >> extractAttr
       let svgTag = mkSvgTag svg svgAttr
-      injectBorder >> takeSizeIf isPercent >> takeUsual
+      injectBorder >> takeUsual
       mkFigureTag svgTag captionHtml <$> extractAttr
 
 mviewHtml :: URI -> [Inline] -> Attrib Html
