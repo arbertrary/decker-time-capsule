@@ -46,14 +46,14 @@ writeIndexLists meta targets out baseUrl = do
     writeFile out $
     unlines
       [ "---"
-      , "title: Generated Index"
+      , "title: " ++ T.unpack (lookupInDictionary "index.title" meta)
       , "subtitle: " ++ cwd
       , "---"
-      , "# Slide decks"
+      , "# " ++ T.unpack (lookupInDictionary "index.decks" meta)
       , unlines decksLinks
       , "# Handouts"
       , unlines handoutsLinks
-      , "# Supporting Documents"
+      , "# " ++ T.unpack (lookupInDictionary "index.support" meta)
       , unlines pagesLinks
       ]
   where
