@@ -275,6 +275,10 @@ var RevealMenu = window.RevealMenu || (function(){
 							break;
 						// esc
 						case 27: closeMenu(null, true); break;
+						// i
+						case 73: 						
+							location.href = '../index.html'; 
+							break;
 					}
 				}
 			}
@@ -510,7 +514,6 @@ var RevealMenu = window.RevealMenu || (function(){
 						return button;
 					}
 
-
                     // MARIO: why do we need this?
 					//addToolbarButton('Slides', 'Slides', 'fa-images', 'fas', openPanel, true);
 
@@ -526,7 +529,12 @@ var RevealMenu = window.RevealMenu || (function(){
                         {
                             window.open("?print-pdf","_self")
                         }
-                    }, true);
+					}, true);
+					
+					// Issue #273
+					addToolbarButton('Index', 'Index', 'fa-home', 'fas', function(){
+						location.href = '../../index.html'
+					}, true);
 
 
 					if (custom) {
