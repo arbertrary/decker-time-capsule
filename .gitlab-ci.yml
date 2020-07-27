@@ -113,6 +113,25 @@ test:mac:
     - job: build:mac
       artifacts: true
   interruptible: true
+  
+test:win:
+  stage: test
+  tags:
+    - docker
+  image:
+    name: $CI_REGISTRY_IMAGE/ci:base
+    entrypoint: [""]
+  script:
+    - STACK_ROOT=/cache/decker
+    - '& stack test -j1'
+  cache:
+    key: stack_work
+    paths:
+      - .stack-work
+  needs:
+    - job: build:win
+      artifacts: true
+  interruptible: true
 
 deploy:mac:
   stage: deploy
