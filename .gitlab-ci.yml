@@ -114,6 +114,23 @@ test:mac:
       artifacts: true
   interruptible: true
 
+test:win:
+  tags:
+    - win
+  stage: test
+  script:
+    - '& stack test -j1'
+  cache:
+    key: test-win
+    paths:
+      - .stack-work
+  when: always
+  needs:
+    - job: build:win
+      artifacts: true
+  interruptible: true
+
+
 deploy:mac:
   stage: deploy
   image:
