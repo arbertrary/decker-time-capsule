@@ -1,328 +1,441 @@
-var quizModule = {
-    quiz: function () {
-        multipleChoice();
-        blanktextButtons();
-        freetextAnswerButtons();
-        let initialMatchings = initMatching();
-        matchings(initialMatchings);
+// I am not exactly sure why this is needed 
+// but without it e.g. the math in matching questions is not reloaded
+if (typeof Reveal === 'undefined') {
+    console.error("quiz.js has to be loaded after reveal.js");
+}
+else {
+    if (Reveal.isReady()) {
+        quiz();
+    } else {
+        Reveal.addEventListener("ready", quiz);
     }
 }
-/* ************************
-  MULTIPLE CHOICE QUESTIONS
-*************************** */
-function multipleChoice() {
-    const questions = document.getElementsByClassName("survey");
-    for (let question of questions) {
-        // add event listener to color the chosen answer(s)
-        const allAnswers = question.getElementsByTagName("li");
-        var defBorder = allAnswers[0].style.border;
-        for (let answer of allAnswers) {
+
+
+function quiz() {
+    quizMI();
+    quizMC();
+    quizIC();
+    quizFT();
+}
+
+function quizMI() {
+    var miQuestions = document.querySelectorAll(".qmi,.quiz-mi,.quiz-match-items");
+    console.log(miQuestions.length);
+    for (let mi of miQuestions) {
+        shuffleMatchItems(mi);
+        matchings(mi);
+        matchingAnswerButton(mi);
+    }
+}
+
+/**
+* Handles Multiple choice questions
+* (Choosing/clicking and coloring of answers. Showing correct solutions etc)
+*/
+function quizMC() {
+    var mcQuestions = document.querySelectorAll(".qmc,.quiz-mc,.quiz-multiple-choice");
+
+    for (let mc of mcQuestions) {
+
+        const answers = mc.getElementsByTagName("li");
+
+        for (let answer of answers) {
+
             answer.addEventListener("click", function () {
-                if (!this.classList.contains("selected")) {
-                    this.classList.add("selected");
-                    this.style.border = "solid black";
-                    this.style.backgroundColor = "#dcdcdc";
-                } else {
-                    this.classList.remove("selected");
-                    this.style.border = defBorder;
-                    this.style.backgroundColor = "#FFF";
+                const is_right = this.classList.contains("correct");
+                const tooltip = answer.querySelectorAll(".tooltip")[0];
+                if (tooltip.textContent) {
+                    tooltip.style.visibility = "visible";
                 }
-            });
-        }
-        var answerButton = question.querySelector(".mcAnswerButton");
-        if (answerButton != null) {
-            answerButton.onclick = function () {
-                var selectedAnswer = null;
-                for (let answer of allAnswers) {
-                    if (answer.classList.contains("selected")) {
-                        selectedAnswer = FormatChoiceResponse(answer.querySelector('p').innerHTML);
-                    } else { continue; }
-                }
-                if (selectedAnswer != null) {
-                    this.disabled = true;
-                    for (let answer of allAnswers) {
-                        var answer_div = answer.querySelector(".answer");
-                        answer_div.classList.contains("right") ? answer.style.backgroundColor = "#97ff7a" : answer.style.backgroundColor = "#ff7a7a";
-                        const tooltips = answer.getElementsByClassName("tooltip");
-                        for (let tooltip of tooltips) {
-                            tooltip.style.display = "inline";
-                        }
-                        answer.style.pointerEvents = "none";
-                    }
-                } else {
-                    alert("No answer chosen!");
-                    return false;
-                }
-            }
-        }
-    }
-}
-function FormatChoiceResponse(value) {
-    var newValue = new String(value);
-    newValue = newValue.replace(/^_/, "");
-    newValue = newValue.replace(/(?=.)(^\[)?((\\n)+)?(\])?(\\n)/, "");
-    return newValue;
-}
-/* ************************
-     BLANK TEXT QUESTIONS
-*************************** */
-function blanktextButtons() {
-    var btButtons = document.getElementsByClassName("btAnswerButton");
-    for (let i = 0; i < btButtons.length; i++) {
-        const button = btButtons[i];
-        button.onclick = function () {
-            var blanktext = this.closest(".blankText");
-            var selects = blanktext.getElementsByClassName("blankSelect");
-            var inputs = blanktext.getElementsByClassName("blankInput");
-            for (let input of inputs) {
-                var correctInput = input.getAttribute("answer").toLowerCase().trim();
-                try { var selectedInput = input.value.toLowerCase().trim(); }
-                catch (e) {
-                    if (e instanceof ReferenceError || selectedInput == "") {
-                        alert("Please complete all questions.");
-                        this.disabled = false;
-                        return false;
-                    }
-                }
-                input.disabled = true;
-                if (selectedInput == correctInput) {
-                    input.style.backgroundColor = "rgb(151, 255, 122)";
-                    input.setAttribute("size", input.value.length);
-                } else {
-                    input.style.backgroundColor = "rgb(255, 122, 122)";
-                    input.value += " (" + input.getAttribute("answer") + ")";
-                    input.setAttribute("size", input.value.length);
-                }
-            }
-            for (let select of selects) {
-                var correctSelect = null;
-                try { var selectedSelect = select.options[select.selectedIndex]; }
-                catch (e) {
-                    if (e instanceof ReferenceError || selectedSelect == " " || selectedSelect == "") {
-                        alert("Please complete all questions.");
-                        this.disabled = false;
-                        return false;
-                    }
-                }
-                for (let o of select.options) {
-                    if (o.getAttribute("answer") == "true") {
-                        correctSelect = o;
-                    }
-                }
-                correctSelect == selectedSelect ? select.style.backgroundColor = "rgb(151, 255, 122)" : select.style.backgroundColor = "rgb(250, 121, 121)";
-                for (let o of select.options) {
-                    o == correctSelect ? o.style.backgroundColor = "rgb(151, 255, 122)" : o.style.backgroundColor = "rgb(250, 121, 121)";
-                }
-            }
-            this.disabled = true;
-        }
-    }
-}
-/* ************************
-     FREE TEXT QUESTIONS
-*************************** */
-function freetextAnswerButtons() {
-    const answerButtons = document.getElementsByClassName('freetextAnswerButton');
-    for (let button of answerButtons) {
-        button.onclick = function () {
-            var input = this.parentElement.querySelector('.freetextInput');
-            // Has the user entered anything?
-            let correctAnswer = input.getAttribute("answer").toLowerCase().trim();
-            let selectedAnswer = input.value.toLowerCase().trim();
-            if (selectedAnswer) {
-                var answer = input.getAttribute("answer").trim();
-                if (selectedAnswer == correctAnswer) {
-                    input.style.backgroundColor = "rgb(151, 255, 122)";
+
+                if (is_right) {
+                    this.style.backgroundColor = "#aaffaa";
+                    this.style.border = "2px solid black";
                 }
                 else {
-                    input.style.backgroundColor = "rgb(255, 122, 122)";
-                    input.value += " (" + answer + ")";
+                    this.style.backgroundColor = "#ffaaaa";
+                    this.style.border = "2px dotted black";
                 }
-                input.setAttribute("size", input.value.length);
-                input.disabled = true;
-                this.disabled = true;
-            }
-            else {
-                alert("No answer entered!");
-                return false;
-            }
-        }
-    }
-}
-/* ************************
-     MATCHING QUESTIONS
-*************************** */
-// Save the initial state of matching questions for retry and show solution buttons
-function initMatching() {
-    // Manual deep copy of the initial states of all matching questions
-    const m = document.getElementsByClassName("matching");
-    var initialMatchings = [];
-    for (let i of m) {
-        // Replace reveal.js data-src with src to avoid lazy loading
-        var imgs = i.getElementsByTagName("img");
-        for (let img of imgs) {
-            var src = img.getAttribute("data-src");
-            if (src) {
-                img.setAttribute("src", src);
-                img.removeAttribute("data-src");
-            }
-        }
-        var node = i.cloneNode(true);
-        initialMatchings.push(node);
-    }
-    return initialMatchings;
-}
-// Adds event listeners for dragging and dropping to the elements of "matching" questions
-function matchings(initialMatchings) {
-    var dropzones = document.getElementsByClassName("dropzone");
-    var draggables = document.getElementsByClassName("draggable");
 
-    for (var i = 0; i < dropzones.length; i++) {
-        dropzones[i].id = "drop".concat(i.toString());
+                this.addEventListener("mouseover", function () {
+                    if (tooltip.textContent) {
+                        tooltip.style.visibility = "visible";
+                    }
+                });
+                this.addEventListener("mouseout", function () {
+                    tooltip.style.visibility = "hidden";
+                });
+            });
+        }
+    }
+
+}
+/**
+ * @param {string} answer - The input answer
+ * @param {HTMLElement} solutionList 
+ * 
+ * Iterate over solutionList. 
+ * check if given answer is equivalent to at least one of the correct solutions
+ * returns two booleans
+ * correct: whether the given answer is correct
+ * predef: whether the given answer is equivalent to one of the predefined possible answers
+ * those predefined answers can be correct or wrong
+ * This way, the tooltip will also show for expected wrong answers!
+ */
+function handleSolutionList(solutionList, answer) {
+    const solutions = solutionList.getElementsByTagName("li");
+
+    for (let s of solutions) {
+        const is_right = s.classList.contains("correct");
+        // Get only the solution text and not the tooltip div
+        const solution = s.innerHTML.replace(/(<div)(.|[\r\n])*(<\/div>)/, "").toLowerCase().trim();
+        if (is_right && answer == solution) {
+            s.style.display = "block";
+            s.classList.add("solved");
+            return { correct: true, predef: true };
+        } else if (!is_right && answer == solution) {
+            s.style.display = "block";
+            s.classList.add("solved");
+            return { correct: false, predef: true };
+        }
+    }
+    return { correct: false, predef: false };
+}
+
+/**
+ * Compare the value entered in the input field to the solutions provided in the solutionList
+ * If a correct solution is entered 
+ * @param {HTMLElement} input  -- The input field
+ * @param {HTMLElement} solutions  -- The solutionList
+ */
+function inputEvent(input, solutions) {
+    input.addEventListener("keydown", function (event) {
+        if (event.keyCode === 13) {
+            event.preventDefault();
+
+            const answer = input.value.toLowerCase().trim();
+            const handled = handleSolutionList(solutions, answer);
+
+            //Change the appearance of the input element
+            this.style.backgroundColor = (handled.correct) ? "#aaffaa" : "#ffaaaa";
+            this.style.border = (handled.correct) ? "2px solid black" : "2px dotted black";
+
+            // Display the tooltip/solution box
+            // Show the tooltip box for any expected answer. be it correct or wrong
+            solutions.style.display = (handled.predef) ? "inline-block" : "none";
+            this.addEventListener("mouseover", function () {
+                if (handled.predef) {
+                    solutions.style.display = "inline-block";
+                }
+            });
+            this.addEventListener("mouseout", function () {
+                solutions.style.display = "none";
+
+            });
+        }
+        else {
+            return false;
+        }
+    });
+}
+/**
+ * Handle FreeText questions
+ */
+function quizFT() {
+    var ftQuestions = document.querySelectorAll(".qft,.quiz-ft,.quiz-free-text");
+
+    for (let ft of ftQuestions) {
+        const solutions = ft.getElementsByClassName("solutionList")[0];
+        const solutionButton = ft.getElementsByClassName("solutionButton")[0];
+        const input = ft.getElementsByTagName("input")[0];
+        inputEvent(input, solutions);
+
+        solutionButton.onclick = function () {
+            solutions.style.display = "inline-block";
+
+
+            // Hide tooltip box after 3 seconds
+            setTimeout(function () {
+                solutions.style.display = "none";
+                // Hide solutions only if they haven't been solved yet
+                Array.from(solutions.getElementsByTagName("li")).map(x => {
+                    if (!x.classList.contains("solved")) {
+                        x.style.display = "none";
+                    }
+                })
+
+            }, 3000)
+
+            for (let l of solutions.getElementsByTagName("li")) {
+                if (l.classList.contains("correct")) {
+                    l.style.display = "block";
+                }
+
+            }
+
+
+        }
+    }
+}
+
+/**
+ * Handles InsertChoices questions
+ * 
+ */
+function quizIC() {
+    var icQuestions = document.querySelectorAll(
+        ".qic,.quiz-ic,.quiz-insert-choices"
+    );
+
+    for (let ic of icQuestions) {
+        // const button = ic.getElementsByClassName("solutionButton")[0];
+        const selects = ic.getElementsByTagName("select");
+        // const inputs = ic.getElementsByTagName("input");
+
+        const tipDiv = ic.querySelector(".tooltip-div");
+        for (let sel of selects) {
+            const solutions = sel.nextElementSibling;
+            sel.addEventListener("change", function () {
+                const selected = sel.options[sel.selectedIndex];
+                const is_right = selected.classList.contains("correct");
+                sel.style.backgroundColor = is_right ? "#aaffaa" : "#ffaaaa";
+                sel.style.border = is_right ? "2px solid black" : "2px dotted black";
+            });
+            // Show tooltip box on mouseover
+            sel.addEventListener("mouseover", function () {
+                // Hide all other tooltips/solutions
+                tipDiv.innerHTML = "";
+                // Display only current choice tooltip
+                var choice = solutions.getElementsByTagName("li")[sel.selectedIndex - 1].querySelector(".tooltip");
+                var cln = choice.cloneNode(true);
+                cln.style.display = "block";
+                tipDiv.appendChild(cln);
+            });
+
+            // Hide tooltip if mouse is leaving it
+            tipDiv.addEventListener("mouseleave", function () {
+                this.innerHTML = "";
+            });
+        }
+
+        // Handle correctness check and tooltip display for all input fields
+        // for (let i of inputs) {
+        //     const solutions = i.nextElementSibling;
+        //     inputEvent(i, solutions);
+        // }
+
+        // // Show all entire solution/tooltip boxes
+        // button.onclick = function () {
+        //     const solutionLists = ic.getElementsByClassName("solutionList");
+        //     for (let s of solutionLists) {
+        //         // s.style.visibility = "visible";
+        //         s.style.display = "inline-block";
+
+        //         for (let l of s.getElementsByTagName("li")) {
+        //             l.style.display = "block";
+        //         }
+
+        //         setTimeout(function () {
+        //             // s.style.visibility = "hidden";
+        //             s.style.display = "none";
+        //             Array.from(s.getElementsByTagName("li")).map(
+        //                 (x) => (x.style.display = "none")
+        //             );
+        //         }, 3000);
+        //     }
+        // };
+    }
+}
+
+
+// Adds event listeners for dragging and dropping to the elements of "matching" questions
+function matchings(matchQuestion) {
+    const dropzones = matchQuestion.getElementsByClassName("bucket");
+    const draggables = matchQuestion.getElementsByClassName("matchItem");
+    const itemCount = matchQuestion.querySelectorAll(".matchItem:not(.distractor)").length;
+
+    for (i = 0; i < dropzones.length; i++) {
         dropzones[i].addEventListener("drop", drop);
         dropzones[i].addEventListener("dragover", allowDrop);
 
         for (let child of dropzones[i].children) {
-            if (!child.classList.contains("draggable")) {
+            if (!child.classList.contains("matchItem")) {
                 child.setAttribute("style", "pointer-events:none");
             }
         }
     }
 
     for (i = 0; i < draggables.length; i++) {
-        draggables[i].id = "drag".concat(i.toString());
         draggables[i].addEventListener("dragstart", drag);
 
         // disable children (e.g. images) from being dragged themselves
         for (let child of draggables[i].children) {
             child.setAttribute('draggable', "false");
             child.className = "draggableChild";
-        }
-    }
-    // Order of execution here is important. 
-    // matchingAnswerButton has to be first so the sample solution is in the correct order. Very dubious hack
-
-    matchingAnswerButtons(initialMatchings);
-    shuffleDraggables();
-    retryButtons(initialMatchings);
-}
-// Copied from revealjs/math.js
-function reloadMath() {
-    // Typeset followed by an immediate reveal.js layout since
-    // the typesetting process could affect slide height
-    MathJax.Hub.Queue(['Typeset', MathJax.Hub]);
-    MathJax.Hub.Queue(Reveal.layout);
-
-    // Reprocess equations in slides when they turn visible
-    Reveal.addEventListener('slidechanged', function (event) {
-
-        MathJax.Hub.Queue(['Typeset', MathJax.Hub, event.currentSlide]);
-
-    });
-}
-// Configure retryButtons
-function retryButtons(initialMatchings) {
-    var buttons = document.getElementsByClassName("retryButton");
-
-    for (i = 0; i < buttons.length; i++) {
-        const initial = initialMatchings[i].cloneNode(true);
-
-        buttons[i].onclick = function () {
-            var curr = this.closest(".matching");
-            curr.parentNode.replaceChild(initial, curr);
-            // Call matchings once again to reset everything. e.g the shuffling etc
-            matchings(initialMatchings);
-            reloadMath();
+            if (child.tagName !== "a") {
+                child.style.pointerEvents = "none";
+            }
         }
     }
 }
-// Shuffle draggables so the correct pairings aren't always directly below each other
-function shuffleDraggables() {
-    var dragzones = document.getElementsByClassName("dragzone");
-    for (let container of dragzones) {
-        var elementsArray = Array.prototype.slice.call(container.getElementsByClassName('draggable'));
-        elementsArray.forEach(function (element) {
-            container.removeChild(element);
-        })
-        shuffleArray(elementsArray);
-        elementsArray.forEach(function (element) {
-            container.appendChild(element);
-        })
-    }
-}
-// Fisher-Yates (aka Knuth) Shuffle (from stackoverflow)
-function shuffleArray(array) {
-    var currentIndex = array.length, temporaryValue, randomIndex;
 
-    // While there remain elements to shuffle...
-    while (0 !== currentIndex) {
-        // Pick a remaining element...
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex -= 1;
+// Shuffle matchItems so the correct pairings aren't always directly below each other
+function shuffleMatchItems(matchQuestion) {
 
-        // And swap it with the current element.
-        temporaryValue = array[currentIndex];
-        array[currentIndex] = array[randomIndex];
-        array[randomIndex] = temporaryValue;
+    // Fisher-Yates Shuffle
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            let j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
     }
 
-    return array;
+    const matchItems = matchQuestion.getElementsByClassName("matchItems")[0];
+    matchItems.addEventListener("drop", drop);
+    matchItems.addEventListener("dragover", allowDrop);
+    const elementsArray = Array.prototype.slice.call(matchItems.getElementsByClassName('matchItem'));
+    elementsArray.forEach(function (element) {
+        matchItems.removeChild(element);
+    })
+    shuffleArray(elementsArray);
+    elementsArray.forEach(function (element) {
+        matchItems.appendChild(element);
+    })
 }
-function matchingAnswerButtons(initialMatchings) {
-    var answerButtons = document.getElementsByClassName("matchingAnswerButton");
-    for (let button of answerButtons) {
-        button.onclick = function () {
-            var matchingField = this.closest(".matching");
-            var dropzones = matchingField.getElementsByClassName("dropzone");
 
-            // Alert if there's any empty dropzone (i.e. not all pairs are completed)
-            for (let drop of dropzones) {
-                var draggables = drop.getElementsByClassName("draggable");
-                if (draggables.length == 0) {
-                    alert("Please complete all pairs.");
-                    return;
+
+
+/**
+ * Check correctness of current state of a matching questions on button click
+ * Which elements have been dropped correctly etc?
+ * @param {HTMLElement} matchQuestion 
+ */
+function matchingAnswerButton(matchQuestion) {
+    // A paragraph that will be shown on hover and tells whether an item is correct
+    function solution(tooltip) {
+        const para = document.createElement("p");
+        const node = document.createTextNode("(" + tooltip + ")");
+        para.appendChild(node);
+        para.className = "solution";
+
+        return (para);
+    }
+
+    const answerButton = matchQuestion.getElementsByClassName("solutionButton")[0];
+
+    answerButton.onclick = function () {
+
+        const buckets = matchQuestion.getElementsByClassName("bucket");
+        const remainingItems = matchQuestion.getElementsByClassName("matchItems")[0].children;
+        const bucketsDiv = matchQuestion.getElementsByClassName("buckets")[0];
+        const assignedItems = bucketsDiv.getElementsByClassName("matchItem");
+        if (assignedItems.length == 0) {
+            alert("You haven't assigned any items!");
+            return;
+        }
+
+        for (let rem of remainingItems) {
+            const matchId = rem.getAttribute("data-bucketid")
+            const hasTooltip = rem.getElementsByClassName("solution").length > 0;
+            if (matchId == null) {
+                rem.style.backgroundColor = "#aaffaa";
+                rem.style.border = "2px solid black";
+
+                // if (!hasTooltip) {
+                // rem.append(solution("distractor"));
+                // }
+            } else {
+                rem.style.backgroundColor = "#ffaaaa";
+
+            }
+        }
+
+        for (let bucket of buckets) {
+            const droppedItems = bucket.getElementsByClassName("matchItem");
+            const bucketId = bucket.getAttribute("data-bucketid");
+            for (let matchItem of droppedItems) {
+                const hasTooltip = matchItem.getElementsByClassName("solution").length > 0;
+
+                const matchId = matchItem.getAttribute("data-bucketid");
+                if (matchId == null) {
+                    matchItem.style.backgroundColor = "#ffaaaa";
+                    if (hasTooltip) {
+                        matchItem.removeChild(matchItem.getElementsByClassName("solution")[0]);
+                    }
+                } else if (matchId == bucketId) {
+                    // green
+                    matchItem.style.backgroundColor = "#aaffaa";
+                    matchItem.style.border = "2px solid black";
+                }
+                else {
+                    // red
+                    matchItem.style.backgroundColor = "#ffaaaa";
+                    matchItem.style.border = "2px dotted black";
+
+
                 }
             }
-
-            // Correct match pairs
-            for (let drop of dropzones) {
-                var first = drop.getElementsByClassName("draggable")[0];
-                var dropID = drop.id.replace("drop", "");
-
-                if (first.id.replace("drag", "") == dropID) {  // if correct
-                    drop.style.backgroundColor = "rgb(151, 255, 122)";
-                    first.setAttribute("draggable", "false");
-                } else {
-                    drop.style.backgroundColor = "rgb(255, 122, 122)";
-                    first.setAttribute("draggable", "false");
-                }
-            }
-            // Get the initial and current states of the dragzones
-            const j = Array.prototype.slice.call(answerButtons).indexOf(this);
-            var initialDragzone = initialMatchings[j].getElementsByClassName("dragzone")[0].cloneNode(true);
-            var currDragzone = matchingField.getElementsByClassName("dragzone")[0];
-
-            // replace the empty dropzone with the correct/sample solution
-            matchingField.replaceChild(initialDragzone, currDragzone);
-            reloadMath();
-
-            this.disabled = true;
-            this.nextSibling.disabled = true;
         }
     }
+}
+
+// TODO: to call from drop() (Work in Progress!)
+// This is the start of an implementation that shows the solutions for matching once certain amounts of elements have been moved from the source area to the target area/buckets
+function matchingSolutions(matchQuestion) {
+    const numberSource = matchQuestion.querySelectorAll(".matchItem:not(.distractor)").length;
+    const numberTargets = matchQuestion.querySelectorAll(".bucket:not(.distractor)").length;
+    console.log("check for solution");
+
+    const buckets = matchQuestion.getElementsByClassName("bucket");
+    const remainingItems = matchQuestion.getElementsByClassName("matchItems")[0].querySelectorAll(".matchItem:not(.distractor)");
+    const bucketsDiv = matchQuestion.getElementsByClassName("buckets")[0];
+    const assignedItems = bucketsDiv.getElementsByClassName("matchItem");
+
+    if (numberSource > numberTargets) {
+        console.log("more items");
+        if (remainingItems.length == 0) {
+            console.log("all assigned");
+        }
+    } else if (numberSource < numberTargets) {
+        console.log("more buckets");
+    }
+    else {
+        console.log("same number");
+        if (remainingItems.length == 0) {
+            console.log("all assigned");
+        }
+    }
+
 }
 function allowDrop(ev) {
     ev.preventDefault();
 }
-function drag(ev) {
-    ev.dataTransfer.setData("text", ev.target.id);
+
+var elements = [];
+function drag(event) {
+    var index = elements.indexOf(event.target);
+    if (index == -1) {
+        // not already existing in the array, add it now
+        elements.push(event.target);
+        index = elements.length - 1;
+    }
+
+    event.dataTransfer.setData('index', index);
 }
-function drop(ev) {
-    ev.preventDefault();
-    var data = ev.dataTransfer.getData("text");
-    if (ev.target.className == "draggable") {
+
+function drop(event) {
+    event.preventDefault();
+    var element = elements[event.dataTransfer.getData('index')];
+    if (event.target.classList.contains("matchItem")) {
+        event.target.parentNode.appendChild(element);
         return false;
     }
-    ev.target.appendChild(document.getElementById(data));
-    ev.target.disabled = true;
+
+    event.target.appendChild(element);
+
+    // TODO: Call to a function that checks which solutions have been assigned correctly 
+    // matchingSolutions(event.target.closest(".qmi,.quiz-mi,.quiz-match-items"));
+    // event.target.disabled = true;
 }

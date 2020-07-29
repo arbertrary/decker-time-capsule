@@ -1,3 +1,6 @@
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE OverloadedStrings #-}
+
 module Text.Decker.Project.Version
   ( deckerVersion
   , deckerGitBranch
@@ -16,7 +19,7 @@ import Data.Version (showVersion, versionBranch)
 import Development.Shake
 import Paths_decker (version)
 import Text.Decker.Internal.CompileTime
-import Text.Pandoc
+import Text.Pandoc hiding (lookupMeta)
 import Text.Read (readMaybe)
 import Text.Regex.TDFA
 
@@ -59,7 +62,7 @@ isDevelopmentVersion = not (deckerGitBranch == "master" && isVersionTagMatching)
 versionCheck :: Meta -> Action ()
 versionCheck meta =
   unless isDevelopmentVersion $ do
-    let version = getMetaString "decker-version" meta
+    let version = lookupMeta "decker-version" meta
     case version of
       Just version -> check version
       _ ->

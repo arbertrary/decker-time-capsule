@@ -1,26 +1,9 @@
 {-- Author: Jan-Philipp Stauffert <jan-philipp.stauffert@uni-wuerzburg.de.de> --}
 module System.Decker.OS
-  ( defaultProvisioning
-  , urlPath
-  , preextractedResourceFolder
-  , chrome
+  ( chrome
   ) where
 
-import Text.Decker.Internal.Common
 import System.Directory
-import System.Environment
-import System.FilePath
-
-defaultProvisioning :: Provisioning
-defaultProvisioning = SymLink
-
-urlPath :: FilePath -> FilePath
-urlPath path = path
-
-preextractedResourceFolder :: IO FilePath
-preextractedResourceFolder = do
-  exep <- getExecutablePath
-  return $ joinPath [(takeDirectory exep), "..", "Resources", "resource"]
 
 -- Look for chrome executable on $PATH
 chromeExecutable :: IO (Either String String)
@@ -41,7 +24,7 @@ chrome = do
   localExists <- localChrome >>= \h -> doesFileExist h
   globalExists <- doesFileExist chromeLocation
   if globalExists
-    then return $ Right chromeCommand
+    then return $ Right chromeLocation
     else if localExists
            then localChromeCommand
            else do

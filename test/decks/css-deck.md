@@ -1,8 +1,9 @@
 ---
-history: True
+history: true
 subtitle: Test cases
 title: CSS Styling
 ---
+
 # Box colors {layout="columns"}
 
 ## Question {.left .question}
@@ -37,9 +38,9 @@ Invisible.
 
 $e=mc^2$
 
----
+------------------------------------------------------------------------
 
-# Inverse Colors for Big Dark Images {.inverse}
+# Inverse Colors for Big Dark Images {.inverse background-color="black"}
 
 ## Color scheme
 
@@ -50,7 +51,7 @@ $e=mc^2$
 
 Even colored boxes look ok.
 
----
+------------------------------------------------------------------------
 
 # Code (`Code in Header`)
 
@@ -72,10 +73,16 @@ ghci> :type [1,2,3,4]
 ghci> :type [1,2,3,4]
 [1,2,3,4] :: Num a => [a]
 ```
+
 # Smile
 
-```.markdown
+``` {.{..markdown}}
 :smile:
 ```
 
 [:smile:]{.xx-large}
+
+## Also see
+
+-   [Complete list of github markdown emoji markup ·
+    GitHub](https://gist.github.com/rxaviers/7360908)
