@@ -1,19 +1,25 @@
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
 
-module Text.Decker.Filter.Quiz (handleQuizzes
-  , Quiz(..)
-  , Match(..)
-  , Choice(..)
-  , QuizMeta(..)
-  ) where
+module Text.Decker.Filter.Quiz
+    ( handleQuizzes,
+      Quiz (..),
+      Match (..),
+      Choice (..),
+      QuizMeta (..),
+    )
+where
 
 import Control.Exception
 import Control.Lens hiding (Choice)
+import Data.Aeson.TH
+import Data.Aeson.Types
 import qualified Data.Map.Strict as M
 import qualified Data.Text as T
 import Data.Text.Encoding as E
-import Data.Yaml
+import Data.Yaml hiding (YamlException)
+import GHC.Generics hiding (Meta)
 import Text.Blaze.Html
 import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
@@ -49,6 +55,42 @@ data QuizMeta = QuizMeta
 
 makeLenses ''QuizMeta
 
+data Difficulty
+    = Easy
+    | Medium
+    | Hard
+    | Undefined
+    deriving (Eq, Show)
+
+$(deriveJSON defaultOptions ''Difficulty)
+
+data QMeta = QMeta
+    { metaTopicId :: T.Text,
+      metaLectureId :: T.Text,
+      metaPoints :: Int,
+      metaDifficulty :: Difficulty,
+      metaLang :: T.Text,
+      metaStyle :: T.Text
+    }
+    deriving (Eq, Show, Generic)
+
+instance ToJSON QMeta where
+    toJSON = genericToJSON $ defaultOptions {fieldLabelModifier = drop 4}
+    toEncoding = genericToEncoding $ defaultOptions {fieldLabelModifier = drop 4}
+
+instance FromJSON QMeta where
+    parseJSON (Object q) =
+        QMeta
+            <$> q .:? "TopicId" .!= ""
+            <*> q .:? "LectureId" .!= ""
+            <*> q .:? "Points" .!= 0
+            <*> q .:? "Difficulty" .!= Undefined
+            <*> q .:? "Lang" .!= "en"
+            <*> q .:? "quiz.style" .!= "fancy"
+    parseJSON invalid = typeMismatch "QMeta" invalid
+
+-- $(deriveJSON defaultOptions {fieldLabelModifier = drop 4} ''QMeta)
+
 -- | The Quiz datatype.
 -- Each quiz type contains: title, tags/classes, meta data and the questions+answers
 data Quiz
@@ -58,7 +100,8 @@ data Quiz
             _tags :: [T.Text],
             _quizMeta :: QuizMeta,
             _question :: [Block],
-            _choices :: [Choice]
+            _choices :: [Choice],
+            _qMeta :: QMeta
           }
     | MatchItems
           { -- Matching Questions consist of one question and a pairing "area" for sorting items via dragging and dropping
@@ -66,7 +109,7 @@ data Quiz
             _tags :: [T.Text],
             _quizMeta :: QuizMeta,
             _question :: [Block],
-            _pairs :: [Match]
+            _matchpairs :: [Match]
           }
     | InsertChoices
           { -- These questions can have multiple question and answer/choices parts.
@@ -114,8 +157,9 @@ handleQuizzes pandoc@(Pandoc meta blocks) = return $ walk parseQuizboxes pandoc
                 else set tags (ts ++ ["columns", "box"]) q
         -- The default "new" quizzes
         defaultMeta = QuizMeta "" "" 0 "" (lookupMetaOrElse "en" "lang" meta) (lookupMetaOrElse "fancy" "quiz.style" meta) (lookupMetaOrElse "" "quiz.solution" meta)
+        defaultQMeta = QMeta "" "" 0 Undefined "" "fancy"
         defaultMatch = MatchItems [] [] defaultMeta [] []
-        defaultMC = MultipleChoice [] [] defaultMeta [] []
+        defaultMC = MultipleChoice [] [] defaultMeta [] [] defaultQMeta
         defaultIC = InsertChoices [] [] defaultMeta []
         defaultFree = FreeText [] [] defaultMeta [] []
 
@@ -154,23 +198,38 @@ combineICQuestions quiz@(InsertChoices ti tgs qm q) = set questions (combineQTup
         combineQTuples (a : (y, b) : rest) = a : combineQTuples ((y, b) : rest)
 combineICQuestions q = q
 
+readQuizMeta :: T.Text -> QMeta
+readQuizMeta text = do
+    let result = decodeEither' (encodeUtf8 text)
+    case result of
+        Right meta -> meta
+        Left exception -> QMeta "ERROR" "ERROR" 0 Easy "ERROR" "ERROR"
+
+-- throw $ YamlException $ "Error parsing QuizMeta, " ++ show exception
+
 -- | This monolithic function parses a Pandoc Block and uses lenses to set the field in the given quiz item
 parseAndSetQuizFields :: Quiz -> Block -> Quiz
 -- Set the title
 parseAndSetQuizFields q (Header 2 (id_, cls, kvs) text) = set title text q
 -- Set the meta information
-parseAndSetQuizFields q (CodeBlock (id_, cls, kvs) code) =
-    if "yaml" `elem` cls then setQuizMeta q (decodeYaml code) else q
-    where
-        decodeYaml :: T.Text -> Meta
-        decodeYaml text =
-            case decodeEither' (encodeUtf8 text) of
-                Right a -> toPandocMeta a
-                Left exception -> Meta M.empty
+-- parseAndSetQuizFields q (CodeBlock (id_, cls, kvs) code) =
+--     if "yaml" `elem` cls
+--         then setQuizMeta q (decodeYaml code)
+--         else q
+--     where
+--         decodeYaml :: T.Text -> Meta
+--         decodeYaml text =
+--             case decodeEither' (encodeUtf8 text) of
+--                 Right a -> toPandocMeta a
+--                 Left exception -> Meta M.empty
+parseAndSetQuizFields quiz@MultipleChoice {} (CodeBlock (id_, cls, kvs) code) =
+    if "yaml" `elem` cls
+        then set qMeta (readQuizMeta code) quiz
+        else quiz
 -- Set quiz pairs/Match Items
 -- Zip with index
 parseAndSetQuizFields quiz@MatchItems {} (DefinitionList items) =
-    set pairs (map parseDL (zip [1 ..] items)) quiz
+    set matchpairs (map parseDL (zip [1 ..] items)) quiz
     where
         parseDL :: (Int, ([Inline], [[Block]])) -> Match
         parseDL (i, (Str "!" : _, bs)) = Distractor bs
@@ -197,7 +256,7 @@ parseAndSetQuizFields quiz@(FreeText ti tgs qm q ch) b =
 parseAndSetQuizFields quiz@(InsertChoices ti tgs qm q) b =
     set questions (q ++ [([b], [])]) quiz
 -- Set question for Multiple Choice
-parseAndSetQuizFields quiz@(MultipleChoice ti tgs qm q ch) b =
+parseAndSetQuizFields quiz@(MultipleChoice ti tgs qm q ch qmeta) b =
     set question (q ++ [b]) quiz
 
 -- | Parse a Pandoc Bullet/Task list item to a Choice
@@ -250,11 +309,19 @@ resetButton meta =
         buttonText = lookupInDictionary "quiz.reset-button" meta
 
 renderMultipleChoice :: Meta -> Quiz -> Block
-renderMultipleChoice meta quiz@(MultipleChoice title tgs qm q ch) =
-    Div ("", cls, []) $ header ++ q ++ [choiceBlock]
+renderMultipleChoice meta quiz@(MultipleChoice title tgs qm q ch qmeta) =
+    Div ("", cls, attr) $ header ++ q ++ [choiceBlock]
     where
-        cls = tgs ++ [view style qm] ++ [view solution qm]
+        cls = tgs ++ [T.pack $ show $ metaStyle qmeta] ++ [view solution qm]
+        -- ++ [view style qm]
         -- ++ [solutionButton]
+        attr =
+            [ ("data-points", T.pack $ show $ metaPoints qmeta),
+              ("data-difficulty", T.pack $ show $ metaDifficulty qmeta),
+              ("data-topic-id", T.pack $ show $ metaTopicId qmeta),
+              ("data-lecture-id", T.pack $ show $ metaLectureId qmeta),
+              ("data-quiz-style", T.pack $ show $ metaStyle qmeta)
+            ]
         header =
             case title of
                 [] -> []
@@ -319,7 +386,8 @@ renderInsertChoices meta quiz@(InsertChoices title tgs qm q) =
             if correct
                 then H.option ! A.class_ "correct" ! value $ toHtml $ stringify text
                 else H.option ! A.class_ "wrong" ! value $ toHtml $ stringify text
-            where value = A.value $ textValue $ stringify text
+            where
+                value = A.value $ textValue $ stringify text
 renderInsertChoices meta q =
     Div ("", [], []) [Para [Str "ERROR NO INSERT CHOICES QUIZ"]]
 
