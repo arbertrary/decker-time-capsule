@@ -86,7 +86,11 @@ instance FromJSON QMeta where
             <*> q .:? "Points" .!= 0
             <*> q .:? "Difficulty" .!= Undefined
             <*> q .:? "Lang" .!= "en"
-            <*> q .:? "quiz.style" .!= "fancy"
+            <*> do
+                t <- q .:? "quiz"
+                case t of
+                    Just object -> object .:? "style" .!= ""
+                    Nothing -> return ""
     parseJSON invalid = typeMismatch "QMeta" invalid
 
 -- $(deriveJSON defaultOptions {fieldLabelModifier = drop 4} ''QMeta)
@@ -157,7 +161,7 @@ handleQuizzes pandoc@(Pandoc meta blocks) = return $ walk parseQuizboxes pandoc
                 else set tags (ts ++ ["columns", "box"]) q
         -- The default "new" quizzes
         defaultMeta = QuizMeta "" "" 0 "" (lookupMetaOrElse "en" "lang" meta) (lookupMetaOrElse "fancy" "quiz.style" meta) (lookupMetaOrElse "" "quiz.solution" meta)
-        defaultQMeta = QMeta "" "" 0 Undefined "" "fancy"
+        defaultQMeta = QMeta "" "" 0 Undefined "" ""
         defaultMatch = MatchItems [] [] defaultMeta [] []
         defaultMC = MultipleChoice [] [] defaultMeta [] [] defaultQMeta
         defaultIC = InsertChoices [] [] defaultMeta []
@@ -312,15 +316,17 @@ renderMultipleChoice :: Meta -> Quiz -> Block
 renderMultipleChoice meta quiz@(MultipleChoice title tgs qm q ch qmeta) =
     Div ("", cls, attr) $ header ++ q ++ [choiceBlock]
     where
-        cls = tgs ++ [T.pack $ show $ metaStyle qmeta] ++ [view solution qm]
+        cls = tgs ++ [quizStyle] ++ [view solution qm]
         -- ++ [view style qm]
         -- ++ [solutionButton]
+        quizStyle = case metaStyle qmeta of
+            "" -> lookupMetaOrElse "fancy" "quiz.style" meta
+            s -> s
         attr =
             [ ("data-points", T.pack $ show $ metaPoints qmeta),
               ("data-difficulty", T.pack $ show $ metaDifficulty qmeta),
-              ("data-topic-id", T.pack $ show $ metaTopicId qmeta),
-              ("data-lecture-id", T.pack $ show $ metaLectureId qmeta),
-              ("data-quiz-style", T.pack $ show $ metaStyle qmeta)
+              ("data-topic-id", metaTopicId qmeta),
+              ("data-lecture-id", metaLectureId qmeta)
             ]
         header =
             case title of

@@ -2,6 +2,8 @@
 title: New Quiz Syntax Test deck
 history: True
 lang: de
+quiz:
+  style: ASFKL
 ---
 
 # Overview
