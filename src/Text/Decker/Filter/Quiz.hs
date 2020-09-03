@@ -41,20 +41,6 @@ data Match
 data Choice = Choice {correct :: Bool, text :: [Inline], comment :: [Block]}
     deriving (Show)
 
--- | Set different (optional) meta options for quizzes in a yaml code block
-data QuizMeta = QuizMeta
-    { _category :: T.Text,
-      _lectureId :: T.Text,
-      _score :: Int,
-      _topic :: T.Text,
-      _lang :: T.Text,
-      _style :: T.Text,
-      _solution :: T.Text
-    }
-    deriving (Show)
-
-makeLenses ''QuizMeta
-
 data Difficulty
     = Easy
     | Medium
@@ -64,7 +50,8 @@ data Difficulty
 
 $(deriveJSON defaultOptions ''Difficulty)
 
-data QMeta = QMeta
+-- | Set different (optional) meta options for quizzes in a yaml code block
+data QuizMeta = QMeta
     { metaTopicId :: T.Text,
       metaLectureId :: T.Text,
       metaPoints :: Int,
@@ -74,26 +61,24 @@ data QMeta = QMeta
     }
     deriving (Eq, Show, Generic)
 
-instance ToJSON QMeta where
+instance ToJSON QuizMeta where
     toJSON = genericToJSON $ defaultOptions {fieldLabelModifier = drop 4}
     toEncoding = genericToEncoding $ defaultOptions {fieldLabelModifier = drop 4}
 
-instance FromJSON QMeta where
+instance FromJSON QuizMeta where
     parseJSON (Object q) =
         QMeta
             <$> q .:? "TopicId" .!= ""
             <*> q .:? "LectureId" .!= ""
             <*> q .:? "Points" .!= 0
             <*> q .:? "Difficulty" .!= Undefined
-            <*> q .:? "Lang" .!= "en"
+            <*> q .:? "lang" .!= "en"
             <*> do
                 t <- q .:? "quiz"
                 case t of
                     Just object -> object .:? "style" .!= ""
                     Nothing -> return ""
     parseJSON invalid = typeMismatch "QMeta" invalid
-
--- $(deriveJSON defaultOptions {fieldLabelModifier = drop 4} ''QMeta)
 
 -- | The Quiz datatype.
 -- Each quiz type contains: title, tags/classes, meta data and the questions+answers
@@ -104,8 +89,7 @@ data Quiz
             _tags :: [T.Text],
             _quizMeta :: QuizMeta,
             _question :: [Block],
-            _choices :: [Choice],
-            _qMeta :: QMeta
+            _choices :: [Choice]
           }
     | MatchItems
           { -- Matching Questions consist of one question and a pairing "area" for sorting items via dragging and dropping
@@ -160,12 +144,11 @@ handleQuizzes pandoc@(Pandoc meta blocks) = return $ walk parseQuizboxes pandoc
                 then set tags ts q
                 else set tags (ts ++ ["columns", "box"]) q
         -- The default "new" quizzes
-        defaultMeta = QuizMeta "" "" 0 "" (lookupMetaOrElse "en" "lang" meta) (lookupMetaOrElse "fancy" "quiz.style" meta) (lookupMetaOrElse "" "quiz.solution" meta)
-        defaultQMeta = QMeta "" "" 0 Undefined "" ""
-        defaultMatch = MatchItems [] [] defaultMeta [] []
-        defaultMC = MultipleChoice [] [] defaultMeta [] [] defaultQMeta
-        defaultIC = InsertChoices [] [] defaultMeta []
-        defaultFree = FreeText [] [] defaultMeta [] []
+        defaultQMeta = QMeta {metaTopicId = "", metaLectureId = "", metaPoints = 0, metaDifficulty = Undefined, metaLang = (lookupMetaOrElse "en" "lang" meta), metaStyle = (lookupMetaOrElse "fancy" "quiz.style" meta)}
+        defaultMatch = MatchItems [] [] defaultQMeta [] []
+        defaultMC = MultipleChoice [] [] defaultQMeta [] []
+        defaultIC = InsertChoices [] [] defaultQMeta []
+        defaultFree = FreeText [] [] defaultQMeta [] []
 
 -- Take the parsed Quizzes and render them to html
 renderQuizzes :: Meta -> Quiz -> Block
@@ -202,33 +185,21 @@ combineICQuestions quiz@(InsertChoices ti tgs qm q) = set questions (combineQTup
         combineQTuples (a : (y, b) : rest) = a : combineQTuples ((y, b) : rest)
 combineICQuestions q = q
 
-readQuizMeta :: T.Text -> QMeta
+readQuizMeta :: T.Text -> QuizMeta
 readQuizMeta text = do
     let result = decodeEither' (encodeUtf8 text)
     case result of
         Right meta -> meta
         Left exception -> QMeta "ERROR" "ERROR" 0 Easy "ERROR" "ERROR"
 
--- throw $ YamlException $ "Error parsing QuizMeta, " ++ show exception
-
 -- | This monolithic function parses a Pandoc Block and uses lenses to set the field in the given quiz item
 parseAndSetQuizFields :: Quiz -> Block -> Quiz
 -- Set the title
 parseAndSetQuizFields q (Header 2 (id_, cls, kvs) text) = set title text q
 -- Set the meta information
--- parseAndSetQuizFields q (CodeBlock (id_, cls, kvs) code) =
---     if "yaml" `elem` cls
---         then setQuizMeta q (decodeYaml code)
---         else q
---     where
---         decodeYaml :: T.Text -> Meta
---         decodeYaml text =
---             case decodeEither' (encodeUtf8 text) of
---                 Right a -> toPandocMeta a
---                 Left exception -> Meta M.empty
-parseAndSetQuizFields quiz@MultipleChoice {} (CodeBlock (id_, cls, kvs) code) =
+parseAndSetQuizFields quiz (CodeBlock (id_, cls, kvs) code) =
     if "yaml" `elem` cls
-        then set qMeta (readQuizMeta code) quiz
+        then set quizMeta (readQuizMeta code) quiz
         else quiz
 -- Set quiz pairs/Match Items
 -- Zip with index
@@ -260,7 +231,7 @@ parseAndSetQuizFields quiz@(FreeText ti tgs qm q ch) b =
 parseAndSetQuizFields quiz@(InsertChoices ti tgs qm q) b =
     set questions (q ++ [([b], [])]) quiz
 -- Set question for Multiple Choice
-parseAndSetQuizFields quiz@(MultipleChoice ti tgs qm q ch qmeta) b =
+parseAndSetQuizFields quiz@(MultipleChoice ti tgs qm q ch) b =
     set question (q ++ [b]) quiz
 
 -- | Parse a Pandoc Bullet/Task list item to a Choice
@@ -273,29 +244,6 @@ parseQuizTLItem FreeText {} (Plain is : bs) = Choice True is bs
 -- parseQuizTLItem InsertChoices {} (Plain is:bs) = Choice True is bs
 parseQuizTLItem _ is =
     Choice False [Str "Error: NoTasklistItem"] [Plain []]
-
--- | Set the quizMeta field of a Quiz using lenses
--- available meta options are hardcoded here
-setQuizMeta :: Quiz -> Meta -> Quiz
-setQuizMeta q meta = set quizMeta (setMetaForEach meta (q ^. quizMeta)) q
-    where
-        setMetaForEach :: Meta -> QuizMeta -> QuizMeta
-        setMetaForEach m qm =
-            foldr
-                (setMeta' m)
-                qm
-                ["score", "category", "lectureId", "topic", "lang", "quiz.style", "quiz.solution"]
-        setMeta' :: Meta -> T.Text -> QuizMeta -> QuizMeta
-        setMeta' m t qm =
-            case t of
-                "score" -> set score (lookupMetaOrElse 0 t m) qm
-                "category" -> set category (lookupMetaOrElse "" t m) qm
-                "lectureId" -> set lectureId (lookupMetaOrElse "" t m) qm
-                "topic" -> set topic (lookupMetaOrElse "" t m) qm
-                "lang" -> set lang (lookupMetaOrElse (view lang qm) t m) qm
-                "quiz.style" -> set style (lookupMetaOrElse (view style qm) t m) qm
-                "quiz.solution" -> set solution (lookupMetaOrElse (view solution qm) t m) qm
-                _ -> throw $ InternalException $ "Unknown meta data key: " <> show t
 
 -- | A simple Html button
 solutionButton :: Meta -> Block
@@ -312,22 +260,25 @@ resetButton meta =
         buttonText :: T.Text
         buttonText = lookupInDictionary "quiz.reset-button" meta
 
+quizAttributes :: QuizMeta -> [(T.Text, T.Text)]
+quizAttributes quizMeta =
+    [ ("data-points", T.pack $ show $ metaPoints quizMeta),
+      ("data-difficulty", T.pack $ show $ metaDifficulty quizMeta),
+      ("data-topic-id", metaTopicId quizMeta),
+      ("data-lecture-id", metaLectureId quizMeta)
+    ]
+
+quizStyle :: Meta -> QuizMeta -> T.Text
+quizStyle pandocMeta quizMeta = case metaStyle quizMeta of
+    "" -> lookupMetaOrElse "fancy" "quiz.style" pandocMeta
+    s -> s
+
 renderMultipleChoice :: Meta -> Quiz -> Block
-renderMultipleChoice meta quiz@(MultipleChoice title tgs qm q ch qmeta) =
-    Div ("", cls, attr) $ header ++ q ++ [choiceBlock]
+renderMultipleChoice pandocMeta quiz@(MultipleChoice title tgs qm q ch) =
+    Div ("", cls, quizAttributes qm) $ header ++ q ++ [choiceBlock]
     where
-        cls = tgs ++ [quizStyle] ++ [view solution qm]
-        -- ++ [view style qm]
+        cls = tgs ++ [quizStyle pandocMeta qm] -- ++ [view solution qm]
         -- ++ [solutionButton]
-        quizStyle = case metaStyle qmeta of
-            "" -> lookupMetaOrElse "fancy" "quiz.style" meta
-            s -> s
-        attr =
-            [ ("data-points", T.pack $ show $ metaPoints qmeta),
-              ("data-difficulty", T.pack $ show $ metaDifficulty qmeta),
-              ("data-topic-id", metaTopicId qmeta),
-              ("data-lecture-id", metaLectureId qmeta)
-            ]
         header =
             case title of
                 [] -> []
@@ -361,10 +312,11 @@ choiceList t choices =
                         H.div ! A.class_ "tooltip" $ toHtml (reduceTooltip comment)
 
 renderInsertChoices :: Meta -> Quiz -> Block
-renderInsertChoices meta quiz@(InsertChoices title tgs qm q) =
-    Div ("", cls, []) $ header ++ questionBlocks q ++ tooltipDiv
+renderInsertChoices pandocMeta quiz@(InsertChoices title tgs qm q) =
+    Div ("", cls, quizAttributes qm) $ header ++ questionBlocks q ++ tooltipDiv
     where
-        cls = tgs ++ [view style qm] ++ [view solution qm]
+        cls = tgs ++ [quizStyle pandocMeta qm]
+        -- ++ [view solution qm]
         -- ++ [solutionButton]
         header =
             case title of
@@ -399,11 +351,12 @@ renderInsertChoices meta q =
 
 --
 renderMatching :: Meta -> Quiz -> Block
-renderMatching meta quiz@(MatchItems title tgs qm qs matches) =
-    Div ("", cls, []) $ header ++ qs ++ [itemsDiv, bucketsDiv, sButton]
+renderMatching pandocMeta quiz@(MatchItems title tgs qm qs matches) =
+    Div ("", cls, quizAttributes qm) $ header ++ qs ++ [itemsDiv, bucketsDiv, sButton]
     where
-        cls = tgs ++ [view style qm] ++ [view solution qm]
-        newMeta = setMetaValue "lang" (view lang qm) meta
+        cls = tgs ++ [quizStyle pandocMeta qm]
+        -- ++ [view solution qm]
+        newMeta = setMetaValue "lang" (metaLang qm) pandocMeta
         sButton = solutionButton newMeta
         header =
             case title of
@@ -447,11 +400,12 @@ renderMatching meta q =
     Div ("", [], []) [Para [Str "ERROR NO MATCHING QUIZ"]]
 
 renderFreeText :: Meta -> Quiz -> Block
-renderFreeText meta quiz@(FreeText title tgs qm q ch) =
-    Div ("", cls, []) $ header ++ q ++ [inputRaw] ++ [sButton] ++ [rButton] ++ [sol]
+renderFreeText pandocMeta quiz@(FreeText title tgs qm q ch) =
+    Div ("", cls, quizAttributes qm) $ header ++ q ++ [inputRaw] ++ [sButton] ++ [rButton] ++ [sol]
     where
-        cls = tgs ++ [view style qm] ++ [view solution qm]
-        newMeta = setMetaValue "lang" (view lang qm) meta
+        cls = tgs ++ [quizStyle pandocMeta qm]
+        -- ++ [view solution qm]
+        newMeta = setMetaValue "lang" (metaLang qm) pandocMeta
         sButton = solutionButton newMeta
         rButton = resetButton newMeta
         header =

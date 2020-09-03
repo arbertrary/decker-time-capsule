@@ -105,6 +105,7 @@ score: 5
 category: CG
 lectureId: cg1
 topic: yeah
+lang: de
 ```
 
 # Matching 4 - Plain
@@ -170,6 +171,7 @@ Points: 5
 LectureId: cg1
 TopicId: yeah
 Difficulty: Easy
+lang: de
 ```
 
 # Mutliple Choice 2 - Plain
