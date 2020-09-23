@@ -1,3 +1,4 @@
+@charset "UTF-8";
 @import url("../vendor/css/light.min.css");
 @import url("../vendor/fontawesome/css/all.css");
 div.column {
@@ -173,6 +174,11 @@ figure.decker > object.decker {
   width: 100%;
 }
 
+.media-caption,
+.video-placeholder {
+  display: none;
+}
+
 div.image-row {
   display: flex;
   flex-direction: row;
@@ -188,6 +194,41 @@ div.image-row div {
 
 div.image-row img {
   display: block;
+}
+
+@media print {
+  @page {
+    size: A4;
+    /* DIN A4 standard, Europe */
+    margin: 2cm;
+  }
+  html, body {
+    overflow: visible !important;
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+    height: auto;
+  }
+  .slide {
+    break-inside: avoid;
+  }
+  img {
+    float: none;
+  }
+  .media-caption {
+    display: block;
+    font-size: 0.8em;
+    font-style: italic;
+    margin-top: 5px;
+    clear: both;
+  }
+  img.video-placeholder {
+    display: block;
+    float: left;
+  }
+  div.youtube-iframe,
+figure.youtube-iframe {
+    display: none;
+  }
 }
 
 header > h1 {
@@ -263,4 +304,757 @@ header > *:last-child {
 
 body {
   -webkit-print-color-adjust: exact;
+}
+
+body {
+  background: white;
+  margin: 2cm;
+  -webkit-print-color-adjust: exact;
+  font-family: "Roboto", sans-serif;
+  font-size: 16px;
+  font-weight: normal;
+  color: black;
+}
+
+body .page-header {
+  font-size: 1.8rem;
+}
+
+body .page-header small {
+  white-space: nowrap;
+}
+
+body[data-align="center"] > h1,
+div[data-align="center"] {
+  text-align: center;
+}
+
+body[data-align="right"] > h1,
+div[data-align="right"] {
+  text-align: right;
+}
+
+body h1,
+body h2,
+body h3,
+body h4,
+body h5,
+body h6 {
+  color: rgba(0, 0, 0, 0.87);
+  letter-spacing: normal;
+  text-transform: none;
+  text-shadow: none;
+  word-wrap: break-word;
+  font-weight: normal;
+}
+
+body h1 {
+  font-size: 1.5em;
+  margin: 0em 0em 0.5em 0em;
+}
+
+body h1 code {
+  font-size: 116%;
+}
+
+body .rightcolumn > h1 {
+  margin-left: 54%;
+}
+
+body h2 {
+  font-weight: 500;
+  font-size: 1.3em;
+  margin-bottom: 0.1em;
+}
+
+body h2 code {
+  font-size: 116%;
+}
+
+body h3 {
+  font-weight: 500;
+  font-size: 1.1em;
+  margin-bottom: 0.1em;
+}
+
+body h3 code {
+  font-size: 116%;
+}
+
+body strong,
+body b {
+  font-weight: bold;
+}
+
+body em {
+  font-style: italic;
+}
+
+body sup {
+  font-size: 0.5em;
+  position: absolute;
+  vertical-align: super;
+}
+
+body sub {
+  vertical-align: sub;
+}
+
+body small {
+  display: inline-block;
+  font-size: 0.6em;
+  vertical-align: top;
+}
+
+body dt {
+  font-weight: bold;
+}
+
+body dd {
+  margin-left: 1em;
+}
+
+body q,
+body blockquote {
+  quotes: none;
+}
+
+body blockquote {
+  display: block;
+  position: relative;
+  width: 70%;
+  margin: 1em auto;
+  padding: 0.25em;
+  font-style: italic;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+}
+
+body blockquote p:first-child, body blockquote p:last-child {
+  display: inline-block;
+}
+
+body q {
+  font-style: italic;
+  quotes: "“" "”" "‘" "’";
+}
+
+body .smallcaps {
+  font-variant: small-caps;
+}
+
+body .line-block {
+  white-space: pre-line;
+}
+
+body code {
+  font-family: "Source Code Pro", monospace;
+  font-size: 106%;
+  font-weight: 500;
+  color: #06287e;
+}
+
+body ol,
+body dl,
+body ul {
+  display: inline-block;
+  text-align: left;
+  margin: 0em 0em 0em 1em;
+}
+
+body ol {
+  list-style-type: decimal;
+}
+
+body ul {
+  list-style-type: disc;
+}
+
+body ul ul {
+  list-style-type: disc;
+}
+
+body ul ul ul {
+  list-style-type: disc;
+}
+
+body ul ul,
+body ul ol,
+body ol ol,
+body ol ul {
+  display: block;
+  margin-left: 1em;
+}
+
+body a {
+  color: #009;
+  text-decoration: none;
+  -webkit-transition: color 0.15s ease;
+  -moz-transition: color 0.15s ease;
+  -ms-transition: color 0.15s ease;
+  -o-transition: color 0.15s ease;
+  transition: color 0.15s ease;
+}
+
+body a img {
+  -webkit-transition: color 0.15s linear;
+  -moz-transition: color 0.15s linear;
+  -ms-transition: color 0.15s linear;
+  -o-transition: color 0.15s linear;
+  transition: color 0.15s linear;
+}
+
+body a:hover {
+  color: blue;
+  text-shadow: none;
+  border: none;
+}
+
+body a:hover img {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  box-shadow: none;
+}
+
+body.mid div.multi-column-row {
+  align-items: center;
+}
+
+body div.column {
+  display: inline-block;
+  vertical-align: top;
+  width: 50%;
+}
+
+body div.css-columns {
+  column-count: 2;
+  column-gap: 2em;
+  column-rule-style: none;
+  padding-left: 0.7em;
+  margin-left: -0.7em;
+}
+
+body div.box {
+  break-inside: avoid-column;
+}
+
+body div.multi-column-row {
+  display: flex;
+  flex-flow: row nowrap;
+}
+
+body div.multi-column-row div.column {
+  position: relative;
+  flex: 1 1 0;
+  margin-left: 1em;
+  margin-right: 1em;
+}
+
+body div.multi-column-row div.column:first-child {
+  margin-left: 0;
+  margin-right: 1em;
+}
+
+body div.multi-column-row div.column:last-child {
+  margin-left: 1em;
+  margin-right: 0;
+}
+
+body div.multi-column-row div.column .mid {
+  position: absolute;
+  top: 50%;
+  transform: translate(0, -50%);
+}
+
+body div.multi-column-row div.column[data-grow="1"] {
+  flex-grow: 1;
+}
+
+body div.multi-column-row div.column[data-grow="2"] {
+  flex-grow: 2;
+}
+
+body div.multi-column-row div.column[data-grow="3"] {
+  flex-grow: 3;
+}
+
+body div.multi-column-row div.column[data-grow="4"] {
+  flex-grow: 4;
+}
+
+body div.multi-column-row div.column[data-grow="5"] {
+  flex-grow: 5;
+}
+
+body div.multi-column-row div.column[data-grow="6"] {
+  flex-grow: 6;
+}
+
+body div.multi-column-row div.column[data-grow="7"] {
+  flex-grow: 7;
+}
+
+body div.multi-column-row div.column[data-grow="8"] {
+  flex-grow: 8;
+}
+
+body div.multi-column-row div.column[data-grow="9"] {
+  flex-grow: 9;
+}
+
+body div.box {
+  padding: 0.4em 0.7em;
+  margin: 0em -0.7em;
+  border-radius: 0.25em;
+}
+
+body div.box h2 {
+  margin-top: 0;
+}
+
+body div.box h2:last-child, body div.box h2:empty {
+  margin-bottom: 0;
+}
+
+body div.box p {
+  margin: 0;
+}
+
+body div.box.question + .question, body div.box.question + .answer, body div.box.question + .observation, body div.box.question + .example, body div.box.question + .def, body div.box.question + .definition, body div.box.question + .note, body div.box.question + .ale, body div.box.question + .alert, body div.box.question + .equ, body div.box.question + .equation, body div.box.question + .theorem, body div.box.answer + .question, body div.box.answer + .answer, body div.box.answer + .observation, body div.box.answer + .example, body div.box.answer + .def, body div.box.answer + .definition, body div.box.answer + .note, body div.box.answer + .ale, body div.box.answer + .alert, body div.box.answer + .equ, body div.box.answer + .equation, body div.box.answer + .theorem, body div.box.observation + .question, body div.box.observation + .answer, body div.box.observation + .observation, body div.box.observation + .example, body div.box.observation + .def, body div.box.observation + .definition, body div.box.observation + .note, body div.box.observation + .ale, body div.box.observation + .alert, body div.box.observation + .equ, body div.box.observation + .equation, body div.box.observation + .theorem, body div.box.example + .question, body div.box.example + .answer, body div.box.example + .observation, body div.box.example + .example, body div.box.example + .def, body div.box.example + .definition, body div.box.example + .note, body div.box.example + .ale, body div.box.example + .alert, body div.box.example + .equ, body div.box.example + .equation, body div.box.example + .theorem, body div.box.def + .question, body div.box.def + .answer, body div.box.def + .observation, body div.box.def + .example, body div.box.def + .def, body div.box.def + .definition, body div.box.def + .note, body div.box.def + .ale, body div.box.def + .alert, body div.box.def + .equ, body div.box.def + .equation, body div.box.def + .theorem, body div.box.definition + .question, body div.box.definition + .answer, body div.box.definition + .observation, body div.box.definition + .example, body div.box.definition + .def, body div.box.definition + .definition, body div.box.definition + .note, body div.box.definition + .ale, body div.box.definition + .alert, body div.box.definition + .equ, body div.box.definition + .equation, body div.box.definition + .theorem, body div.box.note + .question, body div.box.note + .answer, body div.box.note + .observation, body div.box.note + .example, body div.box.note + .def, body div.box.note + .definition, body div.box.note + .note, body div.box.note + .ale, body div.box.note + .alert, body div.box.note + .equ, body div.box.note + .equation, body div.box.note + .theorem, body div.box.ale + .question, body div.box.ale + .answer, body div.box.ale + .observation, body div.box.ale + .example, body div.box.ale + .def, body div.box.ale + .definition, body div.box.ale + .note, body div.box.ale + .ale, body div.box.ale + .alert, body div.box.ale + .equ, body div.box.ale + .equation, body div.box.ale + .theorem, body div.box.alert + .question, body div.box.alert + .answer, body div.box.alert + .observation, body div.box.alert + .example, body div.box.alert + .def, body div.box.alert + .definition, body div.box.alert + .note, body div.box.alert + .ale, body div.box.alert + .alert, body div.box.alert + .equ, body div.box.alert + .equation, body div.box.alert + .theorem, body div.box.equ + .question, body div.box.equ + .answer, body div.box.equ + .observation, body div.box.equ + .example, body div.box.equ + .def, body div.box.equ + .definition, body div.box.equ + .note, body div.box.equ + .ale, body div.box.equ + .alert, body div.box.equ + .equ, body div.box.equ + .equation, body div.box.equ + .theorem, body div.box.equation + .question, body div.box.equation + .answer, body div.box.equation + .observation, body div.box.equation + .example, body div.box.equation + .def, body div.box.equation + .definition, body div.box.equation + .note, body div.box.equation + .ale, body div.box.equation + .alert, body div.box.equation + .equ, body div.box.equation + .equation, body div.box.equation + .theorem, body div.box.theorem + .question, body div.box.theorem + .answer, body div.box.theorem + .observation, body div.box.theorem + .example, body div.box.theorem + .def, body div.box.theorem + .definition, body div.box.theorem + .note, body div.box.theorem + .ale, body div.box.theorem + .alert, body div.box.theorem + .equ, body div.box.theorem + .equation, body div.box.theorem + .theorem {
+  margin-top: 0.3em;
+}
+
+body div.box.question {
+  background-color: rgba(255, 215, 67, 0.4);
+}
+
+body div.box.answer {
+  background-color: rgba(153, 205, 58, 0.4);
+}
+
+body div.box.observation {
+  background-color: rgba(210, 180, 140, 0.4);
+}
+
+body div.box.example {
+  background-color: rgba(176, 197, 222, 0.4);
+}
+
+body div.box.def, body div.box.definition {
+  background-color: rgba(245, 222, 179, 0.6);
+}
+
+body div.box.note {
+  background-color: rgba(244, 164, 96, 0.4);
+}
+
+body div.box.ale, body div.box.alert {
+  background-color: rgba(255, 99, 71, 0.4);
+}
+
+body div.box.equ, body div.box.equation {
+  background-color: #ebebeb;
+}
+
+body div.box.theorem {
+  background-color: #ebebeb;
+}
+
+body div.videoWrapper {
+  position: relative;
+  padding-bottom: 56.25%;
+  /* 16:9 */
+  padding-top: 0;
+  height: 0;
+}
+
+body div.videoWrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+body div span.math.display {
+  width: 100%;
+  display: block;
+  text-align: center;
+}
+
+body img {
+  max-width: 100%;
+  margin: 0 auto;
+  display: block;
+  border: none;
+  box-shadow: none;
+  border-radius: 0.25em;
+}
+
+body img.float-left {
+  float: left;
+}
+
+body img.float-right {
+  float: right;
+}
+
+body figure {
+  margin: auto;
+  text-align: center;
+}
+
+body figure figcaption {
+  font-size: 0.8em;
+  font-style: italic;
+}
+
+body video {
+  width: 100%;
+  margin: 0 auto;
+  display: block;
+}
+
+body.img-center img {
+  margin: 0 auto;
+  display: block;
+}
+
+body.img-nocenter img {
+  margin: 0 0;
+  display: inline;
+}
+
+body div.sourceCode {
+  margin: 0em -0.7em;
+  padding: 0.4em 0.7em;
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 0.25em;
+  overflow: auto;
+}
+
+body div.sourceCode pre {
+  display: block;
+  position: relative;
+  width: 100%;
+  text-align: left;
+  line-height: 1.5em;
+  word-wrap: break-word;
+  box-shadow: none;
+  font-size: 90%;
+  font-weight: 500;
+  margin: 0;
+}
+
+body div.sourceCode pre.numberSource {
+  margin-left: 3em;
+  border-left: 1px solid #aaaaaa;
+  padding-left: 4px;
+}
+
+body div.sourceCode pre.numberSource a.sourceLine {
+  position: relative;
+}
+
+body div.sourceCode pre.numberSource a.sourceLine:empty {
+  position: absolute;
+}
+
+body div.sourceCode pre.numberSource a.sourceLine::before {
+  content: attr(data-line-number);
+  position: absolute;
+  left: -5em;
+  text-align: right;
+  vertical-align: baseline;
+  border: none;
+  pointer-events: all;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  padding: 0 4px;
+  width: 4em;
+  color: #aaaaaa;
+}
+
+body div.sourceCode pre code {
+  display: block;
+  overflow: auto;
+  max-height: 500px;
+  word-wrap: normal;
+  border: none;
+  font-family: "Source Code Pro", monospace;
+  white-space: pre;
+  position: relative;
+  color: black;
+}
+
+body div.sourceCode pre code a.sourceLine {
+  display: inline-block;
+  line-height: 1.25;
+  pointer-events: none;
+  color: inherit;
+  text-decoration: inherit;
+}
+
+body div.sourceCode pre code a.sourceLine:empty {
+  height: 1.2em;
+  position: absolute;
+}
+
+body div.sourceCode pre code a.sourceLine::before {
+  text-decoration: underline;
+}
+
+body div.sourceCode pre code a.sourceLine span.al {
+  color: #ff0000;
+  font-weight: bold;
+}
+
+body div.sourceCode pre code a.sourceLine span.an, body div.sourceCode pre code a.sourceLine span.cv, body div.sourceCode pre code a.sourceLine span.wa, body div.sourceCode pre code a.sourceLine span.in {
+  color: #60a0b0;
+  font-weight: bold;
+  font-style: italic;
+}
+
+body div.sourceCode pre code a.sourceLine span.at {
+  color: #7d9029;
+}
+
+body div.sourceCode pre code a.sourceLine span.fl, body div.sourceCode pre code a.sourceLine span.dv, body div.sourceCode pre code a.sourceLine span.bn {
+  color: #40a070;
+}
+
+body div.sourceCode pre code a.sourceLine span.cf, body div.sourceCode pre code a.sourceLine span.kw {
+  color: #007020;
+  font-weight: bold;
+}
+
+body div.sourceCode pre code a.sourceLine span.ch, body div.sourceCode pre code a.sourceLine span.sc, body div.sourceCode pre code a.sourceLine span.st, body div.sourceCode pre code a.sourceLine span.vs {
+  color: #4070a0;
+}
+
+body div.sourceCode pre code a.sourceLine span.cn {
+  color: #880000;
+}
+
+body div.sourceCode pre code a.sourceLine span.co {
+  color: #60a0b0;
+  font-style: italic;
+}
+
+body div.sourceCode pre code a.sourceLine span.do {
+  color: #ba2121;
+  font-style: italic;
+}
+
+body div.sourceCode pre code a.sourceLine span.dt {
+  color: #902000;
+}
+
+body div.sourceCode pre code a.sourceLine span.er {
+  color: #ff0000;
+  font-weight: bold;
+}
+
+body div.sourceCode pre code a.sourceLine span.fu {
+  color: #06287e;
+}
+
+body div.sourceCode pre code a.sourceLine span.op {
+  color: #666666;
+}
+
+body div.sourceCode pre code a.sourceLine span.ot {
+  color: #007020;
+}
+
+body div.sourceCode pre code a.sourceLine span.pp {
+  color: #bc7a00;
+}
+
+body div.sourceCode pre code a.sourceLine span.ss {
+  color: #bb6688;
+}
+
+body div.sourceCode pre code a.sourceLine span.va {
+  color: #19177c;
+}
+
+body div.box.question div.sourceCode, body div.box.answer div.sourceCode, body div.box.observation div.sourceCode, body div.box.example div.sourceCode, body div.box.def div.sourceCode, body div.box.definition div.sourceCode, body div.box.note div.sourceCode, body div.box.ale div.sourceCode, body div.box.alert div.sourceCode, body div.box.equ div.sourceCode, body div.box.equation div.sourceCode, body div.box.theorem div.sourceCode {
+  margin: 0;
+  background: rgba(255, 255, 255, 0.4);
+  padding: 0em 0.2em;
+}
+
+body div.box.question div.sourceCode pre, body div.box.answer div.sourceCode pre, body div.box.observation div.sourceCode pre, body div.box.example div.sourceCode pre, body div.box.def div.sourceCode pre, body div.box.definition div.sourceCode pre, body div.box.note div.sourceCode pre, body div.box.ale div.sourceCode pre, body div.box.alert div.sourceCode pre, body div.box.equ div.sourceCode pre, body div.box.equation div.sourceCode pre, body div.box.theorem div.sourceCode pre {
+  margin: 0;
+}
+
+body .references {
+  height: 17.5em;
+  overflow-y: scroll;
+}
+
+body .references div {
+  margin-bottom: 0.5em;
+}
+
+body table {
+  margin: auto;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+body table th {
+  font-weight: bold;
+}
+
+body table th,
+body table td {
+  text-align: left;
+  padding: 0.2em 0.5em;
+  border-bottom: 1px solid;
+}
+
+body table th[align="center"],
+body table td[align="center"] {
+  text-align: center;
+}
+
+body table th[align="right"],
+body table td[align="right"] {
+  text-align: right;
+}
+
+body table tr:last-child td {
+  border-bottom: none;
+}
+
+body.dense, body.x-dense, body.xx-dense {
+  line-height: 1.4;
+}
+
+body.dense.x-dense, body.x-dense.x-dense, body.xx-dense.x-dense {
+  font-size: 90%;
+}
+
+body.dense.xx-dense, body.x-dense.xx-dense, body.xx-dense.xx-dense {
+  font-size: 80%;
+}
+
+body.dense p, body.x-dense p, body.xx-dense p {
+  margin: 0.2em 0em;
+}
+
+body.dense h1, body.x-dense h1, body.xx-dense h1 {
+  margin: 0em 0em 0.2em 0em;
+}
+
+body.dense div.sourceCode, body.x-dense div.sourceCode, body.xx-dense div.sourceCode {
+  margin: 0em -0.7em;
+  padding: 0.4em 0.7em;
+}
+
+body.dense div.box, body.x-dense div.box, body.xx-dense div.box {
+  padding: 0.2em 0.7em;
+  margin: 0em -0.7em;
+}
+
+body.dense div.box h2, body.x-dense div.box h2, body.xx-dense div.box h2 {
+  margin-bottom: 0.1em;
+}
+
+body.dense div.box.question div.sourceCode pre, body.dense div.box.answer div.sourceCode pre, body.dense div.box.observation div.sourceCode pre, body.dense div.box.example div.sourceCode pre, body.dense div.box.def div.sourceCode pre, body.dense div.box.definition div.sourceCode pre, body.dense div.box.note div.sourceCode pre, body.dense div.box.ale div.sourceCode pre, body.dense div.box.alert div.sourceCode pre, body.dense div.box.equ div.sourceCode pre, body.dense div.box.equation div.sourceCode pre, body.dense div.box.theorem div.sourceCode pre, body.x-dense div.box.question div.sourceCode pre, body.x-dense div.box.answer div.sourceCode pre, body.x-dense div.box.observation div.sourceCode pre, body.x-dense div.box.example div.sourceCode pre, body.x-dense div.box.def div.sourceCode pre, body.x-dense div.box.definition div.sourceCode pre, body.x-dense div.box.note div.sourceCode pre, body.x-dense div.box.ale div.sourceCode pre, body.x-dense div.box.alert div.sourceCode pre, body.x-dense div.box.equ div.sourceCode pre, body.x-dense div.box.equation div.sourceCode pre, body.x-dense div.box.theorem div.sourceCode pre, body.xx-dense div.box.question div.sourceCode pre, body.xx-dense div.box.answer div.sourceCode pre, body.xx-dense div.box.observation div.sourceCode pre, body.xx-dense div.box.example div.sourceCode pre, body.xx-dense div.box.def div.sourceCode pre, body.xx-dense div.box.definition div.sourceCode pre, body.xx-dense div.box.note div.sourceCode pre, body.xx-dense div.box.ale div.sourceCode pre, body.xx-dense div.box.alert div.sourceCode pre, body.xx-dense div.box.equ div.sourceCode pre, body.xx-dense div.box.equation div.sourceCode pre, body.xx-dense div.box.theorem div.sourceCode pre {
+  line-height: 0;
+}
+
+body.dense .references div, body.x-dense .references div, body.xx-dense .references div {
+  margin-bottom: 0.2em;
+}
+
+body.dense table td, body.x-dense table td, body.xx-dense table td {
+  padding: 0.1em 0.5em;
+}
+
+body .medium {
+  font-size: 16px;
+}
+
+body .xx-small {
+  font-size: 6.4px;
+}
+
+body .x-small {
+  font-size: 9.6px;
+}
+
+body .small {
+  font-size: 12.8px;
+}
+
+body .large {
+  font-size: 19.2px;
+}
+
+body .x-large {
+  font-size: 22.4px;
+}
+
+body .xx-large {
+  font-size: 25.6px;
+}
+
+body ::selection {
+  color: white;
+  background: rgba(0, 0, 0, 0.85);
+  text-shadow: none;
+}
+
+@media print {
+  @page {
+    body {
+      size: A4;
+      /* DIN A4 standard, Europe */
+      margin: 2cm;
+    }
+  }
+  body html, body body {
+    overflow: visible !important;
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+    height: auto;
+  }
+  body header {
+    break-after: avoid;
+  }
+  body .slide {
+    break-inside: avoid;
+  }
+  body a:link:after {
+    content: " (" attr(href) ") ";
+  }
+  body img {
+    float: none;
+  }
+  body video {
+    background-color: black;
+    border: 1px solid black;
+  }
+  body .media-caption {
+    display: block;
+    font-size: 0.8em;
+    font-style: italic;
+    margin-top: 5px;
+    clear: both;
+  }
+  body .video-placeholder {
+    display: block;
+    float: left;
+  }
+  body .youtube-iframe {
+    display: none;
+  }
 }

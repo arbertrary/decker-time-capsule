@@ -424,12 +424,14 @@ videoHtml uri caption = do
         if Text.null mediaFrag
           then URI.render uri
           else URI.render uri {URI.uriFragment = URI.mkFragment mediaFrag}
+  let embedCaption = H.p ! A.class_ "media-caption" $ toHtml videoUri 
   case caption of
     [] -> do
       injectBorder >> takeAutoplay >> takeVideoClasses >> passVideoAttribs >>
         takeSize >>
         takeUsual
-      mkVideoTag videoUri <$> extractAttr
+      vidTag <- mkVideoTag videoUri <$> extractAttr
+      return $ vidTag >> embedCaption
     caption -> do
       captionHtml <- lift $ inlinesToHtml caption
       videoAttr <-
@@ -439,7 +441,7 @@ videoHtml uri caption = do
       let videoTag = mkVideoTag videoUri videoAttr
       figureAttr <-
         injectBorder >> takeSizeIf isPercent >> takeUsual >> extractAttr
-      return $ mkFigureTag videoTag captionHtml figureAttr
+      return $ mkFigureTag videoTag captionHtml figureAttr >> embedCaption
 
 -- | Render an SVG image from the code linked to here.
 renderCodeHtml :: URI -> [Inline] -> Attrib Html

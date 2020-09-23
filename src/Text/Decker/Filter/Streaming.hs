@@ -1,11 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE NoImplicitPrelude #-}
+-- {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE TupleSections #-}
 
 module Text.Decker.Filter.Streaming where
 
 import Control.Monad.Catch
-
 import qualified Data.Text as Text
 
 import Relude
@@ -74,9 +73,9 @@ youtubeFlags =
   , "showinfo"
   ]
 
-twitchParams = ["autoplay", "mute", "time"]
+twitchParams =   [ "autoplay", "controls", "muted"]
 
-twitchFlags = ["autoplay", "mute"]
+twitchFlags = ["allowfullscreen", "frameborder", "scrolling"]
 
 -- https://vimeo.zendesk.com/hc/en-us/articles/360001494447-Using-Player-Parameters
 vimeoDefaults =
@@ -140,6 +139,9 @@ streamHtml uri caption = do
   return $
     toHtml $ embedWebVideosHtml (fromMaybe "" scheme) args attr (streamId, "")
 
+mediaRegex = "[a-z0-9]+" :: String
+videoRegex = "[0-9]+" :: String
+
 streamHtml' :: URI -> [Inline] -> Attrib Html
 streamHtml' uri caption = do
   let scheme = uriScheme uri
@@ -149,6 +151,8 @@ streamHtml' uri caption = do
       Just "youtube" -> mkYoutubeUri streamId
       Just "vimeo" -> mkVimeoUri streamId
       Just "twitch" -> mkTwitchUri streamId
+      Just "veer" -> mkVeerUri streamId
+      Just "veer-photo" -> mkVeerPhotoUri streamId
       _ ->
         throwM $
         ResourceException $
@@ -156,16 +160,33 @@ streamHtml' uri caption = do
   iframeAttr <- takeIframeAttr >> extractAttr
   wrapperAttr <- takeWrapperAttr >> extractAttr
   let streamTag = mkStreamTag streamUri wrapperAttr iframeAttr
+  let yt = 
+        case scheme of 
+            Just "youtube" -> True
+            _ -> False
+  let placeholder = 
+        case yt of 
+          True -> H.img ! A.class_ "video-placeholder" ! A.src source ! A.width "520px" >> embedCaption
+          False -> embedCaption
+        where 
+          source = H.preEscapedToValue (printf "http://img.youtube.com/vi/%s/maxresdefault.jpg" (Text.unpack streamId) :: String)
+          embedCaption = H.p ! A.class_ "media-caption" $ toHtml $ link ++ Text.unpack streamId
+          link = 
+            case scheme of 
+              Just "youtube" -> "https://www.youtube.com/watch?v=" 
+              Just "vimeo" -> "https://vimeo.com/" 
+              Just "twitch" -> "https://player.twitch.tv/?parent=localhost&video="
+              Just "veer" -> "https://veer.tv/videos/"
+              Just "veer-photo" -> "https://veer.tv/photos/"
+              _ -> ""
   case caption of
     [] -> do
-      divAttr <-
-        injectClass "nofigure" >> injectBorder >> takeSize >> takeUsual >>
-        extractAttr
-      return $ mkDivTag streamTag divAttr
+      divAttr <- injectClass "nofigure" >> injectBorder >> takeSize >> takeUsual >> extractAttr
+      return $ mkDivTag streamTag divAttr yt >> placeholder
     caption -> do
       figAttr <- injectBorder >> takeSize >> takeUsual >> extractAttr
       captionHtml <- lift $ inlinesToHtml caption
-      return $ mkFigureTag streamTag captionHtml figAttr
+      return $ mkStreamFigureTag yt streamTag captionHtml figAttr >> placeholder
 
 takeWrapperAttr :: Attrib ()
 takeWrapperAttr = do
@@ -204,7 +225,17 @@ mkTwitchUri streamId = do
   params <- cutAttribs twitchParams
   flags <- cutClasses twitchFlags
   uri <- URI.mkURI "https://player.twitch.tv/"
-  setQuery [] (merge [("video", streamId) : params, map (, "1") flags]) uri
+  setQuery [] (merge [("video", streamId) : ("parent", "localhost") : params, map (, "1") flags]) uri
+
+mkVeerUri :: Text -> Attrib URI
+mkVeerUri streamId = do
+  uri <- URI.mkURI "https://h5.veer.tv/player/"
+  setQuery [] [("vid", streamId)] uri
+
+mkVeerPhotoUri :: Text -> Attrib URI
+mkVeerPhotoUri streamId = do
+  uri <- URI.mkURI "https://h5.veer.tv/photo-player/"
+  setQuery [] [("pid", streamId)] uri
 
 calcAspect :: Text -> Text
 calcAspect ratio =
@@ -234,11 +265,25 @@ mkStreamTag :: URI -> Attr -> Attr -> Html
 mkStreamTag uri wrapperAttr iframeAttr =
   let inner =
         mkMediaTag (H.iframe "Iframe showing video here.") uri False iframeAttr
-   in mkAttrTag (H.div inner) wrapperAttr
+   in mkAttrTag (H.div inner) wrapperAttr 
 
-mkDivTag :: Html -> Attr -> Html
-mkDivTag content (id, cs, kvs) =
+mkDivTag :: Html -> Attr -> Bool -> Html
+mkDivTag content (id, cs, kvs) youtube =
   H.div !? (not (Text.null id), A.id (H.toValue id)) !
-  A.class_ (H.toValue ("decker" : cs)) !*
+  A.class_ (H.toValue ("decker" : altClass : cs)) !*
   kvs $
   content
+  where altClass = case youtube of 
+                True -> "youtube-iframe"
+                False -> ""
+
+mkStreamFigureTag :: Bool -> Html -> Html -> Attr ->  Html
+mkStreamFigureTag youtube content caption (id, cs, kvs) =
+  H.figure !? (not (Text.null id), A.id (H.toValue id)) !
+  A.class_ (H.toValue ("decker" : altClass : cs)) !*
+  kvs $ do
+    content
+    H.figcaption ! A.class_ "decker" $ caption
+  where altClass = case youtube of 
+          True -> "youtube-iframe"
+          False -> ""
