@@ -386,6 +386,15 @@ dd {
   display: none;
 }
 
+/*******************************************
+ * Warning for Safari Users
+ *******************************************/
+
+ .reveal div.safari-warning {
+  color: #6ca0e8;
+  margin-bottom: 2em;
+ }
+
 /*********************************************
  * MARIO: fullscreen for iframes
  *********************************************/

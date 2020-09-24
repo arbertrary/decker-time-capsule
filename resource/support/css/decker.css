@@ -189,7 +189,7 @@
 .reveal div.box.columns {
   margin-left: var(--border-decoration-width);
   padding-left: var(--border-decoration-padding);
-  margin-right: calc( var(--border-decoration-padding) + var(--border-decoration-width));
+  margin-right: calc(var(--border-decoration-padding) + var(--border-decoration-width));
   /* Now comes the part for the decorated boxes */
   /* Now comes the specification of the indivdual
     color used for the border as decoration */
@@ -228,7 +228,7 @@
   margin-left: 0;
   border-left: var(--border-decoration-width) var(--border-decoration-style) red;
   padding-left: var(--border-decoration-padding);
-  margin-right: calc( var(--border-decoration-padding) + var(--border-decoration-width));
+  margin-right: calc(var(--border-decoration-padding) + var(--border-decoration-width));
 }
 
 .reveal div.box.columns.question {
@@ -679,10 +679,6 @@
   text-align: center;
 }
 
-.reveal .date {
-  text-align: center;
-}
-
 .reveal .title-page .teaser-img {
   margin: 20px auto;
   height: 10%;
@@ -697,6 +693,10 @@
   object-fit: contain;
   max-height: 250px;
   width: auto;
+}
+
+.reveal .title-page .date {
+  text-align: center;
 }
 
 .reveal .title-page .author {
@@ -1275,6 +1275,15 @@ dd {
 
 .reveal p:empty {
   display: none;
+}
+
+/*******************************************
+ * Warning for Safari Users
+ *******************************************/
+.reveal div.safari-warning {
+  color: #00f;
+  font-size: var(--font-size-large);
+  margin-bottom: 2em;
 }
 
 /*********************************************

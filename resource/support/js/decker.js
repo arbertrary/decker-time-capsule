@@ -1,23 +1,37 @@
-if (typeof Reveal === 'undefined') {
-  console.error("decker.js has to be loaded after reveal.js");
-}
-else {
-  if (Reveal.isReady()) {
-    deckerStart();
-  } else {
-    Reveal.addEventListener("ready", deckerStart);
-  }
-}
+"use strict"
+
+var DeckerStart = (() => {
+  return {
+    init: () => { 
+      return new Promise(resolve => {
+        deckerStart();
+        resolve();
+      }); } }
+})();
 
 
-// Fix some decker-specific things after Reveal
-// has been initialized
+// Fix decker-specific things after Reveal is initialized
 function deckerStart() {
+  warnSafari();
   fixAutoplayWithStart();
   currentDate();
   addSourceCodeLabels();
   prepareTaskLists();
   prepareFullscreenIframes();
+}
+
+function warnSafari() {
+  let safariAgent = navigator.userAgent.indexOf("Safari") > -1;
+  let chromeAgent = navigator.userAgent.indexOf("Chrome") > -1;
+  if ((chromeAgent) && (safariAgent)) { safariAgent = false; }
+  if(safariAgent) { 
+    let newDiv = document.createElement("div");
+    newDiv.classList.add("safari-warning");
+    let newP = document.createElement("p");
+    newP.innerText = "Content is best viewed with a Chrome browser.";
+    newDiv.appendChild(newP);
+    document.querySelector('.valigned').insertBefore(newDiv, document.querySelector('.title'));
+  }
 }
 
 
@@ -44,13 +58,13 @@ function fixAutoplayWithStart() {
 // Replace date string on title slide with current date 
 // if string provided for date in yaml header is "today"
 function currentDate() {
-  var date = document.getElementById("date");
+  var date = document.querySelector(".date");
   if (!date) return;
   var dateString = date.textContent;
 
   var today = new Date().toISOString().substr(0, 10);
 
-  if (dateString === "today") {
+  if (dateString === " today ") {
     date.textContent = today;
   }
 }
@@ -206,3 +220,5 @@ function isElectron() {
 
     return false;
 }
+
+Reveal.registerPlugin( 'deckerStart', DeckerStart );

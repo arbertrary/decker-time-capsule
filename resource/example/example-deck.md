@@ -6,6 +6,7 @@ csl: 'chicago-author-date.csl'
 history: true
 menu: true
 title: Decker Slide Tool Reference Guide
+date: today
 ---
 
 # Navigation
