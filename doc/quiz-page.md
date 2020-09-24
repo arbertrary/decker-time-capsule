@@ -203,3 +203,40 @@ The quizzes result in the following example `HTML` structure
     <br><button class="solutionButton">Show Solution</button>
 </div>
 ```
+# Quiz Style
+
+# Quiz Feedback
+
+Proposal: three different quiz feedback types
+
+## Interactive
+
+- Current default. 
+- User gets feedback for correct or wrong answers immediately e.g. when clicking a choice from multiple choice
+- Can retry questions/reset to start
+- For some question types, a "check" or "show solution" button is needed
+- no score
+
+## Immediate
+
+- User gets feedback about correctness of answer when pressing the "check" or "solve" button
+- question gets locked
+- Possibly second option with/without "reset" button?
+- score for the single question gets calculated and shown
+- question is colored green or red
+- see also Henrik's examiner questions behavior
+
+## Aggregated
+
+- Users click a submit question button 
+- Question gets locked, score gets calculated
+- question is not colored, score not yet shown
+- (question could be colored I guess)
+- At the end of the slide deck, an "Show result" button is located
+- Score for entire slide deck is calculated and shown
+- linking to each question?
+
+## None
+
+- Same as aggregated but provide an "Submit" button instead of show result.
+- Button could upload the results to somewhere or print to file?

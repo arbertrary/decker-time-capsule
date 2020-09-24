@@ -50,6 +50,17 @@ data Difficulty
 
 $(deriveJSON defaultOptions ''Difficulty)
 
+-- | QuizFeedback is looked up in pandoc meta at the beginning of handleQuizzes
+-- Is not changed with the meta of a single question
+data QuizFeedback
+    = Interactive -- Directly while navigating quiz elements
+    | Immediate -- QuizFeedback for single question when pressing "check" button
+    | Aggregated -- Aggregated and shown e.g. at the end of a slide on pressing "Show results". each single question has a "submit" button
+    | None -- No feedback. Possibly results written to file?
+    deriving (Eq, Show)
+
+-- $(deriveJSON defaultOptions ''QuizFeedback)
+
 -- | Set different (optional) meta options for quizzes in a yaml code block
 data QuizMeta = QMeta
     { metaTopicId :: T.Text,
@@ -121,8 +132,20 @@ makeLenses ''Quiz
 -- | Has to be called in the Markdown.hs deckerPipeline after processSlides
 -- | Depends on h2 headers being wrapped in boxes
 handleQuizzes :: Pandoc -> Decker Pandoc
-handleQuizzes pandoc@(Pandoc meta blocks) = return $ walk parseQuizboxes pandoc
+handleQuizzes pandoc@(Pandoc meta blocks) =
+    case quizFeedback meta of
+        Aggregated -> return (Pandoc meta' (blocks' ++ aggButton))
+        _ -> return p
     where
+        p@(Pandoc meta' blocks') = walk parseQuizboxes pandoc
+        aggButton = rawHtml' $ do H.button ! A.class_ "aggButton" $ H.toHtml ("Submit" :: T.Text)
+        quizFeedback :: Meta -> QuizFeedback
+        quizFeedback meta = case lookupMetaOrElse ("Interactive" :: T.Text) "quiz.feedback" meta of
+            "Interactive" -> Interactive
+            "Immediate" -> Immediate
+            "Aggregated" -> Aggregated
+            "None" -> None
+            _ -> Interactive
         parseQuizboxes :: Block -> Block
         parseQuizboxes d@(Div (id_, tgs, kvs) blocks)
             | any (`elem` tgs) ["qmi", "quiz-mi", "quiz-match-items"] =
@@ -144,7 +167,15 @@ handleQuizzes pandoc@(Pandoc meta blocks) = return $ walk parseQuizboxes pandoc
                 then set tags ts q
                 else set tags (ts ++ ["columns", "box"]) q
         -- The default "new" quizzes
-        defaultQMeta = QMeta {metaTopicId = "", metaLectureId = "", metaPoints = 0, metaDifficulty = Undefined, metaLang = (lookupMetaOrElse "en" "lang" meta), metaStyle = (lookupMetaOrElse "fancy" "quiz.style" meta)}
+        defaultQMeta =
+            QMeta
+                { metaTopicId = "",
+                  metaLectureId = "",
+                  metaPoints = 0,
+                  metaDifficulty = Undefined,
+                  metaLang = (lookupMetaOrElse "en" "lang" meta),
+                  metaStyle = (lookupMetaOrElse "fancy" "quiz.style" meta)
+                }
         defaultMatch = MatchItems [] [] defaultQMeta [] []
         defaultMC = MultipleChoice [] [] defaultQMeta [] []
         defaultIC = InsertChoices [] [] defaultQMeta []

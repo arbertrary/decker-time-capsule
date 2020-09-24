@@ -4,6 +4,7 @@ history: True
 lang: de
 quiz:
   style: ASFKL
+  feedback: Immediately
 ---
 
 # Overview
