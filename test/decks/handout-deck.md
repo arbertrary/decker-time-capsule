@@ -105,7 +105,7 @@ title-prefix: Decker
 -   Converted to inline images
 -   Just after the header
 
-# Backgrounds 2 ![In a slide, this is a background video.](pacman-perfect-game.mp4){controls="1"}
+# Backgrounds 2 ![In a slide, this is a background video.](pacman-perfect-game.mp4){.controls}
 
 ## Background Videos in Handouts
 

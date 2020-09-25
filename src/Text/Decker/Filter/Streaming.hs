@@ -233,7 +233,7 @@ mkMediaTag tag uri dataSrc attr =
 mkStreamTag :: URI -> Attr -> Attr -> Html
 mkStreamTag uri wrapperAttr iframeAttr =
   let inner =
-        mkMediaTag (H.iframe "Iframe showing video here.") uri False iframeAttr
+        mkMediaTag (H.iframe "") uri False iframeAttr
    in mkAttrTag (H.div inner) wrapperAttr
 
 mkDivTag :: Html -> Attr -> Html

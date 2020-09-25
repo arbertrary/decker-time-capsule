@@ -27,10 +27,10 @@ title: Background Videos
 # Image in Title 1 ![](movie.mp4)
 ```
 
-# Video in Title 2 ![](movie.mp4){loop="1"}
+# Video in Title 2 ![](movie.mp4){.loop}
 
 ## Source
 
 ```markdown
-# Image in Title 2 ![](movie.mp4){loop="1"}
+# Image in Title 2 ![](movie.mp4){.loop}
 ```

@@ -224,7 +224,7 @@ Or some more text
 
 ![Youtube Video mit caption](youtube:57wj8diYpgY){width=20%}
 
-![Local Video mit caption](avatar-marc-boxing-720p-820x1080.mp4){width=20% controls=true autoplay=true} 
+![Local Video mit caption](avatar-marc-boxing-720p-820x1080.mp4){width=20% .controls .autoplay} 
 
 # Plain page video  
 
@@ -232,7 +232,7 @@ Or some more text
 
 ![Youtube Video mit caption](youtube:57wj8diYpgY){width=20%}
 
-![Local Video mit caption](avatar-marc-boxing-720p-820x1080.mp4){width=20% controls=true autoplay=true} 
+![Local Video mit caption](avatar-marc-boxing-720p-820x1080.mp4){width=20% .controls .autoplay} 
 
 
 # Column Page, 2col, video  {layout="columns" .align-left}
@@ -241,13 +241,13 @@ Or some more text
 
 ![Youtube Video mit caption](youtube:57wj8diYpgY){width=30%}
 
-![Local Video mit caption](avatar-marc-boxing-720p-820x1080.mp4){width=30% controls=true autoplay=true} 
+![Local Video mit caption](avatar-marc-boxing-720p-820x1080.mp4){width=30% .controls .autoplay} 
 
 ## Videos mit Caption left aligned {.right .align-left .note}
 
 ![Youtube Video mit caption](youtube:57wj8diYpgY){width=30%}
 
-![Local Video mit caption](avatar-marc-boxing-720p-820x1080.mp4){width=30% controls=true autoplay=true} 
+![Local Video mit caption](avatar-marc-boxing-720p-820x1080.mp4){width=30% .controls .autoplay} 
 
 # Column Page, 2col, videos  {layout="columns" .align-left}
 
@@ -255,13 +255,13 @@ Or some more text
 
 ![](youtube:57wj8diYpgY){width=30%}
 
-![](avatar-marc-boxing-720p-820x1080.mp4){width=30% controls=true autoplay=true} 
+![](avatar-marc-boxing-720p-820x1080.mp4){width=30% .controls .autoplay} 
 
 ## Videos no Caption left aligned {.right .align-left .note}
 
 ![](youtube:57wj8diYpgY){width=30%}
 
-![](avatar-marc-boxing-720p-820x1080.mp4){width=30% controls=true autoplay=true} 
+![](avatar-marc-boxing-720p-820x1080.mp4){width=30% .controls .autoplay} 
 
 
 # Column Page, 2col, multiple elements, split and join

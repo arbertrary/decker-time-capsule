@@ -388,22 +388,22 @@ Include videos in presentations:
 
 ``` {.markdown}
 Video with controls:
-![](movies/jmu-hci-intro.mp4){controls=1}
+![](movies/jmu-hci-intro.mp4){.controls}
 
 Video with autoplay:
-![](movies/jmu-hci-intro.mp4){data-autoplay=true}
+![](movies/jmu-hci-intro.mp4){.autoplay}
 
 Start video at timestamp:
-![](movies/jmu-hci-intro.mp4){data-autoplay=true start="10"}
+![](movies/jmu-hci-intro.mp4){.autoplay start="10"}
 ```
 
 ##  {.split}
 
-Video with controls: ![](movies/jmu-hci-intro.mp4){controls="1"}
+Video with controls: ![](movies/jmu-hci-intro.mp4){.controls}
 
 ## 
 
-Video with autoplay: ![](movies/jmu-hci-intro.mp4){data-autoplay="true"}
+Video with autoplay: ![](movies/jmu-hci-intro.mp4){.autoplay}
 
 # External Videos {#ext-vid}
 
@@ -435,12 +435,12 @@ https://www.youtube.com/watch?v=`<u>`{=html}qEcmwHRG2Mo`</u>`{=html}\
 Fullscreen videos are identified in the slide header:
 
 ``` {.markdown}
-# ![](movies/jmu-hci-intro.mp4){controls=1}
+# ![](movies/jmu-hci-intro.mp4){.controls}
 ```
 
 *Note:* Do not include a slide title.
 
-# ![](movies/jmu-hci-intro.mp4) {#example-movies_3 data-menu-title="Fullscreen Videos Example" controls="1"}
+# ![](movies/jmu-hci-intro.mp4) {#example-movies_3 data-menu-title="Fullscreen Videos Example" .controls}
 
 # Audio
 
@@ -456,22 +456,22 @@ Include audio clips in presentations:
 
 ``` {.markdown .xxx-small}
 Audio with controls:
-![](audio/wildbach.mp3){controls=1}
+![](audio/wildbach.mp3){.controls}
 
 Audio with controls and autoplay:
-![](audio/wildbach.mp3){controls=1 data-autoplay=true}
+![](audio/wildbach.mp3){.controls .autoplay}
 ```
 
 ## 
 
 ##  {.split .example}
 
-Audio with controls: ![Wildbach](audio/wildbach.mp3){controls="1"}
+Audio with controls: ![Wildbach](audio/wildbach.mp3){.controls}
 
 ##  {.example}
 
 Audio with controls and autoplay:
-![Wildbach](audio/wildbach.mp3){controls="1" data-autoplay="true"}
+![Wildbach](audio/wildbach.mp3){.controls .autoplay}
 
 # Tables
 

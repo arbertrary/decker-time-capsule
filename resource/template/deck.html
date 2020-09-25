@@ -228,9 +228,10 @@ $if(title)$
          <div class="date"> $date$ </div>
          $endif$
       </section>
-   $else$ <!-- standard settings -->
+   $else$ <!-- standard settings --> 
       $if(template.title-page.banner)$
          <section id="$idprefix$title-slide" class="title-page"> 
+             <h1 style="display:none">Title</h1>
              <div class="title-page banner">
                 <img src=$template.title-page.banner$>
              </div>
@@ -239,6 +240,7 @@ $if(title)$
             data-background-image=$template.title-page.banner$> old version as background -->
       $else$
          <section id="$idprefix$title-slide" class="title-page">
+         <h1 style="display:none">Title</h1>
       $endif$
         <div class="valign-block" style="height:550px">
             <div class="valigned">
