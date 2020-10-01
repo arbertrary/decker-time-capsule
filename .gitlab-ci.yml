@@ -99,12 +99,13 @@ test:linux:
 test:mac:
   stage: test
   tags:
-    - docker
-  image:
-    name: $CI_REGISTRY_IMAGE/ci:base
-    entrypoint: [""]
+    - mac
+  # image:
+  #   name: $CI_REGISTRY_IMAGE/ci:base
+  #   entrypoint: [""]
   script:
-    - STACK_ROOT=/cache/decker make test
+    - make test
+    # - STACK_ROOT=/cache/decker make test
   cache:
     key: stack_work
     paths:
