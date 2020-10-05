@@ -2,8 +2,9 @@
 
 var RevealQuiz = (() => {
     return {
-        init: () => { 
+        init: () => {
             return new Promise(resolve => {
+                setQuizIDs()
                 quizMI();
                 quizMC();
                 quizIC();
@@ -13,6 +14,18 @@ var RevealQuiz = (() => {
         }
     }
 })();
+
+function setQuizIDs() {
+    var quizClasses = ".qmc,.quiz-mc,.quiz-multiple-choice,.qft,.quiz-ft,.quiz-free-text,.qic,.quiz-ic,.quiz-insert-choices,.qmi,.quiz-mi,.quiz-match-items";
+    var questions = document.querySelectorAll(quizClasses);
+
+    var i = 0;
+    for (let question of questions) {
+        var quizID = "q" + i.toString();
+        question.setAttribute("data-quizID", quizID);
+        i++;
+    }
+}
 
 function quizMC() {
     for (let question of document.querySelectorAll(".qmc,.quiz-mc,.quiz-multiple-choice")) {
@@ -40,7 +53,7 @@ function quizFT() {
         var buffer = [];
         input.addEventListener("keydown", e => {
             buffer.push(e.key.toLowerCase());
-            if (buffer[buffer.length-1] === buffer[buffer.length-2]) { return; };
+            if (buffer[buffer.length - 1] === buffer[buffer.length - 2]) { return; };
             if (e.keyCode === 13) { checkInput() }
             if (e.keyCode === 8 || e.keyCode === 46) { resetQuestion() }
         });
@@ -65,9 +78,9 @@ function quizFT() {
         const solutionButton = question.querySelector('.solutionButton');
         const resetButton = question.querySelector('.resetButton');
         solutionButton.addEventListener('click', showSolution);
-        resetButton.addEventListener('click', resetQuestion);    
-        question.querySelector('.resetButton').classList.add(plain ? 'disabled' : 'hidden'); 
-    
+        resetButton.addEventListener('click', resetQuestion);
+        question.querySelector('.resetButton').classList.add(plain ? 'disabled' : 'hidden');
+
         const choices = solutions.getElementsByTagName('li');
         const solutionDiv = question.querySelector('.solutionDiv');
 
@@ -80,7 +93,7 @@ function quizFT() {
         // Handle click of solution button
         function showSolution() {
             if (plain) {
-                solutionDiv.classList.add('solved');    
+                solutionDiv.classList.add('solved');
                 this.classList.add('disabled');
                 resetButton.classList.remove('disabled');
             } else {
@@ -128,7 +141,7 @@ function quizIC() {
                 const answer = sel.options[ind].innerText;
                 const checked = checkAnswer(solutionList, answer);
 
-                sel.classList.remove("show-right","show-wrong");
+                sel.classList.remove("show-right", "show-wrong");
                 sel.classList.add(checked.correct ? "show-right" : "show-wrong");
 
                 const answers = solutionList.getElementsByTagName('li');
@@ -139,8 +152,10 @@ function quizIC() {
 
             // Show tooltip box on mouseover
             sel.addEventListener("mouseover", () => {
-                if (sel.classList.contains('solved')) { 
-                    if (tipDiv.firstElementChild.innerHTML !== "") { tipDiv.classList.add('solved'); } } });
+                if (sel.classList.contains('solved')) {
+                    if (tipDiv.firstElementChild.innerHTML !== "") { tipDiv.classList.add('solved'); }
+                }
+            });
             sel.addEventListener("mouseleave", () => { tipDiv.classList.remove('solved') });
         }
     }
@@ -150,7 +165,7 @@ function quizMI() {
     const miQuestions = document.querySelectorAll(".qmi,.quiz-mi,.quiz-match-items");
     for (let question of miQuestions) {
         shuffleMatchItems(question);
-        question.classList.contains('plain') ? buildPlainMatch(question) : buildDragDrop(question);    
+        question.classList.contains('plain') ? buildPlainMatch(question) : buildDragDrop(question);
     }
 }
 
@@ -178,8 +193,8 @@ function checkAnswer(solutionList, answer) {
         const solution = s.innerHTML.replace(/(<div)(.|[\r\n])*(<\/div>)/, "").toLowerCase().trim();
         if (answer == solution) {
             s.classList.add("solved");
-            return {correct: (is_right ? true : false), predef: true};
-        } 
+            return { correct: (is_right ? true : false), predef: true };
+        }
     }
     return { correct: false, predef: false };
 }
@@ -262,7 +277,7 @@ function matchingAnswerButton(question, button) {
         // color remaining items that have not been dragged
         for (let rem of remainingItems) {
             const matchId = rem.getAttribute("data-bucketid");
-            rem.classList.remove("show-right","show-wrong");
+            rem.classList.remove("show-right", "show-wrong");
             rem.classList.add(matchId == null ? "show-right" : "show-wrong");
         }
 
@@ -271,7 +286,7 @@ function matchingAnswerButton(question, button) {
             const droppedItems = bucket.getElementsByClassName("matchItem");
             const bucketId = bucket.getAttribute("data-bucketid");
             for (let matchItem of droppedItems) {
-                matchItem.classList.remove("show-right","show-wrong");
+                matchItem.classList.remove("show-right", "show-wrong");
 
                 const matchId = matchItem.getAttribute("data-bucketid");
                 matchItem.classList.add(matchId == bucketId ? "show-right" : "show-wrong");
@@ -304,14 +319,14 @@ function buildPlainMatch(question) {
         const lab = document.createElement('label');
         lab.setAttribute('data-value', bucket.classList.contains('distractor') ? '0' : bucket.getAttribute('data-bucketId'));
         lab.innerHTML = bucket.innerHTML;
-        [lab,selectTag.cloneNode(true)].forEach(ele => { matchQuestion.appendChild(ele); });
+        [lab, selectTag.cloneNode(true)].forEach(ele => { matchQuestion.appendChild(ele); });
     }
 
     question.querySelector('.solutionButton').addEventListener('click', () => {
         const qns = matchItems.querySelectorAll('.matchQuestion');
         for (let q of qns) {
             const sel = q.querySelector('select');
-            sel.classList.remove("show-right","show-wrong");
+            sel.classList.remove("show-right", "show-wrong");
             const idCorrect = sel.previousElementSibling.getAttribute('data-value');
             // color individual options based on correctness
             for (let opt of sel.querySelectorAll('option')) {
@@ -319,7 +334,7 @@ function buildPlainMatch(question) {
             }
             const idSelected = sel.options[sel.selectedIndex].value;
             sel.classList.add(idCorrect == idSelected ? "show-right" : "show-wrong");
-        }   
+        }
     });
     // No solutionDiv or tooltips because none defined in MD
 }
@@ -332,7 +347,7 @@ function buildPlainMatch(question) {
 function buildSelect(matchItems, buckets) {
     const answers = matchItems.querySelectorAll('.matchItem');
     const sel = document.createElement('select');
-    
+
     const blankOpt = document.createElement('option');
     blankOpt.innerText = '...';
     blankOpt.value = '0';
@@ -340,10 +355,10 @@ function buildSelect(matchItems, buckets) {
     for (let i = 0; i < answers.length; i++) {
         const opt = document.createElement('option');
         const char = String.fromCharCode(i + 65) + ".";
-        opt.innerHTML = char; 
-        opt.value = answers[i].getAttribute('data-bucketId') || '0'; 
+        opt.innerHTML = char;
+        opt.value = answers[i].getAttribute('data-bucketId') || '0';
         sel.appendChild(opt);
-        buckets.appendChild(answers[i]); 
+        buckets.appendChild(answers[i]);
     }
     return sel;
 }
@@ -371,4 +386,4 @@ function drop(event) {
 }
 
 
-Reveal.registerPlugin( 'quiz', RevealQuiz );
+Reveal.registerPlugin('quiz', RevealQuiz);
