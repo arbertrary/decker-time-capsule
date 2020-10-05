@@ -1,81 +1,56 @@
-{-- Author: Henrik Tramberend <henrik@tramberend.de> --}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TupleSections #-}
+{-# LANGUAGE TypeSynonymInstances #-}
+
 module Text.Decker.Internal.Meta
-  ( globalMetaFileName
-  , toPandocMeta
-  , toMustacheMeta
-  , mergePandocMeta
+  ( DeckerException(..)
+  , FromMetaValue(..)
+  , addMetaValue
+  , globalMetaFileName
   , mergePandocMeta'
-  , readMetaData
-  , getAdditionalMeta
-  , getMetaInt
-  , getMetaIntOrElse
-  , getMetaBool
-  , getMetaBoolOrElse
-  , getMetaString
-  , getMetaStringOrElse
-  , getMetaStringList
-  , getMetaStringListOrElse
-  , getMetaValue
-  , getMetaStringMap
   , pandocMeta
-  , DeckerException(..)
+  , setMetaValue
+  , adjustMetaValue
+  , adjustMetaValueM
+  , adjustMetaStringsBelow
+  , adjustMetaStringsBelowM
+  , toPandocMeta
+  , toPandocMeta'
+  , lookupMeta
+  , lookupMetaOrElse
+  , lookupMetaOrFail
+  , lookupInDictionary
+  , mapMeta
+  , mapMetaM
+  , mapMetaValues
+  , mapMetaValuesM
+  , mapMetaWithKey
+  , readMetaDataFile
   ) where
 
-import Text.Decker.Internal.Exception
-import Text.Decker.Writer.Markdown
-
-import Control.Arrow
 import Control.Exception
-import qualified Data.HashMap.Strict as H
 
--- import qualified Data.List as L
+import qualified Data.HashMap.Strict as H
 import Data.List.Safe ((!!))
-import qualified Data.List.Split as L
 import qualified Data.Map.Lazy as Map
 import qualified Data.Map.Strict as M
 import Data.Maybe
-import qualified Data.Text as T
+import qualified Data.Set as Set
+import qualified Data.Text as Text
 import qualified Data.Vector as Vec
 import qualified Data.Yaml as Y
-import Development.Shake
-import Prelude hiding ((!!))
-import System.Directory as Dir
-import System.FilePath
-import System.FilePath.Glob
-import qualified Text.Mustache.Types as MT
-import Text.Pandoc hiding (writeMarkdown)
-import Text.Pandoc.Shared
-import Text.Read
-import Text.Regex.TDFA
+
+import Relude
+
+import Text.Decker.Internal.Exception
+import Text.Pandoc hiding (lookupMeta)
+import Text.Pandoc.Builder hiding (fromList, lookupMeta, toList)
+import Text.Pandoc.Shared hiding (toString, toText)
 
 -- | Name of the one global meta data file
 globalMetaFileName = "decker.yaml"
-
--- | Converts pandoc meta data to mustache meta data. Inlines and blocks are
--- rendered to markdown strings with default options.
-toMustacheMeta :: Meta -> MT.Value
-toMustacheMeta (Meta mmap) = toMustacheMeta' (MetaMap mmap)
-
-toMustacheMeta' :: MetaValue -> MT.Value
-toMustacheMeta' (MetaMap mmap) =
-  MT.Object $ H.fromList $ map (T.pack *** toMustacheMeta') $ Map.toList mmap
-toMustacheMeta' (MetaList a) = MT.Array $ Vec.fromList $ map toMustacheMeta' a
-toMustacheMeta' (MetaBool bool) = MT.Bool bool
-toMustacheMeta' (MetaString string) = MT.String $ T.pack string
-toMustacheMeta' (MetaInlines inlines) =
-  MT.String $ writeMarkdownText def (Pandoc (Meta Map.empty) [Plain inlines])
-toMustacheMeta' (MetaBlocks blocks) =
-  MT.String $ writeMarkdownText def (Pandoc (Meta Map.empty) blocks)
-
-writeMarkdownText :: WriterOptions -> Pandoc -> T.Text
-writeMarkdownText options pandoc =
-  case runPure $ writeMarkdown options pandoc of
-    Right text -> text
-    Left err -> throw $ PandocException $ show err
-
--- | Simple top-level merge of two meta values. Left-biased. 
-mergePandocMeta :: Meta -> Meta -> Meta
-mergePandocMeta (Meta meta1) (Meta meta2) = Meta $ Map.union meta1 meta2
 
 -- | Fine-grained recursive merge of two meta values. Left-biased. 
 mergePandocMeta' :: Meta -> Meta -> Meta
@@ -87,7 +62,8 @@ mergePandocMeta' (Meta left) (Meta right) =
     merge :: MetaValue -> MetaValue -> MetaValue
     merge (MetaMap mapL) (MetaMap mapR) =
       MetaMap $ Map.unionWith merge mapL mapR
-    -- merge (MetaList listL) (MetaList listR) = MetaList $ L.union listL listR
+    merge (MetaList listL) (MetaList listR) =
+      MetaList $ Set.toList $ Set.fromList listL <> Set.fromList listR
     merge left right = left
 
 -- | Converts YAML meta data to pandoc meta data.
@@ -100,145 +76,268 @@ toPandocMeta _ = Meta M.empty
 
 toPandocMeta' :: Y.Value -> MetaValue
 toPandocMeta' (Y.Object m) =
-  MetaMap $ Map.fromList $ map (T.unpack *** toPandocMeta') $ H.toList m
+  MetaMap $ Map.fromList $ map (second toPandocMeta') $ H.toList m
 toPandocMeta' (Y.Array vector) =
   MetaList $ map toPandocMeta' $ Vec.toList vector
-toPandocMeta' (Y.String text) = MetaString $ T.unpack text
-toPandocMeta' (Y.Number scientific) = MetaString $ show scientific
+toPandocMeta' (Y.String text) = MetaString text
+toPandocMeta' (Y.Number scientific) = MetaString $ Text.pack $ show scientific
 toPandocMeta' (Y.Bool bool) = MetaBool bool
 toPandocMeta' Y.Null = MetaList []
 
-decodeYaml :: FilePath -> IO Y.Value
-decodeYaml yamlFile = do
-  result <- Y.decodeFileEither yamlFile
-  case result of
-    Right object@(Y.Object _) -> return object
-    Right _ ->
-      throw $
-      YamlException $ "Top-level meta value must be an object: " ++ yamlFile
-    Left exception -> throw exception
-
--- Reads the global meta data file for a given directory
-readMetaData :: FilePath -> IO Meta
-readMetaData dir = do
-  let file = dir </> globalMetaFileName
-  readMetaDataFile file
-
--- Check for additional meta files specified in the Meta option "meta-data"
-getAdditionalMeta :: Meta -> Action Meta
-getAdditionalMeta meta = do
-  let m = getMetaStringList "meta-data" meta
-  case m of
-    Just metafiles -> do
-      addmeta <- liftIO $ traverse readMetaDataFile metafiles
-      need metafiles
-      -- foldr and reversed addmeta list because additional meta should overwrite default meta
-      -- alternative: foldl and flip mergePandocMeta'
-      return $ foldr mergePandocMeta' meta (reverse addmeta)
-    _ -> return meta
-
--- Read a single meta data file
-readMetaDataFile :: FilePath -> IO Meta
-readMetaDataFile file = do
-  exists <- Dir.doesFileExist file
-  f <- makeRelativeToCurrentDirectory file
-  meta <-
-    if exists
-      then decodeYaml file
-      else do
-        putStrLn $ "WARNING: file " ++ show f ++ " does not exist!"
-        return (Y.object [])
-  return $ toPandocMeta meta
-
-getMetaInt :: String -> Meta -> Maybe Int
-getMetaInt key meta = getMetaString key meta >>= readMaybe
-
-getMetaIntOrElse :: String -> Int -> Meta -> Int
-getMetaIntOrElse key def meta =
-  case getMetaValue key meta of
-    Just (MetaString string) -> fromMaybe def $ readMaybe string
-    _ -> def
-
--- | Lookup a boolean value in a Pandoc meta data hierarchy. The key string
--- notation is indexed subkeys separated by '.', eg. `top.list[3].value`.
-getMetaBool :: String -> Meta -> Maybe Bool
-getMetaBool key meta = getMetaValue key meta >>= metaToBool
-
-metaToBool :: MetaValue -> Maybe Bool
-metaToBool (MetaBool bool) = Just bool
-metaToBool _ = Nothing
-
-getMetaBoolOrElse :: String -> Bool -> Meta -> Bool
-getMetaBoolOrElse key def meta =
-  case getMetaValue key meta of
-    Just (MetaBool bool) -> bool
-    _ -> def
-
--- | Lookup a String value in a Pandoc meta data hierarchy. The key string
--- notation is indexed subkeys separated by '.', eg. `top.list[3].value`.
-getMetaString :: String -> Meta -> Maybe String
-getMetaString key meta = getMetaValue key meta >>= metaToString
-
-getMetaStringOrElse :: String -> String -> Meta -> String
-getMetaStringOrElse key def meta =
-  case getMetaValue key meta of
-    Just (MetaString string) -> string
-    Just (MetaInlines inlines) -> stringify inlines
-    _ -> def
-
-getMetaStringList :: String -> Meta -> Maybe [String]
-getMetaStringList key meta = getMetaValue key meta >>= metaToStringList
-
-getMetaStringListOrElse :: String -> [String] -> Meta -> [String]
-getMetaStringListOrElse key def meta =
-  case getMetaValue key meta of
-    Just (MetaList list) -> mapMaybe metaToString list
-    _ -> def
-
 -- | Split a compound meta key at the dots and separate the array indexes.
-splitKey = concatMap (L.split (L.keepDelimsL (L.oneOf "["))) . L.splitOn "."
-
--- | Extract the bracketed array index string.
-arrayIndex :: String -> Maybe String
-arrayIndex key =
-  listToMaybe $
-  reverse (getAllTextSubmatches (key =~ ("^\\[([0-9]+)\\]$" :: String)))
+splitKey = concatMap splitIndex . Text.splitOn "."
+  where
+    splitIndex key =
+      case Text.splitOn "[" key of
+        [key, index] ->
+          case Text.stripSuffix "]" index of
+            Just index -> [key, index]
+            _ -> [key]
+        _ -> [key]
 
 -- | Recursively deconstruct a compound key and drill into the meta data hierarchy.
-getMetaValue :: String -> Meta -> Maybe MetaValue
+getMetaValue :: Text -> Meta -> Maybe MetaValue
 getMetaValue key meta = lookup' (splitKey key) (MetaMap (unMeta meta))
   where
     lookup' (key:path) (MetaMap map) = M.lookup key map >>= lookup' path
     lookup' (key:path) (MetaList list) =
-      arrayIndex key >>= readMaybe >>= (!!) list >>= lookup' path
+      (readMaybe . Text.unpack) key >>= (!!) list >>= lookup' path
     lookup' (_:_) _ = Nothing
     lookup' [] mv = Just mv
 
-getMetaStringMap :: String -> Meta -> Maybe (M.Map String String)
-getMetaStringMap key meta = getMetaValue key meta >>= metaToStringMap
+-- | Sets a meta value at the compund key in the meta data. If any intermediate
+-- containers do not exist, they are created. 
+setMetaValue :: ToMetaValue a => Text -> a -> Meta -> Meta
+setMetaValue key value meta = Meta $ set (splitKey key) (MetaMap (unMeta meta))
+  where
+    set [k] (MetaMap map) = M.insert k (toMetaValue value) map
+    set (k:p) (MetaMap map) =
+      case M.lookup k map of
+        Just value -> M.insert k (MetaMap $ set p value) map
+        _ -> M.insert k (MetaMap $ set p $ MetaMap M.empty) map
+    set _ _ =
+      throw $
+      InternalException $ "Cannot set meta value on non object at: " <> show key
 
-metaToString :: MetaValue -> Maybe String
-metaToString (MetaString string) = Just string
-metaToString (MetaInlines inlines) = Just $ stringify inlines
-metaToString _ = Nothing
+-- | Recursively deconstruct a compound key and drill into the meta data hierarchy.
+-- Apply the function to the value if the key exists.
+adjustMetaValue :: (MetaValue -> MetaValue) -> Text -> Meta -> Meta
+adjustMetaValue f key meta =
+  Meta $ adjust (splitKey key) (MetaMap (unMeta meta))
+  where
+    adjust :: [Text] -> MetaValue -> Map Text MetaValue
+    adjust [k] (MetaMap map) = M.adjust f k map
+    adjust (k:p) (MetaMap map) =
+      case M.lookup k map of
+        Just value -> M.insert k (MetaMap $ adjust p value) map
+        _ -> map
+    adjust _ _ =
+      throw $
+      InternalException $
+      "Cannot adjust meta value on non object at: " <> show key
 
-metaToStringList :: MetaValue -> Maybe [String]
-metaToStringList (MetaList list) = Just $ mapMaybe metaToString list
-metaToStringList _ = Nothing
+-- | Recursively deconstruct a compound key and drill into the meta data hierarchy.
+-- Apply the IO action to the value if the key exists.
+adjustMetaValueM ::
+     Monad m => (MetaValue -> m MetaValue) -> Text -> Meta -> m Meta
+adjustMetaValueM action key meta =
+  Meta <$> adjust (splitKey key) (MetaMap (unMeta meta))
+  where
+    adjust [k] (MetaMap map) =
+      case M.lookup k map of
+        Just v -> do
+          v' <- action v
+          return $ M.insert k v' map
+        _ -> return map
+    adjust (k:p) (MetaMap map) =
+      case M.lookup k map of
+        Just value -> do
+          m' <- adjust p value
+          return $ M.insert k (MetaMap m') map
+        _ -> return map
+    adjust _ _ =
+      throw $
+      InternalException $
+      "Cannot adjust meta value on non object at: " <> show key
 
-metaToStringMap :: MetaValue -> Maybe (M.Map String String)
-metaToStringMap (MetaMap metaMap) =
-  case M.foldlWithKey'
-         (\a k v ->
-            case metaToString v of
-              Just string -> M.insert k string a
-              _ -> a)
-         M.empty
-         metaMap of
-    stringMap
-      | null stringMap -> Nothing
-    stringMap -> Just stringMap
-metaToStringMap _ = Nothing
+-- | Recursively traverse all meta values below the compound key that can be
+-- stringified and transform them by the supplied function.
+adjustMetaStringsBelow :: (Text -> Text) -> Text -> Meta -> Meta
+adjustMetaStringsBelow func = adjustMetaValue (mapMetaValues func)
 
-pandocMeta :: (String -> Meta -> Maybe a) -> Pandoc -> String -> Maybe a
+-- | Recursively traverse all meta values below the compound key that can be
+-- stringified and transform them by the supplied action.
+adjustMetaStringsBelowM ::
+     (MonadFail m, Monad m) => (Text -> m Text) -> Text -> Meta -> m Meta
+adjustMetaStringsBelowM action = adjustMetaValueM (mapMetaValuesM action)
+
+-- | Adds a meta value to the list found at the compund key in the meta data.
+-- If any intermediate containers do not exist, they are created. 
+addMetaValue :: ToMetaValue a => Text -> a -> Meta -> Meta
+addMetaValue key value meta =
+  case add (splitKey key) (MetaMap (unMeta meta)) of
+    MetaMap map -> Meta map
+    _ -> meta
+  where
+    add [] (MetaList list) = MetaList $ toMetaValue value : list
+    add [k] (MetaMap m) =
+      case M.lookup k m of
+        Just value -> MetaMap $ M.insert k (add [] value) m
+        _ -> MetaMap $ M.insert k (add [] $ MetaList []) m
+    add (k:p) (MetaMap m) =
+      case M.lookup k m of
+        Just value -> MetaMap $ M.insert k (add p value) m
+        _ -> MetaMap $ M.insert k (add p $ MetaMap M.empty) m
+    add _ _ =
+      throw $
+      InternalException $
+      "Cannot add meta value to non list at: " <> toString key
+
+pandocMeta :: (Text -> Meta -> Maybe a) -> Pandoc -> Text -> Maybe a
 pandocMeta f (Pandoc m _) = flip f m
+
+instance (Ord a, ToMetaValue a) => ToMetaValue (Set a) where
+  toMetaValue = MetaList . map toMetaValue . toList
+
+class FromMetaValue a where
+  fromMetaValue :: MetaValue -> Maybe a
+
+instance FromMetaValue MetaValue where
+  fromMetaValue = Just
+
+instance FromMetaValue Bool where
+  fromMetaValue (MetaBool bool) = Just bool
+  fromMetaValue _ = Nothing
+
+instance FromMetaValue Int where
+  fromMetaValue value = (fromMetaValue value :: Maybe String) >>= readMaybe
+
+instance FromMetaValue Text where
+  fromMetaValue (MetaString string) = Just string
+  fromMetaValue (MetaInlines inlines) = Just $ stringify inlines
+  fromMetaValue _ = Nothing
+
+instance {-# OVERLAPS #-} FromMetaValue String where
+  fromMetaValue value = toString <$> (fromMetaValue value :: Maybe Text)
+
+instance {-# OVERLAPS #-} FromMetaValue [Text] where
+  fromMetaValue (MetaList list) = Just $ mapMaybe fromMetaValue list
+  fromMetaValue _ = Nothing
+
+instance (Ord a, FromMetaValue a) => FromMetaValue (Set a) where
+  fromMetaValue (MetaList list) = Just $ fromList $ mapMaybe fromMetaValue list
+  fromMetaValue _ = Nothing
+
+instance {-# OVERLAPS #-} (Ord a, FromMetaValue a) =>
+                          FromMetaValue (Map Text a) where
+  fromMetaValue (MetaMap metaMap) =
+    case M.foldlWithKey'
+           (\a k v ->
+              case fromMetaValue v of
+                Just string -> M.insert k string a
+                _ -> a)
+           M.empty
+           metaMap of
+      stringMap
+        | null stringMap -> Nothing
+      stringMap -> Just stringMap
+  fromMetaValue _ = Nothing
+
+instance {-# OVERLAPS #-} FromMetaValue a => FromMetaValue [a] where
+  fromMetaValue (MetaList list) = Just $ mapMaybe fromMetaValue list
+  fromMetaValue _ = Nothing
+
+lookupMeta :: FromMetaValue a => Text -> Meta -> Maybe a
+lookupMeta key meta = getMetaValue key meta >>= fromMetaValue
+
+lookupMetaOrElse :: FromMetaValue a => a -> Text -> Meta -> a
+lookupMetaOrElse def key meta = fromMaybe def $ lookupMeta key meta
+
+lookupMetaOrFail :: FromMetaValue a => Text -> Meta -> a
+lookupMetaOrFail key meta =
+  case lookupMeta key meta of
+    Just value -> value
+    Nothing -> error $ "Cannot read meta value: " <> key
+
+lookupInDictionary :: Text -> Meta -> Text
+lookupInDictionary key meta =
+  case lookupMeta "lang" meta of
+    Just lang ->
+      lookupMetaOrElse
+        enDefault
+        (Text.intercalate "." ["dictionary", lang, key])
+        meta
+    _ -> enDefault
+  where
+    enDefault :: Text
+    enDefault =
+      lookupMetaOrElse
+        (Text.intercalate " " ["Dictionary entry for", key, "not available!"])
+        (Text.intercalate "." ["dictionary", "en", key])
+        meta
+
+-- | Map a function over string values and stringified inline values.
+-- Converts MetaInlines to MetaStrings. This may be a problem in some distant
+-- future.
+mapMeta :: (Text -> Text) -> Meta -> Meta
+mapMeta f meta =
+  let (MetaMap m) = mapMetaValues f (MetaMap (unMeta meta))
+   in Meta m
+
+-- | Map an IO action over string values and stringified inline values.
+-- Converts MetaInlines to MetaStrings. This may be a problem in some distant
+-- future.
+mapMetaM :: (MonadFail m, Monad m) => (Text -> m Text) -> Meta -> m Meta
+mapMetaM f meta = do
+  (MetaMap m) <- mapMetaValuesM f (MetaMap (unMeta meta))
+  return (Meta m)
+
+-- | Map an IO action over string values and stringified inline values.
+-- Converts MetaInlines to MetaStrings. This may be a problem in some distant
+-- future.
+mapMetaValuesM ::
+     (MonadFail m, Monad m) => (Text -> m Text) -> MetaValue -> m MetaValue
+mapMetaValuesM f value = map' value
+  where
+    map' (MetaMap m) =
+      MetaMap . Map.fromList <$>
+      mapM (\(k, v) -> (k, ) <$> map' v) (Map.toList m)
+    map' (MetaList l) = MetaList <$> mapM map' l
+    map' (MetaString s) = MetaString <$> f s
+    map' (MetaInlines i) = MetaString <$> f (stringify i)
+    map' v = return v
+
+-- | Map a function over string values and stringified inline values.
+-- Converts MetaInlines to MetaStrings. This may be a problem in some distant
+-- future.
+mapMetaValues :: (Text -> Text) -> MetaValue -> MetaValue
+mapMetaValues f value = map' value
+  where
+    map' (MetaMap m) =
+      MetaMap . Map.fromList $ map (\(k, v) -> (k, ) $ map' v) (Map.toList m)
+    map' (MetaList l) = MetaList $ map map' l
+    map' (MetaString s) = MetaString $ f s
+    map' (MetaInlines i) = MetaString $ f (stringify i)
+    map' v = v
+
+-- | Map meta values in maps with the compound key.
+mapMetaWithKey ::
+     (MonadFail m, Monad m) => (Text -> Text -> m Text) -> Meta -> m Meta
+mapMetaWithKey f meta = do
+  (MetaMap m) <- map' "" (MetaMap (unMeta meta))
+  return (Meta m)
+  where
+    map' k' (MetaMap m) =
+      MetaMap . Map.fromList <$>
+      mapM (\(k, v) -> (k, ) <$> map' (join k' k) v) (Map.toList m)
+    map' k (MetaList l) =
+      MetaList <$>
+      mapM (\(n, v) -> map' (k <> "[" <> show n <> "]") v) (zip [0 ..] l)
+    map' k (MetaString s) = MetaString <$> f k s
+    map' k (MetaInlines i) = MetaString <$> f k (stringify i)
+    map' _ v = return v
+    join x y = Text.intercalate "." $ filter (not . Text.null) [x, y]
+
+-- | Reads a single meta data file.
+readMetaDataFile :: FilePath -> IO Meta
+readMetaDataFile file = toPandocMeta <$> Y.decodeFileThrow file
