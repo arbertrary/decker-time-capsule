@@ -3,8 +3,8 @@ title: New Quiz Syntax Test deck
 history: True
 lang: de
 quiz:
-  style: ASFKL
-  feedback: Immediately
+  style: plain
+  feedback: Aggregated
 ---
 
 # Overview

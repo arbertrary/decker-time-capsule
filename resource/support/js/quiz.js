@@ -9,6 +9,7 @@ var RevealQuiz = (() => {
                 quizMC();
                 quizIC();
                 quizFT();
+                aggregateQuizFeedback();
                 resolve();
             });
         }
@@ -25,6 +26,43 @@ function setQuizIDs() {
         question.setAttribute("data-quizID", quizID);
         i++;
     }
+}
+
+function aggregateQuizFeedback() {
+    var aggButton = document.querySelector(".aggButton");
+    var parentSlide = aggButton.parentElement;
+    if (aggButton !== null) {
+        aggButton.addEventListener("click", () => {
+
+            console.log("i'm here");
+            var quizClasses = ".qmc,.quiz-mc,.quiz-multiple-choice,.qft,.quiz-ft,.quiz-free-text,.qic,.quiz-ic,.quiz-insert-choices,.qmi,.quiz-mi,.quiz-match-items";
+            var questions = document.querySelectorAll(quizClasses);
+
+            // var parentSlide = this.parentElement;
+
+            var ul = document.createElement('ul');
+
+
+            for (let question of questions) {
+
+                var li = document.createElement('li');
+
+                ul.appendChild(li);
+                li.innerHTML = li.innerHTML + question.getAttribute("data-quizid");
+
+            }
+            parentSlide.appendChild(ul);
+
+        })
+
+    } else {
+        console.log("ELSE");
+        return;
+    }
+
+
+
+
 }
 
 function quizMC() {
