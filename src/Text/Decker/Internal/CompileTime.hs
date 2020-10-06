@@ -4,7 +4,7 @@ module Text.Decker.Internal.CompileTime
     ( lookupGitBranch,
       lookupGitCommitId,
       lookupGitTag,
-      lookupCompileDate,
+      lookupBuildDate,
     )
 where
 
@@ -22,8 +22,8 @@ lookupGitBranch = stringE . Text.unpack . Text.strip . fromMaybe "none" =<< runI
 lookupGitCommitId :: Q Exp
 lookupGitCommitId = stringE . Text.unpack . Text.strip . fromMaybe "none" =<< runIO gitRevision
 
-lookupCompileDate :: Q Exp
-lookupCompileDate =
+lookupBuildDate :: Q Exp
+lookupBuildDate =
     do
         date <- runIO (utctDay <$> getCurrentTime)
         let temp = iso8601Show date

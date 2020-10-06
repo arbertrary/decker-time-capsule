@@ -123,7 +123,7 @@ warnVersion = do
       deckerGitBranch
       deckerGitCommitId
       deckerGitVersionTag
-      deckerCompileDate
+      deckerBuildDate
 
 tryRemoveDirectory :: FilePath -> IO ()
 tryRemoveDirectory path = do

@@ -134,7 +134,7 @@ run = do
         ", commit: " ++
         deckerGitCommitId ++
         ", tag: " ++
-        deckerGitVersionTag ++ ", build date: " ++ deckerCompileDate ++ ")"
+        deckerGitVersionTag ++ ", build date: " ++ deckerBuildDate ++ ")"
       putNormal $ "pandoc version " ++ Text.unpack pandocVersion
       putNormal $ "pandoc-types version " ++ showVersion pandocTypesVersion
               --
