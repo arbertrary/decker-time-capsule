@@ -260,7 +260,7 @@ renderMultipleChoice meta q =
 choiceList :: AttributeValue -> [Choice] -> Html
 choiceList t choices =
   H.ul ! A.class_ t $
-  foldr ((>>) . handleChoices) (H.span $ H.toHtml ("" :: T.Text)) choices
+  foldl1 (>>) (map handleChoices choices)
   where
     reduceTooltip :: [Block] -> [Block]
     reduceTooltip [BulletList blocks] -- = concat blocks
@@ -297,9 +297,9 @@ renderInsertChoices meta quiz@(InsertChoices title tgs qm q) =
     reduceBlock p = p
     select :: [Choice] -> Html
     select choices =
-      (H.select $
-       (H.option ! A.class_ "wrong" $ H.toHtml ("..." :: T.Text)) >>
-       (foldr ((>>) . options) H.br choices)) >>
+      H.select (
+        foldl (>>) (H.option ! A.class_ "wrong" $ H.toHtml ("..." :: T.Text)) (map options choices))
+       >>
       choiceList "solutionList" choices
     options :: Choice -> Html
     options (Choice correct text comment) =
