@@ -93,26 +93,20 @@ test:linux:
       - .stack-work
   needs:
     - job: build:linux
-      artifacts: true
   interruptible: true
 
 test:mac:
   stage: test
   tags:
     - mac
-  # image:
-  #   name: $CI_REGISTRY_IMAGE/ci:base
-  #   entrypoint: [""]
   script:
     - make test
-    # - STACK_ROOT=/cache/decker make test
   cache:
     key: stack_work
     paths:
       - .stack-work
   needs:
     - job: build:mac
-      artifacts: true
   interruptible: true
 
 test:win:
@@ -128,7 +122,6 @@ test:win:
   when: always
   needs:
     - job: build:win
-      artifacts: true
   interruptible: true
 
 
