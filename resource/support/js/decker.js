@@ -18,6 +18,7 @@ function deckerStart() {
   addSourceCodeLabels();
   prepareTaskLists();
   prepareFullscreenIframes();
+  reloadWindow();
 }
 
 
@@ -205,4 +206,17 @@ function isElectron() {
     }
 
     return false;
+}
+
+/**
+ *  Reload on change machinery
+ */
+function reloadWindow() {
+  if (location.hostname == "localhost" || location.hostname == "0.0.0.0") {
+    var socket = new WebSocket("ws://" + location.host + "/reload");
+    socket.onmessage = (event) => {
+      if (event.data.startsWith("reload!")) 
+        window.location.reload();
+    };
+  };
 }
