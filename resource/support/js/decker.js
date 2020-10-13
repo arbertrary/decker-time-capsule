@@ -9,8 +9,9 @@ var DeckerStart = (() => {
       }); } }
 })();
 
-
-// Fix decker-specific things after Reveal is initialized
+/**
+ *  Fix decker-specific things after Reveal is initialized
+ */
 function deckerStart() {
   warnSafari();
   fixAutoplayWithStart();
@@ -20,20 +21,42 @@ function deckerStart() {
   prepareFullscreenIframes();
 }
 
+/**
+ *  Pop-up message for Safari users only
+ */
 function warnSafari() {
   let safariAgent = navigator.userAgent.indexOf("Safari") > -1;
   let chromeAgent = navigator.userAgent.indexOf("Chrome") > -1;
   if ((chromeAgent) && (safariAgent)) { safariAgent = false; }
-  if(safariAgent) { 
-    let newDiv = document.createElement("div");
-    newDiv.classList.add("safari-warning");
-    let newP = document.createElement("p");
-    newP.innerText = "Content is best viewed with a Chrome browser.";
-    newDiv.appendChild(newP);
-    document.querySelector('.valigned').insertBefore(newDiv, document.querySelector('.title'));
+  if (safariAgent) { 
+      if (document.getElementById("warnBackground")) return;
+      // darken the background
+      let warnBack = document.querySelector('body').appendChild(document.createElement('div'));
+      warnBack.id = "warnBackground";
+      warnBack.style.height = document.documentElement.scrollHeight + "px";
+  
+      let alertBox = warnBack.appendChild(document.createElement("div"));
+      alertBox.id = "alertBox";
+      alertBox.style.top = document.documentElement.scrollTop + "px";
+      alertBox.style.left = (document.documentElement.scrollWidth - alertBox.offsetWidth)/2 + "px";
+  
+      let h1 = alertBox.appendChild(document.createElement("h1"));
+      h1.appendChild(document.createTextNode("Warning"));
+  
+      let msg = alertBox.appendChild(document.createElement("p"));
+      msg.innerHTML = "Content is best viewed with a Chrome browser.";
+  
+      let btn = alertBox.appendChild(document.createElement("a"));
+      btn.id = "closeBtn";
+      btn.appendChild(document.createTextNode("OK"));
+      btn.href = "#";
+      btn.focus();
+      btn.onclick = () => { 
+        document.querySelector('body').removeChild(document.getElementById("warnBackground"));
+        return false; 
+      }
   }
 }
-
 
 function prepareTaskLists() {
   for (let cb of document.querySelectorAll('.reveal ul.task-list>li>input[type="checkbox"]')) {
@@ -42,10 +65,9 @@ function prepareTaskLists() {
   }
 }
 
-
 function fixAutoplayWithStart() {
   for (let vid of document.getElementsByTagName("video")) {
-    vid.addEventListener('play', (e) => {
+    document.addEventListener('play', (e) => {
       const timeRegex = /#t=(\d+)/;
       const matches = e.target.currentSrc.match(timeRegex);
       if (matches !== null && matches.length > 0) {
@@ -55,8 +77,10 @@ function fixAutoplayWithStart() {
   }
 }
 
-// Replace date string on title slide with current date 
-// if string provided for date in yaml header is "today"
+/**
+ *  Replace date string on title slide with current date
+ *  if stirng provided for date in yaml is 'today'
+ */
 function currentDate() {
   var date = document.querySelector(".date");
   if (!date) return;
@@ -102,7 +126,6 @@ function makeVertical() {
   Reveal.setState(Reveal.getState());
 }
 
-
 function addSourceCodeLabels() {
   $("div.sourceCode[label]").each(function () {
     $("<div/>")
@@ -112,12 +135,11 @@ function addSourceCodeLabels() {
   });
 }
 
-
 function prepareCodeHighlighting() {
   for (let code of document.querySelectorAll('pre>code')) {
     var pre = code.parentElement;
 
-    // if line numbers to be highlighted are specified...
+    // if line numbers to be highlighted are specifiedocument...
     if (pre.hasAttribute("data-line-numbers")) {
       // ...copy them from <pre> to <code>
       code.setAttribute("data-line-numbers", pre.getAttribute("data-line-numbers"));
@@ -144,13 +166,14 @@ function prepareCodeHighlighting() {
   }
 }
 
-// wrap iframe demos in a div that offers a fullscreen button.
-// only do this if the browser supports the Fullscreen API.
-// don't do this for Safari, since its webkit-prefixed version
-// does not work propertly: one cannot put an iframe to fullscreen
-// if the slides are in fullscreen already (which is the standard
-// presentation setting).
-// we wrap the div in any case to make the css simpler.
+/**
+ *  Wrap iframe demos in a DIV that offers a fullscreen button.
+ *  Only do this if browser supports Fullscreen API.
+ *  Don't do this for Safari, since it's webkit-prefixed version 
+ *  doesn't work properly (you cannot make an iframe fullscreen
+ *  if slides are in fullscreen already - standard presentation 
+ *  setting). We wrap the DIV to make the CSS easier.
+ */
 function prepareFullscreenIframes() {
   for (let iframe of document.querySelectorAll('iframe.decker')) {
     // wrap div around iframe
@@ -200,7 +223,6 @@ function prepareFullscreenIframes() {
     };
   }
 }
-
 
 function isElectron() {
     // Renderer process

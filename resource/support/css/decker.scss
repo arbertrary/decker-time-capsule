@@ -390,9 +390,51 @@ dd {
  * Warning for Safari Users
  *******************************************/
 
- .reveal div.safari-warning {
-  color: #6ca0e8;
-  margin-bottom: 2em;
+ #warnBackground {
+  background-color:rgba(0, 0, 0, 0.3);
+  position:absolute;
+  width:100%;
+  top:0px;
+  left:0px;
+  z-index:10000;
+}
+
+ #alertBox {
+  width: 35vw;
+  min-height: 25vh;
+  margin: 35vh auto;
+  background-color: #fff;
+  font-family: "Roboto", Helvetica, sans-serif;
+  display: block;
+ }
+
+ #alertBox h1 {
+  font-size: var(--font-size-medium);
+  font-weight: 500;
+  background-color:#f0f1f3;
+  padding:0.2em 0 0.2em 0.5em;
+  border-bottom: 1px solid #d8d8da;
+ }
+
+ #alertBox p {
+  height: 5vh;
+  text-align: center;
+  font-size: 1.2em;
+  margin: 1.5em;
+  color: #777;
+ }
+
+ #alertBox #closeBtn {
+  display: block;
+  margin: 1vh auto;
+  padding: 0.6em 0.2em;
+  width:6vw;
+  text-align: center;
+  color:#fff;
+  background-color:#357EBD;
+  border-radius: 3px;
+  text-decoration: none;
+  outline: none;
  }
 
 /*********************************************
