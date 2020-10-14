@@ -30,8 +30,9 @@ function setQuizIDs() {
 
 function aggregateQuizFeedback() {
     var aggButton = document.querySelector(".aggButton");
-    var parentSlide = aggButton.parentElement;
+
     if (aggButton !== null) {
+        var parentSlide = aggButton.parentElement;
         aggButton.addEventListener("click", () => {
 
             console.log("i'm here");

@@ -403,6 +403,14 @@
   border: 2px dotted #000;
 }
 
+.reveal .qic.Aggregated [class*="show-"],
+.reveal .qft.Aggregated [class*="show-"],
+.reveal .qmc.Aggregated [class*="show-"],
+.reveal .qmi.Aggregated [class*="show-"],
+.reveal [class*="quiz-"].Aggregated [class*="show-"] {
+  border: 2px dotted #000;
+}
+
 .reveal .qic .solutionDiv,
 .reveal .qft .solutionDiv,
 .reveal .qmc .solutionDiv,
@@ -521,11 +529,38 @@
   background-color: #ffaaaa;
 }
 
-.reveal .qic.plain li.show-right:before,
-.reveal .qft.plain li.show-right:before,
-.reveal .qmc.plain li.show-right:before,
-.reveal .qmi.plain li.show-right:before,
-.reveal [class*="quiz-"].plain li.show-right:before {
+.reveal .qic.plain.Aggregated li,
+.reveal .qft.plain.Aggregated li,
+.reveal .qmc.plain.Aggregated li,
+.reveal .qmi.plain.Aggregated li,
+.reveal [class*="quiz-"].plain.Aggregated li {
+  border: none;
+}
+
+.reveal .qic.plain.Aggregated li[class*="show-"]:before,
+.reveal .qft.plain.Aggregated li[class*="show-"]:before,
+.reveal .qmc.plain.Aggregated li[class*="show-"]:before,
+.reveal .qmi.plain.Aggregated li[class*="show-"]:before,
+.reveal [class*="quiz-"].plain.Aggregated li[class*="show-"]:before {
+  content: "\f057";
+  font-family: "Font Awesome 5 Free";
+  font-weight: 400;
+  font-size: var(--font-size-medium);
+}
+
+.reveal .qic.plain.Interactive li,
+.reveal .qft.plain.Interactive li,
+.reveal .qmc.plain.Interactive li,
+.reveal .qmi.plain.Interactive li,
+.reveal [class*="quiz-"].plain.Interactive li {
+  border: none;
+}
+
+.reveal .qic.plain.Interactive li.show-right:before,
+.reveal .qft.plain.Interactive li.show-right:before,
+.reveal .qmc.plain.Interactive li.show-right:before,
+.reveal .qmi.plain.Interactive li.show-right:before,
+.reveal [class*="quiz-"].plain.Interactive li.show-right:before {
   content: "\f058";
   font-family: "Font Awesome 5 Free";
   font-weight: 400;
@@ -533,11 +568,11 @@
   color: #009900;
 }
 
-.reveal .qic.plain li.show-wrong:before,
-.reveal .qft.plain li.show-wrong:before,
-.reveal .qmc.plain li.show-wrong:before,
-.reveal .qmi.plain li.show-wrong:before,
-.reveal [class*="quiz-"].plain li.show-wrong:before {
+.reveal .qic.plain.Interactive li.show-wrong:before,
+.reveal .qft.plain.Interactive li.show-wrong:before,
+.reveal .qmc.plain.Interactive li.show-wrong:before,
+.reveal .qmi.plain.Interactive li.show-wrong:before,
+.reveal [class*="quiz-"].plain.Interactive li.show-wrong:before {
   content: "\f057";
   font-family: "Font Awesome 5 Free";
   font-weight: 400;
@@ -601,9 +636,9 @@
   font-size: var(--font-size-small);
 }
 
-.reveal .qmc [class*="show-"]:hover .tooltip,
-.reveal .quiz-mc [class*="show-"]:hover .tooltip,
-.reveal .quiz-multiple-choice [class*="show-"]:hover .tooltip {
+.reveal .qmc.Interactive [class*="show-"]:hover .tooltip,
+.reveal .quiz-mc.Interactive [class*="show-"]:hover .tooltip,
+.reveal .quiz-multiple-choice.Interactive [class*="show-"]:hover .tooltip {
   visibility: visible;
 }
 
