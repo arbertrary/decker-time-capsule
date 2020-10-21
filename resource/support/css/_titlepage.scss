@@ -45,6 +45,7 @@
             // Max height 25vh means the image will take at max one fourth of the title page viewport
             object-fit:  contain;
             max-height: 25vh;
+            max-width: 100%;
             width: auto;
          }
       }

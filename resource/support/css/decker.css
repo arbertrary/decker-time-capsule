@@ -692,6 +692,7 @@
   margin: auto;
   object-fit: contain;
   max-height: 25vh;
+  max-width: 100%;
   width: auto;
 }
 
