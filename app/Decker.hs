@@ -270,8 +270,9 @@ run = do
     phony "unused" $ do
       need ["html"]
       meta <- getGlobalMeta
-      list <- liftIO $ unusedResources meta
-      liftIO $ mapM_ putStrLn list
+      runAfter $ do 
+        list <- unusedResources meta
+        mapM_ putStrLn list
     --
     phony "static-files" $ do
       targets <- getTargets
