@@ -169,7 +169,7 @@ handleQuizzes pandoc@(Pandoc meta blocks) =
             , metaPoints = 0
             , metaDifficulty = Undefined
             , metaLang = (lookupMetaOrElse "en" "lang" meta)
-            , metaStyle = (lookupMetaOrElse "fancy" "quiz.style" meta)
+            , metaStyle = (lookupMetaOrElse "plain" "quiz.style" meta)
             }
     defaultMatch = MatchItems [] [] defaultQMeta [] []
     defaultMC = MultipleChoice [] [] defaultQMeta [] []
@@ -309,7 +309,7 @@ quizAttributes quizMeta =
 
 quizStyle :: Meta -> QuizMeta -> T.Text
 quizStyle pandocMeta quizMeta = case metaStyle quizMeta of
-    "" -> lookupMetaOrElse "fancy" "quiz.style" pandocMeta
+    "" -> lookupMetaOrElse "plain" "quiz.style" pandocMeta
     s -> s
 
 renderMultipleChoice :: Meta -> Quiz -> Block
@@ -392,7 +392,7 @@ renderInsertChoices pandocMeta quiz@(InsertChoices title tgs qm q) =
 renderInsertChoices meta q =
     Div ("", [], []) [Para [Str "ERROR NO INSERT CHOICES QUIZ"]]
 
---
+-- | Creates a custom drop-down select element that allows to select multiple options
 buildSelect :: [[Block]] -> Block
 buildSelect items = Div ("", ["options"], []) $ [blank] ++ optList
   where
@@ -404,6 +404,9 @@ buildSelect items = Div ("", ["options"], []) $ [blank] ++ optList
         rawHtml' (H.p ! A.class_ "option" ! H.customAttribute "data-bucketId" (H.textValue bID) $ H.toHtml ([toEnum (i + 65), '.'] :: String))
     createOptions (i, bs) = rawHtml' (H.p ! A.class_ "option" $ H.toHtml ([toEnum (i + 65), '.'] :: String))
 
+{- | Creates matchQuestion divs for plain matching
+ Each matchQuestion consists of the bucket-label and a select-dropdown element created in buildSelect
+-}
 plainMatchQuestionsDivs :: [Block] -> [[Block]] -> [Block]
 plainMatchQuestionsDivs buckets items = map matchQuestionDiv (filter (not . isDistractor) buckets)
   where
@@ -418,6 +421,9 @@ plainMatchQuestionsDivs buckets items = map matchQuestionDiv (filter (not . isDi
     optList = Div ("", ["optList"], []) [rawHtml' (H.p ! A.class_ "selected blank option" $ "...")]
     options = buildSelect items
 
+{- | Creates the HTML elements for Matching Questions
+ Changes depending on if the style is "plain" or something else
+-}
 renderMatching :: Meta -> Quiz -> Block
 renderMatching pandocMeta quiz@(MatchItems title tgs qm qs matches) =
     case quizStyle pandocMeta qm of
@@ -434,9 +440,10 @@ renderMatching pandocMeta quiz@(MatchItems title tgs qm qs matches) =
     (buckets, items) = unzip $ map pairs matches
     dropHint = ("data-hint", lookupInDictionary "quiz.qmi-drop-hint" newMeta)
     dragHint = ("data-hint", lookupInDictionary "quiz.qmi-drag-hint" newMeta)
+    --
     itemsDiv = Div ("", ["matchItems"], [dragHint]) (concat items)
     bucketsDiv = Div ("", ["buckets"], [dropHint]) buckets
-    --
+    -- The divs needed for the plain matching style
     plainMatchDiv = Div ("", ["matchDiv"], []) [plainItemsDiv, plainBucketsDiv]
     plainItemsDiv = Div ("", ["matchItems"], []) (plainMatchQuestionsDivs buckets items)
     plainBucketsDiv = Div ("", ["buckets"], []) (concat items)
