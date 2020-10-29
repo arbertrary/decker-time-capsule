@@ -52,6 +52,7 @@ quiz:
 
 Gravity
 : $(0, -k\,m, 0)\T$
+: test
 
 Damping
 : $-k \, \dot{\vec{x}}$

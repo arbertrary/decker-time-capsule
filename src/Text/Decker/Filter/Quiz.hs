@@ -186,9 +186,7 @@ quizFeedback meta = case lookupMetaOrElse ("Interactive" :: T.Text) "quiz.feedba
 
 -- Take the parsed Quizzes and render them to html
 renderQuizzes :: Meta -> Quiz -> Block
-renderQuizzes meta quiz@(MatchItems ti tgs qm q p) = case metaStyle qm of
-    "plain" -> renderPlainMatching meta quiz
-    _ -> renderMatching meta quiz
+renderQuizzes meta quiz@MatchItems{} = renderMatching meta quiz
 renderQuizzes meta quiz@FreeText{} = renderFreeText meta quiz
 renderQuizzes meta quiz@InsertChoices{} = renderInsertChoices meta quiz
 renderQuizzes meta quiz@MultipleChoice{} = renderMultipleChoice meta quiz
@@ -400,74 +398,33 @@ buildSelect items = Div ("", ["options"], []) $ [blank] ++ optList
   where
     blank :: Block
     blank = rawHtml' (H.p ! A.class_ "option" $ "...")
-    optList = map createOptions (zip [0 ..] items)
-    createOptions :: (Int, [Block]) -> Block
+    optList = map createOptions (zip [0 ..] (concat items))
+    createOptions :: (Int, Block) -> Block
+    createOptions (i, item@(Div (t, ["matchItem"], [("draggable", "true"), ("bucketId", bID)]) bs)) =
+        rawHtml' (H.p ! A.class_ "option" ! H.customAttribute "data-bucketId" (H.textValue bID) $ H.toHtml ([toEnum (i + 65), '.'] :: String))
     createOptions (i, bs) = rawHtml' (H.p ! A.class_ "option" $ H.toHtml ([toEnum (i + 65), '.'] :: String))
 
-matchQuestions :: [Block] -> [[Block]] -> [Block]
-matchQuestions buckets items = map matchQuestionDiv buckets
+plainMatchQuestionsDivs :: [Block] -> [[Block]] -> [Block]
+plainMatchQuestionsDivs buckets items = map matchQuestionDiv (filter (not . isDistractor) buckets)
   where
     matchQuestionDiv bucket = Div ("", ["matchQuestion"], []) $ [label bucket, optList, options]
+    isDistractor :: Block -> Bool
+    isDistractor Text.Pandoc.Definition.Null = True
+    isDistractor _ = False
     label :: Block -> Block
-    label bucket@(Div ("", ["bucket"], [("bucketId", bID)]) bs) = rawHtml' $ H.label ! H.customAttribute "bucketId" (H.textValue bID) $ toHtml (stringify bucket)
+    label bucket@(Div ("", ["bucket"], [("bucketId", bID)]) bs) = rawHtml' $ H.label ! H.customAttribute "data-bucketId" (H.textValue bID) $ toHtml (stringify bucket)
     label bucket = rawHtml' $ H.label $ toHtml (stringify bucket)
     optList :: Block
     optList = Div ("", ["optList"], []) [rawHtml' (H.p ! A.class_ "selected blank option" $ "...")]
     options = buildSelect items
 
-renderPlainMatching :: Meta -> Quiz -> Block
-renderPlainMatching pandocMeta quiz@(MatchItems title tgs qm qs matches) =
-    Div ("", cls, quizAttributes qm) $ header ++ qs ++ [matchDiv, sButton]
-  where
-    cls = tgs ++ [quizStyle pandocMeta qm] ++ [T.pack $ show $ quizFeedback pandocMeta]
-    newMeta = setMetaValue "lang" (metaLang qm) pandocMeta
-    sButton = solutionButton newMeta
-    header =
-        case title of
-            [] -> []
-            _ -> [Header 2 ("", [], []) title]
-    matchDiv = Div ("", ["matchDiv"], []) [itemsDiv, bucketsDiv]
-    (buckets, items) = unzip $ map pairs matches
-    itemsDiv = Div ("", ["matchItems"], []) (matchQuestions buckets items)
-    bucketsDiv = Div ("", ["buckets"], []) (concat items)
-    item :: T.Text -> [Block] -> Block
-    item index =
-        Div
-            ( ""
-            , ["matchItem"]
-            , [("draggable", "true"), ("bucketId", index)]
-            )
-    distractor :: [Block] -> Block
-    distractor =
-        Div ("", ["matchItem", "distractor"], [("draggable", "true")])
-    pairs :: Match -> (Block, [Block])
-    pairs (Distractor bs) = (Text.Pandoc.Definition.Null, map distractor bs)
-    pairs (Pair i is bs) =
-        case bs of
-            [[Plain []]] ->
-                ( Div
-                    ( ""
-                    , ["bucket", "distractor"]
-                    , [("bucketId", T.pack $ show i)]
-                    )
-                    [Plain is]
-                , []
-                )
-            _ ->
-                ( Div
-                    ("", ["bucket"], [("bucketId", T.pack $ show i)])
-                    [Plain is]
-                , map (item (T.pack $ show i)) bs
-                )
-renderPlainMatching meta q =
-    Div ("", [], []) [Para [Str "ERROR NO MATCHING QUIZ"]]
-
 renderMatching :: Meta -> Quiz -> Block
 renderMatching pandocMeta quiz@(MatchItems title tgs qm qs matches) =
-    Div ("", cls, quizAttributes qm) $ header ++ qs ++ [itemsDiv, bucketsDiv, sButton]
+    case quizStyle pandocMeta qm of
+        "plain" -> Div ("", cls, quizAttributes qm) $ header ++ qs ++ [plainMatchDiv, sButton]
+        _ -> Div ("", cls, quizAttributes qm) $ header ++ qs ++ [itemsDiv, bucketsDiv, sButton]
   where
     cls = tgs ++ [quizStyle pandocMeta qm] ++ [T.pack $ show $ quizFeedback pandocMeta]
-    -- ++ [view solution qm]
     newMeta = setMetaValue "lang" (metaLang qm) pandocMeta
     sButton = solutionButton newMeta
     header =
@@ -479,6 +436,10 @@ renderMatching pandocMeta quiz@(MatchItems title tgs qm qs matches) =
     dragHint = ("data-hint", lookupInDictionary "quiz.qmi-drag-hint" newMeta)
     itemsDiv = Div ("", ["matchItems"], [dragHint]) (concat items)
     bucketsDiv = Div ("", ["buckets"], [dropHint]) buckets
+    --
+    plainMatchDiv = Div ("", ["matchDiv"], []) [plainItemsDiv, plainBucketsDiv]
+    plainItemsDiv = Div ("", ["matchItems"], []) (plainMatchQuestionsDivs buckets items)
+    plainBucketsDiv = Div ("", ["buckets"], []) (concat items)
     item :: T.Text -> [Block] -> Block
     item index =
         Div
