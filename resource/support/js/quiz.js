@@ -343,41 +343,45 @@ function buildPlainMatch(question) {
     const buckets = question.querySelector('.buckets');
     const solutionButton = question.querySelector('.solutionButton');
 
-    const matchDiv = document.createElement('div');
-    matchDiv.classList.add('matchDiv');
-    [matchItems, buckets].forEach(el => matchDiv.appendChild(el));
-    question.insertBefore(matchDiv, solutionButton);
+    // const matchDiv = document.createElement('div');
+    // matchDiv.classList.add('matchDiv');
+    // [matchItems, buckets].forEach(el => matchDiv.appendChild(el));
+    // question.insertBefore(matchDiv, solutionButton);
 
-    const choices = buildSelect(buckets, matchItems.querySelectorAll('.matchItem'));
+    // const choices = buildSelect(buckets, matchItems.querySelectorAll('.matchItem'));
 
     let allBuckets = buckets.querySelectorAll('.bucket');
-    for (let i = 0; i < allBuckets.length; i++) {
-        const matchQuestion = document.createElement('div');
-        matchQuestion.classList.add('matchQuestion');
-        matchItems.appendChild(matchQuestion);
+    let allMatchQuestions = matchItems.querySelectorAll(".matchQuestion");
+    for (let i = 0; i < allMatchQuestions.length; i++) {
 
-        const lab = document.createElement('label');
-        lab.setAttribute('data-bucketId', allBuckets[i].classList.contains('distractor') ? '0' : allBuckets[i].getAttribute('data-bucketId'));
-        lab.innerHTML = allBuckets[i].innerHTML;
+        const choices = allMatchQuestions[i].querySelectorAll(".option");
+        // const matchQuestion = document.createElement('div');
+        // matchQuestion.classList.add('matchQuestion');
+        // matchItems.appendChild(matchQuestion);
 
-        const blank = document.createElement('p');
-        blank.innerText = '...';
-        blank.classList.add('selected', 'blank', 'option');
-        blank.setAttribute('data-bucketId', lab.getAttribute('data-bucketId'));
+        // const lab = document.createElement('label');
+        // lab.setAttribute('data-bucketId', allBuckets[i].classList.contains('distractor') ? '0' : allBuckets[i].getAttribute('data-bucketId'));
+        // lab.innerHTML = allBuckets[i].innerHTML;
+
+        const blank = allMatchQuestions[i].querySelector('.selected,.blank,.option');
+        // blank.innerText = '...';
+        // blank.classList.add('selected', 'blank', 'option');
+        // blank.setAttribute('data-bucketId', lab.getAttribute('data-bucketId'));
         blank.addEventListener('click', function () { showList(this.parentElement.nextElementSibling) });
 
-        const optList = document.createElement('div');
-        optList.classList.add('optList');
-        optList.addEventListener('click', function () { showList(this.nextElementSibling) });
-        optList.appendChild(blank);
+        const optList = allMatchQuestions[i].querySelector(".optList");
 
-        const chClone = choices.cloneNode(true);            // exclude first blank option
-        for (let i = 1; i < chClone.children.length; i++) {
-            chClone.children[i].addEventListener('click', makeSelection);
+        // optList.classList.add('optList');
+        optList.addEventListener('click', function () { showList(this.nextElementSibling) });
+        // optList.appendChild(blank);
+
+        // const chClone = choices.cloneNode(true);            // exclude first blank option
+        for (let i = 1; i < choices.length; i++) {
+            choices[i].addEventListener('click', makeSelection);
         }
 
-        buckets.removeChild(allBuckets[i]);
-        [lab, optList, chClone].forEach(ele => { matchQuestion.appendChild(ele); });
+        // buckets.removeChild(allBuckets[i]);
+        // [lab, optList, chClone].forEach(ele => { matchQuestion.appendChild(ele); });
     }
     function showList(opt) {                                // hide any other open lists
         for (let sh of document.getElementsByClassName('shown')) { sh.classList.remove('shown') };
