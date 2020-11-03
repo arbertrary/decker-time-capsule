@@ -244,6 +244,7 @@ dd {
   .speaker-notes {
     h1,
     h2,
+    div.h2,
     h3,
     h4,
     h5,
@@ -347,9 +348,12 @@ dd {
   margin-bottom: var(--margin-bottom-h1);
 }
 .reveal h2 {
+  margin-bottom: var(--margin-bottom-h1);
+} // our block headings
+.reveal div.h2 {
   margin-bottom: var(--margin-bottom-h2);
 } // our block headings
-.reveal div.box.columns {
+.reveal div.box {
   margin-bottom: var(--margin-bottom-h2-block);
 } // our blocks
 .reveal h3 {

@@ -6,11 +6,15 @@ vertical-slides: true
 
 # First slide
 
-1
+## Block 1 {.answer}
+
+Some content in block 1.
 
 # Slide below {.sub}
 
-2
+## Block 2 {.answer}
+
+Some content in block 2.
 
 # Even more below {.sub}
 

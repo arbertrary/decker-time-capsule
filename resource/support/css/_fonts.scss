@@ -56,6 +56,7 @@
 // Headers
 .reveal h1,
 .reveal h2,
+.reveal div.h2,
 .reveal h3,
 .reveal h4,
 .reveal h5,
@@ -71,11 +72,12 @@
 
 }
 
-.reveal h1 {
+.reveal h1,
+.reveal h2 {
     font-size: var(--font-size-xx-large);
 }
 
-.reveal h2 {
+.reveal div.h2 {
     font-weight: 500;
     font-size: var(--font-size-large); 
 }
@@ -96,6 +98,7 @@
 
         h1,
         h2,
+        div.h2,
         h3,
         h4,
         h5,

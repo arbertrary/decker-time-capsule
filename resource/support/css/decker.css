@@ -54,6 +54,7 @@
 
 .reveal h1,
 .reveal h2,
+.reveal div.h2,
 .reveal h3,
 .reveal h4,
 .reveal h5,
@@ -68,11 +69,12 @@
   text-shadow: none;
 }
 
-.reveal h1 {
+.reveal h1,
+.reveal h2 {
   font-size: var(--font-size-xx-large);
 }
 
-.reveal h2 {
+.reveal div.h2 {
   font-weight: 500;
   font-size: var(--font-size-large);
 }
@@ -91,16 +93,19 @@
 
 .reveal section.white h1,
 .reveal section.white h2,
+.reveal section.white div.h2,
 .reveal section.white h3,
 .reveal section.white h4,
 .reveal section.white h5,
 .reveal section.white h6, .reveal section.inverse h1,
 .reveal section.inverse h2,
+.reveal section.inverse div.h2,
 .reveal section.inverse h3,
 .reveal section.inverse h4,
 .reveal section.inverse h5,
 .reveal section.inverse h6, .reveal section.has-dark-background h1,
 .reveal section.has-dark-background h2,
+.reveal section.has-dark-background div.h2,
 .reveal section.has-dark-background h3,
 .reveal section.has-dark-background h4,
 .reveal section.has-dark-background h5,
@@ -129,6 +134,7 @@
 .reveal table,
 .reveal h1,
 .reveal h2,
+.reveal div.h2,
 .reveal h3 {
   margin-left: var(--border-decoration-width);
   padding-left: var(--border-decoration-padding);
@@ -186,7 +192,7 @@
   margin-top: 0.3em;
 }
 
-.reveal div.box.columns {
+.reveal div.box {
   margin-left: var(--border-decoration-width);
   padding-left: var(--border-decoration-padding);
   margin-right: calc(var(--border-decoration-padding) + var(--border-decoration-width));
@@ -195,31 +201,32 @@
     color used for the border as decoration */
 }
 
-.reveal div.box.columns p,
-.reveal div.box.columns ul,
-.reveal div.box.columns ol,
-.reveal div.box.columns dl,
-.reveal div.box.columns figure,
-.reveal div.box.columns blockquote,
-.reveal div.box.columns table,
-.reveal div.box.columns h1,
-.reveal div.box.columns h2,
-.reveal div.box.columns h3 {
+.reveal div.box p,
+.reveal div.box ul,
+.reveal div.box ol,
+.reveal div.box dl,
+.reveal div.box figure,
+.reveal div.box blockquote,
+.reveal div.box table,
+.reveal div.box h1,
+.reveal div.box h2,
+.reveal div.box div.h2,
+.reveal div.box h3 {
   margin-left: 0;
   padding-left: 0;
   margin-right: 0;
   padding-right: 0;
 }
 
-.reveal div.box.columns h2 {
+.reveal div.box div.h2 {
   margin-top: 0;
 }
 
-.reveal div.box.columns h2:last-child, .reveal div.box.columns h2:empty {
+.reveal div.box div.h2:last-child, .reveal div.box div.h2:empty {
   margin-bottom: 0;
 }
 
-.reveal div.box.columns.question, .reveal div.box.columns.answer, .reveal div.box.columns.observation, .reveal div.box.columns.example, .reveal div.box.columns.def, .reveal div.box.columns.definition, .reveal div.box.columns.note, .reveal div.box.columns.ale, .reveal div.box.columns.alert, .reveal div.box.columns.equ, .reveal div.box.columns.equation, .reveal div.box.columns.theorem {
+.reveal div.box.question, .reveal div.box.answer, .reveal div.box.observation, .reveal div.box.example, .reveal div.box.def, .reveal div.box.definition, .reveal div.box.note, .reveal div.box.ale, .reveal div.box.alert, .reveal div.box.equ, .reveal div.box.equation, .reveal div.box.theorem {
   /* First define the enclosing box and its properties.
         This is the current semantic: The box uses border and padding for
         the "margin" left and right where the left "margin" is used for decoraton
@@ -231,39 +238,39 @@
   margin-right: calc(var(--border-decoration-padding) + var(--border-decoration-width));
 }
 
-.reveal div.box.columns.question {
+.reveal div.box.question {
   border-color: #ff0101;
 }
 
-.reveal div.box.columns.answer {
+.reveal div.box.answer {
   border-color: #4d4d4d;
 }
 
-.reveal div.box.columns.observation {
+.reveal div.box.observation {
   border-color: blue;
 }
 
-.reveal div.box.columns.example {
+.reveal div.box.example {
   border-color: blue;
 }
 
-.reveal div.box.columns.def, .reveal div.box.columns.definition {
+.reveal div.box.def, .reveal div.box.definition {
   border-color: #4d4d4d;
 }
 
-.reveal div.box.columns.note {
+.reveal div.box.note {
   border-color: #ff9300;
 }
 
-.reveal div.box.columns.ale, .reveal div.box.columns.alert {
+.reveal div.box.ale, .reveal div.box.alert {
   border-color: #fa0101;
 }
 
-.reveal div.box.columns.equ, .reveal div.box.columns.equation {
+.reveal div.box.equ, .reveal div.box.equation {
   border-color: #4d4d4d;
 }
 
-.reveal div.box.columns.theorem {
+.reveal div.box.theorem {
   border-color: #4d4d4d;
 }
 
@@ -1149,6 +1156,7 @@ dd {
 
 .reveal .speaker-notes h1,
 .reveal .speaker-notes h2,
+.reveal .speaker-notes div.h2,
 .reveal .speaker-notes h3,
 .reveal .speaker-notes h4,
 .reveal .speaker-notes h5,
@@ -1229,10 +1237,14 @@ dd {
 }
 
 .reveal h2 {
+  margin-bottom: var(--margin-bottom-h1);
+}
+
+.reveal div.h2 {
   margin-bottom: var(--margin-bottom-h2);
 }
 
-.reveal div.box.columns {
+.reveal div.box {
   margin-bottom: var(--margin-bottom-h2-block);
 }
 

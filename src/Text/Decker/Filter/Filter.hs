@@ -1,13 +1,15 @@
 {-# LANGUAGE OverloadedStrings #-}
+
 module Text.Decker.Filter.Filter
-  ( OutputFormat(..)
-  , Disposition(..)
-  , processPandoc
-  , processSlides
-  , escapeToFilePath
-  , filterNotebookSlides
-  , wrapSlidesinDivs
-  ) where
+  ( OutputFormat (..),
+    Disposition (..),
+    processPandoc,
+    processSlides,
+    escapeToFilePath,
+    filterNotebookSlides,
+    wrapSlidesinDivs,
+  )
+where
 
 import Control.Lens
 import Control.Monad.Loops as Loop
@@ -27,14 +29,20 @@ import Text.Pandoc.Lens
 import Text.Pandoc.Walk
 
 processPandoc ::
-     (Pandoc -> Decker Pandoc)
-  -> FilePath
-  -> Disposition
-  -> Provisioning
-  -> Pandoc
-  -> Action Pandoc
+  (Pandoc -> Decker Pandoc) ->
+  FilePath ->
+  Disposition ->
+  Provisioning ->
+  Pandoc ->
+  Action Pandoc
 processPandoc transform base disp prov pandoc =
   evalStateT (transform pandoc) (DeckerState base disp prov)
+
+promoteVerticalSlideHeader :: Slide -> Decker Slide
+promoteVerticalSlideHeader (Slide (Just (Header 1 (id, cls, attr) text)) body)
+  | "sub" `elem` cls =
+    return (Slide (Just $ Header 2 (id, cls, attr) text) body)
+promoteVerticalSlideHeader slide = return slide
 
 -- | Split join columns with CSS3. Must be performed after `wrapBoxes`.
 splitJoinColumns :: Slide -> Decker Slide
@@ -42,35 +50,37 @@ splitJoinColumns slide@(Slide header body) = do
   disp <- gets disposition
   case disp of
     Disposition Deck Html -> return $ Slide header $ concatMap wrapRow rowBlocks
-      where rowBlocks =
-              split (keepDelimsL $ whenElt (hasAnyClass ["split", "join"])) body
-            wrapRow row@(first:_)
-              | hasClass "split" first = [Div ("", ["css-columns"], []) row]
-            wrapRow row = row
+      where
+        rowBlocks =
+          split (keepDelimsL $ whenElt (hasAnyClass ["split", "join"])) body
+        wrapRow row@(first : _)
+          | hasClass "split" first = [Div ("", ["css-columns"], []) row]
+        wrapRow row = row
     Disposition Handout Html ->
       return $ Slide header $ concatMap wrapRow rowBlocks
-      where rowBlocks =
-              split (keepDelimsL $ whenElt (hasAnyClass ["split", "join"])) body
-            wrapRow row@(first:_)
-              | hasClass "split" first = [Div ("", ["css-columns"], []) row]
-            wrapRow row = row
+      where
+        rowBlocks =
+          split (keepDelimsL $ whenElt (hasAnyClass ["split", "join"])) body
+        wrapRow row@(first : _)
+          | hasClass "split" first = [Div ("", ["css-columns"], []) row]
+        wrapRow row = row
     Disposition _ _ -> return slide
 
 -- All fragment related classes from reveal.js have to be moved to the enclosing
 -- DIV element. Otherwise to many fragments are produced.
 fragmentRelated :: [Text.Text]
 fragmentRelated =
-  [ "fragment"
-  , "grow"
-  , "shrink"
-  , "roll-in"
-  , "fade-in"
-  , "fade-out"
-  , "current-visible"
-  , "highlight-current-blue"
-  , "highlight-red"
-  , "highlight-green"
-  , "highlight-blu"
+  [ "fragment",
+    "grow",
+    "shrink",
+    "roll-in",
+    "fade-in",
+    "fade-out",
+    "current-visible",
+    "highlight-current-blue",
+    "highlight-red",
+    "highlight-green",
+    "highlight-blu"
   ]
 
 deFragment :: [Text.Text] -> [Text.Text]
@@ -85,23 +95,19 @@ wrapBoxes :: Slide -> Decker Slide
 wrapBoxes slide@(Slide header body) = do
   disp <- gets disposition
   case disp of
-    Disposition Deck Html -> return $ Slide header $ concatMap (wrap True) boxes
-    Disposition _ Html -> return $ Slide header $ concatMap (wrap False) boxes
+    Disposition Deck Html -> return $ Slide header $ concatMap wrap  boxes
+    Disposition _ Html -> return $ Slide header $ concatMap wrap  boxes
     Disposition _ _ -> return slide
   where
     boxes = split (keepDelimsL $ whenElt isBoxDelim) body
-    wrap isDeck ((Header 2 (id_, cls, kvs) text):blocks) =
-      let tags =
-            if isDeck
-              then ["box", "columns"]
-              else ["box"]
-       in [ Div
-              ("", tags ++ cls, kvs)
-              (Header 2 (id_, deFragment cls, kvs) text : blocks)
-          ]
-    wrap _ box = box
+    wrap ((Header 2 (id_, cls, kvs) text) : blocks) =
+      [ Div
+          ("", "box" : cls, kvs)
+          (Div (id_, "h2" : deFragment cls, kvs) [(Plain text)] : blocks)
+      ]
+    wrap box = box
 
--- | Map over all active slides in a deck. 
+-- | Map over all active slides in a deck.
 mapSlides :: (Slide -> Decker Slide) -> Pandoc -> Decker Pandoc
 mapSlides action (Pandoc meta blocks) = do
   slides <- selectActiveContent (toSlides blocks)
@@ -126,7 +132,7 @@ selectActiveSlideContent :: Slide -> Decker Slide
 selectActiveSlideContent (Slide header body) =
   Slide header <$> selectActiveContent body
 
--- Splice all the Divs back into the stream of Blocks 
+-- Splice all the Divs back into the stream of Blocks
 deDiv :: [Block] -> [Block]
 deDiv = foldr flatten []
   where
@@ -141,14 +147,20 @@ processSlides pandoc = mapSlides (concatM actions) pandoc
     actions =
       case pandocMeta lookupMeta pandoc "mario" of
         Just True ->
-          [ marioCols
-          , wrapBoxes
-          , selectActiveSlideContent
-          , splitJoinColumns
-          , layoutSlide
+          [ marioCols,
+            wrapBoxes,
+            selectActiveSlideContent,
+            splitJoinColumns,
+            layoutSlide,
+            promoteVerticalSlideHeader
           ]
         _ ->
-          [wrapBoxes, selectActiveSlideContent, splitJoinColumns, layoutSlide]
+          [ wrapBoxes,
+            selectActiveSlideContent,
+            splitJoinColumns,
+            layoutSlide,
+            promoteVerticalSlideHeader
+          ]
 
 selectActiveContent :: HasAttr a => [a] -> Decker [a]
 selectActiveContent fragments = do

@@ -102,8 +102,8 @@ markdownToHtmlDeck meta getTemplate markdownFile out = do
   -- dachdeckerUrl' <- liftIO getDachdeckerUrl
   let options =
         pandocWriterOpts
-          { writerSlideLevel = Just 1
-          , writerSectionDivs = False
+          { writerSlideLevel = Just 2
+          , writerSectionDivs = True
           , writerTemplate = Just template
           , writerHighlightStyle = highlightStyle
           , writerHTMLMathMethod =

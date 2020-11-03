@@ -87,7 +87,7 @@ fromSlides = concatMap prependHeader
         [RawBlock "html" "<aside class=\"notes\">"] ++
         demoteHeaders (header : body) ++
         [RawBlock "html" "</aside>"]
-    prependHeader (Slide (Just header) body) = HorizontalRule : header : body
+    prependHeader (Slide (Just header) body) = header : body
     prependHeader (Slide Nothing body) = HorizontalRule : body
 
 -- | Converts slides to lists of blocks that are wrapped in divs. Used to

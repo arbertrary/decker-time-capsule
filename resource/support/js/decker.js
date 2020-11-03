@@ -18,9 +18,11 @@ function deckerStart() {
   addSourceCodeLabels();
   prepareTaskLists();
   prepareFullscreenIframes();
+  /*
   if (Reveal.getConfig().verticalSlides) {
     setupVerticalSlides();
   }
+  */
 }
 
 

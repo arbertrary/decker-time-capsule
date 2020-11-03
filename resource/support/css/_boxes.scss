@@ -25,6 +25,7 @@ $border-marker-default-color: red;
 .reveal table,
 .reveal h1,
 .reveal h2,
+.reveal div.h2,
 .reveal h3
 {
     margin-left: var(--border-decoration-width);
@@ -167,7 +168,7 @@ $border-marker-default-color: red;
 /////////////////////////////////////////
 // The boxes and their border decoration
 /////////////////////////////////////////
-.reveal div.box.columns {
+.reveal div.box {
     // First set the box to extend full width but set own margin and padding
     // to reflect the "decoration margin"
     margin-left: var(--border-decoration-width); 
@@ -182,6 +183,7 @@ $border-marker-default-color: red;
     table,
     h1,
     h2,
+    div.h2,
     h3 {
         margin-left: 0; // var(--border-decoration-width);
         padding-left: 0; // var(--border-decoration-padding);
@@ -190,8 +192,7 @@ $border-marker-default-color: red;
     }
    
     
-    h2 {
-        
+    div.h2 {
         margin-top: 0;
         &:last-child,
         &:empty {
