@@ -49,6 +49,7 @@ build:mac:
     - git rev-parse --short HEAD
     - make clean-build
     - cp $(stack path | grep "local-install-root" | awk '{printf "%s/bin/decker",$2}') decker
+    - make all -C users-guide
   cache:
     key: ${CI_JOB_NAME}
     paths:
@@ -136,15 +137,17 @@ deploy:mac:
   script:
     - if [ $CI_COMMIT_REF_NAME == "master" ]; then SUFFIX="-nightly"; else SUFFIX="-release"; fi
     - mc config host add store http://store.hci.informatik.uni-wuerzburg.de:9002 $MINIO_ACCESS $MINIO_SECRET --api S3v4
-    - mc cp ./decker store/decker/decker-mac${SUFFIX}
+    # - mc cp ./decker store/decker/decker-mac${SUFFIX}
+    - mc cp ./users-guide/decker-users-guide.html store/decker/decker-users-guide.html
+    - mc cp ./users-guide/decker-users-guide.pdf store/decker/decker-users-guide.pdf
   needs:
     - job: build:mac
       artifacts: true
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "master"'
-      when: always
-    - if: '$CI_COMMIT_REF_NAME =~ /^v\d\.\d\.\d-patching$/'
-      when: always
+  # rules:
+  #   - if: '$CI_COMMIT_REF_NAME == "master"'
+  #     when: always
+  #   - if: '$CI_COMMIT_REF_NAME =~ /^v\d\.\d\.\d-patching$/'
+  #     when: always
   interruptible: true
   resource_group: deploy_mac
 
