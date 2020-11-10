@@ -278,6 +278,7 @@ Drag the elements to create correct pairings
 
 A
 : drag to A
+: also drag to A
 
 
 Image 
@@ -494,7 +495,6 @@ What's the first letter in the alphabet?
   - The letter B isn't used in any numbers until billion.
 - [ ] C
   - "C" comes from the same letter as "G". The Semites named it gimel. The sign is possibly adapted from an Egyptian hieroglyph for a staff sling, which may have been the meaning of the name gimel. Another possibility is that it depicted a camel, the Semitic name for which was gamal. Barry B. Powell, a specialist in the history of writing, states "It is hard to imagine how gimel = "camel" can be derived from the picture of a camel (it may show his hump, or his head and neck!)".[2]
-  
   In the Etruscan language, plosive consonants had no contrastive voicing, so the Greek 'Γ' (Gamma) was adopted into the Etruscan alphabet to represent /k/. Already in the Western Greek alphabet, Gamma first took a 'Early Etruscan C.gif' form in Early Etruscan, then 'Classical Etruscan C.gif' in Classical Etruscan. In Latin it eventually took the 'c' form in Classical Latin. In the earliest Latin inscriptions, the letters 'c k q' were used to represent the sounds /k/ and /ɡ/ (which were not differentiated in writing). Of these, 'q' was used to represent /k/ or /ɡ/ before a rounded vowel, 'k' before 'a', and 'c' elsewhere.[3] During the 3rd century BC, a modified character was introduced for /ɡ/, and 'c' itself was retained for /k/. The use of 'c' (and its variant 'g') replaced most usages of 'k' and 'q'. Hence, in the classical period and after, 'g' was treated as the equivalent of Greek gamma, and 'c' as the equivalent of kappa; this shows in the romanization of Greek words, as in 'ΚΑΔΜΟΣ', 'ΚΥΡΟΣ', and 'ΦΩΚΙΣ' came into Latin as 'cadmvs', 'cyrvs' and 'phocis', respectively. 
   
   Other alphabets have letters homoglyphic to 'c' but not analogous in use and derivation, like the Cyrillic letter Es (С, с) which derives from the lunate sigma, named due to its resemblance to the crescent moon. 

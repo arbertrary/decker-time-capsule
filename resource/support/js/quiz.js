@@ -2,7 +2,7 @@
 
 var RevealQuiz = (() => {
     return {
-        init: () => { 
+        init: () => {
             return new Promise(resolve => {
                 quizMI();
                 quizMC();
@@ -40,7 +40,7 @@ function quizFT() {
         var buffer = [];
         input.addEventListener("keydown", e => {
             buffer.push(e.key.toLowerCase());
-            if (buffer[buffer.length-1] === buffer[buffer.length-2]) { return; };
+            if (buffer[buffer.length - 1] === buffer[buffer.length - 2]) { return; };
             if (e.code === "Enter") { checkInput() };
             if (e.code === "Backspace" || e.code === "Delete") { resetQuestion() };
         });
@@ -65,9 +65,9 @@ function quizFT() {
         const solutionButton = question.querySelector('.solutionButton');
         const resetButton = question.querySelector('.resetButton');
         solutionButton.addEventListener('click', showSolution);
-        resetButton.addEventListener('click', resetQuestion);    
-        question.querySelector('.resetButton').classList.add(plain ? 'disabled' : 'hidden'); 
-    
+        resetButton.addEventListener('click', resetQuestion);
+        question.querySelector('.resetButton').classList.add(plain ? 'disabled' : 'hidden');
+
         const optList = solutions.getElementsByTagName('li');
         const solutionDiv = question.querySelector('.solutionDiv');
 
@@ -80,7 +80,7 @@ function quizFT() {
         // Handle click of solution button
         function showSolution() {
             if (plain) {
-                solutionDiv.classList.add('solved');    
+                solutionDiv.classList.add('solved');
                 this.classList.add('disabled');
                 resetButton.classList.remove('disabled');
             } else {
@@ -128,7 +128,7 @@ function quizIC() {
                 const answer = sel.options[ind].innerText.toLowerCase().trim();
                 const checked = checkAnswer(solutionList, answer);
 
-                sel.classList.remove("show-right","show-wrong");
+                sel.classList.remove("show-right", "show-wrong");
                 sel.classList.add(checked.correct ? "show-right" : "show-wrong");
 
                 const answers = solutionList.getElementsByTagName('li');
@@ -139,8 +139,10 @@ function quizIC() {
 
             // Show tooltip box on mouseover
             sel.addEventListener("mouseover", () => {
-                if (sel.classList.contains('solved')) { 
-                    if (tipDiv.firstElementChild.innerHTML !== "") { tipDiv.classList.add('solved'); } } });
+                if (sel.classList.contains('solved')) {
+                    if (tipDiv.firstElementChild.innerHTML !== "") { tipDiv.classList.add('solved'); }
+                }
+            });
             sel.addEventListener("mouseleave", () => { tipDiv.classList.remove('solved') });
         }
     }
@@ -150,7 +152,7 @@ function quizMI() {
     const miQuestions = document.querySelectorAll(".qmi,.quiz-mi,.quiz-match-items");
     for (let question of miQuestions) {
         shuffleMatchItems(question);
-        question.classList.contains('plain') ? buildPlainMatch(question) : buildDragDrop(question);    
+        question.classList.contains('plain') ? buildPlainMatch(question) : buildDragDrop(question);
     }
 }
 
@@ -178,8 +180,8 @@ function checkAnswer(solutionList, answer) {
         const solution = s.innerHTML.replace(/(<div)(.|[\r\n])*(<\/div>)/, "").toLowerCase().trim();
         if (answer == solution) {
             s.classList.add("solved");
-            return {correct: (is_right ? true : false), predef: true};
-        } 
+            return { correct: (is_right ? true : false), predef: true };
+        }
     }
     return { correct: false, predef: false };
 }
@@ -205,6 +207,12 @@ function shuffleMatchItems(question) {
     elementsArray.map(element => { matchItems.removeChild(element) })
     shuffleArray(elementsArray);
     elementsArray.map(element => { matchItems.appendChild(element) });
+
+    const mqArray = Array.prototype.slice.call(matchItems.getElementsByClassName('matchQuestion'));
+    mqArray.map(element => { matchItems.removeChild(element) });
+    shuffleArray(mqArray);
+    mqArray.map(element => { matchItems.appendChild(element) });
+
 }
 
 /**
@@ -262,7 +270,7 @@ function matchingAnswerButton(question, button) {
         // color remaining items that have not been dragged
         for (let rem of remainingItems) {
             const matchId = rem.getAttribute("data-bucketid");
-            rem.classList.remove("show-right","show-wrong");
+            rem.classList.remove("show-right", "show-wrong");
             rem.classList.add(matchId == null ? "show-right" : "show-wrong");
         }
 
@@ -271,7 +279,7 @@ function matchingAnswerButton(question, button) {
             const droppedItems = bucket.getElementsByClassName("matchItem");
             const bucketId = bucket.getAttribute("data-bucketid");
             for (let matchItem of droppedItems) {
-                matchItem.classList.remove("show-right","show-wrong");
+                matchItem.classList.remove("show-right", "show-wrong");
 
                 const matchId = matchItem.getAttribute("data-bucketid");
                 matchItem.classList.add(matchId == bucketId ? "show-right" : "show-wrong");
@@ -279,46 +287,25 @@ function matchingAnswerButton(question, button) {
         }
     })
 }
-
-/**
- * Construct Matching questions with drop-down lists for answers
- * @param {Element} question 
- */
 function buildPlainMatch(question) {
     const matchItems = question.querySelector('.matchItems');
     const buckets = question.querySelector('.buckets');
     const solutionButton = question.querySelector('.solutionButton');
-    const choices = buildSelect(buckets, matchItems.querySelectorAll('.matchItem'));
 
-    let allBuckets = buckets.querySelectorAll('.bucket');
-    for (let i=0; i<allBuckets.length; i++) {
-        allBuckets[i].removeAttribute('draggable');
-        const matchQuestion = document.createElement('div');
-        matchQuestion.classList.add('matchQuestion');
-        matchItems.appendChild(matchQuestion);
+    let allMatchQuestions = matchItems.querySelectorAll(".matchQuestion");
+    for (let i = 0; i < allMatchQuestions.length; i++) {
 
-        const lab = document.createElement('label');
-        lab.setAttribute('data-bucketId', allBuckets[i].classList.contains('distractor') ? "" : allBuckets[i].getAttribute('data-bucketId'));
-        lab.innerHTML = allBuckets[i].innerHTML;
+        const choices = allMatchQuestions[i].querySelectorAll(".option");
+        const blank = allMatchQuestions[i].querySelector('.selected,.blank,.option');
+        blank.addEventListener('click', function () { showList(this.parentElement.nextElementSibling) });
 
-        const blank = document.createElement('p');
-        blank.innerText = '...';
-        blank.classList.add('selected','blank', 'option');
-        blank.setAttribute('data-bucketId',lab.getAttribute('data-bucketId'));
-        blank.addEventListener('click', function() {showList(this.parentElement.nextElementSibling)});
-        
-        const optList = document.createElement('div');
-        optList.classList.add('optList');
-        optList.addEventListener('click', function() {showList(this.nextElementSibling)});
-        optList.appendChild(blank);
+        const optList = allMatchQuestions[i].querySelector(".optList");
 
-        const chClone = choices.cloneNode(true);            // exclude first blank option
-        for (let i=1; i<chClone.children.length; i++) {
-            chClone.children[i].addEventListener('click', makeSelection);
+        optList.addEventListener('click', function () { showList(this.nextElementSibling) });
+
+        for (let i = 2; i < choices.length; i++) { // Exclude the blank options
+            choices[i].addEventListener('click', makeSelection);
         }
-
-        buckets.removeChild(allBuckets[i]);
-        [lab,optList,chClone].forEach(ele => { matchQuestion.appendChild(ele); });
     }
     function showList(opt) {                                // hide any other open lists
         for (let sh of document.getElementsByClassName('shown')) { sh.classList.remove('shown') };
@@ -328,12 +315,12 @@ function buildPlainMatch(question) {
     function makeSelection() {
         let ol = this.parentElement.previousElementSibling;
         this.classList.remove('correct', 'incorrect', 'correct-notSelected');      // allow multiple attempts to solve
-        this.parentElement.previousElementSibling.classList.remove('correct','incorrect');
+        this.parentElement.previousElementSibling.classList.remove('correct', 'incorrect');
         this.classList.toggle('selected');
         if (this.classList.contains('selected')) {
             let cl = this.cloneNode(true);
             ol.appendChild(cl);
-            cl.addEventListener('click', function() {showList(this.parentElement.nextElementSibling)});
+            cl.addEventListener('click', function () { showList(this.parentElement.nextElementSibling) });
         } else {
             for (let child of ol.children) {
                 if (child.innerText === this.innerText) { ol.removeChild(child); }
@@ -360,8 +347,9 @@ function buildPlainMatch(question) {
             }
             allSelected.shift();                            // remove blank response
 
+
             let opts = list.nextElementSibling;
-            for (let o of opts.children) { 
+            for (let o of opts.children) {
                 // o.removeEventListener('click', makeSelection);
                 if (o.getAttribute('data-bucketId') === correct) {
                     allCorrect.push(o.textContent);
@@ -370,34 +358,131 @@ function buildPlainMatch(question) {
                     o.classList.add('incorrect');
                 }
             };
-            
+
             allSelected.length !== allCorrect.length ? list.classList.add('incorrect') : list.classList.add(JSON.stringify(allSelected.sort()) === JSON.stringify(allCorrect) ? 'correct' : 'incorrect');
-        }   
+        }
     });
 }
 
-/**
- * Build drop-down lists for plain matching questions
- * @param {Element} buckets 
- * @param {NodeList} answers 
- */
-function buildSelect(buckets, answers) {
-    const optList = document.createElement('div');
-    optList.classList.add('options');
-    const blank = document.createElement('p');
-    blank.classList.add('option'); 
-    blank.innerText = '...';
-    optList.appendChild(blank);
-    for (let i=0; i<answers.length; i++) {
-        const opt = document.createElement('p');
-        opt.classList.add('option'); 
-        opt.innerHTML = String.fromCharCode(i + 65) + ".";; 
-        opt.setAttribute('data-bucketId', answers[i].getAttribute('data-bucketId') || '0'); 
-        optList.appendChild(opt);
-        buckets.appendChild(answers[i]); 
-    }
-    return optList;
-}
+
+// /**
+//  * Construct Matching questions with drop-down lists for answers
+//  * @param {Element} question 
+//  */
+// function oldbuildPlainMatch(question) {
+//     const matchItems = question.querySelector('.matchItems');
+//     const buckets = question.querySelector('.buckets');
+//     const solutionButton = question.querySelector('.solutionButton');
+//     const choices = buildSelect(buckets, matchItems.querySelectorAll('.matchItem'));
+
+//     let allBuckets = buckets.querySelectorAll('.bucket');
+//     for (let i = 0; i < allBuckets.length; i++) {
+//         allBuckets[i].removeAttribute('draggable');
+//         const matchQuestion = document.createElement('div');
+//         matchQuestion.classList.add('matchQuestion');
+//         matchItems.appendChild(matchQuestion);
+
+//         const lab = document.createElement('label');
+//         lab.setAttribute('data-bucketId', allBuckets[i].classList.contains('distractor') ? "" : allBuckets[i].getAttribute('data-bucketId'));
+//         lab.innerHTML = allBuckets[i].innerHTML;
+
+//         const blank = document.createElement('p');
+//         blank.innerText = '...';
+//         blank.classList.add('selected', 'blank', 'option');
+//         blank.setAttribute('data-bucketId', lab.getAttribute('data-bucketId'));
+//         blank.addEventListener('click', function () { showList(this.parentElement.nextElementSibling) });
+
+//         const optList = document.createElement('div');
+//         optList.classList.add('optList');
+//         optList.addEventListener('click', function () { showList(this.nextElementSibling) });
+//         optList.appendChild(blank);
+
+//         const chClone = choices.cloneNode(true);            // exclude first blank option
+//         for (let i = 1; i < chClone.children.length; i++) {
+//             chClone.children[i].addEventListener('click', makeSelection);
+//         }
+
+//         buckets.removeChild(allBuckets[i]);
+//         [lab, optList, chClone].forEach(ele => { matchQuestion.appendChild(ele); });
+//     }
+//     function showList(opt) {                                // hide any other open lists
+//         for (let sh of document.getElementsByClassName('shown')) { sh.classList.remove('shown') };
+//         opt.classList.add('shown');
+//         document.addEventListener('click', hideList);
+//     }
+//     function makeSelection() {
+//         let ol = this.parentElement.previousElementSibling;
+//         this.classList.remove('correct', 'incorrect', 'correct-notSelected');      // allow multiple attempts to solve
+//         this.parentElement.previousElementSibling.classList.remove('correct', 'incorrect');
+//         this.classList.toggle('selected');
+//         if (this.classList.contains('selected')) {
+//             let cl = this.cloneNode(true);
+//             ol.appendChild(cl);
+//             cl.addEventListener('click', function () { showList(this.parentElement.nextElementSibling) });
+//         } else {
+//             for (let child of ol.children) {
+//                 if (child.innerText === this.innerText) { ol.removeChild(child); }
+//             }
+//         }
+//     }
+//     function hideList(event) {
+//         let parentCL = event.target.parentElement.classList;
+//         if (!parentCL.contains('optList') && !parentCL.contains('shown') && !event.target.classList.contains('shown')) {
+//             question.getElementsByClassName('shown')[0].classList.remove('shown');
+//             document.removeEventListener('click', hideList);
+//         }
+//     }
+//     solutionButton.addEventListener('click', () => {
+//         const matches = matchItems.querySelectorAll('.matchQuestion');
+//         for (let mq of matches) {
+//             let list = mq.querySelector('.optList');
+//             let correct = list.previousElementSibling.getAttribute('data-bucketId');
+//             let allCorrect = []; let allSelected = [];
+
+//             for (let l of list.children) {
+//                 allSelected.push(l.textContent);
+//                 l.classList.add(l.getAttribute('data-bucketId') === correct ? 'correct' : 'incorrect');
+//             }
+//             allSelected.shift();                            // remove blank response
+
+//             let opts = list.nextElementSibling;
+//             for (let o of opts.children) {
+//                 // o.removeEventListener('click', makeSelection);
+//                 if (o.getAttribute('data-bucketId') === correct) {
+//                     allCorrect.push(o.textContent);
+//                     o.classList.add(o.classList.contains('selected') ? 'correct' : 'correct-notSelected');
+//                 } else if (o.classList.contains('selected')) {
+//                     o.classList.add('incorrect');
+//                 }
+//             };
+
+//             allSelected.length !== allCorrect.length ? list.classList.add('incorrect') : list.classList.add(JSON.stringify(allSelected.sort()) === JSON.stringify(allCorrect) ? 'correct' : 'incorrect');
+//         }
+//     });
+// }
+
+// /**
+//  * Build drop-down lists for plain matching questions
+//  * @param {Element} buckets 
+//  * @param {NodeList} answers 
+//  */
+// function buildSelect(buckets, answers) {
+//     const optList = document.createElement('div');
+//     optList.classList.add('options');
+//     const blank = document.createElement('p');
+//     blank.classList.add('option');
+//     blank.innerText = '...';
+//     optList.appendChild(blank);
+//     for (let i = 0; i < answers.length; i++) {
+//         const opt = document.createElement('p');
+//         opt.classList.add('option');
+//         opt.innerHTML = String.fromCharCode(i + 65) + ".";;
+//         opt.setAttribute('data-bucketId', answers[i].getAttribute('data-bucketId') || '0');
+//         optList.appendChild(opt);
+//         buckets.appendChild(answers[i]);
+//     }
+//     return optList;
+// }
 
 var elements = [];
 function drag(event) {
@@ -409,7 +494,7 @@ function drag(event) {
     }
 
     event.dataTransfer.setData('index', index);
-    event.dataTransfer.setDragImage(event.target, event.target.clientWidth/2, event.target.clientHeight/2);
+    event.dataTransfer.setDragImage(event.target, event.target.clientWidth / 2, event.target.clientHeight / 2);
 }
 function drop(event) {
     event.preventDefault();
@@ -422,4 +507,4 @@ function drop(event) {
     event.target.appendChild(element);
 }
 
-Reveal.registerPlugin( 'quiz', RevealQuiz );
+Reveal.registerPlugin('quiz', RevealQuiz);

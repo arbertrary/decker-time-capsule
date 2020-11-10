@@ -42,7 +42,6 @@ data QuizMeta = QuizMeta
       _score :: Int,
       _topic :: T.Text,
       _lang :: T.Text,
-      _style :: T.Text,
       _solution :: T.Text
     }
     deriving (Show)
@@ -97,23 +96,30 @@ handleQuizzes pandoc@(Pandoc meta blocks) = return $ walk parseQuizboxes pandoc
             | any (`elem` tgs) ["qmi", "quiz-mi", "quiz-match-items"] =
                 renderQuizzes
                     meta
-                    (parseAndSetQuiz (setTags defaultMatch tgs) blocks)
+                    (parseAndSetQuiz (setStyle tgs $ makeBox tgs defaultMatch) blocks)
             | any (`elem` tgs) ["qmc", "quiz-mc", "quiz-multiple-choice"] =
-                renderQuizzes meta (parseAndSetQuiz (setTags defaultMC tgs) blocks)
+                renderQuizzes meta (parseAndSetQuiz (setStyle tgs $ makeBox tgs defaultMC) blocks)
             | any (`elem` tgs) ["qic", "quiz-ic", "quiz-insert-choices"] =
-                renderQuizzes meta (parseAndSetQuiz (setTags defaultIC tgs) blocks)
+                renderQuizzes meta (parseAndSetQuiz (setStyle tgs $ makeBox tgs defaultIC) blocks)
             | any (`elem` tgs) ["qft", "quiz-ft", "quiz-free-text"] =
-                renderQuizzes meta (parseAndSetQuiz (setTags defaultFree tgs) blocks)
+                renderQuizzes meta (parseAndSetQuiz (setStyle tgs $ makeBox tgs defaultFree) blocks)
             | otherwise = d
         parseQuizboxes bl = bl
+        
         -- Give the tag-/classlist of the surrounding div box to the quiz
-        setTags :: Quiz -> [T.Text] -> Quiz
-        setTags q ts =
+        makeBox :: [T.Text] -> Quiz -> Quiz
+        makeBox ts q =
             if elem "columns" ts
                 then set tags ts q
                 else set tags (ts ++ ["columns", "box"]) q
+        -- If the quiz style is defined as class do nothing; If quiz style is defined in meta, add from meta
+        setStyle :: [T.Text] -> Quiz -> Quiz
+        setStyle ts q =
+            if ("plain" `elem` ts || "fancy" `elem` ts)
+                then q
+                else set tags (ts ++ [lookupMetaOrElse "fancy" "quiz.style" meta]) q
         -- The default "new" quizzes
-        defaultMeta = QuizMeta "" "" 0 "" (lookupMetaOrElse "en" "lang" meta) (lookupMetaOrElse "fancy" "quiz.style" meta) (lookupMetaOrElse "" "quiz.solution" meta)
+        defaultMeta = QuizMeta "" "" 0 "" (lookupMetaOrElse "en" "lang" meta) (lookupMetaOrElse "" "quiz.solution" meta)
         defaultMatch = MatchItems [] [] defaultMeta [] []
         defaultMC = MultipleChoice [] [] defaultMeta [] []
         defaultIC = InsertChoices [] [] defaultMeta []
@@ -221,7 +227,7 @@ setQuizMeta q meta = set quizMeta (setMetaForEach meta (q ^. quizMeta)) q
             foldr
                 (setMeta' m)
                 qm
-                ["score", "category", "lectureId", "topic", "lang", "quiz.style", "quiz.solution"]
+                ["score", "category", "lectureId", "topic", "lang", "quiz.solution"]
         setMeta' :: Meta -> T.Text -> QuizMeta -> QuizMeta
         setMeta' m t qm =
             case t of
@@ -230,7 +236,6 @@ setQuizMeta q meta = set quizMeta (setMetaForEach meta (q ^. quizMeta)) q
                 "lectureId" -> set lectureId (lookupMetaOrElse "" t m) qm
                 "topic" -> set topic (lookupMetaOrElse "" t m) qm
                 "lang" -> set lang (lookupMetaOrElse (view lang qm) t m) qm
-                "quiz.style" -> set style (lookupMetaOrElse (view style qm) t m) qm
                 "quiz.solution" -> set solution (lookupMetaOrElse (view solution qm) t m) qm
                 _ -> throw $ InternalException $ "Unknown meta data key: " <> show t
 
@@ -253,8 +258,7 @@ renderMultipleChoice :: Meta -> Quiz -> Block
 renderMultipleChoice meta quiz@(MultipleChoice title tgs qm q ch) =
     Div ("", cls, []) $ header ++ q ++ [choiceBlock]
     where
-        cls = tgs ++ [view style qm] ++ [view solution qm]
-        -- ++ [solutionButton]
+        cls = tgs ++ [view solution qm]
         header =
             case title of
                 [] -> []
@@ -291,8 +295,7 @@ renderInsertChoices :: Meta -> Quiz -> Block
 renderInsertChoices meta quiz@(InsertChoices title tgs qm q) =
     Div ("", cls, []) $ header ++ questionBlocks q ++ tooltipDiv
     where
-        cls = tgs ++ [view style qm] ++ [view solution qm]
-        -- ++ [solutionButton]
+        cls = tgs ++ [view solution qm]
         header =
             case title of
                 [] -> []
@@ -323,12 +326,42 @@ renderInsertChoices meta quiz@(InsertChoices title tgs qm q) =
 renderInsertChoices meta q =
     Div ("", [], []) [Para [Str "ERROR NO INSERT CHOICES QUIZ"]]
 
---
+-- | Creates a custom drop-down select element that allows to select multiple options
+buildSelect :: [[Block]] -> Block
+buildSelect items = Div ("", ["options"], []) $ blank:optList
+  where
+    blank :: Block
+    blank = rawHtml' (H.p ! A.class_ "option" $ "...")
+    optList = map createOptions (zip [0 ..] (concat items))
+    createOptions :: (Int, Block) -> Block
+    createOptions (i, item@(Div (t, ["matchItem"], [("draggable", "true"), ("bucketId", bID)]) bs)) =
+        rawHtml' (H.p ! A.class_ "option" ! H.customAttribute "data-bucketId" (H.textValue bID) $ H.toHtml ([toEnum (i + 65), '.'] :: String))
+    createOptions (i, bs) = rawHtml' (H.p ! A.class_ "option" ! H.customAttribute "data-bucketId" "0" $ H.toHtml ([toEnum (i + 65), '.'] :: String))
+
+{- | Creates matchQuestion divs for plain matching
+ Each matchQuestion consists of the bucket-label and a select-dropdown element created in buildSelect
+-}
+plainMatchQuestionsDivs :: [Block] -> [[Block]] -> [Block]
+plainMatchQuestionsDivs buckets items = map matchQuestionDiv (filter (not . isDistractor) buckets)
+  where
+    matchQuestionDiv bucket = Div ("", ["matchQuestion"], []) $ [label bucket, optList, options]
+    isDistractor :: Block -> Bool
+    isDistractor Text.Pandoc.Definition.Null = True
+    isDistractor _ = False
+    label :: Block -> Block
+    label bucket@(Div ("", ["bucket"], [("bucketId", bID)]) bs) = rawHtml' $ H.label ! H.customAttribute "data-bucketId" (H.textValue bID) $ toHtml (stringify bucket)
+    label bucket = rawHtml' $ H.label ! H.customAttribute "data-bucketId" "" $ toHtml (stringify bucket)
+    optList :: Block
+    optList = Div ("", ["optList"], []) [rawHtml' (H.p ! A.class_ "selected blank option" $ "...")]
+    options = buildSelect items
+
+
+-- | Build the HTML of Matching questions. Both plain and fancy (i.e. drag&drop)
 renderMatching :: Meta -> Quiz -> Block
 renderMatching meta quiz@(MatchItems title tgs qm qs matches) =
     Div ("", cls, []) $ header ++ qs ++ [matchDiv, sButton]
     where
-        cls = tgs ++ [view style qm] ++ [view solution qm]
+        cls = tgs ++ [view solution qm]
         newMeta = setMetaValue "lang" (view lang qm) meta
         sButton = solutionButton newMeta
         header =
@@ -338,9 +371,17 @@ renderMatching meta quiz@(MatchItems title tgs qm qs matches) =
         (buckets, items) = unzip $ map pairs matches
         dropHint = ("data-hint", lookupInDictionary "quiz.qmi-drop-hint" newMeta)
         dragHint = ("data-hint", lookupInDictionary "quiz.qmi-drag-hint" newMeta)
-        matchDiv = Div ("", ["matchDiv"], []) [itemsDiv, bucketsDiv]
+        matchDiv =
+            if "plain" `elem` cls
+                then Div ("", ["matchDiv"], []) [plainItemsDiv, plainBucketsDiv]
+                else Div ("", ["matchDiv"], []) [itemsDiv, bucketsDiv]
+        
+        -- The item and bucketDivs for fancy matching
         itemsDiv = Div ("", ["matchItems"], [dragHint]) (concat items)
         bucketsDiv = Div ("", ["buckets"], [dropHint]) buckets
+        -- the item- and bucketDivs for plain matching
+        plainItemsDiv = Div ("", ["matchItems"], []) (plainMatchQuestionsDivs buckets items)
+        plainBucketsDiv = Div ("", ["buckets"], []) (concat items)
         item :: T.Text -> [Block] -> Block
         item index =
             Div
@@ -377,7 +418,7 @@ renderFreeText :: Meta -> Quiz -> Block
 renderFreeText meta quiz@(FreeText title tgs qm q ch) =
     Div ("", cls, []) $ header ++ q ++ [inputRaw] ++ [sButton] ++ [rButton] ++ [sol]
     where
-        cls = tgs ++ [view style qm] ++ [view solution qm]
+        cls = tgs ++ [view solution qm]
         newMeta = setMetaValue "lang" (view lang qm) meta
         sButton = solutionButton newMeta
         rButton = resetButton newMeta
