@@ -29,7 +29,7 @@ quiz:
 
 Or to style individual questions, add `{.plain}`
 
-# Mutliple Choice 1 - Fancy
+# Multiple Choice 1 - Fancy
 
 ## {.quiz-mc}
 
@@ -53,7 +53,7 @@ Difficulty: Easy
 ```
 
 
-# Mutliple Choice 2 - Plain
+# Multiple Choice 2 - Plain
 
 ## {.quiz-mc .plain}
 
@@ -76,7 +76,58 @@ TopicId: yeah
 Difficulty: Easy
 ```
 
-# Mutliple Choice 3 - Plain Inline
+# Multiple Choice 3 - Fancy
+
+Choices display beyond the slide
+
+## What is the result of the following term? {.qmc}
+
+\begin{equation*}
+\begin{bmatrix}
+1&0&0&1\\
+0&1&0&1\\
+0&0&1&0\\
+0&0&0&1
+\end{bmatrix}
+\begin{bmatrix}
+0&-1&0&0\\
+1&0&0&0\\
+0&0&1&0\\
+0&0&0&1
+\end{bmatrix}
+\end{equation*}
+
+- [ ] $\begin{bmatrix}
+0&1&0&1\\
+-1&0&0&1\\
+0&0&1&0\\
+0&0&0&1
+\end{bmatrix}$
+   - As we will see, the second matrix describes a rotation. Combined with the first one, which describes a translation, the rotational part (upper left $3\times3$) would not be altered.
+- [X] $\begin{bmatrix}
+0&-1&0&1\\
+1&0&0&1\\
+0&0&1&0\\
+0&0&0&1
+\end{bmatrix}$
+   - Yes, that is correct.
+- [ ] $\begin{bmatrix}
+0&-1&0&0\\
+1&0&0&1\\
+0&0&1&0\\
+0&0&0&1
+\end{bmatrix}$
+   - As we will see, the first matrix describes a translattion. Combined with the second one, which describes a rotation, the translational part (right column) would not be altered.
+
+
+```yaml
+Points: 5
+LectureId: cg1
+TopicId: yeah
+Difficulty: Easy
+```
+
+# Multiple Choice 4 - Plain Inline
 
 Choices are displayed in a row. 
 
@@ -325,6 +376,24 @@ offen
 : jemand etwas tun lassen 
 
 
+# Matching 7 - Fancy
+
+##  {.qmi}
+
+Below there are some examples of typical machine learning problems. Assign the examples to the better suited learning approach : 
+
+**Supervised Learning**
+:   House Prices
+:   Cat or Dog? (Image Classification)
+:   Weather Forecast
+:   Mood Estimation
+
+**Unsupervised Learning**
+:   Customer Grouping
+:   Dimensionality Reduction 
+:   Outlier detection
+
+
 # Blanktext/Inserting MC
 
 Like multiple-choice, however, the choices are shown as drop-down lists embedded inside the text. Hence, beware of the whitespaces below. 
@@ -423,6 +492,12 @@ What's the first letter in the alphabet?
   - The modern form of the capital letter A evolved from a the Latin script, a transformation of Greek script, which is in turn a transformation of the Phoenician script.
 - [ ] B
   - The letter B isn't used in any numbers until billion.
+- [ ] C
+  - "C" comes from the same letter as "G". The Semites named it gimel. The sign is possibly adapted from an Egyptian hieroglyph for a staff sling, which may have been the meaning of the name gimel. Another possibility is that it depicted a camel, the Semitic name for which was gamal. Barry B. Powell, a specialist in the history of writing, states "It is hard to imagine how gimel = "camel" can be derived from the picture of a camel (it may show his hump, or his head and neck!)".[2]
+  
+  In the Etruscan language, plosive consonants had no contrastive voicing, so the Greek 'Γ' (Gamma) was adopted into the Etruscan alphabet to represent /k/. Already in the Western Greek alphabet, Gamma first took a 'Early Etruscan C.gif' form in Early Etruscan, then 'Classical Etruscan C.gif' in Classical Etruscan. In Latin it eventually took the 'c' form in Classical Latin. In the earliest Latin inscriptions, the letters 'c k q' were used to represent the sounds /k/ and /ɡ/ (which were not differentiated in writing). Of these, 'q' was used to represent /k/ or /ɡ/ before a rounded vowel, 'k' before 'a', and 'c' elsewhere.[3] During the 3rd century BC, a modified character was introduced for /ɡ/, and 'c' itself was retained for /k/. The use of 'c' (and its variant 'g') replaced most usages of 'k' and 'q'. Hence, in the classical period and after, 'g' was treated as the equivalent of Greek gamma, and 'c' as the equivalent of kappa; this shows in the romanization of Greek words, as in 'ΚΑΔΜΟΣ', 'ΚΥΡΟΣ', and 'ΦΩΚΙΣ' came into Latin as 'cadmvs', 'cyrvs' and 'phocis', respectively. 
+  
+  Other alphabets have letters homoglyphic to 'c' but not analogous in use and derivation, like the Cyrillic letter Es (С, с) which derives from the lunate sigma, named due to its resemblance to the crescent moon. 
 
 ## {.qft .plain}
 
