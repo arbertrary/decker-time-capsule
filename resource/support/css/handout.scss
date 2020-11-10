@@ -82,3 +82,72 @@ header > *:last-child {
 body {
   -webkit-print-color-adjust: exact;
 }
+
+.slide .slide-wrapper {
+  clear:both;
+  .qic,
+  .qft,
+  .qmc,
+  .qmi,
+  [class*="quiz-"] {
+    div.tooltip,
+    button.solutionButton,
+    button.resetButton {
+      display: none;
+    }
+    ul.choices,
+    ul.solutionList {
+      list-style-type: none;
+      li::before {
+        content: "○ "
+      }
+    }
+  }
+
+  .qmc,
+  .quiz-mc,
+  .quiz-multiple-choice {
+    &.inline li {
+      padding: 0.1em 0.7em 0.1em 0;
+      display: inline;
+    }
+  }
+
+  .qft,
+  [class*="quiz-f"] {
+    ul.solutionList {
+      display: none;
+    }
+    input::placeholder {
+      color: #eee;
+    }
+  }
+
+  .qic,
+  [class*="quiz-i"] {
+    select {
+      display: none;
+    }
+  }
+
+  .qmi,
+  .quiz-mi,
+  .quiz-match-items { 
+    .matchItems {
+      float: right;
+    }
+    .matchItem, 
+    .bucket {
+      padding-bottom: 0.5em;
+    }
+    .matchItem {
+      &::before {
+        content: "○ ";
+        padding-right: 1em;
+      }
+      img {
+        max-width: 50%;
+      }
+    }
+  }
+}

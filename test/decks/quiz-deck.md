@@ -29,8 +29,6 @@ quiz:
 
 Or to style individual questions, add `{.plain}`
 
-# Multiple Choice
-
 # Mutliple Choice 1 - Fancy
 
 ## {.quiz-mc}
@@ -53,6 +51,7 @@ LectureId: cg1
 TopicId: yeah
 Difficulty: Easy
 ```
+
 
 # Mutliple Choice 2 - Plain
 
@@ -77,56 +76,7 @@ TopicId: yeah
 Difficulty: Easy
 ```
 
-# Multiple Choice 3 - Fancy
-
-## What is the result of the following term? {.qmc}
-
-\begin{equation*}
-\begin{bmatrix}
-1&0&0&1\\
-0&1&0&1\\
-0&0&1&0\\
-0&0&0&1
-\end{bmatrix}
-\begin{bmatrix}
-0&-1&0&0\\
-1&0&0&0\\
-0&0&1&0\\
-0&0&0&1
-\end{bmatrix}
-\end{equation*}
-
-- [ ] $\begin{bmatrix}
-0&1&0&1\\
--1&0&0&1\\
-0&0&1&0\\
-0&0&0&1
-\end{bmatrix}$
-   - As we will see, the second matrix describes a rotation. Combined with the first one, which describes a translation, the rotational part (upper left $3\times3$) would not be altered.
-- [X] $\begin{bmatrix}
-0&-1&0&1\\
-1&0&0&1\\
-0&0&1&0\\
-0&0&0&1
-\end{bmatrix}$
-   - Yes, that is correct.
-- [ ] $\begin{bmatrix}
-0&-1&0&0\\
-1&0&0&1\\
-0&0&1&0\\
-0&0&0&1
-\end{bmatrix}$
-   - As we will see, the first matrix describes a translattion. Combined with the second one, which describes a rotation, the translational part (right column) would not be altered.
-
-
-```yaml
-Points: 5
-LectureId: cg1
-TopicId: yeah
-Difficulty: Easy
-```
-
-# Mutliple Choice 4 - Plain, Inline
+# Mutliple Choice 3 - Plain Inline
 
 Choices are displayed in a row. 
 
@@ -177,10 +127,15 @@ TopicId: yeah
 Difficulty: Easy
 ```
 
-
 # Matching
 
+Plain matchinq questions display a question/term, followed by a select box and a list of possible answers. Click the select box and then click answers as desired. Check marks will appear. Click outside of the select box to close. Select additional or deselect selected responses as desired. After clicking the solution button, answers will turn green or red to display correctness. Change answers as desired and click solve again. A grey box surrounds the matching questions and responses to ensure that all are shown. The solution button is below this.
+
+Fancy matching questions feature drag and drop questions. Drag answers to question boxes and click solve. These questions should not flow outside of the answer box.
+
 # Matching 1 - Fancy
+
+Drag response to answers. Switch responses even after solved. A scrollbar appears when too many items are dragged to an answer. The solution button never goes beyond the slide. Be sure that responses do not flow outside of the answer box.
 
 ## {.qmi}
 
@@ -202,12 +157,6 @@ Springs
 ```yaml
 lang: en
 ```
-
-# Matching 2 - Plain
-
-Plain matchinq questions display a question/term, followed by a select box and a list of possible answers. Click the select box and then click answers as desired. Check marks will appear. Click outside of the select box to close. Select additional or deselect selected responses as desired. After clicking the solution button, answers will turn green or red to display correctness. Change answers as desired and click solve again.
-
-A grey box surrounds the matching questions and responses to ensure that all are shown. The solution button is below this.
 
 # Matching 2 - Plain
 
@@ -351,6 +300,31 @@ Bild 5
 Bild 6
 : ! 
 
+# Matching 6 - Fancy
+
+## Question text {.qmi}
+
+Was gehört zusammen? Verbinden Sie.
+
+bislang
+: bis jetzt, bis heute
+
+zwischenzeitlich
+: inzwischen, in der Zwischenzeit
+
+daher
+: deshalb, aus diesem Grund
+
+auffordern
+: (dringend) bitten, an jemand appellieren
+
+offen
+: unbezahlt, fällig
+
+!
+: jemand etwas tun lassen 
+
+
 # Blanktext/Inserting MC
 
 Like multiple-choice, however, the choices are shown as drop-down lists embedded inside the text. Hence, beware of the whitespaces below. 
@@ -440,8 +414,6 @@ Points: 5
 ```
 
 # Free Text 2 - Plain
-
-Type the answer and push Enter to correct the question. Use the backspace or delete key to clear the question. Click the solution button to show the possible solutions. Click the Reset button to hide the solutions. 
 
 ## {.qft .plain}
 

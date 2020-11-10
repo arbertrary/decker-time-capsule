@@ -326,7 +326,7 @@ renderInsertChoices meta q =
 --
 renderMatching :: Meta -> Quiz -> Block
 renderMatching meta quiz@(MatchItems title tgs qm qs matches) =
-    Div ("", cls, []) $ header ++ qs ++ [itemsDiv, bucketsDiv, sButton]
+    Div ("", cls, []) $ header ++ qs ++ [matchDiv, sButton]
     where
         cls = tgs ++ [view style qm] ++ [view solution qm]
         newMeta = setMetaValue "lang" (view lang qm) meta
@@ -338,6 +338,7 @@ renderMatching meta quiz@(MatchItems title tgs qm qs matches) =
         (buckets, items) = unzip $ map pairs matches
         dropHint = ("data-hint", lookupInDictionary "quiz.qmi-drop-hint" newMeta)
         dragHint = ("data-hint", lookupInDictionary "quiz.qmi-drag-hint" newMeta)
+        matchDiv = Div ("", ["matchDiv"], []) [itemsDiv, bucketsDiv]
         itemsDiv = Div ("", ["matchItems"], [dragHint]) (concat items)
         bucketsDiv = Div ("", ["buckets"], [dropHint]) buckets
         item :: T.Text -> [Block] -> Block

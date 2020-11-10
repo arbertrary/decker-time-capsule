@@ -1,3 +1,4 @@
+@charset "UTF-8";
 @import url("../vendor/css/light.min.css");
 @import url("../vendor/fontawesome/css/all.css");
 div.column {
@@ -263,4 +264,102 @@ header > *:last-child {
 
 body {
   -webkit-print-color-adjust: exact;
+}
+
+.slide .slide-wrapper {
+  clear: both;
+}
+
+.slide .slide-wrapper .qic div.tooltip,
+.slide .slide-wrapper .qic button.solutionButton,
+.slide .slide-wrapper .qic button.resetButton,
+.slide .slide-wrapper .qft div.tooltip,
+.slide .slide-wrapper .qft button.solutionButton,
+.slide .slide-wrapper .qft button.resetButton,
+.slide .slide-wrapper .qmc div.tooltip,
+.slide .slide-wrapper .qmc button.solutionButton,
+.slide .slide-wrapper .qmc button.resetButton,
+.slide .slide-wrapper .qmi div.tooltip,
+.slide .slide-wrapper .qmi button.solutionButton,
+.slide .slide-wrapper .qmi button.resetButton,
+.slide .slide-wrapper [class*="quiz-"] div.tooltip,
+.slide .slide-wrapper [class*="quiz-"] button.solutionButton,
+.slide .slide-wrapper [class*="quiz-"] button.resetButton {
+  display: none;
+}
+
+.slide .slide-wrapper .qic ul.choices,
+.slide .slide-wrapper .qic ul.solutionList,
+.slide .slide-wrapper .qft ul.choices,
+.slide .slide-wrapper .qft ul.solutionList,
+.slide .slide-wrapper .qmc ul.choices,
+.slide .slide-wrapper .qmc ul.solutionList,
+.slide .slide-wrapper .qmi ul.choices,
+.slide .slide-wrapper .qmi ul.solutionList,
+.slide .slide-wrapper [class*="quiz-"] ul.choices,
+.slide .slide-wrapper [class*="quiz-"] ul.solutionList {
+  list-style-type: none;
+}
+
+.slide .slide-wrapper .qic ul.choices li::before,
+.slide .slide-wrapper .qic ul.solutionList li::before,
+.slide .slide-wrapper .qft ul.choices li::before,
+.slide .slide-wrapper .qft ul.solutionList li::before,
+.slide .slide-wrapper .qmc ul.choices li::before,
+.slide .slide-wrapper .qmc ul.solutionList li::before,
+.slide .slide-wrapper .qmi ul.choices li::before,
+.slide .slide-wrapper .qmi ul.solutionList li::before,
+.slide .slide-wrapper [class*="quiz-"] ul.choices li::before,
+.slide .slide-wrapper [class*="quiz-"] ul.solutionList li::before {
+  content: "○ ";
+}
+
+.slide .slide-wrapper .qmc.inline li,
+.slide .slide-wrapper .quiz-mc.inline li,
+.slide .slide-wrapper .quiz-multiple-choice.inline li {
+  padding: 0.1em 0.7em 0.1em 0;
+  display: inline;
+}
+
+.slide .slide-wrapper .qft ul.solutionList,
+.slide .slide-wrapper [class*="quiz-f"] ul.solutionList {
+  display: none;
+}
+
+.slide .slide-wrapper .qft input::placeholder,
+.slide .slide-wrapper [class*="quiz-f"] input::placeholder {
+  color: #eee;
+}
+
+.slide .slide-wrapper .qic select,
+.slide .slide-wrapper [class*="quiz-i"] select {
+  display: none;
+}
+
+.slide .slide-wrapper .qmi .matchItems,
+.slide .slide-wrapper .quiz-mi .matchItems,
+.slide .slide-wrapper .quiz-match-items .matchItems {
+  float: right;
+}
+
+.slide .slide-wrapper .qmi .matchItem,
+.slide .slide-wrapper .qmi .bucket,
+.slide .slide-wrapper .quiz-mi .matchItem,
+.slide .slide-wrapper .quiz-mi .bucket,
+.slide .slide-wrapper .quiz-match-items .matchItem,
+.slide .slide-wrapper .quiz-match-items .bucket {
+  padding-bottom: 0.5em;
+}
+
+.slide .slide-wrapper .qmi .matchItem::before,
+.slide .slide-wrapper .quiz-mi .matchItem::before,
+.slide .slide-wrapper .quiz-match-items .matchItem::before {
+  content: "○ ";
+  padding-right: 1em;
+}
+
+.slide .slide-wrapper .qmi .matchItem img,
+.slide .slide-wrapper .quiz-mi .matchItem img,
+.slide .slide-wrapper .quiz-match-items .matchItem img {
+  max-width: 50%;
 }

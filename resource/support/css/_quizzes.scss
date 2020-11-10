@@ -46,8 +46,7 @@ $border-radius: 6px;
             margin: 0.5em 0 var(--margin-bottom-ul) 0;
         }
         button,
-        input
-        {
+        input {
             border-radius: $border-radius;
             font-family: inherit;
             outline: none;
@@ -100,18 +99,18 @@ $border-radius: 6px;
                 }
             }
             li {
-                &.show-right::before {
-                    content: "\f058";
+                &.show-right::before,
+                &.show-wrong::before {
                     font-family: "Font Awesome 5 Free";
                     font-weight: 400;
                     font-size: var(--font-size-medium);
+                }
+                &.show-right::before {
+                    content: "\f058";
                     color: $green;
                 }
                 &.show-wrong::before {
                     content: "\f057";
-                    font-family: "Font Awesome 5 Free";
-                    font-weight: 400;
-                    font-size: var(--font-size-medium);
                     color: $red;
                 }
             }
@@ -131,6 +130,7 @@ $border-radius: 6px;
             border-radius: 20px;
             font-weight: normal;
             color: #000;
+            cursor: pointer;
             &::before {
                 content: counter(answer, upper-latin) ": ";
                 counter-increment: answer;
@@ -140,7 +140,6 @@ $border-radius: 6px;
         }
         ul {
             display: flex;
-            flex-direction: row;
             flex-wrap: wrap;
             justify-content: center;
             align-items: center;
@@ -164,7 +163,7 @@ $border-radius: 6px;
             border: none;
             position: absolute;
             z-index: 1;
-            font-size: var(--font-size-small);
+            font-size: var(--font-size-x-small);
         }
         [class*="show-"]:hover .tooltip {
             visibility: visible;
@@ -203,22 +202,21 @@ $border-radius: 6px;
         max-height: 80vh;
         input {
             margin-right: 0.5em;
+            padding-left: 0.2em;
         }
         .solutionDiv {
-            background-color: $solution;
-            color: $text;
-            padding: 0.5em;
-            border-radius: $border-radius;
             display: block;
             visibility: hidden;
+            width: 91%; 
+            padding: 0.5em;
+            background-color: $solution;
+            color: $text;
+            border-radius: $border-radius;
             font-size: var(--font-size-small);
             list-style-type: none;
-            &.hidden {
-                display: none;
-            }
+            cursor: default;
             &.solved {
                 visibility: visible;
-                width: 91%; 
             }
             .correct::before {
                 content: "✓ ";
@@ -228,19 +226,20 @@ $border-radius: 6px;
         .solutionList {
             display: none;
             position: fixed;
+            max-height: 10em;
             z-index: 99;
-            margin: 5px 5px var(--margin-bottom-ul) 5px;
+            margin-bottom: var(--margin-bottom-ul);
             padding: 5px;
             border: none;
             border-radius: $border-radius;
             list-style-type: none;
-            font-size: var(--font-size-small);
+            font-size: var(--font-size-x-small);
             color: #fff;
             li {
                 display: none;
                 list-style-type: none;
                 margin: 0 1em;
-                padding: 0.5em 0.6em 0.7em 2em;
+                padding: 0.5em;
                 border-radius: $border-radius;
                 &.solved {
                     display: block;
@@ -317,60 +316,49 @@ $border-radius: 6px;
     .qmi,
     .quiz-mi,
     .quiz-match-items {
-        display: block;
-        text-align: center;
-        // Users may have long tooltips with images
-        overflow-y: auto;
-        max-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        text-align: var(--align-global);
+        max-height: 76vh;
         padding-top: 0.2em;
-        .bucket {
-            display:    block;
-            flex:       1 0 0;
-            padding:    0.625em;
-            margin:     5px;
-            border:     $border;
-            text-align: center;
+        .matchDiv {
+            padding: 0.5em;
+            margin: 0.5em 0;
+            border-radius: 7px;
+            border: 1px solid $solution;
+            overflow-y: scroll;
+            max-height: 55vh;
         }
-        .draggableChild:not(a) {
-            pointer-events: none;
-        } 
-        .buckets,
-        .matchItems {
+        .matchItems,
+        .buckets {
             font-size: var(--font-size-small);
-            display:inline-flex;
-            flex-flow: row nowrap;
-            align-items: stretch;
-            justify-content: space-around;
+            display:flex;
             position: relative;
-            width: 100%;
-            min-height: 100px;
-            padding: 15px 15px 0 15px;
+            padding: 0.3em;
             border: 2px var(--border-decoration-style) $button;
             border-radius: $border-radius;
-            box-sizing: border-box;
             &::before {
                 position: absolute;
-                top: -15px;
-                left: 10px;
+                top: -1em;
+                left: 1em;
                 font-size: 15px;
                 background: #fff;
-                padding: 5px;
                 color: $tooltip;
                 // Get drag/drop hint in correct language from yaml header
                 content: attr(data-hint);
             }
         }
         .matchItems {
-            margin-bottom: 60px;
+            margin: 1em 0 1em 0;
+            justify-content: space-around;
+            min-height: 1em;
             &::after {
                 position: absolute;
                 content: " ";
-                width: 0;
-                height: 0;
-                bottom: -30px;
-                border-left: 30px solid transparent;
-                border-right: 30px solid transparent;
-                border-top: 30px solid $solution;
+                bottom: -0.7em;
+                border-left: 0.7em solid transparent;
+                border-right: 0.7em solid transparent;
+                border-top: 0.7em solid $solution;
             }
         }
         .matchItem {
@@ -394,46 +382,61 @@ $border-radius: 6px;
                 max-width: 50%;
             }
         }
+        .bucket {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            padding: 0.2em;
+            margin: 0.2em;
+            border: $border;
+            text-align: center;
+            cursor: default;
+            overflow: auto;
+            word-wrap: break-word;
+            .matchItem {
+                padding: 0.2em
+            }
+        }
+        .draggableChild:not(a) {
+            pointer-events: none;
+        } 
         mjx-container > svg {
             object-fit: contain;
             max-width: 100%;
         }
+        button {
+            margin: 0.5em auto;
+        }
         &.plain {
-            text-align: var(--align-global);
-            height: inherit;
-            overflow: inherit;
-            // height: 550px;
-            // display: flex;
-            // flex-direction: column;
             .matchDiv {
-                padding: 0.5em;
-                margin: 0.5em 0;
-                border-radius: 7px;
-                border: 1px solid $solution;
                 justify-content: space-between;
-                // flex-grow: 9;
-                // overflow-y: scroll;
+                flex-grow: 9;
             }
             .matchDiv, 
             .matchItems {
                 display: flex;
             }
+            .buckets {
+                display: block;
+                margin-left: 1vw;
+                width: auto;
+            }
+            .buckets,
             .matchItems {
-                flex-direction: column;
-                justify-content: start;
-                counter-reset: item;
+                padding: 0 1em 0 0;
                 border: none;
-                margin: 0;
-                max-width: max-content;
                 &::before,
                 &::after {
                     content: unset;
                     border: none;
                 }
             }
-            .matchItems,
-            .buckets {
-                padding: 0 15px 0 0;
+            .matchItems {
+                flex-direction: column;
+                margin: 0;
+                max-width: max-content;
+                justify-content: start;
+                counter-reset: item;
             }
             .matchItem {
                 border: none;
@@ -459,6 +462,7 @@ $border-radius: 6px;
                 padding: 0 0.1em;
                 background-color: #f1f1f1;
                 text-align: center;
+                cursor: pointer;
                 p {
                     &::before,
                     &::after {
@@ -475,39 +479,29 @@ $border-radius: 6px;
                 &.correct {
                     background-color: $right;
                     p {
-                        &:first-child::before,
+                        &.selected::before {
+                            color: initial;
+                        }
                         &::after {
                             color: $right;
-                        }
-                        &::before {
-                            color: initial;
                         }
                     }
                 }
                 &.incorrect {
                     background-color: $wrong;
                     p {
-                        &.correct::before {
+                        &.selected::before {
+                            content: "✗ ";
                             color: initial;
                         }
-                        &.blank.correct::before,
                         &::after {
                             color: $wrong;
-                        }
-                        &.incorrect::before {
-                            // background-color: $wrong;
-                            // content: "✗ ";
-                            // color: $red;
-                            color: initial;
                         }
                     }
                 }
                 p {
                     display: none;
                     margin: 0;
-                    &::before {
-                        color: inherit;
-                    }
                     &:first-child::before {
                         color: #f1f1f1;
                     }
@@ -519,7 +513,7 @@ $border-radius: 6px;
             .options {
                 display: none;
                 position: absolute;
-                right: 0.66em;
+                right: 1em;
                 &.shown {
                     display: initial;
                 }
@@ -528,14 +522,12 @@ $border-radius: 6px;
                         color: #f1f1f1;
                     }
                     &.selected::before,
-                    &.selected.correct::before,
-                    &.selected.incorrect::before {
+                    &.selected.correct::before {
                         color: inherit;
                     }
-                    // &.selected.incorrect::before {
-                    //     content: "✗ ";
-                    //     color: $red;
-                    // }
+                    &.selected.incorrect::before {
+                        content: "✗ ";
+                    }
                     &.correct-notSelected::before {
                         color: $right;
                     }
@@ -554,17 +546,6 @@ $border-radius: 6px;
                             color: $wrong;
                         }
                     }
-                }
-            }
-            .buckets {
-                display: block;
-                border: none;
-                margin-left: 1vw;
-                width: auto;
-                &::before,
-                &::after {
-                    content: unset;
-                    border: none;
                 }
             }
             button {
@@ -586,18 +567,6 @@ $border-radius: 6px;
             .qmi,
             [class*="quiz-"] {
                 &.plain {
-                    button, 
-                    .solutionDiv {
-                        display: none;
-                    }
-                    input, 
-                    select {
-                        color: #fff;
-                        background-color: #fff;
-                        border: none;
-                        border-bottom: 1px solid #000;
-                        border-radius: unset;
-                    }
                     input {
                         margin-bottom: 0.5em;
                         min-width: 35%;
@@ -606,31 +575,59 @@ $border-radius: 6px;
                         }
                     }
                 }
+                button,
+                .solutionDiv {
+                    display: none;
+                }
             }
-
-            .qic,
-            [class*="quiz-i"] {
-                select {
-                    min-width: 35%;
+            .qft input,
+            [class*="quiz-f"] input,
+            .qic select,
+            [class*="quiz-i"] select {
+                // Hide placeholder for unanswered questions
+                background-color: #fff;
+                color: #fff;
+                min-width: 35%;
+                &.show-right {
+                    background-color: $right;
+                    color: initial;
+                }
+                &.show-wrong {
+                    background-color: $wrong;
+                    color: initial;
                 }
             }
 
             .qmi,
             [class*="quiz-"] {
+                &,
+                .matchDiv {
+                    max-height: unset;
+                }
+                .bucket {
+                    text-align: center !important;
+                }
+                .matchItems {
+                    margin: 0 0 2em 0;
+                }
+                .matchItems::before, 
+                .matchItems::after,
+                .buckets::before {
+                    display: none;
+                }
+                .matchItem,
                 &.plain {
-                    width: 100%;
-                    .matchQuestion {
-                        font-size: var(--font-size-small) !important;
-                        .optList p {
-                            color: #f1f1f1;
-                            font-size: var(--font-size-small) !important;
-                        }
-                    }
-                    .matchItems {
-                        margin-bottom: 0;
-                    }
+                    .matchQuestion,
+                    .optList p,
                     .buckets .matchItem {
                         font-size: var(--font-size-small) !important;
+                    }
+                }
+                &.plain {
+                    width: 85%;
+                    .matchItems {
+                        margin-bottom: 0;
+                        width: 100%;
                     }
                 }
             }

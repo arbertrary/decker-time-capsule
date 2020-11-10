@@ -288,12 +288,6 @@ function buildPlainMatch(question) {
     const matchItems = question.querySelector('.matchItems');
     const buckets = question.querySelector('.buckets');
     const solutionButton = question.querySelector('.solutionButton');
-
-    const matchDiv = document.createElement('div');
-    matchDiv.classList.add('matchDiv');
-    [matchItems, buckets].forEach(el => matchDiv.appendChild(el));
-    question.insertBefore(matchDiv, solutionButton);
-
     const choices = buildSelect(buckets, matchItems.querySelectorAll('.matchItem'));
 
     let allBuckets = buckets.querySelectorAll('.bucket');
