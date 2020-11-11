@@ -41,8 +41,7 @@ data QuizMeta = QuizMeta
       _lectureId :: T.Text,
       _score :: Int,
       _topic :: T.Text,
-      _lang :: T.Text,
-      _solution :: T.Text
+      _lang :: T.Text
     }
     deriving (Show)
 
@@ -119,7 +118,7 @@ handleQuizzes pandoc@(Pandoc meta blocks) = return $ walk parseQuizboxes pandoc
                 then q
                 else set tags (ts ++ [lookupMetaOrElse "fancy" "quiz.style" meta]) q
         -- The default "new" quizzes
-        defaultMeta = QuizMeta "" "" 0 "" (lookupMetaOrElse "en" "lang" meta) (lookupMetaOrElse "" "quiz.solution" meta)
+        defaultMeta = QuizMeta "" "" 0 "" (lookupMetaOrElse "en" "lang" meta) 
         defaultMatch = MatchItems [] [] defaultMeta [] []
         defaultMC = MultipleChoice [] [] defaultMeta [] []
         defaultIC = InsertChoices [] [] defaultMeta []
@@ -227,7 +226,7 @@ setQuizMeta q meta = set quizMeta (setMetaForEach meta (q ^. quizMeta)) q
             foldr
                 (setMeta' m)
                 qm
-                ["score", "category", "lectureId", "topic", "lang", "quiz.solution"]
+                ["score", "category", "lectureId", "topic", "lang"]
         setMeta' :: Meta -> T.Text -> QuizMeta -> QuizMeta
         setMeta' m t qm =
             case t of
@@ -236,7 +235,6 @@ setQuizMeta q meta = set quizMeta (setMetaForEach meta (q ^. quizMeta)) q
                 "lectureId" -> set lectureId (lookupMetaOrElse "" t m) qm
                 "topic" -> set topic (lookupMetaOrElse "" t m) qm
                 "lang" -> set lang (lookupMetaOrElse (view lang qm) t m) qm
-                "quiz.solution" -> set solution (lookupMetaOrElse (view solution qm) t m) qm
                 _ -> throw $ InternalException $ "Unknown meta data key: " <> show t
 
 -- | A simple Html button
@@ -256,9 +254,8 @@ resetButton meta =
 
 renderMultipleChoice :: Meta -> Quiz -> Block
 renderMultipleChoice meta quiz@(MultipleChoice title tgs qm q ch) =
-    Div ("", cls, []) $ header ++ q ++ [choiceBlock]
+    Div ("", tgs, []) $ header ++ q ++ [choiceBlock]
     where
-        cls = tgs ++ [view solution qm]
         header =
             case title of
                 [] -> []
@@ -293,9 +290,8 @@ choiceList t choices =
 
 renderInsertChoices :: Meta -> Quiz -> Block
 renderInsertChoices meta quiz@(InsertChoices title tgs qm q) =
-    Div ("", cls, []) $ header ++ questionBlocks q ++ tooltipDiv
+    Div ("", tgs, []) $ header ++ questionBlocks q ++ tooltipDiv
     where
-        cls = tgs ++ [view solution qm]
         header =
             case title of
                 [] -> []
@@ -359,9 +355,8 @@ plainMatchQuestionsDivs buckets items = map matchQuestionDiv (filter (not . isDi
 -- | Build the HTML of Matching questions. Both plain and fancy (i.e. drag&drop)
 renderMatching :: Meta -> Quiz -> Block
 renderMatching meta quiz@(MatchItems title tgs qm qs matches) =
-    Div ("", cls, []) $ header ++ qs ++ [matchDiv, sButton]
+    Div ("", tgs, []) $ header ++ qs ++ [matchDiv, sButton]
     where
-        cls = tgs ++ [view solution qm]
         newMeta = setMetaValue "lang" (view lang qm) meta
         sButton = solutionButton newMeta
         header =
@@ -372,7 +367,7 @@ renderMatching meta quiz@(MatchItems title tgs qm qs matches) =
         dropHint = ("data-hint", lookupInDictionary "quiz.qmi-drop-hint" newMeta)
         dragHint = ("data-hint", lookupInDictionary "quiz.qmi-drag-hint" newMeta)
         matchDiv =
-            if "plain" `elem` cls
+            if "plain" `elem` tgs
                 then Div ("", ["matchDiv"], []) [plainItemsDiv, plainBucketsDiv]
                 else Div ("", ["matchDiv"], []) [itemsDiv, bucketsDiv]
         
@@ -416,9 +411,8 @@ renderMatching meta q =
 
 renderFreeText :: Meta -> Quiz -> Block
 renderFreeText meta quiz@(FreeText title tgs qm q ch) =
-    Div ("", cls, []) $ header ++ q ++ [inputRaw] ++ [sButton] ++ [rButton] ++ [sol]
+    Div ("", tgs, []) $ header ++ q ++ [inputRaw] ++ [sButton] ++ [rButton] ++ [sol]
     where
-        cls = tgs ++ [view solution qm]
         newMeta = setMetaValue "lang" (view lang qm) meta
         sButton = solutionButton newMeta
         rButton = resetButton newMeta
