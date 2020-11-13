@@ -84,7 +84,9 @@ body {
 }
 
 .slide .slide-wrapper {
-  clear:both;
+  clear: both;
+  display: inline-block;
+  width: 100%;
   .qic,
   .qft,
   .qmc,
@@ -133,20 +135,55 @@ body {
   .qmi,
   .quiz-mi,
   .quiz-match-items { 
-    .matchItems {
-      float: right;
+    .matchDiv {
+      display: flex;
+      flex-direction: row-reverse;    
+      justify-content: flex-end;
     }
-    .matchItem, 
-    .bucket {
-      padding-bottom: 0.5em;
+    .buckets {
+      margin-right: 3em;
     }
-    .matchItem {
-      &::before {
-        content: "○ ";
-        padding-right: 1em;
+    &.plain {
+      .matchDiv {
+        flex-direction: row;
+        justify-content: initial;
       }
-      img {
-        max-width: 50%;
+      .matchItems,
+      .matchQuestion {
+        display: flex;
+      }
+      .matchDiv, 
+      .matchQuestion {
+        justify-content: space-between;
+      }
+      .matchQuestion {
+        margin-bottom: 0.5em;
+      }
+      .matchItems {
+        flex-direction: column;
+        flex-wrap: nowrap;
+        flex: 1 0 auto;
+      }
+      .optList,
+      .options {
+        display: none;
+      }
+      .buckets {
+        margin-right: 0;
+        margin-left: 3em;
+      }
+      .matchItem, 
+      .bucket {
+        padding-bottom: 0.5em;
+      }
+      .matchItem {
+        &::before {
+          content: "○ ";
+          padding-right: 1em;
+        }
+        img {
+          max-width: 50%;
+        }
       }
     }
   }

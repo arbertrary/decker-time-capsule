@@ -120,12 +120,21 @@ $border-radius: 6px;
     .qmc,
     .quiz-mc,
     .quiz-multiple-choice {
+        ul {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            align-content: center;
+            text-align: center;
+            counter-reset: answer;
+        }
         li {
             display: inline-block;
             position: relative;
             text-align: var(--align-global);
-            margin: 20px;
-            padding: 20px;
+            margin: 0.5em;
+            padding: 0.5em;
             border: 2px var(--border-decoration-style) $blue;
             border-radius: 20px;
             font-weight: normal;
@@ -137,18 +146,6 @@ $border-radius: 6px;
                 margin-right: 0.5em;
                 font-weight:  bold;
             }
-        }
-        ul {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-            align-content: center;
-            text-align: center;
-            counter-reset: answer;
-        }
-        &.inline ul {
-            display: inline-block;
         }
         .tooltip  {
             display: block;
@@ -189,11 +186,16 @@ $border-radius: 6px;
             }
             ul {
                 display: inline-block;
-                text-align: inherit;
             }
-            &.inline li {
-                padding: 0.1em 0.7em 0.1em 0;
-                display: inline;
+            &.inline {
+                ul {
+                    display: inline-block;
+                    margin-top: 0.5em;
+                }
+                li {
+                    padding: 0.1em 0.7em 0.1em 0;
+                    display: inline;
+                }
             }
         }
     }
@@ -324,22 +326,27 @@ $border-radius: 6px;
         text-align: var(--align-global);
         max-height: 76vh;
         padding-top: 0.2em;
+        .matchItems,
+        .matchQuestion, 
+        .buckets, 
+        .bucket {
+            display: flex;
+        }
         .matchDiv {
+            max-height: 55vh;
             padding: 0.5em;
             margin: 0.5em 0;
             border-radius: 7px;
             border: 1px solid $solution;
             overflow-y: scroll;
-            max-height: 55vh;
         }
         .matchItems,
         .buckets {
-            font-size: var(--font-size-small);
-            display:flex;
             position: relative;
             padding: 0.3em;
             border: 2px var(--border-decoration-style) $button;
             border-radius: $border-radius;
+            font-size: var(--font-size-small);
             &::before {
                 position: absolute;
                 top: -1em;
@@ -352,9 +359,9 @@ $border-radius: 6px;
             }
         }
         .matchItems {
+            min-height: 1em;
             margin: 1em 0 1.5em 0;
             justify-content: space-around;
-            min-height: 1em;
             flex-wrap: wrap;
             &::after {
                 position: absolute;
@@ -367,15 +374,14 @@ $border-radius: 6px;
             }
         }
         .matchItem {
-            display: block;
-            border: $border-dotted;
-            border-radius: 10px;
-            padding: 0.3em;
-            background:#fff;
-            cursor: grab;
+            flex: 2 0 0;
             object-fit: contain;
             margin: 0 2px 6px 2px;
-            flex: 2 2 auto;
+            padding: 0.3em;
+            background:#fff;
+            border: $border-dotted;
+            border-radius: 10px;
+            cursor: grab;
             &.show-right {
                 background-color: $right;
                 border: $border;
@@ -389,7 +395,6 @@ $border-radius: 6px;
             }
         }
         .bucket {
-            display: flex;
             flex-direction: column;
             flex: 1;
             padding: 0.2em;
@@ -415,51 +420,26 @@ $border-radius: 6px;
         }
         &.plain {
             .matchDiv {
-                justify-content: space-between;
-                flex-grow: 9;
-            }
-            .matchDiv, 
-            .matchItems {
                 display: flex;
-            }
-            .buckets {
-                display: block;
-                margin-left: 1vw;
-                width: auto;
-            }
-            .buckets,
-            .matchItems {
-                padding: 0 1em 0 0;
-                border: none;
-                &::before,
-                &::after {
-                    content: unset;
-                    border: none;
-                }
+                padding: 0.5em;
+                margin: 0.5em 0;
+                border-radius: 7px;
+                border: 1px solid #eee;
+                -webkit-font-smoothing: antialiased;
             }
             .matchItems {
                 flex-direction: column;
                 flex-wrap: nowrap;
+                flex: 1 0 auto;
                 margin: 0;
-                max-width: max-content;
                 justify-content: start;
                 counter-reset: item;
-            }
-            .matchItem {
-                border: none;
-                padding: 0 0 0.3em 0;
-                &::before {
-                    content: counter(item, upper-latin) ": ";
-                    counter-increment: item;
-                    margin-right: 0.5em;
-                    font-weight:  bold;
-                }
-                &:last-of-type {
-                    padding-bottom: 0;
-                }
+                max-width: max-content;
             }
             .matchQuestion {
                 margin-bottom: 1em;
+                min-width: max-content;
+                justify-content: flex-end;
             }
             .optList, 
             .options {
@@ -470,6 +450,8 @@ $border-radius: 6px;
                 background-color: #f1f1f1;
                 text-align: center;
                 cursor: pointer;
+                -webkit-font-smoothing: antialiased;
+                min-height: fit-content;
                 p {
                     &::before,
                     &::after {
@@ -482,7 +464,6 @@ $border-radius: 6px;
                 }
             }
             .optList {
-                float: right;
                 &.correct {
                     background-color: $right;
                     p {
@@ -518,11 +499,10 @@ $border-radius: 6px;
                 }
             }
             .options {
-                display: none;
+                visibility: hidden;
                 position: absolute;
-                right: 1em;
                 &.shown {
-                    display: initial;
+                    visibility: visible;
                 }
                 p {
                     &::before {
@@ -555,6 +535,32 @@ $border-radius: 6px;
                     }
                 }
             }
+            .buckets {
+                display: block;
+                margin: 0 2em;
+            }
+            .buckets, 
+            .matchItems {
+                border: none;
+                &::before,
+                &::after {
+                    content: unset;
+                    border: none;
+                }
+            }
+            .matchItem {
+                border: none;
+                padding: 0 0 0.3em 0;
+                &::before {
+                    content: counter(item, upper-latin) ": ";
+                    counter-increment: item;
+                    margin-right: 0.5em;
+                    font-weight:  bold;
+                }
+                &:last-of-type {
+                    padding-bottom: 0;
+                }
+            }
             button {
                 width: max-content;
             }
@@ -562,12 +568,52 @@ $border-radius: 6px;
     }
 }
 
+@media not all and (min-resolution:.001dpcm) { 
+    /* Safari adjustments */
+    @supports (-webkit-appearance:none) {
+        .qmi,
+        .quiz-mi,
+        .quiz-match-items {
+            &.plain .options {
+                right: 0.5vw;
+            }
+        }
+    }
+    /* Edge adjustments */
+    @supports (-ms-ime-align: auto) {
+        .qmi,
+        .quiz-mi,
+        .quiz-match-items {
+            &.plain .options {
+                right: 0.5vw;
+            }
+        }
+    }
+}
+/* Safari 7.1+ */
+_::-webkit-full-page-media, _:future, :root .safari_only {
+    .qmi,
+    .quiz-mi,
+    .quiz-match-items {
+        &.plain .options {
+            right: 0.5vw;
+        }
+    }
+}
+/* Microsoft Edge Browser 12-18 (All versions before Chromium) */
+_:-ms-lang(x), 
+.qmi,
+.quiz-mi,
+.quiz-match-items {
+    &.plain .options {
+        right: 0.5vw;
+    }
+}
 // Adjust for printed quizzes
 @media print {
     .reveal .slides {
         transform: none !important;
         section {
-            break-after: always !important;
             .qic,
             .qft,
             .qmc,
@@ -580,6 +626,9 @@ $border-radius: 6px;
                         &::placeholder {
                             color: #fff;
                         }
+                    }
+                    .tooltip-div {
+                        display: none !important;
                     }
                 }
                 button,
@@ -610,12 +659,13 @@ $border-radius: 6px;
                 &,
                 .matchDiv {
                     max-height: unset;
+                    overflow-y: visible;
                 }
                 .bucket {
                     text-align: center !important;
                 }
                 .matchItems {
-                    margin: 0 0 2em 0;
+                    margin: 0 0 1em 0;
                 }
                 .matchItems::before, 
                 .matchItems::after,
@@ -623,18 +673,32 @@ $border-radius: 6px;
                     display: none;
                 }
                 .matchItem,
+                .bucket {
+                    font-size: var(--font-size-small) !important;
+                }
+
                 &.plain {
+                    width: 95%;
+                    .matchDiv {
+                        overflow-y: visible;
+                        max-height: unset;
+                    }
+                    .matchItems {
+                        margin-bottom: 0;
+                    }
+                    .options {
+                        display: none;
+                    }
+                    .option {
+                        text-align: center !important;
+                    }
+                    p {
+                        font-size: var(--font-size-small) !important;
+                    }
                     .matchQuestion,
                     .optList p,
                     .buckets .matchItem {
-                        font-size: var(--font-size-small) !important;
-                    }
-                }
-                &.plain {
-                    width: 85%;
-                    .matchItems {
-                        margin-bottom: 0;
-                        width: 100%;
+                        font-size: var(--font-size-x-small) !important;
                     }
                 }
             }
