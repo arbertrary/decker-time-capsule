@@ -348,7 +348,6 @@ function buildPlainMatch(question) {
 
             let opts = list.nextElementSibling;
             for (let o of opts.children) {
-                // o.removeEventListener('click', makeSelection);
                 if (o.getAttribute('data-bucketId') === correct) {
                     allCorrect.push(o.textContent);
                     o.classList.add(o.classList.contains('selected') ? 'correct' : 'correct-notSelected');

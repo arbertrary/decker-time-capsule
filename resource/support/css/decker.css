@@ -788,25 +788,19 @@
   margin-top: 0.5em;
   padding: 0.5em;
   font-size: var(--font-size-small);
-  display: none;
+  visibility: hidden;
   border-radius: 6px;
+  min-height: 1.3em;
 }
 
 .reveal .qic .tooltip-div.solved,
 .reveal [class*="quiz-i"] .tooltip-div.solved {
-  display: block;
+  visibility: visible;
   background-color: #eee;
-}
-
-.reveal .qic.plain .tooltip-div,
-.reveal [class*="quiz-i"].plain .tooltip-div {
-  display: block;
-  visibility: hidden;
 }
 
 .reveal .qic.plain .tooltip-div.solved,
 .reveal [class*="quiz-i"].plain .tooltip-div.solved {
-  visibility: visible;
   width: 91%;
 }
 
@@ -1008,7 +1002,7 @@
 .reveal .quiz-mi.plain .options,
 .reveal .quiz-match-items.plain .optList,
 .reveal .quiz-match-items.plain .options {
-  width: 7vw;
+  width: 3em;
   margin-left: 1em;
   border: 2px var(--border-decoration-style) #000;
   padding: 0 0.1em;
@@ -1235,6 +1229,16 @@
 .quiz-match-items.plain .options {
       right: 0.5vw;
     }
+    .qmi.plain .matchQuestion,
+.quiz-mi.plain .matchQuestion,
+.quiz-match-items.plain .matchQuestion {
+      margin: 1em 0;
+    }
+    .qmi.plain .matchQuestion:first-of-type,
+.quiz-mi.plain .matchQuestion:first-of-type,
+.quiz-match-items.plain .matchQuestion:first-of-type {
+      margin-top: 0;
+    }
   }
   /* Edge adjustments */
   @supports (-ms-ime-align: auto) {
@@ -1243,18 +1247,17 @@
 .quiz-match-items.plain .options {
       right: 0.5vw;
     }
+    .qmi.plain .matchQuestion,
+.quiz-mi.plain .matchQuestion,
+.quiz-match-items.plain .matchQuestion {
+      margin: 1em 0;
+    }
+    .qmi.plain .matchQuestion:first-of-type,
+.quiz-mi.plain .matchQuestion:first-of-type,
+.quiz-match-items.plain .matchQuestion:first-of-type {
+      margin-top: 0;
+    }
   }
-}
-
-/* Safari 7.1+ */
-_::-webkit-full-page-media .qmi.plain .options,
-_::-webkit-full-page-media .quiz-mi.plain .options,
-_::-webkit-full-page-media .quiz-match-items.plain .options, _:future .qmi.plain .options,
-_:future .quiz-mi.plain .options,
-_:future .quiz-match-items.plain .options, :root .safari_only .qmi.plain .options,
-:root .safari_only .quiz-mi.plain .options,
-:root .safari_only .quiz-match-items.plain .options {
-  right: 0.5vw;
 }
 
 /* Microsoft Edge Browser 12-18 (All versions before Chromium) */

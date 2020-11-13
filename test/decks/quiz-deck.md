@@ -318,10 +318,6 @@ Das unmarkierte Quadrat unten links im Bild ist mit einer Textur (blauer
 Pfeil, oranger Pfeil) versehen. Die Texturkoordinaten wurden für dieses
 Quadrat *nicht* transformiert. 
 
-Die Quadrate 1 bis 5 zeigen dieselbe Textur, allerdings mit transformierten
-Texturkoordinaten. Geben Sie jeweils die verwendete, unter Umständen
-zusammengesetzte, Transformation für diese 5 Quadrate an.
-
 Bild 1
 : Rz(180)
 
