@@ -46,7 +46,7 @@ dictionary:
       Medium: Mittelschwer
       Hard: Schwer
     quiz:
-      solution: Lösung
+      solution-button: Lösung
       reset-button: Zurücksetzen
       input-placeholder: Eingeben und 'Enter'
       qmi-drag-hint: Objekte per Drag&Drop ziehen...
@@ -62,7 +62,7 @@ dictionary:
       Medium: Medium
       Hard: Hard
     quiz:
-      solution: Show Solution
+      solution-button: Show Solution
       reset-button: Reset
       input-placeholder: Type and press 'Enter'
       qmi-drag-hint: Drag items from here...
