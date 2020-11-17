@@ -1312,15 +1312,23 @@ _.plain:-ms-lang(x) .options,
 .reveal .slides section .plain[class*="quiz-"] {
     width: 100%;
   }
+  .reveal .slides section .qmi.plain .matchItems,
+.reveal .slides section .plain[class*="quiz-"] .matchItems {
+    align-items: stretch !important;
+  }
   .reveal .slides section .qmi.plain .matchQuestion,
 .reveal .slides section .plain[class*="quiz-"] .matchQuestion {
     font-size: var(--font-size-small) !important;
   }
   .reveal .slides section .qmi.plain .matchQuestion .optList,
-.reveal .slides section .qmi.plain .matchQuestion .optList p,
+.reveal .slides section .plain[class*="quiz-"] .matchQuestion .optList {
+    color: #fff !important;
+    background-color: #fff;
+    max-height: 1em;
+  }
+  .reveal .slides section .qmi.plain .matchQuestion .optList p,
 .reveal .slides section .qmi.plain .matchQuestion .optList p::before,
 .reveal .slides section .qmi.plain .matchQuestion .optList p::after,
-.reveal .slides section .plain[class*="quiz-"] .matchQuestion .optList,
 .reveal .slides section .plain[class*="quiz-"] .matchQuestion .optList p,
 .reveal .slides section .plain[class*="quiz-"] .matchQuestion .optList p::before,
 .reveal .slides section .plain[class*="quiz-"] .matchQuestion .optList p::after {

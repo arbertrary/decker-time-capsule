@@ -144,8 +144,10 @@ function quizIC() {
                 if (sel.classList.contains('solved')) { 
                     const answers = solutionList.getElementsByTagName('li');
                     const tip = answers.item(sel.selectedIndex - 1).querySelector('.tooltip');
-                    const cln = tip.cloneNode(true);
-                    tipDiv.appendChild(cln);
+                    if (tip.innerHTML !== "") {
+                        const cln = tip.cloneNode(true);
+                        tipDiv.appendChild(cln);
+                    }
                     tipDiv.classList.add('solved');
             }});
             sel.addEventListener("mouseleave", () => { 

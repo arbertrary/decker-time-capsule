@@ -665,13 +665,20 @@ _:-ms-lang(x),
                 max-height: initial;
                 &.plain {
                     width: 100%;
+                    .matchItems {
+                        align-items: stretch !important;
+                    }
                     .matchQuestion {
                         font-size: var(--font-size-small) !important;
-                        .optList,
-                        .optList p,
-                        .optList p::before,
-                        .optList p::after {
-                            color: #fff !important; 
+                        .optList {
+                            color: #fff !important;
+                            background-color: #fff; 
+                            max-height: 1em;
+                            p,
+                            p::before,
+                            p::after {
+                                color: #fff !important; 
+                            }
                         }
                     }
                     .matchItems {

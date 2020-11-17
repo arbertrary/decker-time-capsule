@@ -1260,7 +1260,6 @@ div.q-panel {
 .reveal .qic .tooltip-div,
 .reveal [class*="quiz-i"] .tooltip-div {
   font-size:          0.6em;
-  background-color: #f4f4f7;
   margin:             0.5em auto 0 auto;
   padding:            0.5em;
   visibility:         hidden;
@@ -1268,7 +1267,12 @@ div.q-panel {
 
 .reveal .qic .tooltip-div.solved,
 .reveal [class*="quiz-i"] .tooltip-div.solved {
-  visibility: visible;
+  visibility: visible;  
+}
+
+.reveal .qic .tooltip-div.solved .tooltip,
+.reveal [class*="quiz-i"] .tooltip-div.solved .tooltip {
+  background-color: #f4f4f7;
 }
 
 .reveal .quiz-mi,
