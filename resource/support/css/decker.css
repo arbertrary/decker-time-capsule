@@ -412,114 +412,35 @@
 }
 
 .reveal .qic button,
-.reveal .qic input,
 .reveal .qft button,
-.reveal .qft input,
 .reveal .qmc button,
-.reveal .qmc input,
 .reveal .qmi button,
-.reveal .qmi input,
-.reveal [class*="quiz-"] button,
-.reveal [class*="quiz-"] input {
+.reveal [class*="quiz-"] button {
   border-radius: 6px;
   font-family: inherit;
   outline: none;
   clear: both;
   border: 2px var(--border-decoration-style) #000;
-}
-
-.reveal .qic button,
-.reveal .qft button,
-.reveal .qmc button,
-.reveal .qmi button,
-.reveal [class*="quiz-"] button {
   font-size: var(--font-size-x-small);
-}
-
-.reveal .qic input,
-.reveal .qft input,
-.reveal .qmc input,
-.reveal .qmi input,
-.reveal [class*="quiz-"] input {
-  font-size: inherit;
-}
-
-.reveal .qic input:placeholder-shown,
-.reveal .qft input:placeholder-shown,
-.reveal .qmc input:placeholder-shown,
-.reveal .qmi input:placeholder-shown,
-.reveal [class*="quiz-"] input:placeholder-shown {
-  text-overflow: ellipsis;
-}
-
-.reveal .qic select,
-.reveal .qft select,
-.reveal .qmc select,
-.reveal .qmi select,
-.reveal [class*="quiz-"] select {
-  border: 2px var(--border-decoration-style) #000;
-  font-size: inherit;
-  margin-bottom: 0.3em;
-}
-
-.reveal .qic select :disabled,
-.reveal .qft select :disabled,
-.reveal .qmc select :disabled,
-.reveal .qmi select :disabled,
-.reveal [class*="quiz-"] select :disabled {
-  color: #000;
 }
 
 .reveal .qic.plain button,
 .reveal .qft.plain button,
 .reveal .qmc.plain button,
 .reveal .qmi.plain button,
-.reveal [class*="quiz-"].plain button {
+.reveal .plain[class*="quiz-"] button {
   border: none;
-  margin: 0;
   padding: 5px 10px;
   background-color: #ddd;
-  color: #000;
 }
 
 .reveal .qic.plain button:hover,
 .reveal .qft.plain button:hover,
 .reveal .qmc.plain button:hover,
 .reveal .qmi.plain button:hover,
-.reveal [class*="quiz-"].plain button:hover {
+.reveal .plain[class*="quiz-"] button:hover {
   background-color: #808080;
   color: #fff;
-}
-
-.reveal .qic.plain input,
-.reveal .qft.plain input,
-.reveal .qmc.plain input,
-.reveal .qmi.plain input,
-.reveal [class*="quiz-"].plain input {
-  display: block;
-  padding: 5px 10px;
-  width: 90%;
-  margin: 0 0.375em 0.375em 0;
-  border: none;
-  border-radius: 6px;
-  background-color: #eee;
-  font-family: "Source Code Pro", monospace;
-}
-
-.reveal .qic.plain input.show-right,
-.reveal .qft.plain input.show-right,
-.reveal .qmc.plain input.show-right,
-.reveal .qmi.plain input.show-right,
-.reveal [class*="quiz-"].plain input.show-right {
-  background-color: #aaffaa;
-}
-
-.reveal .qic.plain input.show-wrong,
-.reveal .qft.plain input.show-wrong,
-.reveal .qmc.plain input.show-wrong,
-.reveal .qmi.plain input.show-wrong,
-.reveal [class*="quiz-"].plain input.show-wrong {
-  background-color: #ffaaaa;
 }
 
 .reveal .qic.plain li.show-right::before, .reveal .qic.plain li.show-wrong::before,
@@ -529,8 +450,8 @@
 .reveal .qmc.plain li.show-wrong::before,
 .reveal .qmi.plain li.show-right::before,
 .reveal .qmi.plain li.show-wrong::before,
-.reveal [class*="quiz-"].plain li.show-right::before,
-.reveal [class*="quiz-"].plain li.show-wrong::before {
+.reveal .plain[class*="quiz-"] li.show-right::before,
+.reveal .plain[class*="quiz-"] li.show-wrong::before {
   font-family: "Font Awesome 5 Free";
   font-weight: 400;
   font-size: var(--font-size-medium);
@@ -540,7 +461,7 @@
 .reveal .qft.plain li.show-right::before,
 .reveal .qmc.plain li.show-right::before,
 .reveal .qmi.plain li.show-right::before,
-.reveal [class*="quiz-"].plain li.show-right::before {
+.reveal .plain[class*="quiz-"] li.show-right::before {
   content: "\f058";
   color: #009900;
 }
@@ -549,7 +470,7 @@
 .reveal .qft.plain li.show-wrong::before,
 .reveal .qmc.plain li.show-wrong::before,
 .reveal .qmi.plain li.show-wrong::before,
-.reveal [class*="quiz-"].plain li.show-wrong::before {
+.reveal .plain[class*="quiz-"] li.show-wrong::before {
   content: "\f057";
   color: #ff5e5e;
 }
@@ -558,26 +479,23 @@
 .reveal .quiz-mc ul,
 .reveal .quiz-multiple-choice ul {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  align-content: center;
-  text-align: center;
+  justify-content: flex-start;
   counter-reset: answer;
+  flex-wrap: wrap;
 }
 
 .reveal .qmc li,
 .reveal .quiz-mc li,
 .reveal .quiz-multiple-choice li {
-  display: inline-block;
   position: relative;
-  text-align: var(--align-global);
-  margin: 0.5em;
-  padding: 0.5em;
-  border: 2px var(--border-decoration-style) #2a9ddf;
+  flex: 1 1 40%;
+  margin: 0.3em;
+  padding: 0.3em;
+  border: 2px var(--border-decoration-style) #174e98;
   border-radius: 20px;
   font-weight: normal;
   color: #000;
+  list-style-type: none;
   cursor: pointer;
 }
 
@@ -586,29 +504,26 @@
 .reveal .quiz-multiple-choice li::before {
   content: counter(answer, upper-latin) ": ";
   counter-increment: answer;
-  margin-right: 0.5em;
   font-weight: bold;
+  margin-right: 0.5em;
 }
 
 .reveal .qmc .tooltip,
 .reveal .quiz-mc .tooltip,
 .reveal .quiz-multiple-choice .tooltip {
-  display: block;
   visibility: hidden;
-  width: max-content;
-  max-width: -moz-available;
-  max-width: fit-content;
-  top: 100%;
-  left: 5px;
-  background-color: #808080;
-  color: #fff;
-  text-align: center;
-  padding: 0.2em;
-  border-radius: 6px;
-  border: none;
+  width: 90%;
+  max-width: max-content;
   position: absolute;
   z-index: 1;
+  top: 100%;
+  left: 5px;
+  padding: 0.2em 0.5em;
+  background-color: #555;
+  color: #fff;
+  border-radius: 6px;
   font-size: var(--font-size-x-small);
+  box-shadow: 2px 2px 6px 1px #666;
 }
 
 .reveal .qmc [class*="show-"]:hover .tooltip,
@@ -617,13 +532,20 @@
   visibility: visible;
 }
 
+.reveal .qmc.plain ul,
+.reveal .quiz-mc.plain ul,
+.reveal .quiz-multiple-choice.plain ul {
+  display: inline-block;
+  text-align: center;
+}
+
 .reveal .qmc.plain li,
 .reveal .quiz-mc.plain li,
 .reveal .quiz-multiple-choice.plain li {
   margin: 0;
   padding: 0.1em 0 0.1em 0.7em;
   border: none;
-  display: block;
+  text-align: left;
 }
 
 .reveal .qmc.plain li::before,
@@ -641,24 +563,18 @@
   background-color: inherit;
 }
 
-.reveal .qmc.plain ul,
-.reveal .quiz-mc.plain ul,
-.reveal .quiz-multiple-choice.plain ul {
-  display: inline-block;
-}
-
 .reveal .qmc.plain.inline ul,
 .reveal .quiz-mc.plain.inline ul,
 .reveal .quiz-multiple-choice.plain.inline ul {
-  display: inline-block;
+  display: inline-flex;
   margin-top: 0.5em;
 }
 
 .reveal .qmc.plain.inline li,
 .reveal .quiz-mc.plain.inline li,
 .reveal .quiz-multiple-choice.plain.inline li {
-  padding: 0.1em 0.7em 0.1em 0;
-  display: inline;
+  flex: 0 1 auto;
+  margin: auto;
 }
 
 .reveal .qft,
@@ -671,6 +587,17 @@
 .reveal [class*="quiz-f"] input {
   margin-right: 0.5em;
   padding-left: 0.2em;
+  clear: both;
+  border: 2px var(--border-decoration-style) #000;
+  border-radius: 6px;
+  outline: none;
+  font-size: inherit;
+  font-family: inherit;
+}
+
+.reveal .qft input:placeholder-shown,
+.reveal [class*="quiz-f"] input:placeholder-shown {
+  text-overflow: ellipsis;
 }
 
 .reveal .qft .solutionDiv,
@@ -684,6 +611,8 @@
   border-radius: 6px;
   font-size: var(--font-size-small);
   list-style-type: none;
+  max-height: 4.4em;
+  overflow-y: scroll;
   cursor: default;
 }
 
@@ -700,9 +629,10 @@
 
 .reveal .qft .solutionList,
 .reveal [class*="quiz-f"] .solutionList {
-  display: none;
+  visibility: hidden;
   position: fixed;
   max-height: 10em;
+  max-width: 90%;
   z-index: 99;
   margin-bottom: var(--margin-bottom-ul);
   padding: 5px;
@@ -725,12 +655,13 @@
 .reveal .qft .solutionList li.solved,
 .reveal [class*="quiz-f"] .solutionList li.solved {
   display: block;
-  background-color: #808080;
+  background-color: #555;
+  box-shadow: 2px 2px 6px 1px #666;
 }
 
 .reveal .qft .solutionList.solved,
 .reveal [class*="quiz-f"] .solutionList.solved {
-  display: block;
+  visibility: visible;
 }
 
 .reveal .qft .solutionList .correct::before,
@@ -745,30 +676,29 @@
   font-weight: bold;
 }
 
-.reveal .qft .solved,
-.reveal [class*="quiz-f"] .solved {
+.reveal .qft.plain input,
+.reveal .plain[class*="quiz-f"] input {
   display: block;
+  width: 90%;
+  margin: 0 0.375em 0.375em 0;
+  padding: 5px 10px;
+  border: none;
+  background-color: #eee;
+  font-family: "Source Code Pro", monospace;
 }
 
-.reveal .qft.plain .solutionList,
-.reveal [class*="quiz-f"].plain .solutionList {
-  width: 88%;
-  margin: 0 0 var(--margin-bottom-ul) 0;
+.reveal .qft.plain input.show-right,
+.reveal .plain[class*="quiz-f"] input.show-right {
+  background-color: #aaffaa;
 }
 
-.reveal .qft.plain .solutionList li,
-.reveal [class*="quiz-f"].plain .solutionList li {
-  margin: 0;
-  border-radius: 6px;
-}
-
-.reveal .qft.plain .solutionList li .tooltip,
-.reveal [class*="quiz-f"].plain .solutionList li .tooltip {
-  padding: 0 0 0.2em 1em;
+.reveal .qft.plain input.show-wrong,
+.reveal .plain[class*="quiz-f"] input.show-wrong {
+  background-color: #ffaaaa;
 }
 
 .reveal .qft.plain .solutionButton,
-.reveal [class*="quiz-f"].plain .solutionButton {
+.reveal .plain[class*="quiz-f"] .solutionButton {
   margin-right: 0.5em;
 }
 
@@ -788,25 +718,35 @@
   margin-top: 0.5em;
   padding: 0.5em;
   font-size: var(--font-size-small);
-  visibility: hidden;
   border-radius: 6px;
+  visibility: hidden;
+  display: block;
+  width: 90%;
   min-height: 1.3em;
 }
 
 .reveal .qic .tooltip-div.solved,
 .reveal [class*="quiz-i"] .tooltip-div.solved {
   visibility: visible;
+}
+
+.reveal .qic .tooltip,
+.reveal [class*="quiz-i"] .tooltip {
   background-color: #eee;
+  border-radius: 6px;
 }
 
-.reveal .qic.plain .tooltip-div.solved,
-.reveal [class*="quiz-i"].plain .tooltip-div.solved {
-  width: 91%;
-}
-
-.reveal .qic.plain select,
-.reveal [class*="quiz-i"].plain select {
+.reveal .qic select,
+.reveal [class*="quiz-i"] select {
+  border: 2px var(--border-decoration-style) #000;
+  font-size: inherit;
+  margin-bottom: 0.3em;
   outline: none;
+}
+
+.reveal .qic select :disabled,
+.reveal [class*="quiz-i"] select :disabled {
+  color: #000;
 }
 
 .reveal .qmi,
@@ -814,9 +754,7 @@
 .reveal .quiz-match-items {
   display: flex;
   flex-direction: column;
-  text-align: var(--align-global);
   max-height: 76vh;
-  padding-top: 0.2em;
 }
 
 .reveal .qmi .matchItems,
@@ -837,12 +775,13 @@
 .reveal .qmi .matchDiv,
 .reveal .quiz-mi .matchDiv,
 .reveal .quiz-match-items .matchDiv {
-  max-height: 55vh;
-  padding: 0.5em;
-  margin: 0.5em 0;
-  border-radius: 7px;
+  padding: 0.5em 0.5em 0 0.5em;
+  margin-top: 0.5em;
+  border-radius: 6px;
   border: 1px solid #eee;
-  overflow-y: scroll;
+  min-height: 60vh;
+  max-height: 80vh;
+  overflow-y: auto;
 }
 
 .reveal .qmi .matchItems,
@@ -963,17 +902,23 @@
 .reveal .quiz-mi button,
 .reveal .quiz-match-items button {
   margin: 0.5em auto;
+  min-height: max-content;
+}
+
+.reveal .qmi.plain,
+.reveal .quiz-mi.plain,
+.reveal .quiz-match-items.plain {
+  max-height: unset;
 }
 
 .reveal .qmi.plain .matchDiv,
 .reveal .quiz-mi.plain .matchDiv,
 .reveal .quiz-match-items.plain .matchDiv {
   display: flex;
-  padding: 0.5em;
-  margin: 0.5em 0;
-  border-radius: 7px;
-  border: 1px solid #eee;
   -webkit-font-smoothing: antialiased;
+  overflow-y: visible;
+  min-height: unset;
+  max-height: unset;
 }
 
 .reveal .qmi.plain .matchItems,
@@ -1010,7 +955,6 @@
   text-align: center;
   cursor: pointer;
   -webkit-font-smoothing: antialiased;
-  min-height: fit-content;
 }
 
 .reveal .qmi.plain .optList p::before, .reveal .qmi.plain .optList p::after,
@@ -1098,6 +1042,8 @@
 .reveal .quiz-match-items.plain .options {
   visibility: hidden;
   position: absolute;
+  max-height: 6.4em;
+  overflow-y: scroll;
 }
 
 .reveal .qmi.plain .options.shown,
@@ -1176,6 +1122,7 @@
 .reveal .quiz-match-items.plain .buckets,
 .reveal .quiz-match-items.plain .matchItems {
   border: none;
+  padding: 0;
 }
 
 .reveal .qmi.plain .buckets::before, .reveal .qmi.plain .buckets::after,
@@ -1229,16 +1176,6 @@
 .quiz-match-items.plain .options {
       right: 0.5vw;
     }
-    .qmi.plain .matchQuestion,
-.quiz-mi.plain .matchQuestion,
-.quiz-match-items.plain .matchQuestion {
-      margin: 1em 0;
-    }
-    .qmi.plain .matchQuestion:first-of-type,
-.quiz-mi.plain .matchQuestion:first-of-type,
-.quiz-match-items.plain .matchQuestion:first-of-type {
-      margin-top: 0;
-    }
   }
   /* Edge adjustments */
   @supports (-ms-ime-align: auto) {
@@ -1261,7 +1198,7 @@
 }
 
 /* Microsoft Edge Browser 12-18 (All versions before Chromium) */
-_:-ms-lang(x).plain .options,
+_.plain:-ms-lang(x) .options,
 .qmi.plain .options,
 .quiz-mi.plain .options,
 .quiz-match-items.plain .options {
@@ -1272,11 +1209,39 @@ _:-ms-lang(x).plain .options,
   .reveal .slides {
     transform: none !important;
   }
+  .reveal .slides section .qic button,
+.reveal .slides section .qic .solutionDiv,
+.reveal .slides section .qft button,
+.reveal .slides section .qft .solutionDiv,
+.reveal .slides section .qmc button,
+.reveal .slides section .qmc .solutionDiv,
+.reveal .slides section .qmi button,
+.reveal .slides section .qmi .solutionDiv,
+.reveal .slides section [class*="quiz-"] button,
+.reveal .slides section [class*="quiz-"] .solutionDiv {
+    display: none;
+  }
+  .reveal .slides section .qic.plain input,
+.reveal .slides section .qic.plain select,
+.reveal .slides section .qft.plain input,
+.reveal .slides section .qft.plain select,
+.reveal .slides section .qmc.plain input,
+.reveal .slides section .qmc.plain select,
+.reveal .slides section .qmi.plain input,
+.reveal .slides section .qmi.plain select,
+.reveal .slides section .plain[class*="quiz-"] input,
+.reveal .slides section .plain[class*="quiz-"] select {
+    color: #fff;
+    background-color: #fff;
+    border: none;
+    border-bottom: 1px solid #000;
+    border-radius: unset;
+  }
   .reveal .slides section .qic.plain input,
 .reveal .slides section .qft.plain input,
 .reveal .slides section .qmc.plain input,
 .reveal .slides section .qmi.plain input,
-.reveal .slides section [class*="quiz-"].plain input {
+.reveal .slides section .plain[class*="quiz-"] input {
     margin-bottom: 0.5em;
     min-width: 35%;
   }
@@ -1284,14 +1249,14 @@ _:-ms-lang(x).plain .options,
 .reveal .slides section .qft.plain input::placeholder,
 .reveal .slides section .qmc.plain input::placeholder,
 .reveal .slides section .qmi.plain input::placeholder,
-.reveal .slides section [class*="quiz-"].plain input::placeholder {
+.reveal .slides section .plain[class*="quiz-"] input::placeholder {
     color: #fff;
   }
   .reveal .slides section .qic.plain .tooltip-div,
 .reveal .slides section .qft.plain .tooltip-div,
 .reveal .slides section .qmc.plain .tooltip-div,
 .reveal .slides section .qmi.plain .tooltip-div,
-.reveal .slides section [class*="quiz-"].plain .tooltip-div {
+.reveal .slides section .plain[class*="quiz-"] .tooltip-div {
     display: none !important;
   }
   .reveal .slides section .qic button,
@@ -1329,65 +1294,57 @@ _:-ms-lang(x).plain .options,
     color: initial;
   }
   .reveal .slides section .qmi,
-.reveal .slides section .qmi .matchDiv,
-.reveal .slides section [class*="quiz-"],
-.reveal .slides section [class*="quiz-"] .matchDiv {
+.reveal .slides section [class*="quiz-"] {
     max-height: unset;
-    overflow-y: visible;
-  }
-  .reveal .slides section .qmi .bucket,
-.reveal .slides section [class*="quiz-"] .bucket {
-    text-align: center !important;
-  }
-  .reveal .slides section .qmi .matchItems,
-.reveal .slides section [class*="quiz-"] .matchItems {
-    margin: 0 0 1em 0;
-  }
-  .reveal .slides section .qmi .matchItems::before,
-.reveal .slides section .qmi .matchItems::after,
-.reveal .slides section .qmi .buckets::before,
-.reveal .slides section [class*="quiz-"] .matchItems::before,
-.reveal .slides section [class*="quiz-"] .matchItems::after,
-.reveal .slides section [class*="quiz-"] .buckets::before {
-    display: none;
-  }
-  .reveal .slides section .qmi .matchItem,
-.reveal .slides section .qmi .bucket,
-.reveal .slides section [class*="quiz-"] .matchItem,
-.reveal .slides section [class*="quiz-"] .bucket {
-    font-size: var(--font-size-small) !important;
   }
   .reveal .slides section .qmi.plain,
-.reveal .slides section [class*="quiz-"].plain {
-    width: 95%;
-  }
-  .reveal .slides section .qmi.plain .matchDiv,
-.reveal .slides section [class*="quiz-"].plain .matchDiv {
-    overflow-y: visible;
-    max-height: unset;
+.reveal .slides section .plain[class*="quiz-"] {
+    width: 100%;
   }
   .reveal .slides section .qmi.plain .matchItems,
-.reveal .slides section [class*="quiz-"].plain .matchItems {
+.reveal .slides section .plain[class*="quiz-"] .matchItems {
+    align-items: stretch !important;
+  }
+  .reveal .slides section .qmi.plain .matchQuestion,
+.reveal .slides section .plain[class*="quiz-"] .matchQuestion {
+    font-size: var(--font-size-small) !important;
+  }
+  .reveal .slides section .qmi.plain .matchQuestion .optList,
+.reveal .slides section .plain[class*="quiz-"] .matchQuestion .optList {
+    color: #fff !important;
+    background-color: #fff;
+    max-height: 1em;
+  }
+  .reveal .slides section .qmi.plain .matchQuestion .optList p,
+.reveal .slides section .qmi.plain .matchQuestion .optList p::before,
+.reveal .slides section .qmi.plain .matchQuestion .optList p::after,
+.reveal .slides section .plain[class*="quiz-"] .matchQuestion .optList p,
+.reveal .slides section .plain[class*="quiz-"] .matchQuestion .optList p::before,
+.reveal .slides section .plain[class*="quiz-"] .matchQuestion .optList p::after {
+    color: #fff !important;
+  }
+  .reveal .slides section .qmi.plain .matchItems,
+.reveal .slides section .plain[class*="quiz-"] .matchItems {
     margin-bottom: 0;
   }
   .reveal .slides section .qmi.plain .options,
-.reveal .slides section [class*="quiz-"].plain .options {
+.reveal .slides section .plain[class*="quiz-"] .options {
     display: none;
   }
   .reveal .slides section .qmi.plain .option,
-.reveal .slides section [class*="quiz-"].plain .option {
+.reveal .slides section .plain[class*="quiz-"] .option {
     text-align: center !important;
   }
   .reveal .slides section .qmi.plain p,
-.reveal .slides section [class*="quiz-"].plain p {
+.reveal .slides section .plain[class*="quiz-"] p {
     font-size: var(--font-size-small) !important;
   }
   .reveal .slides section .qmi.plain .matchQuestion,
 .reveal .slides section .qmi.plain .optList p,
 .reveal .slides section .qmi.plain .buckets .matchItem,
-.reveal .slides section [class*="quiz-"].plain .matchQuestion,
-.reveal .slides section [class*="quiz-"].plain .optList p,
-.reveal .slides section [class*="quiz-"].plain .buckets .matchItem {
+.reveal .slides section .plain[class*="quiz-"] .matchQuestion,
+.reveal .slides section .plain[class*="quiz-"] .optList p,
+.reveal .slides section .plain[class*="quiz-"] .buckets .matchItem {
     font-size: var(--font-size-x-small) !important;
   }
 }

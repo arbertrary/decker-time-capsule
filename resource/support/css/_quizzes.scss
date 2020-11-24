@@ -5,16 +5,20 @@
 $red:#ff5e5e;
 $green: #009900;
 $blue: #2a9ddf;
+$dark-blue: #174e98;
+$black: #000;
+$white: #fff;
 $right: #aaffaa;
 $wrong: #ffaaaa;
 $button: #ddd;
 $solution: #eee;
+$option: #f1f1f1;
 $text: #555;
 $tooltip: #808080;
-$border: 2px var(--border-decoration-style) #000;
-$border-dotted: 2px dotted #000;
-$border-dashed: 1px dashed #000;
+$border: 2px var(--border-decoration-style) $black;
+$border-dotted: 2px dotted $black;
 $border-radius: 6px;
+$box-shadow: 2px 2px 6px 1px #666;
 
 .reveal {
     .qic,
@@ -45,57 +49,22 @@ $border-radius: 6px;
         .solutionDiv {
             margin: 0.5em 0 var(--margin-bottom-ul) 0;
         }
-        button,
-        input {
+        button {
             border-radius: $border-radius;
             font-family: inherit;
             outline: none;
             clear: both;
             border: $border;
-        }
-        button {
             font-size: var(--font-size-x-small);
-        }
-        input {
-            font-size: inherit;
-            &:placeholder-shown {
-                text-overflow: ellipsis; 
-            }
-        }
-        select {
-            border: $border;
-            font-size: inherit;
-            margin-bottom: 0.3em;
-            :disabled {
-                color: #000;
-            }
         }
         &.plain {
             button {
                 border: none;
-                margin: 0;
                 padding: 5px 10px; 
                 background-color: $button;
-                color: #000;
                 &:hover {
                     background-color: $tooltip;
-                    color: #fff; 
-                }
-            }
-            input {
-                display: block;
-                padding: 5px 10px; 
-                width: 90%;
-                margin: 0 0.375em 0.375em 0;
-                border: none;
-                border-radius: $border-radius;
-                background-color: $solution;
-                font-family: "Source Code Pro", monospace;
-                &.show-right {
-                    background-color: $right;
-                }
-                &.show-wrong {
-                    background-color: $wrong; 
+                    color: $white; 
                 }
             }
             li {
@@ -122,58 +91,56 @@ $border-radius: 6px;
     .quiz-multiple-choice {
         ul {
             display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-            align-content: center;
-            text-align: center;
+            justify-content: flex-start;
             counter-reset: answer;
+            flex-wrap: wrap;
         }
         li {
-            display: inline-block;
             position: relative;
-            text-align: var(--align-global);
-            margin: 0.5em;
-            padding: 0.5em;
-            border: 2px var(--border-decoration-style) $blue;
+            flex: 1 1 40%;
+            margin: 0.3em;
+            padding: 0.3em;
+            border: 2px var(--border-decoration-style) $dark-blue;
             border-radius: 20px;
             font-weight: normal;
-            color: #000;
+            color: $black;
+            list-style-type: none;
             cursor: pointer;
             &::before {
                 content: counter(answer, upper-latin) ": ";
                 counter-increment: answer;
-                margin-right: 0.5em;
                 font-weight:  bold;
+                margin-right: 0.5em;
             }
         }
         .tooltip  {
-            display: block;
             visibility: hidden;
-            width: max-content;
-            max-width: -moz-available;
-            max-width: fit-content;
-            top: 100%;
-            left: 5px;
-            background-color: $tooltip;
-            color: #fff;
-            text-align: center;
-            padding: 0.2em;
-            border-radius: $border-radius;
-            border: none;
+            width: 90%;
+            max-width: max-content;
             position: absolute;
             z-index: 1;
+            top: 100%;
+            left: 5px;
+            padding: 0.2em 0.5em;
+            background-color: $text;
+            color: $white;
+            border-radius: $border-radius;
             font-size: var(--font-size-x-small);
+            box-shadow: $box-shadow;
         }
         [class*="show-"]:hover .tooltip {
             visibility: visible;
         }
         &.plain {
+            ul {
+                display: inline-block;
+                text-align: center;
+            }
             li {
                 margin: 0;
                 padding: 0.1em 0 0.1em 0.7em;
                 border: none;
-                display: block;
+                text-align: left;
                 &::before {
                     content: "\f111";
                     font-family: "Font Awesome 5 Free";
@@ -184,17 +151,14 @@ $border-radius: 6px;
                     background-color: inherit;
                 }
             }
-            ul {
-                display: inline-block;
-            }
             &.inline {
                 ul {
-                    display: inline-block;
+                    display: inline-flex;
                     margin-top: 0.5em;
                 }
                 li {
-                    padding: 0.1em 0.7em 0.1em 0;
-                    display: inline;
+                    flex: 0 1 auto;
+                    margin: auto;
                 }
             }
         }
@@ -208,6 +172,15 @@ $border-radius: 6px;
         input {
             margin-right: 0.5em;
             padding-left: 0.2em;
+            clear: both;
+            border: $border;
+            border-radius: $border-radius;
+            outline: none;
+            font-size: inherit;
+            font-family: inherit;
+            &:placeholder-shown {
+                text-overflow: ellipsis; 
+            }
         }
         .solutionDiv {
             display: block;
@@ -219,6 +192,8 @@ $border-radius: 6px;
             border-radius: $border-radius;
             font-size: var(--font-size-small);
             list-style-type: none;
+            max-height: 4.4em;
+            overflow-y: scroll;
             cursor: default;
             &.solved {
                 visibility: visible;
@@ -229,9 +204,10 @@ $border-radius: 6px;
             }
         }
         .solutionList {
-            display: none;
+            visibility: hidden;
             position: fixed;
             max-height: 10em;
+            max-width: 90%;
             z-index: 99;
             margin-bottom: var(--margin-bottom-ul);
             padding: 5px;
@@ -239,7 +215,7 @@ $border-radius: 6px;
             border-radius: $border-radius;
             list-style-type: none;
             font-size: var(--font-size-x-small);
-            color: #fff;
+            color: $white;
             li {
                 display: none;
                 list-style-type: none;
@@ -248,11 +224,12 @@ $border-radius: 6px;
                 border-radius: $border-radius;
                 &.solved {
                     display: block;
-                    background-color: $tooltip;
+                    background-color: $text;
+                    box-shadow: $box-shadow;
                 }
             }
             &.solved {
-                display: block;
+                visibility: visible;
             }
             .correct::before {
                 content: "✓ ";
@@ -263,19 +240,20 @@ $border-radius: 6px;
                 font-weight: bold;
             }
         }
-        .solved {
-            display: block;
-        }
         &.plain {
-            .solutionList {
-                width: 88%;
-                margin: 0 0 var(--margin-bottom-ul) 0;
-                li {
-                    margin: 0;
-                    border-radius: $border-radius;
-                    .tooltip {
-                        padding: 0 0 0.2em 1em;
-                    }
+            input {
+                display: block;
+                width: 90%;
+                margin: 0 0.375em 0.375em 0;
+                padding: 5px 10px; 
+                border: none;
+                background-color: $solution;
+                font-family: "Source Code Pro", monospace;
+                &.show-right {
+                    background-color: $right;
+                }
+                &.show-wrong {
+                    background-color: $wrong; 
                 }
             }
             .solutionButton {
@@ -296,23 +274,37 @@ $border-radius: 6px;
             margin-top: 0.5em;
             padding: 0.5em;
             font-size: var(--font-size-small);
+            border-radius: 6px;
             visibility: hidden;
-            border-radius: $border-radius;
+            display: block;
+            width: 90%;
             min-height: 1.3em;
             &.solved {
                 visibility: visible;
-                background-color: $solution;
+            }
+        }
+        .tooltip {
+            background-color: $solution;
+            border-radius: $border-radius;
+        }
+        select {
+            border: $border;
+            font-size: inherit;
+            margin-bottom: 0.3em;
+            outline: none;
+            :disabled {
+                color: $black;
             }
         }
         &.plain {
-            .tooltip-div {
-                &.solved {
-                    width: 91%; 
-                }
-            }
-            select {
-                outline: none;
-            }
+            // .tooltip-div {
+            //     &.solved {
+            //         width: 91%; 
+            //     }
+            // }
+            // select {
+            //     outline: none;
+            // }
         }
     }
 
@@ -321,9 +313,7 @@ $border-radius: 6px;
     .quiz-match-items {
         display: flex;
         flex-direction: column;
-        text-align: var(--align-global);
         max-height: 76vh;
-        padding-top: 0.2em;
         .matchItems,
         .matchQuestion, 
         .buckets, 
@@ -331,12 +321,13 @@ $border-radius: 6px;
             display: flex;
         }
         .matchDiv {
-            max-height: 55vh;
-            padding: 0.5em;
-            margin: 0.5em 0;
-            border-radius: 7px;
+            padding: 0.5em 0.5em 0 0.5em;
+            margin-top: 0.5em;
+            border-radius: $border-radius;
             border: 1px solid $solution;
-            overflow-y: scroll;
+            min-height: 60vh;
+            max-height: 80vh;
+            overflow-y: auto;
         }
         .matchItems,
         .buckets {
@@ -350,7 +341,7 @@ $border-radius: 6px;
                 top: -1em;
                 left: 1em;
                 font-size: 15px;
-                background: #fff;
+                background: $white;
                 color: $tooltip;
                 // Get drag/drop hint in correct language from yaml header
                 content: attr(data-hint);
@@ -376,7 +367,7 @@ $border-radius: 6px;
             object-fit: contain;
             margin: 0 2px 6px 2px;
             padding: 0.3em;
-            background:#fff;
+            background:$white;
             border: $border-dotted;
             border-radius: 10px;
             cursor: grab;
@@ -415,15 +406,16 @@ $border-radius: 6px;
         }
         button {
             margin: 0.5em auto;
+            min-height: max-content;
         }
         &.plain {
+            max-height: unset;
             .matchDiv {
                 display: flex;
-                padding: 0.5em;
-                margin: 0.5em 0;
-                border-radius: 7px;
-                border: 1px solid #eee;
                 -webkit-font-smoothing: antialiased;
+                overflow-y: visible;
+                min-height: unset;
+                max-height: unset;
             }
             .matchItems {
                 flex-direction: column;
@@ -445,11 +437,11 @@ $border-radius: 6px;
                 margin-left: 1em;
                 border: $border;
                 padding: 0 0.1em;
-                background-color: #f1f1f1;
+                background-color: $option;
                 text-align: center;
                 cursor: pointer;
                 -webkit-font-smoothing: antialiased;
-                min-height: fit-content;
+                // min-height: fit-content;
                 p {
                     &::before,
                     &::after {
@@ -457,7 +449,7 @@ $border-radius: 6px;
                         font-weight: bolder;
                     }
                     &::after {
-                        color: #f1f1f1;
+                        color: $option;
                     }
                 }
             }
@@ -489,7 +481,7 @@ $border-radius: 6px;
                     display: none;
                     margin: 0;
                     &:first-child::before {
-                        color: #f1f1f1;
+                        color: $option;
                     }
                     &:last-child {
                         display: block;
@@ -499,12 +491,14 @@ $border-radius: 6px;
             .options {
                 visibility: hidden;
                 position: absolute;
+                max-height: 6.4em;
+                overflow-y: scroll;
                 &.shown {
                     visibility: visible;
                 }
                 p {
                     &::before {
-                        color: #f1f1f1;
+                        color: $option;
                     }
                     &.selected::before,
                     &.selected.correct::before {
@@ -540,6 +534,7 @@ $border-radius: 6px;
             .buckets, 
             .matchItems {
                 border: none;
+                padding: 0;
                 &::before,
                 &::after {
                     content: unset;
@@ -618,12 +613,24 @@ _:-ms-lang(x),
             .qmc,
             .qmi,
             [class*="quiz-"] {
+                button, 
+                .solutionDiv {
+                    display: none;
+                }
                 &.plain {
+                    input, 
+                    select {
+                        color: $white;
+                        background-color: $white;
+                        border: none;
+                        border-bottom: 1px solid $black;
+                        border-radius: unset;
+                    }
                     input {
                         margin-bottom: 0.5em;
                         min-width: 35%;
                         &::placeholder {
-                            color: #fff;
+                            color: $white;
                         }
                     }
                     .tooltip-div {
@@ -640,8 +647,8 @@ _:-ms-lang(x),
             .qic select,
             [class*="quiz-i"] select {
                 // Hide placeholder for unanswered questions
-                background-color: #fff;
-                color: #fff;
+                background-color: $white;
+                color: $white;
                 min-width: 35%;
                 &.show-right {
                     background-color: $right;
@@ -655,32 +662,24 @@ _:-ms-lang(x),
 
             .qmi,
             [class*="quiz-"] {
-                &,
-                .matchDiv {
-                    max-height: unset;
-                    overflow-y: visible;
-                }
-                .bucket {
-                    text-align: center !important;
-                }
-                .matchItems {
-                    margin: 0 0 1em 0;
-                }
-                .matchItems::before, 
-                .matchItems::after,
-                .buckets::before {
-                    display: none;
-                }
-                .matchItem,
-                .bucket {
-                    font-size: var(--font-size-small) !important;
-                }
-
+                max-height: unset;
                 &.plain {
-                    width: 95%;
-                    .matchDiv {
-                        overflow-y: visible;
-                        max-height: unset;
+                    width: 100%;
+                    .matchItems {
+                        align-items: stretch !important;
+                    }
+                    .matchQuestion {
+                        font-size: var(--font-size-small) !important;
+                        .optList {
+                            color: $white !important;
+                            background-color: $white; 
+                            max-height: 1em;
+                            p,
+                            p::before,
+                            p::after {
+                                color: $white !important; 
+                            }
+                        }
                     }
                     .matchItems {
                         margin-bottom: 0;

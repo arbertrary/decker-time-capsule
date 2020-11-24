@@ -76,48 +76,33 @@ TopicId: yeah
 Difficulty: Easy
 ```
 
-# Multiple Choice 3 - Fancy
+# Multiple Choice 3 - Fancy {.columns}
 
-Choices display beyond the slide
 
-## What is the result of the following term? {.qmc}
+## {.top}
+Given is a light source of radiance 0.5 that illuminates a surface of diffuse reflectivity coefficient 1. Calculate the reflected diffuse energy according to the Phong Lighting Model. The constellation is as shown in the image below.
 
-\begin{equation*}
-\begin{bmatrix}
-1&0&0&1\\
-0&1&0&1\\
-0&0&1&0\\
-0&0&0&1
-\end{bmatrix}
-\begin{bmatrix}
-0&-1&0&0\\
-1&0&0&0\\
-0&0&1&0\\
-0&0&0&1
-\end{bmatrix}
-\end{equation*}
+## {.right}
+Trigonometric functions
 
-- [ ] $\begin{bmatrix}
-0&1&0&1\\
--1&0&0&1\\
-0&0&1&0\\
-0&0&0&1
-\end{bmatrix}$
-   - As we will see, the second matrix describes a rotation. Combined with the first one, which describes a translation, the rotational part (upper left $3\times3$) would not be altered.
-- [X] $\begin{bmatrix}
-0&-1&0&1\\
-1&0&0&1\\
-0&0&1&0\\
-0&0&0&1
-\end{bmatrix}$
-   - Yes, that is correct.
-- [ ] $\begin{bmatrix}
-0&-1&0&0\\
-1&0&0&1\\
-0&0&1&0\\
-0&0&0&1
-\end{bmatrix}$
-   - As we will see, the first matrix describes a translattion. Combined with the second one, which describes a rotation, the translational part (right column) would not be altered.
+|     | $0^\circ$ | $30^\circ$           | $45^\circ$           | $60^\circ$           | $90^\circ$ |
+| --- | --------- | -------------------- | -------------------- | -------------------- | ---------- |
+| sin | 0         | $\frac{1}{2}$        | $\frac{\sqrt{2}}{2}$ | $\frac{\sqrt{3}}{2}$ | 1          |
+| cos | 1         | $\frac{\sqrt{3}}{2}$ | $\frac{\sqrt{2}}{2}$ | $\frac{1}{2}$        | 0          |
+
+
+## {.qmc .inline}
+
+- [ ] $\frac{\sqrt{3}}{4}$
+  - $1\cdot0.5\cdot\cos(\vec s\cdot \vec n) = 1\cdot0.5\cdot\cos(30^\circ)$
+- [X] $\frac{\sqrt{3}}{2}$
+- [ ] $\frac{1}{2}$
+  - $1\cdot0.5\cdot\cos(\vec s\cdot \vec n)$  
+    $= 1\cdot0.5\cdot\cos(30^\circ)$
+- [ ] $\frac{1}{4}$
+  - $1\cdot0.5\cdot\cos(\vec s\cdot \vec n)$  
+    $= 1\cdot0.5\cdot\cos(30^\circ)$
+
 
 
 ```yaml
@@ -127,49 +112,33 @@ TopicId: yeah
 Difficulty: Easy
 ```
 
-# Multiple Choice 4 - Plain Inline
+# Multiple Choice 4 - Plain Inline 
 
-Choices are displayed in a row. 
-
-## What is the result of the following term? {.qmc .plain .inline}
+## What does the transpose of the following matrix look like? {.qmc .inline .plain}
 
 \begin{equation*}
 \begin{bmatrix}
-1&0&0&1\\
-0&1&0&1\\
-0&0&1&0\\
-0&0&0&1
-\end{bmatrix}
-\begin{bmatrix}
-0&-1&0&0\\
-1&0&0&0\\
-0&0&1&0\\
-0&0&0&1
+  1 & 2\\
+  3 & 2\\
 \end{bmatrix}
 \end{equation*}
 
-- [ ] $\begin{bmatrix}
-0&1&0&1\\
--1&0&0&1\\
-0&0&1&0\\
-0&0&0&1
+* [ ] $\begin{bmatrix}
+  1 & 2\\
+  3 & 2\\
 \end{bmatrix}$
-   - As we will see, the second matrix describes a rotation. Combined with the first one, which describes a translation, the rotational part (upper left $3\times3$) would not be altered.
-- [X] $\begin{bmatrix}
-0&-1&0&1\\
-1&0&0&1\\
-0&0&1&0\\
-0&0&0&1
+* [ ] $\begin{bmatrix}
+  2 & 2\\
+  3 & 1\\
 \end{bmatrix}$
-   - Yes, that is correct.
-- [ ] $\begin{bmatrix}
-0&-1&0&0\\
-1&0&0&1\\
-0&0&1&0\\
-0&0&0&1
+* [ ] $\begin{bmatrix}
+  2 & 3\\
+  2 & 1\\
 \end{bmatrix}$
-   - As we will see, the first matrix describes a translattion. Combined with the second one, which describes a rotation, the translational part (right column) would not be altered.
-
+* [X] $\begin{bmatrix}
+  1 & 3\\
+  2 & 2\\
+\end{bmatrix}$
 
 ```yaml
 Points: 5
@@ -205,6 +174,12 @@ Inertia
 Springs
 : $-k \, \left( \norm{\vec{x}_0 - \vec{x}_1} - L \right) \, \frac{ \vec{x}_0 - \vec{x}_1 }{\norm{\vec{x}_0 - \vec{x}_1}}$
 
+!
+: Distractor A
+
+!
+: Distractor B
+
 ```yaml
 lang: en
 ```
@@ -227,6 +202,12 @@ Inertia
 
 Springs
 : $-k \, \left( \norm{\vec{x}_0 - \vec{x}_1} - L \right) \, \frac{ \vec{x}_0 - \vec{x}_1 }{\norm{\vec{x}_0 - \vec{x}_1}}$
+
+!
+: Distractor A
+
+!
+: Distractor B
 
 ```yaml
 lang: en
@@ -393,9 +374,11 @@ Below there are some examples of typical machine learning problems. Assign the e
 
 # Blanktext/Inserting MC
 
-Like multiple-choice, however, the choices are shown as drop-down lists embedded inside the text. Hence, beware of the whitespaces below. 
+Choices are shown as drop-down lists embedded inside the text. Confirm tooltips display on hover. Questions are corrected immediately, displaying red or green based on correctness. Retry is allowed. Hover over the select box to display the tooltip below the question.
 
 # Insert 1 - Fancy
+
+First (Scala) has no tooltip.
 
 ## {.quiz-ic} 
 
@@ -403,7 +386,6 @@ Decker is a software built using
 
 
 - [ ] Scala
-    - Unfortunately not.
 - [X] Haskell
     - Due to Pandoc.
 - [ ] Java
@@ -426,7 +408,7 @@ Points: 5
 
 # Insert 2 - Plain
 
-Questions are corrected immediately, displaying red or green based on correctness. Retry is allowed. Hover over the select box to display the tooltip below the question.
+Appears the same as Fancy.
  
 ## {.quiz-ic .plain} 
 
@@ -480,6 +462,8 @@ Points: 5
 ```
 
 # Free Text 2 - Plain
+
+Type the answer and push Enter to correct the question.  
 
 ## {.qft .plain}
 

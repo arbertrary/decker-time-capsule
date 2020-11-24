@@ -2,7 +2,7 @@
 
 var RevealQuiz = (() => {
     return {
-        init: () => {
+        init: () => { 
             return new Promise(resolve => {
                 quizMI();
                 quizMC();
@@ -121,29 +121,31 @@ function quizIC() {
             const solutionList = sel.nextElementSibling;
 
             // Listen for selections - color appropriately
-            sel.addEventListener('change', () => {
+            sel.addEventListener('mouseenter', () => {
+                const ind = sel.selectedIndex;
+                if (ind) {
+                    sel.classList.add('solved');
+                    const answers = solutionList.getElementsByTagName('li');
+                    const tip = answers.item(sel.selectedIndex - 1).querySelector('.tooltip');
+                    const cln = tip.cloneNode(true);
+                    tipDiv.appendChild(cln);
+                    if (tipDiv.firstElementChild.innerHTML !== "") { 
+                        tipDiv.classList.add('solved'); 
+                    }
+                }
+            });
+            sel.addEventListener('mouseleave', () => {
                 tipDiv.innerHTML = "";
-                sel.classList.add('solved');
+                tipDiv.classList.remove('solved');
+                sel.classList.remove('solved');
+            })
+            sel.addEventListener('change', () => {
                 const ind = sel.selectedIndex;
                 const answer = sel.options[ind].innerText.toLowerCase().trim();
                 const checked = checkAnswer(solutionList, answer);
-
                 sel.classList.remove("show-right", "show-wrong");
                 sel.classList.add(checked.correct ? "show-right" : "show-wrong");
-
-                const answers = solutionList.getElementsByTagName('li');
-                const tip = answers.item(sel.selectedIndex - 1).querySelector('.tooltip');
-                const cln = tip.cloneNode(true);
-                tipDiv.appendChild(cln);
             })
-
-            // Show tooltip box on mouseover
-            sel.addEventListener("mouseover", () => {
-                if (sel.classList.contains('solved')) {
-                    if (tipDiv.firstElementChild.innerHTML !== "") { tipDiv.classList.add('solved'); }
-                }
-            });
-            sel.addEventListener("mouseleave", () => { tipDiv.classList.remove('solved') });
         }
     }
 }
@@ -384,4 +386,4 @@ function drop(event) {
     event.target.appendChild(element);
 }
 
-Reveal.registerPlugin('quiz', RevealQuiz);
+Reveal.registerPlugin( 'quiz-wue', RevealQuiz );
