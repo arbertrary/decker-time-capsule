@@ -378,12 +378,9 @@ function drag(event) {
 function drop(event) {
     event.preventDefault();
     const element = elements[event.dataTransfer.getData('index')];
-    if (event.target.classList.contains("matchItem")) {
-        event.target.parentNode.appendChild(element);
-        return;
-    }
-
-    event.target.appendChild(element);
+    let parent = event.target.parentNode;
+    // check if dragging back to start
+    event.target.classList.contains('matchItem') ? parent.appendChild(element) : event.target.appendChild(element);
 }
 
 Reveal.registerPlugin( 'quiz-wue', RevealQuiz );

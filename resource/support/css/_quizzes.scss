@@ -313,11 +313,7 @@ $box-shadow: 2px 2px 6px 1px #666;
     .quiz-match-items {
         display: flex;
         flex-direction: column;
-        max-height: 76vh;
-        .matchItems,
-        .matchQuestion, 
-        .buckets, 
-        .bucket {
+        .matchQuestion {
             display: flex;
         }
         .matchDiv {
@@ -325,17 +321,14 @@ $box-shadow: 2px 2px 6px 1px #666;
             margin-top: 0.5em;
             border-radius: $border-radius;
             border: 1px solid $solution;
-            min-height: 60vh;
-            max-height: 80vh;
-            overflow-y: auto;
         }
         .matchItems,
         .buckets {
+            display: flex;
             position: relative;
             padding: 0.3em;
             border: 2px var(--border-decoration-style) $button;
             border-radius: $border-radius;
-            font-size: var(--font-size-small);
             &::before {
                 position: absolute;
                 top: -1em;
@@ -348,10 +341,11 @@ $box-shadow: 2px 2px 6px 1px #666;
             }
         }
         .matchItems {
-            min-height: 1em;
-            margin: 1em 0 1.5em 0;
-            justify-content: space-around;
+            justify-content: flex-start;
             flex-wrap: wrap;
+            min-height: 1em;
+            margin-bottom: 1.5em;
+            font-size: var(--font-size-small);
             &::after {
                 position: absolute;
                 content: " ";
@@ -363,14 +357,19 @@ $box-shadow: 2px 2px 6px 1px #666;
             }
         }
         .matchItem {
-            flex: 2 0 0;
-            object-fit: contain;
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 auto;
+            overflow: hidden;
+            justify-content: center;
             margin: 0 2px 6px 2px;
-            padding: 0.3em;
-            background:$white;
+            padding: 0.2em;
             border: $border-dotted;
             border-radius: 10px;
+            text-align: center;
             cursor: grab;
+            object-fit: contain;
+            max-width: 100%;
             &.show-right {
                 background-color: $right;
                 border: $border;
@@ -383,18 +382,31 @@ $box-shadow: 2px 2px 6px 1px #666;
                 max-width: 50%;
             }
         }
-        .bucket {
-            flex-direction: column;
+        .buckets {
             flex: 1;
-            padding: 0.2em;
+            font-size: var(--font-size-small);
+        }
+        .bucket-container {
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 0;
             margin: 0.2em;
-            border: $border;
+            border: 2px solid #000;
             text-align: center;
+            padding: 0.2em;
+        }
+        .bucket {
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 content;
+            max-height: 40vh;
+            overflow: hidden;
             cursor: default;
-            overflow: auto;
-            word-wrap: break-word;
+            min-width: 3em;
             .matchItem {
-                padding: 0.2em
+                font-size: 70%;
+                flex: 0 1 auto;
+                padding: 0;
             }
         }
         .draggableChild:not(a) {
@@ -413,13 +425,9 @@ $box-shadow: 2px 2px 6px 1px #666;
             .matchDiv {
                 display: flex;
                 -webkit-font-smoothing: antialiased;
-                overflow-y: visible;
-                min-height: unset;
-                max-height: unset;
             }
             .matchItems {
-                flex-direction: column;
-                flex-wrap: nowrap;
+                flex-flow: column nowrap;
                 flex: 1 0 auto;
                 margin: 0;
                 justify-content: start;
@@ -430,6 +438,7 @@ $box-shadow: 2px 2px 6px 1px #666;
                 margin-bottom: 1em;
                 min-width: max-content;
                 justify-content: flex-end;
+                font-size: var(--font-size-small) !important;
             }
             .optList, 
             .options {
@@ -441,7 +450,6 @@ $box-shadow: 2px 2px 6px 1px #666;
                 text-align: center;
                 cursor: pointer;
                 -webkit-font-smoothing: antialiased;
-                // min-height: fit-content;
                 p {
                     &::before,
                     &::after {
@@ -544,6 +552,8 @@ $box-shadow: 2px 2px 6px 1px #666;
             .matchItem {
                 border: none;
                 padding: 0 0 0.3em 0;
+                text-align: left;
+                display: block;
                 &::before {
                     content: counter(item, upper-latin) ": ";
                     counter-increment: item;
@@ -556,39 +566,6 @@ $box-shadow: 2px 2px 6px 1px #666;
             }
             button {
                 width: max-content;
-            }
-        }
-    }
-}
-
-@media not all and (min-resolution:.001dpcm) { 
-    /* Safari adjustments */
-    @supports (-webkit-appearance:none) {
-        .qmi,
-        .quiz-mi,
-        .quiz-match-items {
-            &.plain {
-                .options {
-                    right: 0.5vw;
-                }
-            }
-        }
-    }
-    /* Edge adjustments */
-    @supports (-ms-ime-align: auto) {
-        .qmi,
-        .quiz-mi,
-        .quiz-match-items {
-            &.plain {
-                .options {
-                    right: 0.5vw;
-                }
-                .matchQuestion {
-                    margin: 1em 0;
-                }
-                .matchQuestion:first-of-type {
-                    margin-top: 0;
-                }
             }
         }
     }
@@ -669,7 +646,6 @@ _:-ms-lang(x),
                         align-items: stretch !important;
                     }
                     .matchQuestion {
-                        font-size: var(--font-size-small) !important;
                         .optList {
                             color: $white !important;
                             background-color: $white; 

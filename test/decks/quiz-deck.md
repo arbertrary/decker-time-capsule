@@ -159,6 +159,9 @@ Drag response to answers. Switch responses even after solved. A scrollbar appear
 
 ## {.qmi}
 
+Empty
+: !
+
 Gravity
 : $(0, -k\,m, 0)\T$
 
@@ -370,7 +373,6 @@ Below there are some examples of typical machine learning problems. Assign the e
 :   Customer Grouping
 :   Dimensionality Reduction 
 :   Outlier detection
-
 
 # Blanktext/Inserting MC
 

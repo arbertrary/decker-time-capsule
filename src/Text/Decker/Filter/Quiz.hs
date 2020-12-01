@@ -340,12 +340,13 @@ buildSelect items = Div ("", ["options"], []) $ blank:optList
 plainMatchQuestionsDivs :: [Block] -> [[Block]] -> [Block]
 plainMatchQuestionsDivs buckets items = map matchQuestionDiv (filter (not . isDistractor) buckets)
   where
-    matchQuestionDiv bucket = Div ("", ["matchQuestion"], []) $ [label bucket, optList, options]
+    matchQuestionDiv bucket = Div ("", ["matchQuestion"], []) [label bucket, optList, options]
     isDistractor :: Block -> Bool
     isDistractor Text.Pandoc.Definition.Null = True
     isDistractor _ = False
     label :: Block -> Block
-    label bucket@(Div ("", ["bucket"], [("bucketId", bID)]) bs) = rawHtml' $ H.label ! H.customAttribute "data-bucketId" (H.textValue bID) $ toHtml (stringify bucket)
+    label bucket@(Div ("", ["bucket-container"], cont) [Div ("", ["bucket"], [("bucketId", bID)]) bs]) = 
+        rawHtml' $ H.label ! H.customAttribute "data-bucketId" (H.textValue bID) $ toHtml (stringify bucket)
     label bucket = rawHtml' $ H.label ! H.customAttribute "data-bucketId" "" $ toHtml (stringify bucket)
     optList :: Block
     optList = Div ("", ["optList"], []) [rawHtml' (H.p ! A.class_ "selected blank option" $ "...")]
@@ -385,27 +386,17 @@ renderMatching meta quiz@(MatchItems title tgs qm qs matches) =
                   [("draggable", "true"), ("bucketId", index)]
                 )
         distractor :: [Block] -> Block
-        distractor =
-            Div ("", ["matchItem", "distractor"], [("draggable", "true")])
+        distractor = Div ("", ["matchItem", "distractor"], [("draggable", "true")])
         pairs :: Match -> (Block, [Block])
         pairs (Distractor bs) = (Text.Pandoc.Definition.Null, map distractor bs)
         pairs (Pair i is bs) =
             case bs of
-                [[Plain []]] ->
-                    ( Div
-                          ( "",
-                            ["bucket", "distractor"],
-                            [("bucketId", T.pack $ show i)]
-                          )
-                          [Plain is],
-                      []
-                    )
-                _ ->
-                    ( Div
-                          ("", ["bucket"], [("bucketId", T.pack $ show i)])
-                          [Plain is],
-                      map (item (T.pack $ show i)) bs
-                    )
+                [[Plain []]] -> ( container [dist], [] )
+                _ -> ( container [bkts], map (item (T.pack $ show i)) bs )
+            where 
+                container = Div ("", ["bucket-container"], [])
+                dist = Div ("", ["bucket", "distractor"], [("bucketId", T.pack $ show i)]) [Plain is]
+                bkts = Div ("", ["bucket"], [("bucketId", T.pack $ show i)]) [Plain is]
 renderMatching meta q =
     Div ("", [], []) [Para [Str "ERROR NO MATCHING QUIZ"]]
 
