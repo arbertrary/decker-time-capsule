@@ -355,13 +355,17 @@ $box-shadow: 2px 2px 6px 1px #666;
                 border-top: 0.7em solid $solution;
                 left: 50%;
             }
+            // Scale down image to prevent quiz from overflowing
+            .matchItem img {
+                max-width: 50%;
+            }
         }
         .matchItem {
             display: flex;
             flex-direction: column;
             flex: 1 1 auto;
             overflow: hidden;
-            justify-content: center;
+            justify-content: flex-start;
             margin: 0 2px 6px 2px;
             padding: 0.2em;
             border: $border-dotted;
@@ -377,10 +381,6 @@ $box-shadow: 2px 2px 6px 1px #666;
             &.show-wrong {
                 background-color: $wrong;
             }
-            // Scale down image to prevent quiz from overflowing
-            img {
-                max-width: 50%;
-            }
         }
         .buckets {
             flex: 1;
@@ -393,16 +393,19 @@ $box-shadow: 2px 2px 6px 1px #666;
             margin: 0.2em;
             border: 2px solid #000;
             text-align: center;
-            padding: 0.2em;
         }
         .bucket {
             display: flex;
             flex-direction: column;
-            flex: 1 1 content;
+            flex: 1 1 auto;
             max-height: 40vh;
             overflow: hidden;
             cursor: default;
             min-width: 3em;
+            p {
+                padding: 0.2em;
+                margin-bottom: 0;
+            }
             .matchItem {
                 font-size: 70%;
                 flex: 0 1 auto;
@@ -443,7 +446,6 @@ $box-shadow: 2px 2px 6px 1px #666;
             .optList, 
             .options {
                 width: 3em;
-                margin-left: 1em;
                 border: $border;
                 padding: 0 0.1em;
                 background-color: $option;
@@ -462,6 +464,7 @@ $box-shadow: 2px 2px 6px 1px #666;
                 }
             }
             .optList {
+                margin-left: 1em;
                 &.correct {
                     background-color: $right;
                     p {

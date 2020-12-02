@@ -310,7 +310,7 @@ renderInsertChoices meta quiz@(InsertChoices title tgs qm q) =
         select choices =
             ( H.select $
                   (H.option ! A.class_ "wrong" $ H.toHtml ("..." :: T.Text))
-                      >> (foldr ((>>) . options) H.br choices)
+                      >> (foldr ((>>) . options) " " choices)
             )
                 >> choiceList "solutionList" choices
         options :: Choice -> Html
@@ -395,8 +395,11 @@ renderMatching meta quiz@(MatchItems title tgs qm qs matches) =
                 _ -> ( container [bkts], map (item (T.pack $ show i)) bs )
             where 
                 container = Div ("", ["bucket-container"], [])
-                dist = Div ("", ["bucket", "distractor"], [("bucketId", T.pack $ show i)]) [Plain is]
-                bkts = Div ("", ["bucket"], [("bucketId", T.pack $ show i)]) [Plain is]
+                dist = Div ("", ["bucket", "distractor"], [("bucketId", T.pack $ show i)]) para
+                bkts = Div ("", ["bucket"], [("bucketId", T.pack $ show i)]) para
+                para 
+                    | "plain" `elem` tgs = [Plain is]
+                    | otherwise = [Para is]
 renderMatching meta q =
     Div ("", [], []) [Para [Str "ERROR NO MATCHING QUIZ"]]
 

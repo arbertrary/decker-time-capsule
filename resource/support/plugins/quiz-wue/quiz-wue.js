@@ -380,7 +380,7 @@ function drop(event) {
     const element = elements[event.dataTransfer.getData('index')];
     let parent = event.target.parentNode;
     // check if dragging back to start
-    event.target.classList.contains('matchItem') ? parent.appendChild(element) : event.target.appendChild(element);
+    event.target.classList.contains('matchItem') || parent.classList.contains('bucket') ? parent.appendChild(element) : event.target.appendChild(element);
 }
 
 Reveal.registerPlugin( 'quiz-wue', RevealQuiz );

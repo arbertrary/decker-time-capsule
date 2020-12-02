@@ -821,6 +821,12 @@
   left: 50%;
 }
 
+.reveal .qmi .matchItems .matchItem img,
+.reveal .quiz-mi .matchItems .matchItem img,
+.reveal .quiz-match-items .matchItems .matchItem img {
+  max-width: 50%;
+}
+
 .reveal .qmi .matchItem,
 .reveal .quiz-mi .matchItem,
 .reveal .quiz-match-items .matchItem {
@@ -828,7 +834,7 @@
   flex-direction: column;
   flex: 1 1 auto;
   overflow: hidden;
-  justify-content: center;
+  justify-content: flex-start;
   margin: 0 2px 6px 2px;
   padding: 0.2em;
   border: 2px dotted #000;
@@ -852,12 +858,6 @@
   background-color: #ffaaaa;
 }
 
-.reveal .qmi .matchItem img,
-.reveal .quiz-mi .matchItem img,
-.reveal .quiz-match-items .matchItem img {
-  max-width: 50%;
-}
-
 .reveal .qmi .buckets,
 .reveal .quiz-mi .buckets,
 .reveal .quiz-match-items .buckets {
@@ -874,7 +874,6 @@
   margin: 0.2em;
   border: 2px solid #000;
   text-align: center;
-  padding: 0.2em;
 }
 
 .reveal .qmi .bucket,
@@ -882,11 +881,18 @@
 .reveal .quiz-match-items .bucket {
   display: flex;
   flex-direction: column;
-  flex: 1 1 content;
+  flex: 1 1 auto;
   max-height: 40vh;
   overflow: hidden;
   cursor: default;
   min-width: 3em;
+}
+
+.reveal .qmi .bucket p,
+.reveal .quiz-mi .bucket p,
+.reveal .quiz-match-items .bucket p {
+  padding: 0.2em;
+  margin-bottom: 0;
 }
 
 .reveal .qmi .bucket .matchItem,
@@ -957,7 +963,6 @@
 .reveal .quiz-match-items.plain .optList,
 .reveal .quiz-match-items.plain .options {
   width: 3em;
-  margin-left: 1em;
   border: 2px var(--border-decoration-style) #000;
   padding: 0 0.1em;
   background-color: #f1f1f1;
@@ -988,6 +993,12 @@
 .reveal .quiz-match-items.plain .optList p::after,
 .reveal .quiz-match-items.plain .options p::after {
   color: #f1f1f1;
+}
+
+.reveal .qmi.plain .optList,
+.reveal .quiz-mi.plain .optList,
+.reveal .quiz-match-items.plain .optList {
+  margin-left: 1em;
 }
 
 .reveal .qmi.plain .optList.correct,
