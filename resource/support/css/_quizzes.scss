@@ -296,16 +296,6 @@ $box-shadow: 2px 2px 6px 1px #666;
                 color: $black;
             }
         }
-        &.plain {
-            // .tooltip-div {
-            //     &.solved {
-            //         width: 91%; 
-            //     }
-            // }
-            // select {
-            //     outline: none;
-            // }
-        }
     }
 
     .qmi,
@@ -410,11 +400,9 @@ $box-shadow: 2px 2px 6px 1px #666;
                 font-size: 70%;
                 flex: 0 1 auto;
                 padding: 0;
+                font-weight: initial;
             }
         }
-        .draggableChild:not(a) {
-            pointer-events: none;
-        } 
         mjx-container > svg {
             object-fit: contain;
             max-width: 100%;
@@ -507,7 +495,10 @@ $box-shadow: 2px 2px 6px 1px #666;
                 &.shown {
                     visibility: visible;
                 }
+                // add border declarations to correct Safari rendering
                 p {
+                    background-color: $option;
+                    border: 2px solid $option;;
                     &::before {
                         color: $option;
                     }
@@ -530,7 +521,7 @@ $box-shadow: 2px 2px 6px 1px #666;
                         }
                     }
                     &.incorrect {
-                        border: none;
+                        border: 2px solid $wrong;
                         background-color: $wrong;
                         &::after {
                             color: $wrong;
@@ -565,6 +556,9 @@ $box-shadow: 2px 2px 6px 1px #666;
                 }
                 &:last-of-type {
                     padding-bottom: 0;
+                }
+                img {
+                    max-width: 50%;
                 }
             }
             button {

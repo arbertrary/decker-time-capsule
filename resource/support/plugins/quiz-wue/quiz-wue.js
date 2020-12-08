@@ -234,7 +234,7 @@ function buildDragDrop(question) {
         dropzones[i].addEventListener("dragover", e => e.preventDefault());
 
         for (let child of dropzones[i].children) {
-            if (!child.classList.contains("matchItem")) {
+            if (!child.classList.contains("matchItem") && child.tagName !== 'P') {
                 child.classList.add("draggableChild");
             }
         }
@@ -242,13 +242,9 @@ function buildDragDrop(question) {
 
     for (var i = 0; i < draggables.length; i++) {
         draggables[i].addEventListener("dragstart", drag);
-
-        // disable children (e.g. images) from being dragged themselves
-        for (let child of draggables[i].children) {
-            child.setAttribute('draggable', 'false');
-            child.classList.add("draggableChild");
-        }
     }
+    // do not remove draggable from children because ghost image disappears
+
     const answerButton = question.querySelector(".solutionButton");
     matchingAnswerButton(question, answerButton);
 }
@@ -362,25 +358,46 @@ function buildPlainMatch(question) {
         }
     });
 }
-
 var elements = [];
 function drag(event) {
-    var index = elements.indexOf(event.target);
+    // drag the enclosing div and not just the child
+    let tar = event.target.classList.contains('.matchItem') ? event.target : event.target.closest('.matchItem');
+    
+    var index = elements.indexOf(tar);
     if (index == -1) {
         // not already existing in the array, add it now
-        elements.push(event.target);
+        elements.push(tar);
         index = elements.length - 1;
     }
 
     event.dataTransfer.setData('index', index);
-    event.dataTransfer.setDragImage(event.target, event.target.clientWidth / 2, event.target.clientHeight / 2);
+    event.dataTransfer.setDragImage(tar, tar.clientWidth / 10, tar.clientHeight / 2);
 }
 function drop(event) {
     event.preventDefault();
     const element = elements[event.dataTransfer.getData('index')];
-    let parent = event.target.parentNode;
-    // check if dragging back to start
-    event.target.classList.contains('matchItem') || parent.classList.contains('bucket') ? parent.appendChild(element) : event.target.appendChild(element);
+
+    // attempt to drop inside matchItem on mathjax or img
+    switch(event.target.tagName) {
+        case "SPAN":
+        case "svg":
+        case "P":
+        case "IMG":
+        case "MJX-CONTAINER":
+            let location = event.target.closest('.bucket') ? '.bucket' : '.matchItems';
+            event.target.closest(location).appendChild(element);
+    } 
+    
+    const list = event.target.classList;
+    switch(true) {
+      case list.contains('bucket'):
+      case list.contains('matchItems'):
+        event.target.appendChild(element);
+        break;
+      case list.contains('matchItem'):
+        event.target.parentElement.appendChild(element);
+        break;  
+    }
 }
 
 Reveal.registerPlugin( 'quiz-wue', RevealQuiz );
