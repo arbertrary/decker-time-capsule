@@ -177,5 +177,10 @@ $body$
         elements_selector: "img, video, iframe"
       });
     </script>
+
+    <!-- allow hyperlinks within page -->
+    <script>
+      document.body.querySelectorAll('a').forEach(a => { a.href = a.href.replace(/(html#\/)+/gm, "html#"); });
+    </script>
   </body>
   </html>
