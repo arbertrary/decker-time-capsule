@@ -287,7 +287,8 @@ $box-shadow: 2px 2px 6px 1px #666;
             background-color: $solution;
             border-radius: $border-radius;
         }
-        select {
+        select,
+        input {
             border: $border;
             font-size: inherit;
             margin-bottom: 0.3em;
@@ -619,6 +620,8 @@ _:-ms-lang(x),
             .qft input,
             [class*="quiz-f"] input,
             .qic select,
+            .qic input,
+            [class*="quiz-i"] input,
             [class*="quiz-i"] select {
                 // Hide placeholder for unanswered questions
                 background-color: $white;

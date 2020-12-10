@@ -300,12 +300,22 @@ renderInsertChoices meta quiz@(InsertChoices title tgs qm q) =
         questionBlocks :: [([Block], [Choice])] -> [Block]
         questionBlocks = map (rawHtml' . handleTuple)
         handleTuple :: ([Block], [Choice]) -> Html
+        handleTuple ([], [ch]) = toHtml $ inputRaw [ch]
         handleTuple ([], chs) = select chs
         handleTuple (bs, []) = toHtml (map reduceBlock bs)
+        handleTuple (bs, [ch]) = toHtml (map reduceBlock bs) >> toHtml  (inputRaw [ch])
         handleTuple (bs, chs) = toHtml (map reduceBlock bs) >> select chs
         reduceBlock :: Block -> Block
         reduceBlock (Para is) = Plain ([Str " "] ++ is ++ [Str " "])
         reduceBlock p = p
+        placeholderText :: T.Text
+        placeholderText = lookupInDictionary "quiz.input-placeholder" meta
+        inputRaw :: [Choice] -> Block
+        inputRaw ch =
+            rawHtml'
+                ( (H.input ! A.placeholder (H.textValue placeholderText))
+                      >> choiceList "solutionList" ch
+                )
         select :: [Choice] -> Html
         select choices =
             ( H.select $

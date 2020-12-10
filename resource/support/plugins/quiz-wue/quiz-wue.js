@@ -117,6 +117,48 @@ function quizIC() {
         const selects = question.getElementsByTagName("select");
         const tipDiv = question.querySelector(".tooltip-div");
 
+        const inputs = question.getElementsByTagName("input");
+        // Listen for enter, delete, backspace in input field
+        var buffer = [];
+        for (let inp of inputs) {
+            const solutionList = inp.nextElementSibling;
+            inp.addEventListener("keydown", e => {
+                tipDiv.innerHTML = "";
+                buffer.push(e.key.toLowerCase());
+                if (buffer[buffer.length - 1] === buffer[buffer.length - 2]) { return; };
+                if (e.code === "Enter") { checkInput() };
+            });
+
+            // Show tooltip box on mouseover
+            inp.addEventListener("mouseover", () => {
+                if (inp.classList.contains('show-right')) {
+                    console.log("test");
+
+                    // For freetext inside QIC quiz there can only be one answer
+                    const answer = solutionList.getElementsByTagName('li')[0];
+                    const tip = answer.getElementsByClassName('tooltip')[0];
+                    if (tip.innerHTML !== "") {
+                        const cln = tip.cloneNode(true);
+                        tipDiv.appendChild(cln);
+                    }
+                    tipDiv.classList.add('solved');
+                }
+            });
+            inp.addEventListener("mouseleave", () => {
+                tipDiv.classList.remove('solved');
+                tipDiv.innerHTML = "";
+            });
+
+
+            // Check value of input field against solutions
+            function checkInput() {
+                const checked = checkAnswer(solutionList, inp.value.toLowerCase().trim());
+                inp.classList.remove("show-right", "show-wrong");
+                inp.classList.add(checked.correct ? "show-right" : "show-wrong");
+            }
+        }
+
+
         for (let sel of selects) {
             const solutionList = sel.nextElementSibling;
 

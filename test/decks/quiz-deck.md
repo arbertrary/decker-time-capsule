@@ -378,7 +378,7 @@ Below there are some examples of typical machine learning problems. Assign the e
 
 Choices are shown as drop-down lists embedded inside the text. Confirm tooltips display on hover. Questions are corrected immediately, displaying red or green based on correctness. Retry is allowed. Hover over the select box to display the tooltip below the question.
 
-# Insert 1 - Fancy
+# Insert 1 - mixed insert and freetext
 
 First (Scala) has no tooltip.
 
@@ -400,9 +400,8 @@ and builds upon the tool
 
 - [X] Pandoc
   - See previous tooltip.
-- [ ] PowerPoint
 
-.
+. This tool was created by John MacFarlane.
 
 ```yaml
 Points: 5
