@@ -29,6 +29,8 @@ quiz:
 
 Or to style individual questions, add `{.plain}`
 
+Also test with **Bold**, *Italic*, `code`, ~~Strikethrough~~, <u>Underline</u>, ~subscript~, ^superscript^
+
 # Multiple Choice 1 - Fancy
 
 ## {.quiz-mc}
@@ -363,7 +365,7 @@ offen
 
 Below there are some examples of typical machine learning problems. Assign the examples to the better suited learning approach : 
 
-**Supervised Learning**
+_Supervised Learning_
 :   House Prices
 :   Cat or Dog? (Image Classification)
 :   Weather Forecast

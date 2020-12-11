@@ -377,18 +377,9 @@ function drop(event) {
     event.preventDefault();
     const element = elements[event.dataTransfer.getData('index')];
 
-    // attempt to drop inside matchItem on mathjax or img
-    switch(event.target.tagName) {
-        case "SPAN":
-        case "svg":
-        case "P":
-        case "IMG":
-        case "MJX-CONTAINER":
-            let location = event.target.closest('.bucket') ? '.bucket' : '.matchItems';
-            event.target.closest(location).appendChild(element);
-    } 
-    
+    // account for drop inside matchItem, mathjax, img or if bucket header is formatted
     const list = event.target.classList;
+    const tag = event.target.tagName;
     switch(true) {
       case list.contains('bucket'):
       case list.contains('matchItems'):
@@ -397,6 +388,14 @@ function drop(event) {
       case list.contains('matchItem'):
         event.target.parentElement.appendChild(element);
         break;  
+      case (tag === "SPAN"):
+      case (tag === "svg"):
+      case (tag === "P"):
+      case (tag === "IMG"):
+      case (tag === "MJX-CONTAINER"):
+      case (event.target.parentElement.tagName === "P"):
+        let location = event.target.closest('.bucket') ? '.bucket' : '.matchItems';
+        event.target.closest(location).appendChild(element);
     }
 }
 
