@@ -769,6 +769,7 @@
   margin-top: 0.5em;
   border-radius: 6px;
   border: 1px solid #eee;
+  overflow-y: scroll;
 }
 
 .reveal .qmi .matchItems,
@@ -1057,7 +1058,6 @@
 .reveal .quiz-match-items.plain .options {
   visibility: hidden;
   position: absolute;
-  max-height: 6.4em;
   overflow-y: scroll;
 }
 

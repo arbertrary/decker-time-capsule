@@ -311,6 +311,7 @@ $box-shadow: 2px 2px 6px 1px #666;
             margin-top: 0.5em;
             border-radius: $border-radius;
             border: 1px solid $solution;
+            overflow-y: scroll;
         }
         .matchItems,
         .buckets {
@@ -490,7 +491,6 @@ $box-shadow: 2px 2px 6px 1px #666;
             .options {
                 visibility: hidden;
                 position: absolute;
-                max-height: 6.4em;
                 overflow-y: scroll;
                 &.shown {
                     visibility: visible;
