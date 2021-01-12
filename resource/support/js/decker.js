@@ -19,6 +19,9 @@ function deckerStart() {
   addSourceCodeLabels();
   prepareTaskLists();
   prepareFullscreenIframes();
+  if (Reveal.getConfig().verticalSlides) {
+    setupVerticalSlides();
+  }
 }
 
 /**
@@ -84,7 +87,7 @@ function fixAutoplayWithStart() {
 function currentDate() {
   var date = document.querySelector(".date");
   if (!date) return;
-  var dateString = date.textContent;
+  var dateString = date.textContent.trim();
 
   var today = new Date().toISOString().substr(0, 10);
 
@@ -93,7 +96,7 @@ function currentDate() {
   }
 }
 
-function makeVertical() {
+function setupVerticalSlides() {
   const subsections = Array.from(document.getElementsByClassName("sub")).filter(s => s.nodeName === "SECTION");
   const subsection_bundles = [];
   for (let i = 0; i < subsections.length; i++) {
@@ -225,22 +228,22 @@ function prepareFullscreenIframes() {
 }
 
 function isElectron() {
-    // Renderer process
-    if (typeof window !== 'undefined' && typeof window.process === 'object' && window.process.type === 'renderer') {
-        return true;
-    }
+  // Renderer process
+  if (typeof window !== 'undefined' && typeof window.process === 'object' && window.process.type === 'renderer') {
+    return true;
+  }
 
-    // Main process
-    if (typeof process !== 'undefined' && typeof process.versions === 'object' && !!process.versions.electron) {
-        return true;
-    }
+  // Main process
+  if (typeof process !== 'undefined' && typeof process.versions === 'object' && !!process.versions.electron) {
+    return true;
+  }
 
-    // Detect the user agent when the `nodeIntegration` option is set to true
-    if (typeof navigator === 'object' && typeof navigator.userAgent === 'string' && navigator.userAgent.indexOf('Electron') >= 0) {
-        return true;
-    }
+  // Detect the user agent when the `nodeIntegration` option is set to true
+  if (typeof navigator === 'object' && typeof navigator.userAgent === 'string' && navigator.userAgent.indexOf('Electron') >= 0) {
+    return true;
+  }
 
-    return false;
+  return false;
 }
 
 Reveal.registerPlugin( 'deckerStart', DeckerStart );
