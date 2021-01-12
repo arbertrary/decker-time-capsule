@@ -1,13 +1,14 @@
-"use strict"
+if (typeof Reveal === 'undefined') {
+  console.error("decker.js has to be loaded after reveal.js");
+}
+else {
+  if (Reveal.isReady()) {
+    deckerStart();
+  } else {
+    Reveal.addEventListener("ready", deckerStart);
+  }
+}
 
-var DeckerStart = (() => {
-  return {
-    init: () => { 
-      return new Promise(resolve => {
-        deckerStart();
-        resolve();
-      }); } }
-})();
 
 /**
  *  Fix decker-specific things after Reveal is initialized
@@ -70,7 +71,7 @@ function prepareTaskLists() {
 
 function fixAutoplayWithStart() {
   for (let vid of document.getElementsByTagName("video")) {
-    document.addEventListener('play', (e) => {
+    vid.addEventListener('play', (e) => {
       const timeRegex = /#t=(\d+)/;
       const matches = e.target.currentSrc.match(timeRegex);
       if (matches !== null && matches.length > 0) {
@@ -82,7 +83,7 @@ function fixAutoplayWithStart() {
 
 /**
  *  Replace date string on title slide with current date
- *  if stirng provided for date in yaml is 'today'
+ *  if string provided for date in yaml is 'today'
  */
 function currentDate() {
   var date = document.querySelector(".date");
@@ -91,7 +92,7 @@ function currentDate() {
 
   var today = new Date().toISOString().substr(0, 10);
 
-  if (dateString === " today ") {
+  if (dateString === "today") {
     date.textContent = today;
   }
 }
@@ -245,5 +246,3 @@ function isElectron() {
 
   return false;
 }
-
-Reveal.registerPlugin( 'deckerStart', DeckerStart );
