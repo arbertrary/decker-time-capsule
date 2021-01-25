@@ -159,11 +159,11 @@ streamHtml' uri caption = do
   case caption of
     [] -> do
       divAttr <-
-        injectClass "nofigure" >> injectBorder >> takeSize >> takeUsual >>
+        injectClass "nofigure streaming" >> injectBorder >> takeSize >> takeUsual >>
         extractAttr
       return $ mkDivTag streamTag divAttr
     caption -> do
-      figAttr <- injectBorder >> takeSize >> takeUsual >> extractAttr
+      figAttr <- injectClass "streaming" >> injectBorder >> takeSize >> takeUsual >> extractAttr
       captionHtml <- lift $ inlinesToHtml caption
       return $ mkFigureTag streamTag captionHtml figAttr
 
