@@ -9,8 +9,10 @@
 @import url("../vendor/fontawesome/css/all.css");
 
 :root {
- --emphColor: #2a9ddf;
- --whiteboard-active-color: #2a9ddf;
+  --blue: #2a9ddf;
+  --light-blue: #30B3FF;
+  --emphColor: var(--blue);
+  --whiteboard-active-color: var(--blue);
 }
 
 
@@ -25,7 +27,7 @@ body {
 
 .reveal {
   font-family: "Lato", sans-serif;
-  font-size: 36px;
+  font-size: 32px;
   font-weight: normal;
   color: #222; 
 }
@@ -45,9 +47,8 @@ body {
 .reveal .slides section {
   line-height: 1.3;
   font-weight: inherit;
-  padding: 0; /* MARIO: prevent 20px at top/bottom by reveal.css */
-  /*min-height: 100%; [> MARIO: slides should be full height for footer to be positioned correctly <]*/
   text-align: center;
+  padding: 0;
 }
 
 
@@ -179,16 +180,17 @@ body {
  *********************************************/
 .reveal p {
   margin: 10px 0;
-  line-height: 1.3; }
+  line-height: 1.3; 
+}
 
 /* MARIO: do not completely remove empty paragraphs with display:none.
  * Instead let them cause a line break, but not eat up more space */
 .reveal p:empty { 
-    display: block;
-    margin:  0;
-    padding: 0;
-    height:  0;
-    width:   auto;
+  display: block;
+  margin:  0;
+  padding: 0;
+  height:  0;
+  width:   auto;
 }
 
 .reveal strong {
@@ -196,12 +198,12 @@ body {
 }
 
 .reveal .boldblue {
-    font-weight: bold;
-	color: var(--emphColor);
+  font-weight: bold;
+  color: var(--emphColor);
 }
 
 .reveal b {
-    font-weight: bold; }
+  font-weight: bold; }
 
 .reveal em {
   font-style: italic; }
@@ -233,11 +235,11 @@ body {
 
 .reveal ul ul,
 .reveal ol ul {
-    list-style-type: circle;
+  list-style-type: circle;
 }
 
 .reveal ol ol {
-    list-style-type: lower-roman;
+  list-style-type: lower-roman;
 }
 
 .reveal ul ul ul,
@@ -248,28 +250,31 @@ body {
 .reveal ol ul ol,
 .reveal ol ol ul,
 .reveal ol ol ol {
-    font-size: 0.9em;
+  font-size: 0.9em;
 }
 
 .reveal ul ul,
 .reveal ul ol,
 .reveal ol ol,
 .reveal ol ul {
-    display:     block;
-    margin-top:  0.3em;
-    font-size:   0.8em;
-    margin-left: 10px;
+  display:     block;
+  margin-top:  0.3em;
+  font-size:   0.8em;
+  margin-left: 10px;
 }
 
 .reveal dt {
-  font-weight: bold; }
+  font-weight: bold; 
+}
 
 .reveal dd {
-  margin-left: 40px; }
+  margin-left: 40px; 
+}
 
 .reveal q,
 .reveal blockquote {
-  quotes: none; }
+  quotes: none; 
+}
 
 .reveal blockquote {
   display: block;
@@ -281,14 +286,17 @@ body {
   padding: 0px 15px;
   font-style: italic;
   background: rgba(255, 255, 255, 0.05);
-  box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.2); }
+  box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.2); 
+}
 
 .reveal blockquote p:first-child,
 .reveal blockquote p:last-child {
-  display: inline-block; }
+  display: inline-block; 
+}
 
 .reveal q {
-  font-style: italic; }
+  font-style: italic; 
+}
 
 
 /*********************************************
@@ -329,6 +337,8 @@ body {
     width: auto;
     margin: 10px;
     text-align: center;
+    overflow-y: auto;
+    max-height: 500px;
 }
 
 /* inline code */
@@ -355,9 +365,29 @@ body {
     box-sizing: border-box;
 }
 
+/* MacOS only shows scrollbars when they are used, which is not a 
+   good idea for code blocks. The following settings show the scrollbar.
+   Only works on WebKit browswers (Chrome, Safari), not on Firefox. */
 .reveal pre code.small {
     font-size: 0.4em;
 }
+.reveal pre::-webkit-scrollbar {
+  width:9px;
+}
+.reveal pre::-webkit-scrollbar-track {
+  -webkit-border-radius:5px;
+  border-radius:5px;
+  background:rgba(0,0,0,0.1);
+}
+.reveal pre::-webkit-scrollbar-thumb {
+  -webkit-border-radius:5px;
+  border-radius:5px;
+  background:rgba(0,0,0,0.2);
+}
+.reveal pre::-webkit-scrollbar-thumb:hover {
+  background:rgba(0,0,0,0.4);
+}
+
 
 
 
@@ -435,14 +465,14 @@ body {
  * LINKS
  *********************************************/
 .reveal a {
-  color: #2a9ddf;
+  color: var(--blue);
   text-decoration: none;
   -webkit-transition: color .15s ease;
   -moz-transition: color .15s ease;
   transition: color .15s ease; }
 
 .reveal a:hover {
-  color: #2a9ddf;
+  color: var(--light-blue);
   text-shadow: none;
   border: none; }
 
@@ -456,32 +486,37 @@ body {
 
 .reveal img,
 .reveal video {
-    display: inline-block;
-    /* remove the following two lines to get sizing of 
-     * rendered code block sizing working */
-    /*width: auto;*/
-    /*height: auto;*/
-    object-fit: contain;
-    max-width: 100%;
-    max-height: 100%;
-    vertical-align: middle;
-    margin: 0px;
-    border: 0px;
-    box-shadow: none;
+  display: inline-block;
+  /* remove the following two lines to get sizing of 
+    * rendered code block sizing working */
+  /*width: auto;*/
+  /*height: auto;*/
+  object-fit: contain;
+  max-width: 100%;
+  max-height: 100%;
+  vertical-align: middle;
+  margin: 0px;
+  border: 0px;
+  box-shadow: none;
 }
 
 .reveal iframe {
-    border: 1px solid lightgray;
-    outline: none;
-    overflow: hidden;
-    max-width:  100%;
-    max-height: 100%;
-    vertical-align: middle;
+  border: 1px solid lightgray;
+  outline: none;
+  overflow: hidden;
+  max-width:  100%;
+  max-height: 100%;
+  vertical-align: middle;
 }
 
 .reveal figure {
-    display: inline-block;
-    /*vertical-align: middle;*/
+  display: inline-block;
+}
+
+.reveal figure.streaming,
+.reveal div.nofigure.streaming {
+  width: 80%;
+  margin: 0 auto;
 }
 
 .reveal figure>img,
@@ -500,6 +535,12 @@ body {
   font-style: italic;
   font-size: 0.6em;
   text-align: center;
+}
+
+/* set encapsulating span to inline-block,
+   otherwise SVGs cannot be scaled */
+span.decker.svg.embed {
+  display: inline-block;
 }
 
 
@@ -694,19 +735,19 @@ body {
     position:   absolute;
     display:    block;
     text-align: center;
-	margin:     0px;
+    margin:     0px;
     padding:    0px;
     font-size:  0.5em;
     width:      auto;
     height:     auto;
     left:       100px;
     right:      100px;
-    bottom:     0px;
+    bottom:     0.5em;
 }
 
 .reveal footer p,
 .reveal .footer p {
-	margin:  0px;
+    margin:  0px;
     padding: 0px;
 }
 
@@ -904,12 +945,11 @@ body {
     top:        calc(var(--whiteboard-icon-size) * 0.25);
     bottom:     auto;
     right:      auto;
-    padding:    0;
+    padding:    calc(var(--whiteboard-icon-size) * 0.5);
     margin:     auto;
     z-index:    40;
     background: none;
     font-size:  var(--whiteboard-icon-size);
-    padding:    calc(var(--whiteboard-icon-size) * 0.5);
     opacity:    0.5;
     color:      var(--whiteboard-inactive-color);
 }
@@ -921,6 +961,45 @@ body {
 
 .reveal .slide-menu-button a {
     color: inherit;
+}
+
+
+/*********************************************
+ * MARIO: style Henrik's question panel
+ *********************************************/
+
+div.open-button {
+    position:   fixed;
+    left:       auto;
+    right:      calc(var(--whiteboard-icon-size) * 0.25);
+    top:        calc(var(--whiteboard-icon-size) * 0.25);
+    bottom:     auto;
+    margin:     calc(var(--whiteboard-icon-size) * 0.5);
+    padding:    0.2em;
+    z-index:    40;
+    background: none;
+    font-size:  var(--whiteboard-icon-size);
+    color:      var(--whiteboard-inactive-color);
+}
+
+div.open-button.i {
+  opacity: 0.5;
+}
+
+div.open-button:hover,
+div.q-panel button:hover,
+div.q-panel div.q-header button:hover,
+div.q-panel div.q-footer div.q-login:not(.admin):hover {
+    opacity: 1.0;
+    color: var(--whiteboard-active-color);
+}
+
+div.open-badge {
+    font-size: 0.5em;
+}
+
+div.q-panel {
+  background-color: rgba(100, 100, 100, 0.2);
 }
 
 
@@ -999,8 +1078,7 @@ body {
 }
 
 /* tool tip */
-.reveal .quiz ul li ul li,
-.reveal .quiz .tip {
+.reveal .quiz ul li ul li {
     display:          block;
     visibility:       hidden;
     max-width:        95%;
@@ -1030,11 +1108,9 @@ body {
     border:           3px solid green;
 }
 
-/* before being clicked, tool tips are hidden */
+/* tool tips are shown on hover */
 .reveal .show-right:hover ul li, 
-.reveal .show-wrong:hover ul li, 
-.reveal .show-wrong:hover .tip, 
-.reveal .show-right:hover .tip {
+.reveal .show-wrong:hover ul li {
     visibility: visible;
 }
 
@@ -1078,6 +1154,19 @@ body {
     margin:      0.5em;
     padding:     10px;
     border:      2px solid var(--emphColor);
+    outline:     none;
+}
+
+.reveal .qft input.show-right,
+.reveal [class*="quiz-"] input.show-right {
+  background-color: #aaffaa;
+  border:           3px solid green;
+}
+
+.reveal .qft input.show-wrong,
+.reveal [class*="quiz-"] input.show-wrong {
+  background-color: #ffaaaa;
+  border:           3px solid red;
 }
 
 .reveal .qic .solutionList,
@@ -1087,7 +1176,6 @@ body {
 .reveal [class*="quiz-"] .solutionList {
   list-style-type: none;
   display: none;
-  background-color: grey;
   color: #ffffff;
   margin: 5px;
   padding: 5px;
@@ -1098,6 +1186,11 @@ body {
   font-size: 1rem;
 }
 
+.reveal .qic .solutionList.solved,
+.reveal .qft .solutionList.solved,
+.reveal [class*="quiz-"] .solutionList.solved {
+  display: initial;
+}
 .reveal .qic .solutionList li,
 .reveal .qft .solutionList li,
 .reveal .qmc .solutionList li,
@@ -1105,8 +1198,17 @@ body {
 .reveal [class*="quiz-"] .solutionList li {
     display: none;
     margin-left: 5px;
+    list-style-type: none;
 }
 
+.reveal .qic .solutionList li.solved,
+.reveal .qft .solutionList li.solved,
+.reveal [class*="quiz-"] .solutionList li.solved {
+  display: block;
+  background-color: grey;
+  padding: 0.5em;
+  border-radius: 8px;
+}
 .reveal .qic .solutionList .correct:before,
 .reveal .qft .solutionList .correct:before,
 .reveal .qmc .solutionList .correct:before,
@@ -1132,6 +1234,29 @@ body {
     margin-left: 1.3em;
 }
 
+.reveal .qic .solutionDiv,
+.reveal .qft .solutionDiv,
+.reveal [class*="quiz-"] .solutionDiv {
+  padding: 0.5em;
+  border-radius: 6px;
+  display: block;
+  visibility: hidden;
+  list-style-type: none;
+}
+
+.reveal .qic .solutionDiv.hidden,
+.reveal .qft .solutionDiv.hidden,
+.reveal [class*="quiz-"] .solutionDiv.hidden {
+  display: none;
+}
+
+.reveal .qic .solutionDiv.solved,
+.reveal .qft .solutionDiv.solved,
+.reveal [class*="quiz-"] .solutionDiv.solved {
+  visibility: visible;
+  width: 91%; 
+}
+
 .reveal .qic select,
 .reveal [class*="quiz-i"] select {
     font:        inherit;
@@ -1140,6 +1265,19 @@ body {
     padding:     5px;
     border:      2px solid var(--emphColor);
     background:  white;
+    outline:     none;
+}
+
+.reveal .qic select.show-right,
+.reveal [class*="quiz-"] select.show-right {
+  background-color: #aaffaa;
+  border:           3px solid green;
+}
+
+.reveal .qic select.show-wrong,
+.reveal [class*="quiz-"] select.show-wrong {
+  background-color: #ffaaaa;
+  border:           3px solid red;
 }
 
 .reveal .qic select :disabled,
@@ -1156,9 +1294,20 @@ body {
 
 .reveal .qic .tooltip-div,
 .reveal [class*="quiz-i"] .tooltip-div {
-  font-size: 0.6em;
+  font-size:          0.6em;
+  margin:             0.5em auto 0 auto;
+  padding:            0.5em;
+  visibility:         hidden;
+}
+
+.reveal .qic .tooltip-div.solved,
+.reveal [class*="quiz-i"] .tooltip-div.solved {
+  visibility: visible;  
+}
+
+.reveal .qic .tooltip-div.solved .tooltip,
+.reveal [class*="quiz-i"] .tooltip-div.solved .tooltip {
   background-color: #f4f4f7;
-  margin-top: 0.5em;
 }
 
 .reveal .quiz-mi,
@@ -1301,6 +1450,26 @@ body {
   background: inherit;
 }
 
+.reveal .quiz-mi .bucket .matchItem.show-right,
+.reveal .qmi .bucket .matchItem.show-right,
+.reveal .quiz-match-items .bucket .matchItem.show-right,
+.reveal .quiz-mi .matchItems .matchItem.show-right,
+.reveal .qmi .matchItems .matchItem.show-right,
+.reveal .quiz-match-items .matchItems .matchItem.show-right {
+  background-color: #aaffaa;
+  border:           3px solid green;
+}
+
+.reveal .quiz-mi .bucket .matchItem.show-wrong,
+.reveal .qmi .bucket .matchItem.show-wrong,
+.reveal .quiz-match-items .bucket .matchItem.show-wrong,
+.reveal .quiz-mi .matchItems .matchItem.show-wrong,
+.reveal .qmi .matchItems .matchItem.show-wrong,
+.reveal .quiz-match-items .matchItems .matchItem.show-wrong {
+  background-color: #ffaaaa;
+  border:           3px solid red;
+}
+
 .reveal .quiz-multiple-choice ul,
 .reveal .quiz-mc ul,
 .reveal .qmc ul {
@@ -1326,6 +1495,20 @@ body {
   padding: 20px;
   font-weight: normal;
   color: black;
+}
+
+.reveal .quiz-multiple-choice li.show-right,
+.reveal .quiz-mc li.show-right,
+.reveal .qmc li.show-right {
+  background-color: #aaffaa;
+  border:           3px solid green;
+}
+
+.reveal .quiz-multiple-choice li.show-wrong,
+.reveal .quiz-mc li.show-wrong,
+.reveal .qmc li.show-wrong {
+  background-color: #ffaaaa;
+  border:           3px solid red;
 }
 
 .reveal .quiz-multiple-choice li:before,
@@ -1357,3 +1540,8 @@ body {
   font-size: 1rem;
 }
 
+.reveal .quiz-multiple-choice [class*="show-"]:hover .tooltip,
+.reveal .quiz-mc [class*="show-"]:hover .tooltip,
+.reveal .qmc [class*="show-"]:hover .tooltip {
+  visibility: visible;
+}

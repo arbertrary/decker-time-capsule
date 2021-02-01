@@ -1,11 +1,39 @@
 @import url("../fonts/lato.css");
 
 :root {
- --dark-green:#639a00;
- --light-green:#84b819;
- --dark-grey:#616161;
- --emphColor: var(--dark-green);
- --whiteboard-active-color: var(--light-green);
+  --blue: #2a9ddf;
+  --light-blue: #30B3FF;
+}
+
+/* repeat light mode settings from light.css to override 
+   dark mode settings, which don't look nice */
+   :root {
+    --background-body: #ffffff;
+    --background: #efefef;
+    --background-alt: #f7f7f7;
+  
+    --selection: #9e9e9e;
+  
+    --text-main: #363636;
+    --text-bright: #000000;
+    --text-muted: #999999;
+  
+    --links: #0076d1;
+    --focus: #0096bfab;
+    --border: #dbdbdb;
+    --code: #000000;
+  
+    --animation-duration: 0.1s;
+    --button-hover: #dddddd;
+  
+    --scrollbar-thumb: rgb(213, 213, 213);
+    --scrollbar-thumb-hover: rgb(196, 196, 196);
+  
+    --form-placeholder: #949494;
+    --form-text: #000000;
+  
+    --variable: #39a33c;
+    --highlight: #ffff00;
 }
 
 body {
@@ -16,7 +44,7 @@ body {
 }
 
 header {
-    background: var(--dark-green);
+    background: var(--blue);
     text-align: center;
 }
 
@@ -29,9 +57,9 @@ header > h1 {
 }
 
 a {
-    color: var(--dark-green);
+    color: var(--blue);
 }
 
 a:hover {
-    color: var(--light-green);
+    color: var(--light-blue);
 }

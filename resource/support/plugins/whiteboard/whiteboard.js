@@ -186,29 +186,50 @@ let RevealWhiteboard = (function(){
     penWidthSlider.oninput  = () => { penWidthSlider.style.setProperty('--size', (parseInt(penWidthSlider.value)+1)+'px'); }
 
    
-    // adjust slide height: slides should always have full page height,
-    // even if they have not ;-). Might happen when using center:true
-    // in Reveal's settings. In this case Reveal centers the slide by
-    // adding a margin to the css:top variable. This is not compatible
-    // with the whiteboard, since then the whiteboard page would be taller
-    // than the slide itself. We fix this by removing the top-setting and
-    // instead centering the slide through top/bottom padding. This allows
-    // us to enforce full slide height (as configured in Reveal's settings).
-    function adjustSlideHeight()
+    /* Set slides to full height, such that they contain the full-height whiteboard.
+     * For centered slides, also enforce full height, and wrap the slide content
+     * in a flex-box to achieve vertical centering. This is necessary, since
+     * Reveal's slide centering leads to slides that do not have full height,
+     * which in turn do not allow for a full-height whiteboard.
+    */
+    function setupSlides()
     {
-        if (Reveal.getConfig().center)
-        {
-            let slide = Reveal.getCurrentSlide();
-            const top = slide.style.top;
-            console.log(top);
-            if (top != '' && top != '0px')
+        const config = Reveal.getConfig;
+
+        Reveal.getSlides().forEach(function (slide) {
+
+            slide.style.height = pageHeight + "px";
+
+            if (Reveal.getConfig().center || slide.classList.contains('center'))
             {
+                // Reveal implements centering by adjusting css:top. Remove this.
                 slide.style.top = '';
-                slide.style.paddingTop = top;
-                slide.style.paddingBottom = top;
-                slide.style.height = pageHeight + 'px';
+
+                // div for centering with flex layout
+                let vcenter = document.createElement("div");
+                vcenter.classList.add("v-center");
+
+                // div for wrapping slide content
+                var wrapper = document.createElement("div");
+                wrapper.classList.add("v-wrapper");
+
+                // move children from slide to wrapping div
+                for (let i=0; i<slide.children.length; ) {
+                    let e = slide.children[i];
+                    // skip whiteboard and footer
+                    if (e.classList.contains('whiteboard') || e.classList.contains('footer')) {
+                        ++i;
+                    }
+                    else {
+                        wrapper.appendChild(e);
+                    }
+                }
+
+                // add divs to slide
+                slide.appendChild(vcenter);
+                vcenter.appendChild(wrapper);
             }
-        }
+        });
     }
 
 
@@ -474,8 +495,11 @@ let RevealWhiteboard = (function(){
         
         if (!whiteboardActive)
         {
+            // hide scrollbar
+            slides.classList.remove('whiteboardActive');
+
             // hide buttons
-            buttons.classList.remove('active');
+            buttons.classList.remove('whiteboardActive');
             buttonWhiteboard.style.color = inactiveColor;
             hideColorPicker();
 
@@ -493,8 +517,11 @@ let RevealWhiteboard = (function(){
         {
             if (userShouldBeWarned && !userHasBeenWarned) warnUser();
 
+            // show scrollbar
+            slides.classList.add('whiteboardActive');
+
             // show buttons
-            buttons.classList.add('active');
+            buttons.classList.add('whiteboardActive');
             buttonWhiteboard.style.color = activeColor;
 
             // activate SVG
@@ -523,6 +550,8 @@ let RevealWhiteboard = (function(){
         if (!svg) return;
         let boardHeight = svg.clientHeight;
         setWhiteboardHeight(boardHeight + pageHeight);
+        slides.classList.add('animateScroll');
+        slides.scrollTop = boardHeight;
     }
 
 
@@ -804,7 +833,7 @@ let RevealWhiteboard = (function(){
             reader.readAsText(filename);
         }
         else {
-            console.log("Your browser does not support the File API");
+            console.error("Your browser does not support the File API");
         }
     }
 
@@ -834,13 +863,20 @@ let RevealWhiteboard = (function(){
             console.log("whiteboard loaded");
         }
 
+        // fix inconsistency for centered slides
+        if (storage.whiteboardVersion == 2 && Reveal.getConfig().center) 
+        {
+            document.querySelectorAll( 'svg.whiteboard path' ).forEach( path => { 
+                path.setAttribute('transform', 'translate(0 40)');
+            });
+        }
+
         // adjust height for PDF export
         if (printMode)
         {
             slides.querySelectorAll( 'svg.whiteboard' ).forEach( mysvg => { 
                 svg=mysvg; 
                 svg.style.display = 'block';
-                adjustSlideHeight();
                 adjustWhiteboardHeight();
             });
         }
@@ -890,7 +926,7 @@ let RevealWhiteboard = (function(){
      */
     function annotationData()
     {
-        let storage = { whiteboardVersion: 2.0, annotations: [] };
+        let storage = { whiteboardVersion: 3.0, annotations: [] };
             
         slides.querySelectorAll( 'svg.whiteboard' ).forEach( svg => { 
             if (svg.children.length) {
@@ -921,21 +957,20 @@ let RevealWhiteboard = (function(){
         if (window.saveAnnotation) {
             if (window.saveAnnotation(annotationData(), annotationURL()))
             {
-                console.log("whiteboard: save success");
+                console.log("whiteboard annotations saved to local file");
                 needToSave(false);
                 return;
             }
         }
 
-        console.log("whiteboard: save annotations to decker");
         let xhr = new XMLHttpRequest();
         xhr.open('put', annotationURL(), true);
         xhr.onloadend = function() {
             if (xhr.status == 200) {
-                console.log("whiteboard: save success");
+                console.log("whiteboard annotations saved to deck directory");
                 needToSave(false);
             } else {
-                console.log("whiteboard: could not save to decker, download instead");
+                console.warn("whiteboard annotation could not be save to decker, trying to download the file instead.");
                 downloadAnnotations();
             }
         };
@@ -954,9 +989,8 @@ let RevealWhiteboard = (function(){
         try {
             a.download = annotationFilename();
             a.href = window.URL.createObjectURL( annotationBlob() );
-
         } catch( error ) {
-            console.error("whiteboard download error: " + error);
+            console.error("whiteboard annotations could not be downloaded: " + error);
         }
         a.click();
         document.body.removeChild(a);
@@ -1293,7 +1327,7 @@ let RevealWhiteboard = (function(){
     }
     else
     {
-        console.err("whiteboard requires PointerEvents");
+        console.error("whiteboard requires support for PointerEvents");
     }
 
 
@@ -1370,9 +1404,6 @@ let RevealWhiteboard = (function(){
                 svg.style.display = 'none';
             });
 
-            // adjust slide height (call before setupSVG!)
-            adjustSlideHeight();
-
             // setup and show current slide's SVG (adjust slide height before!)
             setupSVG();
             svg.style.display = 'block';
@@ -1384,6 +1415,7 @@ let RevealWhiteboard = (function(){
             adjustWhiteboardHeight();
 
             // setup slides container
+            slides.classList.remove('animateScroll')
             slides.scrollTop  = 0;
             if (svg.clientHeight > slides.clientHeight)
                 slides.classList.add('needScrollbar');
@@ -1427,8 +1459,8 @@ let RevealWhiteboard = (function(){
     }
 
 
-
     // whenever slide changes, update slideIndices and redraw
+    Reveal.addEventListener( 'ready', setupSlides );
     Reveal.addEventListener( 'ready', slideChanged );
     Reveal.addEventListener( 'slidechanged', slideChanged );
 
@@ -1460,7 +1492,23 @@ let RevealWhiteboard = (function(){
         description: 'Toggle Whiteboard' }, 
         toggleWhiteboard );
 
+    for (let i = 0; i < 7; i++) {
+      Reveal.addKeyBinding( { keyCode: 49+i, key: String.fromCharCode(49+i), 
+        description: 'Toggle Whiteboard' }, 
+        () => { selectPenColor(penColors[i]); } );
+    }
 
+    Reveal.addKeyBinding( { keyCode: 56, key: '8', 
+      description: 'Toggle Whiteboard' }, 
+      () => { selectPenRadius(2); } );
+
+    Reveal.addKeyBinding( { keyCode: 57, key: '9', 
+      description: 'Toggle Whiteboard' }, 
+      () => { selectPenRadius(4); } );
+
+    Reveal.addKeyBinding( { keyCode: 48, key: '0', 
+      description: 'Toggle Whiteboard' }, 
+      () => { selectPenRadius(6); } );
 
 	return {
 		init: function() { 

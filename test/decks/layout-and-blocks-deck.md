@@ -9,7 +9,6 @@ template:
   title-teaser: assets/title-teaser-icg.png
   title-header: assets/title-banner-jmu.jpg
 date: '23.4.2020'
-history: True
 center: 1
 progress: 1
 controls: 1
@@ -81,7 +80,7 @@ Text would be good in between otherwise list and enumeration are on one line!
 
 1. Followed by some enumeration and then an image
 
-![Big image (1920x1080) as figure.](autodesk-3ds-ui-1920x15.jpg)
+![Long, short image (1920x15) as figure.](autodesk-3ds-ui-1920x15.jpg)
 
 Or some more text 
 
@@ -115,7 +114,7 @@ Text would be good in between otherwise list and enumeration are on one line!
 
 1. Followed by some enumeration and then an image
 
-![Big image (1920x1080) as figure.](autodesk-3ds-ui-1920x15.jpg)
+![Long, short image (1920x15) as figure.](autodesk-3ds-ui-1920x15.jpg)
 
 Or some more text 
 
@@ -149,7 +148,7 @@ Text would be good in between otherwise list and enumeration are on one line!
 
 1. Followed by some enumeration and then an image
 
-![Big image (1920x1080) as figure.](autodesk-3ds-ui-1920x15.jpg)
+![Long,short image (1920x15) as figure.](autodesk-3ds-ui-1920x15.jpg)
 
 Or some more text 
 
@@ -169,7 +168,7 @@ Text would be good in between otherwise list and enumeration are on one line!
 
 1. Followed by some enumeration and then an image
 
-![Big image (1920x1080) as figure.](autodesk-3ds-ui-1920x15.jpg)
+![Long, short image (1920x15) as figure.](autodesk-3ds-ui-1920x15.jpg)
 
 Or some more text 
 

@@ -13,6 +13,7 @@ $endif$
 $if(keywords)$
   <meta name="keywords" content="$for(keywords)$$keywords$$sep$, $endfor$">
 $endif$
+  <meta name="apple-mobile-web-app-capable" content="yes">
 $if(template.favicon)$
   <link rel="shortcut icon" href="$template.favicon$">
 $endif$
@@ -105,6 +106,13 @@ $if(highlighting-css)$
 $highlighting-css$
   </style>
 $endif$
+$if(highlightjs)$
+  <link rel="stylesheet" href="$decker-support-dir$/plugins/highlight/$highlightjs$.css">
+$endif$
+$if(decker-engine.base-url)$
+  <link rel="stylesheet" href="$decker-support-dir$/css/engine.css">
+$endif$
+  <link rel="stylesheet" href="$decker-support-dir$/plugins/explain/explain.css">
 $if(template.base-css)$
   <link rel="stylesheet" href="$template.base-css$">
 $else$
@@ -120,9 +128,6 @@ $endif$
 $for(template.css)$
   <link rel="stylesheet" href="$template.css$"/>
 $endfor$
-$if(highlightjs)$
-  <link rel="stylesheet" href="$decker-support-dir$/plugins/highlight/$highlightjs$.css">
-$endif$
   <!-- Printing and PDF exports -->
   <script>
     var link = document.createElement( 'link' );
@@ -159,7 +164,8 @@ $else$
           repoProvider: "$thebelab.repoProvider$",
       },
       kernelOptions: {
-          name: "$thebelab.language$"
+          name: "$thebelab.language$",
+          kernelName: "$thebelab.language$"
       },
 $endif$
       selector: "[data-executable]",
@@ -169,7 +175,7 @@ $endif$
       }
   }
   </script>
-   <script src="$decker-support-dir$/vendor/thebelab/index.js"></script> 
+   <script src="https://unpkg.com/thebelab@latest/lib/index.js"></script> 
 $endif$
 $for(header-includes)$
   $header-includes$
@@ -180,7 +186,7 @@ $for(style)$
   </style>
 $endfor$
 </head>
-<body>
+<body data-deckid="$deck-id$">
 $for(include-before)$
 $include-before$
 $endfor$
@@ -242,7 +248,7 @@ $if(title)$
          <section id="$idprefix$title-slide" class="title-page">
          <h1 style="display:none">Title</h1>
       $endif$
-        <div class="valign-block" style="height:550px">
+        <div class="valign-block">
             <div class="valigned">
                 <div class="title"> $title$</div>
                 $if(subtitle)$
@@ -287,7 +293,6 @@ $body$
 
   <script src="$decker-support-dir$/vendor/reveal/js/reveal.js"></script>
   <script src="$decker-support-dir$/vendor/js/jquery.min.js"></script>
-  <script src="$decker-support-dir$/js/quiz.js"></script>
   <script src="$decker-support-dir$/js/decker.js"></script>
   <script src="$decker-support-dir$/js/sage.js"></script>
   
@@ -296,6 +301,13 @@ $body$
       prepareCodeHighlighting();
       prepareSAGE();
   </script>
+
+$if(decker-engine.base-url)$
+  <script type="module" crossorigin>
+    import {contactEngine} from "./$decker-support-dir$/js/engine.js";
+    contactEngine("$decker-engine.base-url$", "$decker-engine.deck-id$")
+  </script>
+$endif$
 
 $for(template.include-js)$
 <script src="$template.include-js$"></script>
@@ -318,6 +330,11 @@ $endif$
         // Display the page number of the current slide
 $if(slideNumber)$
         slideNumber: '$slideNumber$',
+$endif$
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+$if(hash)$
+        hash: $hash$,
 $endif$
         // Push each slide change to the browser history
 $if(history)$
@@ -482,13 +499,22 @@ $if(checkOverflow)$
 $else$
         checkOverflow: false,
 $endif$
-     
+
+
+        // whether to use vertical slides (in decker.js)
+ $if(vertical-slides)$
+        verticalSlides: $vertical-slides$,
+$else$
+        verticalSlides: false,
+$endif$
+
 
         // setup reveal-menu
 $if(menu)$
 $if(mario)$
         menu: {
             side:              'left',
+            width:             'wide',
             numbers:           true,
             titleSelector:     'h1',
             hideMissingTitles: false,
@@ -600,6 +626,14 @@ $if(quizServer)$
 $endif$
 
 
+$if(explain.video)$
+          explain: { 
+                video: "$explain.video$",
+                times: "$explain.times$"
+          },
+$endif$
+
+
           // plugins
           dependencies: [
               { src: String.raw`$decker-support-dir$/plugins/charts/Chart.js`},
@@ -611,6 +645,7 @@ $endif$
               { src: String.raw`$decker-support-dir$/plugins/zoom/zoom.js` },
               { src: String.raw`$decker-support-dir$/plugins/print/print.js` },
               { src: String.raw`$decker-support-dir$/plugins/search/search.js`, async: true },
+              { src: String.raw`$decker-support-dir$/plugins/quiz-wue/quiz-wue.js` },
 $if(highlightjs)$
               { src: String.raw`$decker-support-dir$/plugins/highlight/highlight.js` },
 $endif$
@@ -623,14 +658,11 @@ $endif$
 $if(thebelab.enable)$
               { src: String.raw`$decker-support-dir$/plugins/thebelab/thebelab.js`, async: true },
 $endif$
+              { src: String.raw`$decker-support-dir$/plugins/explain/explain.js` },
               { src: String.raw`$decker-support-dir$/vendor/reveal/plugin/notes/notes.js`, async: true }
           ]
       });
   </script>
-
-  $if(vertical-slides)$
-      <script>makeVertical();</script>
-  $endif$
 
 
   <!-- Reload on change machinery -->

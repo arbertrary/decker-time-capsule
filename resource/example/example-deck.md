@@ -3,7 +3,6 @@ bibliography: example.bib
 chalkboard: 'example-deck.json'
 controls: true
 csl: 'chicago-author-date.csl'
-history: true
 menu: true
 title: Decker Slide Tool Reference Guide
 ---
@@ -403,7 +402,7 @@ Video with controls: ![](movies/jmu-hci-intro.mp4){.controls}
 
 ## 
 
-Video with autoplay: ![](movies/jmu-hci-intro.mp4){.autoplay}
+Video with autoplay & loop: ![](movies/jmu-hci-intro.mp4){.autoplay .loop}
 
 # External Videos {#ext-vid}
 
@@ -413,10 +412,10 @@ Include YouTube and Vimeo videos or Twitch channels in presentations:
 ![](service:video-id){css-formatting}
 ```
 
-*Note 1:* Replace `service` with `youtube`, `vimeo` or `twitch` and add
+- Replace `service` with `youtube`, `vimeo` or `twitch` and add
 video id or twitch channel name (replaces `video-id`).
 
-*Note 2:* The video ID is usually found in the URL.
+- The video ID is usually found in the URL.
 
 **YouTube example URL:**
 https://www.youtube.com/watch?v=`<u>`{=html}qEcmwHRG2Mo`</u>`{=html}\
@@ -450,28 +449,26 @@ Include audio clips in presentations:
 ![title](audio-file-location){css-formatting}
 ```
 
-# Audio example {#example-audio}
+# Audio example {#example-audio .columns}
 
-## 
+## {.top}
 
 ``` {.markdown .xxx-small}
-Audio with controls:
-![](audio/wildbach.mp3){.controls}
-
-Audio with controls and autoplay:
-![](audio/wildbach.mp3){.controls .autoplay}
+Example 1: audio with controls
+![Wildbach](audio/wildbach.mp3){.controls}
+```
+``` {.markdown .xxx-small}
+Example 2: audio with controls, autoplay and muted
+![Wildbach](audio/wildbach.mp3){.controls .autoplay .muted}
 ```
 
-## 
+##  {.left .example}
 
-##  {.split .example}
+Example 1: ![Wildbach](audio/wildbach.mp3){.controls}
 
-Audio with controls: ![Wildbach](audio/wildbach.mp3){.controls}
+##  {.right .example}
 
-##  {.example}
-
-Audio with controls and autoplay:
-![Wildbach](audio/wildbach.mp3){.controls .autoplay}
+Example 2: ![Wildbach](audio/wildbach.mp3){.controls .autoplay .muted}
 
 # Tables
 
@@ -627,7 +624,7 @@ alert (s);
 # Embed External Websites {#externalWebite}
 
 -   Paste the following iframe on a blank slide\
--   Change "https://www.uni-wuerzburg.de/" to your website
+-   Change "https://www.uni-wuerzburg.de/" to your website 
 
 ## 
 
@@ -662,6 +659,16 @@ alert (s);
 # ![](webgl_geometry_minecraft_ao.html)
 -->
 ```
+
+# PDF Documents in Header
+
+``` {.markdown}
+# ![](http://pandoc.org/MANUAL.pdf)
+```
+
+# ![](http://pandoc.org/MANUAL.pdf)
+
+
 # Chalkboard
 
 Dynamically make notes on presentations:
