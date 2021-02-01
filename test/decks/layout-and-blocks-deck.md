@@ -18,7 +18,7 @@ decker-version: 0.4.0
 width: 1244
 height: 700
 margin: 0.0
-margin-columns: 0 
+margin-columns: 5em
 font-size-base: 30px
 spacing-vertical-base: 0.5em
 border-decoration-width: 20px

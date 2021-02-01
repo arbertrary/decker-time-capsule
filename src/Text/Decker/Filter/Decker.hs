@@ -78,7 +78,7 @@ mediaBlockListFilter blocks =
   where
     filterPairs :: (Block, Block) -> Filter (Maybe [Block])
     -- An image followed by an explicit caption paragraph.
-    filterPairs ((Para [image@Image {}]), Para (Str "Caption:":caption)) = do
+    filterPairs (Para [image@Image {}], Para (Str "Caption:":caption)) = do
       Just . single . forceBlock <$> transformImage image caption
     -- An code block followed by an explicit caption paragraph.
     filterPairs (code@CodeBlock {}, Para (Str "Caption:":caption)) =
@@ -110,7 +110,7 @@ mediaBlockFilter :: Block -> Filter Block
 mediaBlockFilter (Para [image@(Image _ caption _)]) = do
   forceBlock <$> transformImage image caption
 -- A solitary code block in a paragraph with a possible caption.
-mediaBlockFilter (code@CodeBlock {}) = transformCodeBlock code []
+mediaBlockFilter code@CodeBlock {} = transformCodeBlock code []
 -- Any number of consecutive images in a masonry row.
 mediaBlockFilter (LineBlock lines)
   | oneImagePerLine lines = transformImages (concat lines) []
@@ -343,10 +343,9 @@ imageHtml uri caption = do
       mkImageTag rendered <$> extractAttr
     caption -> do
       captionHtml <- lift $ inlinesToHtml caption
-      imgAttr <- takeSizeIf (not . isPercent) >> extractAttr
+      imgAttr <- takeSizeIf (not . isPercent) >> injectAttribute ("alt", fileName) >> extractAttr
       let imageTag = mkImageTag rendered imgAttr
-      injectBorder >> takeSizeIf isPercent >> takeUsual >>
-        injectAttribute ("alt", fileName)
+      injectBorder >> takeSizeIf isPercent >> takeUsual 
       mkFigureTag imageTag captionHtml <$> extractAttr
 
 objectHtml :: Text -> URI -> [Inline] -> Attrib Html

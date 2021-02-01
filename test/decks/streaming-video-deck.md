@@ -83,7 +83,6 @@ This will loop but will not respect start time. [Limited support for loop](https
     data-src="https://player.vimeo.com/video/181907337?autoplay=1&controls=1&loop=1&playsinline=1#t=14" 
     width="900" 
     height="500" 
-    frameborder="0" 
     allow="autoplay; fullscreen; picture-in-picture" 
     allowfullscreen>
     </iframe>

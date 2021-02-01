@@ -149,7 +149,7 @@ streamHtml' uri caption = do
         throwM $
           ResourceException $
             "Unsupported stream service: " <> toString (fromMaybe "<none>" scheme)
-  iframeAttr <- takeIframeAttr >> takeAutoplay >> extractAttr
+  iframeAttr <- takeIframeAttr >> takeAutoplay >> injectAttribute ("allow", "autoplay") >> extractAttr
   wrapperAttr <- takeWrapperAttr >> extractAttr
   let streamTag = mkStreamTag streamUri wrapperAttr iframeAttr
   case caption of

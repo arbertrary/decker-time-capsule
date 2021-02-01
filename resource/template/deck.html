@@ -51,7 +51,7 @@ $endif$
                 --align-global: $align-global$;
                 /* Column spacing, in same awkward unit as reveal's margin which is fraction of 
                 space. Beware, does strange things if set too large. */
-                --margin-columns: calc($margin-columns$ * 100%);
+                --margin-columns: calc($margin-columns$ * 1);
                 /* Now all the different font sizes */
                 --font-size-base: $font-size-base$;
                 --font-size-medium: calc(var(--font-size-base) * 1);
@@ -239,7 +239,7 @@ $if(title)$
          <section id="$idprefix$title-slide" class="title-page"> 
              <h1 style="display:none">Title</h1>
              <div class="title-page banner">
-                <img src=$template.title-page.banner$>
+                <img src=$template.title-page.banner$ alt=$template.title-page.banner$>
              </div>
             <!-- data-background-size="100%"
             data-background-position="0px 0px"
@@ -256,7 +256,7 @@ $if(title)$
                 $endif$
                 $if(template.title-page.teaser-img)$
                    <div class="teaser-img">
-                      <img src=$template.title-page.teaser-img$>
+                      <img src=$template.title-page.teaser-img$ alt=$template.title-page.teaser-img$>
                    </div>
                 $else$
                    <div style="height:100px"> </div>      
@@ -269,7 +269,7 @@ $if(title)$
                 $endif$
                 $if(template.title-page.affiliation-logo)$
                    <div class="affiliation-logo">
-                      <img src=$template.title-page.affiliation-logo$>
+                      <img src=$template.title-page.affiliation-logo$ alt=$template.title-page.affiliation-logo$>
                    </div>
                 $endif$
                 $if(affiliation)$
