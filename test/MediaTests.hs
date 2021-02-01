@@ -80,7 +80,7 @@ plainImage =
 plainImageCaptionedHtml =
   RawInline
     (Format "html")
-    "<figure id=\"logo\" class=\"decker myclass\" alt=\"06-metal.png\" data-myattribute=\"1\" style=\"width:30%;border:1px;\"><img class=\"decker\" data-src=\"include/06-metal.png\"><figcaption class=\"decker\">A <strong>logo.</strong></figcaption></figure>"
+    "<figure id=\"logo\" class=\"decker myclass\" data-myattribute=\"1\" style=\"width:30%;border:1px;\"><img class=\"decker\" data-src=\"include/06-metal.png\" alt=\"06-metal.png\"><figcaption class=\"decker\">A <strong>logo.</strong></figcaption></figure>"
 
 plainImageHtml =
   RawInline
@@ -105,12 +105,12 @@ plainVideo =
 plainVideoHtml =
   RawInline
     (Format "html")
-    "<video id=\"video\" class=\"decker myclass\" data-src=\"pacman-perfect-game.mp4#t=23,42\" data-annoying=\"100\" style=\"width:30%;border:1px;\" poster=\"include/06-metal.png\" preload=\"none\" loop=\"loop\" allow=\"autoplay\" data-autoplay=\"1\"></video>"
+    "<video id=\"video\" class=\"decker myclass\" data-src=\"pacman-perfect-game.mp4#t=23,42\" data-annoying=\"100\" style=\"width:30%;border:1px;\" poster=\"include/06-metal.png\" preload=\"none\" loop=\"loop\" data-autoplay=\"1\"></video>"
 
 plainVideoCaptionedHtml =
   RawInline
     (Format "html")
-    "<figure id=\"video\" class=\"decker myclass\" data-annoying=\"100\" style=\"width:30%;border:1px;\"><video class=\"decker\" data-src=\"pacman-perfect-game.mp4#t=23,42\" poster=\"include/06-metal.png\" preload=\"none\" loop=\"loop\" allow=\"autoplay\" data-autoplay=\"1\"></video><figcaption class=\"decker\">A <strong>logo.</strong></figcaption></figure>"
+    "<figure id=\"video\" class=\"decker myclass\" data-annoying=\"100\" style=\"width:30%;border:1px;\"><video class=\"decker\" data-src=\"pacman-perfect-game.mp4#t=23,42\" poster=\"include/06-metal.png\" preload=\"none\" loop=\"loop\" data-autoplay=\"1\"></video><figcaption class=\"decker\">A <strong>logo.</strong></figcaption></figure>"
 
 blockAin = [Para [], Para [Image nullAttr [] ("", "")], Para []]
 

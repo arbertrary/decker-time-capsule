@@ -24,8 +24,8 @@ An image that is used inline in a paragraph of text.
 translates to
 
 ``` {.html}
-<figure class="decker" alt="06-metal.png">
-    <img class="decker" data-src="/test/decks/include/06-metal.png">
+<figure class="decker">
+    <img class="decker" data-src="/test/decks/include/06-metal.png" alt="06-metal.png">
     <figcaption class="decker">
         <span class="math inline">
             <em>
@@ -119,8 +119,8 @@ This is not a caption, but the next paragraph.
 translates to
 
 ``` {.html}
-<figure class="decker" alt="06-metal.png">
-    <img class="decker" data-src="/test/decks/include/06-metal.png">
+<figure class="decker">
+    <img class="decker" data-src="/test/decks/include/06-metal.png" alt="06-metal.png">
     <figcaption class="decker">
         Caption.
     </figcaption>
@@ -145,8 +145,8 @@ Caption: Caption.
 translates to
 
 ``` {.html}
-<figure class="decker" alt="06-metal.png">
-    <img class="decker" data-src="/test/decks/include/06-metal.png">
+<figure class="decker">
+    <img class="decker" data-src="/test/decks/include/06-metal.png" alt="06-metal.png">
     <figcaption class="decker">
          
         Caption.
@@ -170,8 +170,8 @@ Caption: Caption [see @tramberend2003].
 translates to
 
 ``` {.html}
-<figure class="decker" alt="06-metal.png">
-    <img class="decker" data-src="/test/decks/include/06-metal.png">
+<figure class="decker">
+    <img class="decker" data-src="/test/decks/include/06-metal.png" alt="06-metal.png">
     <figcaption class="decker">
          
         Caption
@@ -202,8 +202,8 @@ Query string and fragment identifier in URLs are preserved.
 translates to
 
 ``` {.html}
-<figure class="decker" alt="image.png&amp;key=value">
-    <img class="decker" data-src="https://some.where/image.png&key=value">
+<figure class="decker">
+    <img class="decker" data-src="https://some.where/image.png&key=value" alt="image.png&amp;key=value">
     <figcaption class="decker">
         Caption.
     </figcaption>
@@ -224,8 +224,8 @@ Plain image with size attributes.
 translates to
 
 ``` {.html}
-<figure class="decker" alt="06-metal.png" style="width:40%;">
-    <img class="decker" data-src="/test/decks/include/06-metal.png">
+<figure class="decker" style="width:40%;">
+    <img class="decker" data-src="/test/decks/include/06-metal.png" alt="06-metal.png">
     <figcaption class="decker">
         Caption.
     </figcaption>
@@ -246,8 +246,8 @@ Plain image with size attributes.
 translates to
 
 ``` {.html}
-<figure class="decker" alt="06-metal.png">
-    <img class="decker" data-src="/test/decks/include/06-metal.png" style="height:200px;">
+<figure class="decker">
+    <img class="decker" data-src="/test/decks/include/06-metal.png" alt="06-metal.png" style="height:200px;">
     <figcaption class="decker">
         Caption.
     </figcaption>
@@ -268,8 +268,8 @@ Plain image with size attributes.
 translates to
 
 ``` {.html}
-<figure class="decker" alt="06-metal.png" style="width:40%;">
-    <img class="decker" data-src="/test/decks/include/06-metal.png" style="height:200px;">
+<figure class="decker" style="width:40%;">
+    <img class="decker" data-src="/test/decks/include/06-metal.png" alt="06-metal.png" style="height:200px;">
     <figcaption class="decker">
         Caption.
     </figcaption>
@@ -290,8 +290,8 @@ Image attributes are handled in complex ways.
 translates to
 
 ``` {.html}
-<figure id="myid" class="decker myclass" alt="06-metal.png" data-myattribute="value" style="width:40%;border:1px;background-color:magenta;">
-    <img class="decker" data-src="/test/decks/include/06-metal.png">
+<figure id="myid" class="decker myclass" data-myattribute="value" style="width:40%;border:1px;background-color:magenta;">
+    <img class="decker" data-src="/test/decks/include/06-metal.png" alt="06-metal.png">
     <figcaption class="decker">
         Caption.
     </figcaption>
@@ -313,7 +313,7 @@ translates to
 
 ``` {.html}
 <figure class="decker">
-    <audio class="decker" data-src="test/decks/audio.mp3" controls="controls" allow="autoplay" data-autoplay="1">
+    <audio class="decker" data-src="test/decks/audio.mp3" controls="controls" data-autoplay="1">
         
     </audio>
     <figcaption class="decker">
@@ -385,7 +385,7 @@ translates to
 
 ``` {.html}
 <figure class="decker">
-    <video class="decker" data-src="test/decks/pacman-perfect-game.mp4#t=5,30" poster="/test/decks/include/06-metal.png" preload="none" controls="controls" allow="autoplay" data-autoplay="1">
+    <video class="decker" data-src="test/decks/pacman-perfect-game.mp4#t=5,30" poster="/test/decks/include/06-metal.png" preload="none" controls="controls" data-autoplay="1">
         
     </video>
     <figcaption class="decker">
@@ -414,7 +414,7 @@ translates to
     <img class="decker" data-src="/test/decks/include/06-metal.png" alt="06-metal.png">
 
     <figure class="decker">
-    <video class="decker" data-src="test/decks/pacman-perfect-game.mp4" allow="autoplay" data-autoplay="1">
+    <video class="decker" data-src="test/decks/pacman-perfect-game.mp4" data-autoplay="1">
         
     </video>
     <figcaption class="decker">
@@ -449,7 +449,7 @@ translates to
 <div class="decker image-row">
     <img class="decker" data-src="/test/decks/include/06-metal.png" alt="06-metal.png">
 
-    <video class="decker" data-src="test/decks/pacman-perfect-game.mp4" allow="autoplay" data-autoplay="1">
+    <video class="decker" data-src="test/decks/pacman-perfect-game.mp4" data-autoplay="1">
     
 </video>
 
@@ -645,7 +645,7 @@ The last image in a level 1 header is promoted to the slide background.
 translates to
 
 ``` {.html}
-<h1 data-background-size="cover" data-background-image="/test/decks/include/06-metal.png" id="background-image" data-background-size="cover" data-background-image="/test/decks/include/06-metal.png">Background Image  </h1>
+<h1 data-background-size="cover" data-background-image="/test/decks/include/06-metal.png" id="background-image">Background Image  </h1>
 ```
 
 ------------------------------------------------------------------------
@@ -662,7 +662,7 @@ The last image in a level 1 header is promoted to the slide background.
 translates to
 
 ``` {.html}
-<h1 data-background-video-loop="1" data-background-video-muted="1" data-background-video="test/decks/pacman-perfect-game.mp4" id="background-image" data-background-video-loop="1" data-background-video-muted="1" data-background-video="test/decks/pacman-perfect-game.mp4">Background Image  </h1>
+<h1 data-background-video-loop="1" data-background-video-muted="1" data-background-video="test/decks/pacman-perfect-game.mp4" id="background-image">Background Image  </h1>
 ```
 
 </div>
