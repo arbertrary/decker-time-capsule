@@ -186,6 +186,9 @@ $for(style)$
   </style>
 $endfor$
 </head>
+
+
+
 <body data-deckid="$deck-id$">
 $for(include-before)$
 $include-before$
@@ -631,6 +634,17 @@ $if(explain.video)$
           },
 $endif$
 
+$if(pseudocode)$
+          pseudocode: {
+            indentSize: "$pseudocode.indent$",
+            commentDelimiter: "$pseudocode.delimiter$",
+            lineNumber: "$pseudocode.lineNumber$",
+            lineNumberPunc: "$pseudocode.punctuation$",
+            noEnd: "$pseudocode.noEnd$",
+            captionCount: "$pseudocode.caption$",
+          },
+$endif$
+
 
           // plugins
           dependencies: [
@@ -644,6 +658,7 @@ $endif$
               { src: String.raw`$decker-support-dir$/plugins/print/print.js` },
               { src: String.raw`$decker-support-dir$/plugins/search/search.js`, async: true },
               { src: String.raw`$decker-support-dir$/plugins/quiz-wue/quiz-wue.js` },
+              { src: String.raw`$decker-support-dir$/plugins/pseudocode/pseudocode.js` },
 $if(highlightjs)$
               { src: String.raw`$decker-support-dir$/plugins/highlight/highlight.js` },
 $endif$
