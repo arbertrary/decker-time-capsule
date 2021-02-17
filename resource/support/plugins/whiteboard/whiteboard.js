@@ -761,8 +761,8 @@ let RevealWhiteboard = (function(){
         return new Promise( function(resolve) {
 
             // electron? try to load annotation from local file
-            if (window.loadAnnotation) {
-                window.loadAnnotation(annotationURL()).then( (storage) => {
+            if (window.electronApp) {
+                window.electronApp.loadAnnotation(annotationURL()).then( (storage) => {
                     if (storage) {
                         parseAnnotations(storage);
                         resolve();
@@ -954,8 +954,8 @@ let RevealWhiteboard = (function(){
     function saveAnnotations()
     {
         // electron app?
-        if (window.saveAnnotation) {
-            if (window.saveAnnotation(annotationData(), annotationURL()))
+        if (window.electronApp) {
+            if (window.electronApp.saveAnnotation(annotationData(), annotationURL()))
             {
                 console.log("whiteboard annotations saved to local file");
                 needToSave(false);
@@ -1332,10 +1332,13 @@ let RevealWhiteboard = (function(){
 
 
     // Intercept page leave when data is not saved
-    window.onbeforeunload = function(e)
-    {
-        if (unsavedAnnotations) return "blabla";
-    }
+    window.addEventListener( "beforeunload", function(evt) {
+        if (unsavedAnnotations) {
+            evt.preventDefault();
+            evt.returnValue = 'You have unsaved annotations';
+            return evt.returnValue;
+        }
+    });
 
 
     // when drawing, stop ANY context menu from being opened
@@ -1485,29 +1488,29 @@ let RevealWhiteboard = (function(){
      ******************************************************************/
 
     Reveal.addKeyBinding( { keyCode: 46, key: 'Delete', 
-        description: 'Clear Slide' }, 
+        description: 'Whiteboard: Clear Slide' }, 
         clearSlide );
 
     Reveal.addKeyBinding( { keyCode: 87, key: 'W', 
-        description: 'Toggle Whiteboard' }, 
+        description: 'Whiteboard: Toggle on/off' }, 
         toggleWhiteboard );
 
     for (let i = 0; i < 7; i++) {
       Reveal.addKeyBinding( { keyCode: 49+i, key: String.fromCharCode(49+i), 
-        description: 'Toggle Whiteboard' }, 
+        description: ('Whiteboard: Color ' + penColors[i]) }, 
         () => { selectPenColor(penColors[i]); } );
     }
 
     Reveal.addKeyBinding( { keyCode: 56, key: '8', 
-      description: 'Toggle Whiteboard' }, 
+      description: 'Whiteboard: Pen radius 2' }, 
       () => { selectPenRadius(2); } );
 
     Reveal.addKeyBinding( { keyCode: 57, key: '9', 
-      description: 'Toggle Whiteboard' }, 
+      description: 'Whiteboard: Pen radius 4' }, 
       () => { selectPenRadius(4); } );
 
     Reveal.addKeyBinding( { keyCode: 48, key: '0', 
-      description: 'Toggle Whiteboard' }, 
+      description: 'Whiteboard: Pen radius 6' }, 
       () => { selectPenRadius(6); } );
 
 	return {
