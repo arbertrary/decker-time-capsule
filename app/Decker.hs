@@ -44,7 +44,8 @@ main = do
     then run
     else case head args of
       "example" -> writeExampleProject startDir
-      "clean" -> runClean
+      "clean" -> runClean False
+      "cleaner" -> runClean True
       _ -> run
 
 type ParamCache a = FilePath -> Action a
@@ -77,13 +78,15 @@ needSels sels targets = need (concatMap (targets ^.) sels)
 -- directory. Located outside of Shake due to unlinking differences and
 -- parallel processes on Windows which prevented files (.shake.lock) from being
 -- deleted on Windows.
-runClean :: IO ()
-runClean = do
+runClean :: Bool -> IO ()
+runClean totally = do
   warnVersion
   putStrLn $ "# Removing " ++ publicDir
   tryRemoveDirectory publicDir
-  putStrLn $ "# Removing " ++ transientDir
-  tryRemoveDirectory transientDir
+  when totally $
+    do
+      putStrLn $ "# Removing " ++ transientDir
+      tryRemoveDirectory transientDir
 
 run :: IO ()
 run = do
@@ -116,7 +119,6 @@ run = do
   --
   runDecker $ do
     (getGlobalMeta, getTargets, getTemplate) <- prepCaches
-    --
     want ["decks"]
     --
 
@@ -188,12 +190,7 @@ run = do
     priority 4 $ do
       publicDir <//> "*-deck.html" %> \out -> do
         src <- calcSource "-deck.html" "-deck.md" out
-        needIfExists "-deck.html" "-annot.json" out
-        needIfExists "-deck.html" "-times.json" out
-        -- needIfExists "-deck.html" "-recording.mp4" out
-        let recordingWebm = replaceSuffix "-deck.md" "-recording.webm" src
-        let recordingMp4 = replaceSuffix "-deck.html" "-recording.mp4" out
-        whenM (doesFileExist recordingWebm) $ need [recordingMp4]
+        need [src]
         meta <- getGlobalMeta
         markdownToHtmlDeck meta getTemplate src out
       --
@@ -262,7 +259,6 @@ run = do
       "**/*-recording.mp4" %> \out -> do
         let src = replaceSuffix "-recording.mp4" "-recording.webm" out
         need [src]
-        -- whenM (doesFileExist src) $
         command [] "ffmpeg" ["-nostdin", "-v", "fatal", "-y", "-i", src, "-vcodec", "copy", "-acodec", "aac", out]
       --
       "**/*.tex.svg" %> \out -> do
@@ -286,10 +282,6 @@ run = do
       targets <- getTargets
       need (targets ^. static)
     --
-    phony "uploads" $ do
-      targets <- getTargets
-      need (targets ^. uploads)
-    --
     phony "info" $ do
       project <- liftIO $ Dir.canonicalizePath projectDir
       putNormal $ "\nproject directory: " ++ project
@@ -308,6 +300,10 @@ run = do
       need [indexFile, "static-files", "uploads"]
       meta <- getGlobalMeta
       writeSupportFilesToPublic meta
+    --
+    phony "uploads" $ do
+      targets <- getTargets
+      need $ targets ^. annotations <> targets ^. times <> targets ^. recordings
     --
     phony "check" checkExternalPrograms
     --
@@ -329,7 +325,6 @@ needIfExists :: String -> String -> String -> Action ()
 needIfExists suffix also out = do
   let annotDst = replaceSuffix suffix also out
   annotSrc <- calcSource' annotDst
-  doesFileExist annotSrc
   exists <- liftIO $ Dir.doesFileExist annotSrc
   when exists $ need [annotDst]
 
