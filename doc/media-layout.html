@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Image Layout</title>
+    <link rel="stylesheet" href="media-layout.css" />
+  </head>
+
+  <body>
+    <h1>Decker Image Layout</h1>
+
+    <div class="content right one-third">
+      <h2>Paragraph Mode</h2>
+
+      <h3><code>width="72%"</code></h3>
+
+      <div class="media paragraph">
+        <div class="jacket image">
+          <img src="./06-metal.png" />
+        </div>
+      </div>
+
+      <div class="media paragraph">
+        <div class="jacket code caption">
+          <pre><code>filter2 :: [Block] -> Filter [Block]
+filter2 = pairwise filter
+    where
+    filter (Para [Image {}], Para []) =
+        return $ Just [RawBlock (Format "html5") ""]
+    filter (x, y) = return Nothing</code></pre>
+          <div class="caption">Code Caption</div>
+        </div>
+      </div>
+
+      <div class="media paragraph">
+        <div class="jacket image caption">
+          <img src="./06-metal.png" />
+          <div class="caption">Image Caption</div>
+        </div>
+      </div>
+
+      <h2>Line Mode</h2>
+
+      <h3><code>width="72%"</code></h3>
+
+      Text
+      <div class="media line">
+        <div class="jacket image">
+          <img src="./06-metal.png" />
+        </div>
+      </div>
+      Text
+      <div class="media line">
+        <div class="jacket image caption">
+          <img src="./06-metal.png" />
+          <div class="caption">Image Caption</div>
+        </div>
+      </div>
+      Text
+      <div class="media line">
+        <div class="jacket image caption">
+          <pre><code>filter2 :: [Block] -> Filter [Block]
+filter2 = pairwise filter
+    where
+    filter (Para [Image {}], Para []) =
+        return $ Just [RawBlock (Format "html5") ""]
+    filter (x, y) = return Nothing</code></pre>
+          <div class="caption">Code Caption</div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

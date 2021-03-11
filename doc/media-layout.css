@@ -1,0 +1,150 @@
+:root {
+  /* default values for per-element variables */
+  --width: 100%;
+  --justify: center;
+
+  /* default values for per-document variables */
+  --verbose-border-size: 4px;
+  --media-banner-justify: center;
+  --banner-padding: 0px;
+  --banner-margin: 0px;
+  --banner-border: var(--verbose-border-size);
+  --banner-inset: calc((var(--banner-border) + var(--banner-padding)) * 2);
+  --jacket-padding: 10px;
+  --jacket-margin: 10px;
+  --jacket-border: var(--verbose-border-size);
+  --jacket-inset: calc(
+    (var(--jacket-margin) + var(--jacket-border) + var(--jacket-padding)) * 2
+  );
+  --caption-padding: 0px;
+  --caption-margin: 0px;
+  --caption-border: var(--verbose-border-size);
+}
+
+div.content {
+  background-color: #e7e7e7;
+  width: 72%;
+  margin: 0 auto;
+}
+
+/* 
+ all variables can also be set using the style attribute like this 
+
+   style="--width:72%;"
+*/
+.width-50pc {
+  --width: 50%;
+}
+
+.width-33pc {
+  --width: 33%;
+}
+
+.width-25pc {
+  --width: 25%;
+}
+
+.width-20pc {
+  --width: 20%;
+}
+
+.height-50pc {
+  --height: 50%;
+}
+
+.wisth-33pc {
+  --height: 33%;
+}
+
+.height-25pc {
+  --height: 25%;
+}
+
+.height-20pc {
+  --height: 20%;
+}
+
+.left {
+  --justify: flex-start;
+}
+
+.center {
+  --justify: center;
+}
+
+.right {
+  --justify: flex-end;
+}
+
+div.media-banner.paragraph {
+  border: solid var(--verbose-border-size) #faa;
+  display: flex;
+  justify-content: var(--justify);
+  margin: var(--banner-margin);
+  padding: var(--banner-padding);
+}
+
+div.media-banner.paragraph div.media-jacket {
+  border: solid var(--verbose-border-size) #afa;
+  flex: 1 1 content;
+  width: calc(var(--width) - (var(--banner-inset)));
+  /* margin: var(--jacket-padding) auto; */
+  margin: var(--jacket-margin);
+  padding: var(--jacket-padding);
+  min-width: 0;
+}
+
+div.media-banner.paragraph div.media-jacket img {
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+div.media-banner.paragraph div.media-jacket pre {
+  overflow-x: scroll;
+  margin: 0;
+  padding: 0.5em;
+  background-color: #ffa;
+  min-width: 0;
+  height: var(--height);
+}
+
+div.media-banner.paragraph div.media-jacket figure {
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+div.media-banner.line {
+  border: solid var(--verbose-border-size) #faa;
+  justify-content: var(--media-banner-justify);
+  display: inline-block;
+}
+
+div.media-banner.line div.media-jacket {
+  border: solid var(--verbose-border-size) #afa;
+  height: calc(6em - var(--verbose-border-size) * 2);
+  margin: 0 auto;
+  padding: 0;
+  display: inline-block;
+}
+
+div.media-banner.line div.media-jacket img {
+  padding: 0;
+  margin: 0;
+}
+
+div.media-banner.line div.media-jacket pre {
+  background-color: #ffa;
+  overflow-x: scroll;
+  overflow-y: scroll;
+  padding: 0.5em;
+  margin: 0;
+}
+
+div.media-banner.line div.media-jacket figure {
+  padding: 0;
+  margin: 0;
+  margin: 0;
+  display: inline-block;
+}
