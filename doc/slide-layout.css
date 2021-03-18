@@ -1,0 +1,16 @@
+
+div.content {
+  background-color: #e7e7e7;
+  width: 92%;
+  margin: 0 auto;
+}
+
+
+div.slides {
+  background-color: #efe;
+}
+
+div.slides > section {
+  padding: 1em;
+  background-color: #fee;
+}

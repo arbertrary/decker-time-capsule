@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Slide Layout</title>
+    <link rel="stylesheet" href="media-layout.css" />
+    <link rel="stylesheet" href="slide-layout.css" />
+  </head>
+
+  <body>
+    <div class="content">
+      <h1>Decker Slide Layout</h1>
+
+      <h2>Proposed structure</h2>
+
+      Parameters in <i class="red"><code>red</code></i
+      >. Media elements (img, svg, wrapped canvas, wrapped iframe) in
+      <i class="green"><code>green</code></i
+      >.
+
+      <pre><code>
+        
+      </code></pre>
+
+      <h1>Tests</h1>
+
+      <h2>Plain slide</h2>
+
+      <hr />
+
+      <p></p>
+
+      <p><code># Plain Slide</code></p>
+
+      <div class="slides" style="width: 600px; height: 400px; margin: auto">
+        <section style="height: 400px">
+          <div class="alignment">
+            <div class="content">
+              <h1>Licht</h1>
+              <div class="column-row" columns="2">
+                <div grow="1" column="1">
+                  <div class="box left">
+                    <h2 id="section-1"></h2>
+                    Something or other
+                  </div>
+                </div>
+                <div grow="1" column="1">
+                  <div class="box left">
+                    <h2 id="sichtbares-licht">Sichtbares Licht</h2>
+                    Something or other
+                  </div>
+                  <div class="box">
+                    <h2 id="wahrnehmung">Wahrnehmung</h2>
+                    Something or other
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <script>
+        // TODO This only works if border, margin and padding for all involved elements are all 0.
+        let adjust = (ev) => {
+          let blocks = document.querySelectorAll(
+            "div.media.lineblock div.container"
+          );
+          for (let block of blocks) {
+            let rowAspect = 0;
+            let images = block.querySelectorAll("img");
+            for (let img of images)
+              rowAspect += img.naturalWidth / img.naturalHeight;
+            let height = block.offsetWidth / rowAspect;
+            for (let img of images) {
+              let imgAspect = img.naturalWidth / img.naturalHeight;
+              img.style.width = `${imgAspect * height}px`;
+              img.style.height = `${height}px`;
+            }
+          }
+        };
+        window.onload = adjust;
+        window.onresize = adjust;
+      </script>
+    </div>
+  </body>
+</html>
