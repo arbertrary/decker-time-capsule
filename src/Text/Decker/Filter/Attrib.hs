@@ -215,6 +215,7 @@ takeAllClasses = modify transform
     transform state@((id', cs', kvs'), (id, cs, kvs)) =
       ((id', cs <> cs', kvs'), (id, [], kvs))
 
+injectBorder :: Attrib ()
 injectBorder = do
   border <- lookupMetaOrElse False "decker.filter.border" <$> lift (gets meta)
   when border $ injectStyle ("border", "2px solid magenta")
