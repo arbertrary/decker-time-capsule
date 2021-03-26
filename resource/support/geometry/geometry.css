@@ -17,11 +17,19 @@ svg.geometry {
 }
 
 marker[id="arrow"] {
-  fill: black; /* SVG 2: context-fill*/
+  /* fill: black; SVG 2: context-fill */
+  /* stroke: black; */
+  /* stroke-width: 1; */
 }
 
 marker[id="vec-arrow"] {
   fill: darkblue; /* SVG 2: context-fill*/
+}
+
+marker[id="open-arrow"] {
+  fill: none; /* SVG 2: context-fill*/
+  stroke: black;
+  stroke-width: var(--stroke-width);
 }
 
 circle.handle {
@@ -77,13 +85,18 @@ line.line.infinite {
   stroke-dasharray: calc(var(--stroke-width) * 2);
 }
 
+line.line.computed {
+  stroke-width: calc(var(--stroke-width) * 1.5);
+}
+
+line.line.emph {
+  stroke: darkred;
+  stroke-width: calc(var(--stroke-width) * 1.5);
+}
+
 line.vector {
   stroke: darkblue;
   stroke-width: var(--stroke-width);
-}
-
-line.line.computed {
-  stroke-width: calc(var(--stroke-width) * 1.5);
 }
 
 line.vector.computed {

@@ -17,6 +17,10 @@ export {
   intersect,
   renderSvg,
   IsectLineCircle,
+  Shape,
+  Line,
+  Point,
+  defaults,
 };
 
 import "/support/vendor/d3.v6.min.js";
@@ -459,11 +463,22 @@ class Switch extends Shape {
     super();
     this.cond = cond;
     this.shapes = shapes;
+    this.callbacks = { on: [], off: [] };
+  }
+
+  on(which, func) {
+    this.callbacks[which].push(func);
+    return this;
   }
 
   evaluate() {
     this.shapes.map((s) => s.evaluate());
     let c = this.cond.evaluate();
+    if (c) {
+      this.callbacks["on"].map((cb) => cb());
+    } else {
+      this.callbacks["off"].map((cb) => cb());
+    }
     return (this.complete = c);
   }
 
@@ -980,14 +995,32 @@ function addDefs(svg) {
   const mh = defaults.arrow.h;
   const arrowPoints = [
     [0, 0],
-    [0, mh],
     [mw, mh / 2],
+    [0, mh],
   ];
 
   defs
     .append("marker")
     .attr("id", "arrow")
-    .attr("refX", mw)
+    // .attr("refX", mw)
+    // .attr("refY", mh / 2)
+    // .attr("markerWidth", mw)
+    // .attr("markerHeight", mh)
+    // .attr("viewBox", "0 0 10 10")
+    .attr("refX", 10)
+    .attr("refY", 5)
+    .attr("markerWidth", 10)
+    .attr("markerHeight", 10)
+    .attr("markerUnits", "strokeWidth")
+    .attr("stroke", "context-stroke")
+    .attr("fill", "context-stroke")
+    .attr("orient", "auto")
+    .append("path")
+    .attr("d", "M 0 0 L 10 5 L 0 10");
+  defs
+    .append("marker")
+    .attr("id", "vec-arrow")
+    .attr("refX", mw / 2)
     .attr("refY", mh / 2)
     .attr("markerWidth", mw)
     .attr("markerHeight", mh)
@@ -997,11 +1030,7 @@ function addDefs(svg) {
     .attr("d", d3.line()(arrowPoints));
   defs
     .append("marker")
-    .attr("id", "vec-arrow")
-    .attr("refX", mw / 2)
-    .attr("refY", mh / 2)
-    .attr("markerWidth", mw)
-    .attr("markerHeight", mh)
+    .attr("id", "open-arrow")
     .attr("markerUnits", "strokeWidth")
     .attr("orient", "auto")
     .append("path")

@@ -6,7 +6,10 @@ let wi = g.point(80, 100, "drag");
 let mwi = g.mlabel(g.mirror(surfaceAnchor, wi), "\\mathbf{-d}_i");
 let projection = g.line(
   surfaceAnchor,
-  g.mlabel(g.project(surfaceNormal.p1, surfaceNormal.p2, wi), "\\mathbf{d}_i\\cdot\\mathbf{n}"),
+  g.mlabel(
+    g.project(surfaceNormal.p1, surfaceNormal.p2, wi),
+    "\\mathbf{d}_i\\cdot\\mathbf{n}"
+  ),
   "arrow"
 );
 let proj1 = g.sum(mwi, projection, "arrow");

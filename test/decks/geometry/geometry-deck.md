@@ -82,6 +82,8 @@ g.renderSvg(anchor, 600, 400, segment);
 
 ![](./intersection.js){.run width="100%"}
 
+Caption: There will be caption!
+
 ------------------------------------------------------------------------
 
 # Mirror {.columns}
