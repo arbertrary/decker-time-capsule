@@ -44,7 +44,7 @@ const defaults = {
     opts: ["line"],
   },
   unit: 60,
-  arrow: { w: 5, h: 4 },
+  arrow: { w: 6, h: 4 },
 };
 
 let nextId = 0;
@@ -229,7 +229,7 @@ class Line extends Shape {
         .attr("x2", this.p2.x)
         .attr("y2", this.p2.y);
       if (this.opts.includes("arrow")) {
-        line.attr("marker-end", `url(#arrow)`);
+        line.attr("marker-end", "url(#open-arrow)");
       }
     }
     return line.node();
@@ -958,6 +958,75 @@ class Project extends Point {
 function project(...args) {
   return new Project(...args);
 }
+
+class XYcross extends Shape {
+  constructor(p, w, h, ...opts) {
+    super();
+    this.p = p;
+    this.w = w;
+    this.h = h;
+    this.opts = opts.length == 0 ? [] : opts;
+    this.zIndex = 9;
+  }
+
+  evaluate() {
+    this.complete = this.p.evaluate();
+    return this.complete;
+  }
+
+  flat() {
+    return [
+      ...(this.opts.includes("zero") ? this.p.flat() : []),
+      ...(this.complete ? [this] : []),
+    ];
+  }
+
+  update(element) {
+    let u2 = defaults.unit / 2;
+    let cross = d3.select(element);
+    cross
+      .select("xaxis")
+      .attr("x1", this.p.x - u2)
+      .attr("y1", this.p.y)
+      .attr("x2", this.p.x + this.w + u2)
+      .attr("y2", this.p.y);
+    cross
+      .select("yaxis")
+      .attr("x1", this.p.x)
+      .attr("y1", this.p.y + u2)
+      .attr("x2", this.p.x)
+      .attr("y2", this.p.y - this.h + u2);
+  }
+
+  svg(w, h) {
+    let classes = this.opts.concat("xycross").join(" ");
+    let u2 = defaults.unit / 2;
+    let cross = d3.create("svg:g").attr("id", this.id).attr("class", classes);
+    cross
+      .append("svg:line")
+      .attr("class", "xaxis")
+      .attr("x1", this.p.x - u2)
+      .attr("y1", this.p.y)
+      .attr("x2", this.p.x + this.w + u2)
+      .attr("y2", this.p.y)
+      .attr("marker-end", "url(#arrow)");
+    cross
+      .append("svg:line")
+      .attr("class", "yaxis")
+      .attr("x1", this.p.x)
+      .attr("y1", this.p.y + u2)
+      .attr("x2", this.p.x)
+      .attr("y2", this.p.y - this.h + u2)
+      .attr("marker-end", "url(#open-arrow)");
+    console.log(cross);
+    return cross.node();
+  }
+}
+
+export function xycross(...args) {
+  return new XYcross(...args);
+}
+
 // Makes array elements unique by id as a key by way of built-in object
 // attribute hashing.
 function unique(array) {
@@ -980,43 +1049,23 @@ function clip(max, v) {
   return Math.min(Math.max(0, v), max);
 }
 
-// Only add the SVG definitions block to our first SVG element. Otherwise chaos
-// ensues.
-var svgDefsElement = false;
-
+// Add a SVG element that contains the shared definitions for this document.
 function addDefs(svg) {
-  if (svgDefsElement) return;
-
-  let defs = svg.append("defs");
-
-  svgDefsElement = defs.node();
+  let defs = svg.attr("id", "geometry defs").append("defs");
 
   const mw = defaults.arrow.w;
   const mh = defaults.arrow.h;
-  const arrowPoints = [
-    [0, 0],
-    [mw, mh / 2],
-    [0, mh],
-  ];
 
   defs
     .append("marker")
     .attr("id", "arrow")
-    // .attr("refX", mw)
-    // .attr("refY", mh / 2)
-    // .attr("markerWidth", mw)
-    // .attr("markerHeight", mh)
-    // .attr("viewBox", "0 0 10 10")
-    .attr("refX", 10)
-    .attr("refY", 5)
-    .attr("markerWidth", 10)
-    .attr("markerHeight", 10)
-    .attr("markerUnits", "strokeWidth")
-    .attr("stroke", "context-stroke")
-    .attr("fill", "context-stroke")
+    .attr("refX", mw)
+    .attr("refY", mh / 2)
+    .attr("markerWidth", mw)
+    .attr("markerHeight", mh)
     .attr("orient", "auto")
     .append("path")
-    .attr("d", "M 0 0 L 10 5 L 0 10");
+    .attr("d", `M 0 0 L ${mw} ${mh / 2} L 0 ${mh}`);
   defs
     .append("marker")
     .attr("id", "vec-arrow")
@@ -1024,17 +1073,19 @@ function addDefs(svg) {
     .attr("refY", mh / 2)
     .attr("markerWidth", mw)
     .attr("markerHeight", mh)
-    .attr("markerUnits", "strokeWidth")
     .attr("orient", "auto")
     .append("path")
-    .attr("d", d3.line()(arrowPoints));
+    .attr("d", `M 0 0 L ${mw} ${mh / 2} L 0 ${mh}`);
   defs
     .append("marker")
     .attr("id", "open-arrow")
-    .attr("markerUnits", "strokeWidth")
+    .attr("refX", mw * 1.5 - 1)
+    .attr("refY", (mh * 1.5) / 2)
+    .attr("markerWidth", mw * 1.5)
+    .attr("markerHeight", mh * 1.5)
     .attr("orient", "auto")
     .append("path")
-    .attr("d", d3.line()(arrowPoints));
+    .attr("d", `M 1 1 L ${mw * 1.5 - 1} ${(mh * 1.5) / 2} L 1 ${mh * 1.5 - 1}`);
 }
 
 function update(svg, width, height, root) {

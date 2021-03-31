@@ -16,20 +16,27 @@ svg.geometry {
   user-select: none;
 }
 
+line {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 marker[id="arrow"] {
-  /* fill: black; SVG 2: context-fill */
-  /* stroke: black; */
-  /* stroke-width: 1; */
+  fill: black;
+  stroke: none;
 }
 
 marker[id="vec-arrow"] {
   fill: darkblue; /* SVG 2: context-fill*/
+  stroke: none;
 }
 
 marker[id="open-arrow"] {
-  fill: none; /* SVG 2: context-fill*/
+  fill: none;
   stroke: black;
-  stroke-width: var(--stroke-width);
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 circle.handle {
@@ -101,6 +108,16 @@ line.vector {
 
 line.vector.computed {
   stroke-width: calc(var(--stroke-width) * 1.5);
+}
+
+line.xaxis {
+  stroke: red;
+  stroke-width: var(--stroke-width);
+}
+
+line.yaxis {
+  stroke: black;
+  stroke-width: var(--stroke-width);
 }
 
 path[id].bezier {

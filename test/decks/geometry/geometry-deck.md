@@ -179,3 +179,17 @@ g.renderSvg(anchor, 500, 300, g.group(
     g.line(p, q, "infinite")
 ));
 ```
+
+# Coordinate Cross
+
+``` {.javascript .run}
+import * as g from "/support/js/geometry.js";
+
+let p1 = g.point(100, 400);
+let p2 = g.point(300, 200, "drag");
+
+g.renderSvg(anchor, 1200, 500, g.group(
+    g.line(p1, p2, "arrow"),
+    g.xycross(p1, 400, 300)
+));
+```
