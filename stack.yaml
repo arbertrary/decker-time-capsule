@@ -25,6 +25,7 @@ extra-deps:
   - skylighting-core-0.10.2
   - texmath-0.12.1
   - shake-0.19.1
+  - pandoc-plot-1.1.1@sha256:5b68c295360a79f973a00f5efc1fc96c04ac7a25055f6576b5abec0d382b76f6,5866
 resolver: lts-17.2
 ghc-options:
   "$locals": -fhide-source-paths -Wno-missing-home-modules

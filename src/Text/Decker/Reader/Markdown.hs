@@ -38,6 +38,7 @@ import Text.Decker.Internal.URI
 import Text.Decker.Resource.Template
 import Text.Pandoc hiding (lookupMeta)
 import Text.Pandoc.Citeproc
+import Text.Pandoc.Filter.Plot
 
 -- | Reads a Markdown file and run all the the Decker specific filters on it.
 -- The path is assumed to be an absolute path in the local file system under
@@ -49,6 +50,7 @@ readAndFilterMarkdownFile disp globalMeta path = do
     >>= mergeDocumentMeta globalMeta
     >>= processCites
     >>= calcRelativeResourcePaths docBase
+    >>= liftIO . plotTransform defaultConfiguration
     >>= runNewFilter disp examinerFilter docBase
     >>= deckerMediaFilter disp docBase
     >>= processPandoc deckerPipeline docBase disp Copy

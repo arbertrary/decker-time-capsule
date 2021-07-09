@@ -103,6 +103,7 @@ dependencies:
   - xml-types
   - yaml
   - zip
+  - pandoc-plot
 
 ghc-options:
   - -Wunused-top-binds

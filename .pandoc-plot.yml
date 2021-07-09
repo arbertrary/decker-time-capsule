@@ -1,0 +1,4 @@
+directory: plots/
+plantuml:
+  executable: plantuml
+  command_line_arguments:
