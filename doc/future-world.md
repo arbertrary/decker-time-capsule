@@ -66,22 +66,22 @@ e)  Release management. More releases, more often. Whenever we have any
 ## Plans for Winter 2020 (Henrik)
 
 1.  [ ] `decker server` als Production Server
-    -   [ ] Lasttests, besonders für Videos
-    -   [ ] Feedback Service
+    -   [X] Lasttests, besonders für Videos
+    -   [X] Feedback Service
     -   [ ] Quiz Service
 2.  [ ] Eingebettete kurze Erklärvideos
-    -   [ ] per Slide
-    -   [ ] per Deck
+    -   [X] per Slide
+    -   [X] per Deck
     -   [ ] auch in Handouts
-    -   [ ] Video Button oben in der Ecke
-    -   [ ] Öffnet
-        -   [ ] Full-screen Video Overlay (keine Slidenavigation)
+    -   [X] Video Button oben in der Ecke
+    -   [X] Öffnet
+        -   [X] Full-screen Video Overlay (keine Slidenavigation)
         -   [ ] Kleine schwebende Videobriefmarke in der Ecke
             (Slidenavigation möglich)
 3.  [ ] Feedback und Kommentare
-    -   [ ] Volltext Feedback und Kommentare pro Slide und Deck
+    -   [X] Volltext Feedback und Kommentare pro Slide und Deck
     -   [ ] Rating Page pro Deck (5-Star)
-    -   [ ] Übertragung an den Server
+    -   [X] Übertragung an den Server
     -   [ ] Statistische Auswertung der Ratings
     -   [ ] Veröffentlichungen der Ratings und der Kommentare
         (vielleicht moderiert) auf der Modulseite
@@ -93,8 +93,8 @@ e)  Release management. More releases, more often. Whenever we have any
         -   [x] Anzeige Lösung, danach gesperrt
         -   [ ] Anzeige Punkte für Aufgabe, Punkte insgesamt
     -   [ ] Testauswertung am Ende des Decks
-    -   [ ] Auch im Handout
-    -   [ ] Export des gesamten Fragenkatalogs nach *Moodle XML Format*
+    -   [X] Auch im Handout
+    -   [X] Export des gesamten Fragenkatalogs nach *Moodle XML Format*
         (`decker exam-catalog`)
 5.  [ ] Path Tracer App (C++ -\> WASM)
     -   [ ] Einbettung per iFrame
