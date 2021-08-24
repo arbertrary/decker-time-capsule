@@ -108,7 +108,6 @@
   height: calc(var(--whiteboard-icon-size) * 2);
   padding: calc(var(--whiteboard-icon-size) * 0.1);
   margin: calc(var(--whiteboard-icon-size) * 0.2);
-  outline: none;
   background: none;
   font-family: "Font Awesome 5 Free";
   border: 2px solid transparent;
@@ -134,10 +133,9 @@
 .reveal button.whiteboard.radiobutton[data-active="true"] {
   border: 2px solid var(--whiteboard-active-color);
 }
-/* hide outline around focused/clicked buttons */
+/* hide border around focused/clicked buttons */
 .reveal button.whiteboard:focus,
 .reveal button.whiteboard::-moz-focus-inner {
-  outline: none;
   border: 0;
 }
 

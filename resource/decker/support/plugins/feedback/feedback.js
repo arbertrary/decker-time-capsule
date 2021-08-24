@@ -47,7 +47,7 @@ function prepareEngine() {
       // Globally set the server token.
       engine.token = token;
 
-      // Build the panel, once Reval is ready.
+      // Build the panel, once Reval is ready. (HAUER: This might ruin the DOM order so I moved this to init)
       if (Reveal.isReady()) {
         buildInterface();
       } else {
@@ -63,9 +63,21 @@ function prepareEngine() {
     });
 }
 
+function buildElement(type, attributes, classes, callback, tooltip) {
+  let element = document.createElement(type);
+  attributes.forEach((attribute) => {
+    element.setAttribute(attribute.name, attribute.value);
+  });
+  classes.forEach((cls) => {
+    element.classList.add(cls);
+  });
+  
+  return element;
+}
+
 // Builds the panel and sets up event handlers.
 function buildInterface() {
-  let open = document.createElement("div");
+  let open = document.createElement("button");
   let badge = document.createElement("div");
 
   let panel = document.createElement("div");
@@ -90,21 +102,21 @@ function buildInterface() {
 
   let lock = document.createElement("i");
   lock.classList.add("fas", "fa-lock", "lock");
-  lock.setAttribute("title", "Lock user ");
+  lock.setAttribute("title", "Lock Usertoken");
 
   let unlock = document.createElement("i");
   unlock.classList.add("fas", "fa-unlock", "unlock");
-  unlock.setAttribute("title", "User token is locked");
+  unlock.setAttribute("title", "Unlock Usertoken");
 
-  let gear = document.createElement("i");
+  let gear = document.createElement("button");
   gear.classList.add("fas", "fa-cog", "gears");
   gear.setAttribute("title", "Login as admin");
 
-  let signin = document.createElement("i");
+  let signin = document.createElement("button");
   signin.classList.add("fas", "fa-sign-in-alt", "gears");
   signin.setAttribute("title", "Login as admin");
 
-  let signout = document.createElement("i");
+  let signout = document.createElement("button");
   signout.classList.add("fas", "fa-sign-out-alt", "gears");
   signout.setAttribute("title", "Logout admin");
 
@@ -115,7 +127,8 @@ function buildInterface() {
   open.appendChild(qmark);
   open.appendChild(badge);
   open.classList.add("open-button");
-  open.setAttribute("title", "Open questions panel");
+  open.setAttribute("title", "Open Viewer Questions Panel");
+  open.setAttribute("aria-label", "Open Viewer Questions Panel");
   badge.classList.add("open-badge", "badge");
 
   header.classList.add("q-header");
@@ -170,12 +183,20 @@ function buildInterface() {
   panel.appendChild(input);
   panel.appendChild(footer);
 
-  document.body.appendChild(open);
-  document.body.appendChild(panel);
+  check.tabIndex = -1;
+  close.tabIndex = -1;
+  text.tabIndex = -1;
+  signin.tabIndex = -1;
+
+  //HACK because this is the only plugin that awaits Reveal.ready so if we want the tab order to be clean top to bottom we need to do this right now
+  let whiteboard = document.getElementById("whiteboardButtons");
+
+  whiteboard.parentElement.insertBefore(panel, whiteboard);
+  whiteboard.parentElement.insertBefore(open, whiteboard);
 
   function initUser() {
     let localToken = window.localStorage.getItem("token");
-    if (engine.token && engine.token.authorized) {
+    if (engine && engine.token && engine.token.authorized) {
       // Some higher power has authorized this user. Lock token in.
       user.value = engine.token.authorized;
       user.setAttribute("disabled", true);
@@ -191,7 +212,7 @@ function buildInterface() {
       check.classList.add("checked");
       user.type = "password";
     } else {
-      user.value = engine.token.random;
+//      user.value = engine.token.random;
       user.removeAttribute("disabled");
       check.classList.remove("checked");
       user.type = "text";
@@ -504,12 +525,20 @@ function buildInterface() {
   close.addEventListener("click", (_) => {
     open.classList.remove("checked");
     panel.classList.remove("open");
+    check.tabIndex = -1;
+    close.tabIndex = -1;
+    text.tabIndex = -1;
+    signin.tabIndex = -1;
     localStorage.removeItem("question-panel");
   });
 
   open.addEventListener("click", (_) => {
     open.classList.add("checked");
     panel.classList.add("open");
+    check.tabIndex = 0;
+    close.tabIndex = 0;
+    text.tabIndex = 0;
+    signin.tabIndex = 0;
     updateComments();
     document.activeElement.blur();
     localStorage.setItem("question-panel", "open");
@@ -564,7 +593,7 @@ function buildInterface() {
     }
   });
 
-  if (!engine.token.authorized) {
+  if (engine.token && !engine.token.authorized) {
     user.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         updateComments();

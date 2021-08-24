@@ -310,6 +310,7 @@
   bottom: 30px;
   z-index: 30;
   font-size: 24px;
+  border:none;
 }
 
 /*
@@ -342,5 +343,9 @@
 body.print-pdf .slide-menu-wrapper .slide-menu,
 body.print-pdf .reveal .slide-menu-button,
 body.print-pdf .slide-menu-wrapper .slide-menu-overlay {
+  display: none;
+}
+
+.a11y-hidden {
   display: none;
 }

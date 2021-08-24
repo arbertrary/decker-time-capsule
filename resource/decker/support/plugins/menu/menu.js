@@ -418,11 +418,16 @@ const Plugin = () => {
     if (event) event.preventDefault();
     if (!isOpen()) {
       select("body").classList.add("slide-menu-active");
+      let interactive_elements = document.querySelectorAll(".slide-menu-toolbar > li");
+      interactive_elements.forEach((element) => {
+        element.tabIndex = 0;
+      })
       select(".reveal").classList.add(
         "has-" + options.effect + "-" + options.side
       );
       select(".slide-menu").classList.add("active");
       select(".slide-menu-overlay").classList.add("active");
+      select(".slide-menu").classList.remove("a11y-hidden");
 
       // identify active theme
       if (options.themes) {
@@ -460,12 +465,17 @@ const Plugin = () => {
   function closeMenu(event, force) {
     if (event) event.preventDefault();
     if (!options.sticky || force) {
+      let interactive_elements = document.querySelectorAll(".slide-menu-toolbar > li");
+      interactive_elements.forEach((element) => {
+        element.tabIndex = -1;
+      })
       select("body").classList.remove("slide-menu-active");
       select(".reveal").classList.remove(
         "has-" + options.effect + "-" + options.side
       );
       select(".slide-menu").classList.remove("active");
       select(".slide-menu-overlay").classList.remove("active");
+      select(".slide-menu").classList.add("a11y-hidden");
       selectAll(".slide-menu-panel li.selected").forEach(function (i) {
         i.classList.remove("selected");
       });
@@ -654,6 +664,9 @@ const Plugin = () => {
         } else {
           button.innerHTML = icon + "</i>";
         }
+        button.setAttribute("tabindex", -1);
+        button.setAttribute("role", "button");
+        button.setAttribute("aria-label", title);
         button.appendChild(create("br"), select("i", button));
         button.appendChild(
           create("span", { class: "slide-menu-toolbar-label" }, title),
@@ -751,6 +764,8 @@ const Plugin = () => {
         id: "close",
         class: "toolbar-panel-button",
       });
+      button.setAttribute("tabindex", -1);
+      button.setAttribute("role", "button");
       button.appendChild(create("i", { class: "fas fa-times" }));
       button.appendChild(create("br"));
       button.appendChild(
@@ -1049,12 +1064,11 @@ const Plugin = () => {
       //
       if (options.openButton) {
         // add menu button
-        var div = create("div", { class: "slide-menu-button" });
-        var link = create("a", { href: "#" });
-        link.appendChild(create("i", { class: "fas fa-bars" }));
-        div.appendChild(link);
-        select(".reveal").appendChild(div);
-        div.onclick = openMenu;
+        var btn = create("button", { class: "slide-menu-button" });
+        btn.setAttribute("aria-label", "Open Slide Menu");
+        btn.appendChild(create("i", { class: "fas fa-bars" }));
+        select(".reveal").appendChild(btn);
+        btn.onclick = openMenu;
       }
 
       if (options.openSlideNumber) {

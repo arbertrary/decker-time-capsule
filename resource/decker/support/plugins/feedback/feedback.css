@@ -4,16 +4,16 @@ div.q-panel {
 }
 
 /* The one button with the question mark */
-div.open-button.checked {
+button.open-button.checked {
   visibility: hidden;
 }
 
-div.open-button:not(.checked) {
+button.open-button:not(.checked) {
   visibility: visible;
   transition-delay: 0.4s;
 }
 
-div.open-button {
+button.open-button {
   position: fixed;
   left: auto;
   right: calc(var(--whiteboard-icon-size) * 0.25);
@@ -26,14 +26,16 @@ div.open-button {
   font-size: var(--whiteboard-icon-size);
   color: var(--whiteboard-inactive-color);
 
+  border: none;
+
   transition-property: visibility;
 }
 
-div.open-button.i {
+button.open-button.i {
   opacity: 0.5;
 }
 
-div.open-button:hover {
+button.open-button:hover {
   opacity: 1;
   color: var(--whiteboard-active-color);
 }
@@ -149,7 +151,6 @@ div.q-panel div.q-header input[type="password"] {
   background-color: rgba(255, 255, 255, 0.9);
   border: none;
   border-radius: var(--border-radius);
-  outline: none;
   padding: 0.3em;
   margin: 0;
 }
@@ -166,26 +167,25 @@ div.q-panel div.q-header button.q-check {
 
   border: none;
   border-radius: var(--border-radius);
-  outline: none;
 }
 
 div.q-panel div.q-header button.q-check:hover {
   color: var(--whiteboard-active-color);
 }
 
-div.q-panel div.q-header button.q-check.checked i.lock {
+div.q-panel div.q-header button.q-check.checked .lock {
   display: inline;
 }
 
-div.q-panel div.q-header button.q-check.checked i.unlock {
+div.q-panel div.q-header button.q-check.checked .unlock {
   display: none;
 }
 
-div.q-panel div.q-header button.q-check:not(.checked) i.lock {
+div.q-panel div.q-header button.q-check:not(.checked) .lock {
   display: none;
 }
 
-div.q-panel div.q-header button.q-check:not(.checked) i.unlock {
+div.q-panel div.q-header button.q-check:not(.checked) .unlock {
   display: inline;
 }
 
@@ -197,7 +197,6 @@ div.q-panel div.q-header button.q-close {
 
   border: none;
   border-radius: var(--border-radius);
-  outline: none;
 }
 
 div.q-panel div.q-header button.q-close:hover {
@@ -218,7 +217,6 @@ div.q-panel div.q-list div.item {
   line-height: 125%;
   border: none;
   border-radius: var(--border-radius);
-  outline: none;
   margin-bottom: 0.5em;
   padding: 0.3em;
 
@@ -310,7 +308,6 @@ div.q-panel div.q-input textarea {
 
   border: none;
   border-radius: var(--border-radius);
-  outline: none;
 
   font-size: 0.8em;
 }
@@ -354,7 +351,6 @@ div.q-panel div.q-footer div.credentials input {
 
   border: none;
   border-radius: var(--border-radius);
-  outline: none;
 
   font-size: 0.8em;
 }
