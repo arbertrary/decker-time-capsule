@@ -218,8 +218,8 @@ function buildInterface() {
   // given the list of questions, update question counter of menu items
   function updateMenuItems(list) {
     document
-      .querySelectorAll("ul.slide-menu-items > li.slide-menu-item")
-      .forEach((li) => {
+      .querySelectorAll("ul.slide-list > li.slide-list-item").forEach((li) => {
+      //.querySelectorAll("ul.slide-menu-items > li.slide-menu-item").forEach((li) => {
         li.removeAttribute("data-questions");
         li.removeAttribute("data-answered");
       });
