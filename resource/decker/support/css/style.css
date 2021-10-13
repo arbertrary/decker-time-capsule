@@ -1,0 +1,235 @@
+/* Style CSS for slides that is also used in pages and handouts. */
+
+:root {
+  /* Nice colors */
+  --primary-color: #2a9ddf;
+  --secondary-color: orange;
+  --hover-color: #30b3ff;
+}
+
+code {
+  font-size: 110%;
+  font-family: monospace;
+}
+
+strong {
+  font-weight: bold;
+}
+
+em {
+  font-style: italic;
+}
+
+pre {
+  line-height: 1;
+}
+
+h1 {
+  font-size: 1.8em;
+  font-weight: bold;
+
+  margin-top: 0;
+  margin-bottom: var(--vertical-margin);
+}
+
+h2 {
+  font-size: 1.2em;
+  font-weight: bold;
+
+  margin-top: 0;
+  margin-bottom: var(--vertical-margin);
+}
+
+p {
+  margin-top: 0;
+  margin-bottom: var(--vertical-margin);
+}
+
+li {
+  margin-top: 0;
+  margin-bottom: var(--vertical-margin);
+}
+
+ul {
+  margin-top: 0;
+  margin-left: var(--list-indent);
+  list-style: outside disc;
+  margin-bottom: var(--vertical-margin);
+}
+
+ol {
+  margin-top: 0;
+  margin-bottom: var(--vertical-margin);
+  margin-left: var(--list-indent);
+  list-style: outside disc;
+}
+
+/* No bottom margin for last elements in a stack. */
+:last-child {
+  margin-bottom: 0;
+}
+
+div.media {
+  margin-bottom: var(--vertical-margin);
+}
+
+/* Add a top margin to nested lists. */
+li > :is(ul, ol) {
+  margin-top: var(--vertical-margin);
+}
+
+/* Move a little closer to the image. */
+figcaption {
+  padding-top: calc(0.5 * var(--vertical-margin));
+}
+
+/* TODO Two highlighted blocks currently touch. Play with spacing here. */
+div.block {
+  display: flow-root; /* Prevents margin collapse. Allows negative margin here. */
+  margin-bottom: calc(0 * var(--vertical-margin));
+}
+
+/* Tables */
+table {
+  font-size: 0.9em;
+  margin-bottom: var(--vertical-margin);
+  border-collapse: collapse;
+  width: 100%;
+  overflow-x: auto;
+  display: block;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+table caption {
+  margin-bottom: var(--vertical-margin);
+}
+tbody {
+  margin-top: 0.5em;
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+}
+th {
+  border-top: 1px solid black;
+  padding: 0.2em 0.5em 0.2em 0.5em;
+  font-weight: bolder;
+}
+td {
+  padding: 0.2em 0.5em 0.2em 0.5em;
+}
+
+/* Stretch the block header margin to the block border so that highlighting
+works. */
+div.block h2 {
+  padding: var(--block-outset);
+  margin-top: calc(-1 * var(--block-outset));
+  margin-left: calc(-1 * var(--block-outset));
+  margin-right: calc(-1 * var(--block-outset));
+}
+
+/* Highlight colors and borders. We need three colors for each highlight state:
+text, background and border. */
+div.block.primary {
+  background-color: #ddf;
+  border: var(--block-border-width) solid #bbf;
+}
+div.block.primary h2 {
+  background-color: #bbf;
+}
+
+div.block.secondary {
+  background-color: #eee;
+  border: var(--block-border-width) solid #bbb;
+}
+div.block.secondary h2 {
+  background-color: #bbb;
+}
+
+div.block.success {
+  background-color: #dfd;
+  border: var(--block-border-width) solid #9f9;
+}
+div.block.success h2 {
+  background-color: #9f9;
+}
+
+div.block.danger {
+  background-color: #fdd;
+  border: var(--block-border-width) solid rgb(159, 13, 0);
+}
+div.block.danger h2 {
+  color: white;
+  background-color: rgb(159, 13, 0);
+}
+
+div.block.warning {
+  background-color: #fed;
+  border: var(--block-border-width) solid #fdb;
+}
+div.block.warning h2 {
+  background-color: #fdb;
+}
+
+div.block.info {
+  background-color: #dff;
+  border: var(--block-border-width) solid #bff;
+}
+div.block.info h2 {
+  background-color: #bff;
+}
+
+/* A block with centered text can look good at times. */
+div.block[align="center"] {
+  text-align: center;
+}
+div.block[align="left"] {
+  text-align: left;
+}
+div.block[align="right"] {
+  text-align: right;
+}
+
+/* Pandoc wraps .sourceCode around the pre > code element. Highlightjs does not.*/
+
+/* Transparent background for inline code. Just darken the real background a
+bit. */
+code.sourceCode {
+  background-color: rgba(0, 0, 0, 0.05);
+  /* Stretch the background. */
+  margin-bottom: -0.05em;
+  margin-left: -0.2em;
+  margin-right: -0.2em;
+  padding-bottom: 0.05em;
+  padding-left: 0.2em;
+  padding-right: 0.2em;
+}
+
+/* Inline code in a highlighted block. */
+div.block:is(.primary, .secondary, .success, .danger, .warning, .info)
+  code.sourceCode {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+/* No background in a code block */
+div.sourceCode code.sourceCode,
+div.block div.sourceCode code.sourceCode {
+  background-color: rgba(0, 0, 0, 0);
+  margin: 0;
+  padding: 0;
+}
+
+/* Transparent background for code blocks. */
+div.sourceCode {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* In a highlighted block. */
+div.block:is(.primary, .secondary, .success, .danger, .warning, .info)
+  div.sourceCode {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+/* TODO Unfinished. Can not decide what is right: having the code aligned or the
+block containing it. */
+figure > div.sourceCode {
+  padding: 0 var(--block-outset);
+  margin: 0 calc(-1 * var(--block-outset));
+}

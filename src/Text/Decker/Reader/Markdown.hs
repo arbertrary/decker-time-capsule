@@ -24,6 +24,7 @@ import Relude
 import System.Directory as Dir
 import System.FilePath.Posix
 import Text.Decker.Exam.Filter
+import Text.Decker.Filter.Decker2
 import Text.Decker.Filter.Decker
 import Text.Decker.Filter.Filter
 import Text.Decker.Filter.IncludeCode
@@ -40,6 +41,7 @@ import Text.Decker.Resource.Template
 import Text.Pandoc hiding (lookupMeta)
 import Text.Pandoc.Citeproc
 import Text.Pandoc.Shared
+import Text.Pretty.Simple
 
 -- | Reads a Markdown file and run all the the Decker specific filters on it.
 -- The path is assumed to be an absolute path in the local file system under
@@ -72,13 +74,15 @@ readMarkdownFile :: Meta -> FilePath -> Action Pandoc
 readMarkdownFile globalMeta path = do
   putVerbose $ "# --> readMarkdownFile: " <> path
   let base = takeDirectory path
-  parseMarkdownFile path
+  pandoc <- parseMarkdownFile path
     >>= writeBack globalMeta path
     >>= expandMeta globalMeta base
     >>= adjustResourcePathsA base
     >>= checkVersion
     >>= includeMarkdownFiles globalMeta base
     >>= addPathInfo base
+  putVerbose $ toString $ pShow pandoc
+  return pandoc
 
 addPathInfo :: FilePath -> Pandoc -> Action Pandoc
 addPathInfo documentPath (Pandoc meta blocks) = do
@@ -184,7 +188,7 @@ pathVariables meta =
 compiletimePathVariables :: Meta -> [Text]
 compiletimePathVariables meta =
   List.nub $
-    ["csl", "bibliography", "meta-data", "static-resource-dirs"]
+    ["csl", "bibliography", "meta-data", "static-resource-dirs*"]
       <> lookupMetaOrElse [] "compiletime-path-variables" meta
 
 runtimePathVariables :: Meta -> [Text]
@@ -251,7 +255,10 @@ runNewFilter dispo filter docBase pandoc@(Pandoc docMeta blocks) = do
 
 -- |  Runs the new decker media filter.
 deckerMediaFilter :: Disposition -> String -> Pandoc -> Action Pandoc
-deckerMediaFilter dispo docBase = runDeckerFilter (mediaFilter dispo options) docBase
+deckerMediaFilter dispo docBase pandoc@(Pandoc meta _) = 
+  if lookupMetaOrElse False "experiment.slide-layout" meta
+    then runDeckerFilter (mediaFilter2 dispo options) docBase pandoc
+    else runDeckerFilter (mediaFilter dispo options) docBase pandoc
   where
     options =
       def

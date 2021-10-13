@@ -54,19 +54,19 @@ import Text.Pandoc.Shared hiding (toString, toText)
 globalMetaFileName = "decker.yaml"
 
 -- | Fine-grained recursive merge of two meta values. Left-biased. Duplicates
--- are removed from lists.
+-- are removed from lists if their name ends on *.
 mergePandocMeta' :: Meta -> Meta -> Meta
 mergePandocMeta' (Meta left) (Meta right) =
-  case merge (MetaMap left) (MetaMap right) of
+  case merge "" (MetaMap left) (MetaMap right) of
     MetaMap m -> Meta m
     _ -> throw $ InternalException "This cannot happen."
   where
-    merge :: MetaValue -> MetaValue -> MetaValue
-    merge (MetaMap mapL) (MetaMap mapR) =
-      MetaMap $ Map.unionWith merge mapL mapR
-    merge (MetaList listL) (MetaList listR) =
+    merge :: Text -> MetaValue -> MetaValue -> MetaValue
+    merge _ (MetaMap mapL) (MetaMap mapR) =
+      MetaMap $ Map.unionWithKey merge mapL mapR
+    merge key (MetaList listL) (MetaList listR) | "*" `Text.isSuffixOf` key =
       MetaList $ Set.toList $ Set.fromList listL <> Set.fromList listR
-    merge left right = left
+    merge key left right = left
 
 -- | Converts YAML meta data to pandoc meta data.
 toPandocMeta :: Y.Value -> Meta
@@ -94,12 +94,11 @@ fromPandocMeta' (MetaMap map) = A.Object (H.fromList $ Map.toList $ Map.map from
 fromPandocMeta' (MetaList list) = A.Array (Vec.fromList $ List.map fromPandocMeta' list)
 fromPandocMeta' (MetaBool value) = A.Bool value
 fromPandocMeta' (MetaString value) =
- case readMaybe (toString value) of
-   Just number -> A.Number number
-   Nothing -> A.String value
+  case readMaybe (toString value) of
+    Just number -> A.Number number
+    Nothing -> A.String value
 fromPandocMeta' (MetaInlines value) = A.String (stringify value)
 fromPandocMeta' (MetaBlocks value) = A.Null
-
 
 -- |  Split a compound meta key at the dots and separate the array indexes.
 splitKey = concatMap splitIndex . Text.splitOn "."

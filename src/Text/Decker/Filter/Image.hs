@@ -6,7 +6,6 @@
 module Text.Decker.Filter.Image where
 
 import Control.Monad.Catch
-import qualified Data.List as List
 import qualified Data.Map as Map
 import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
@@ -219,8 +218,6 @@ audioHtml uri caption = do
       figureAttr <- injectBorder >> takeSize >> takeUsual >> extractAttr
       return $ mkFigureTag audioTag captionHtml figureAttr
 
-isPercent = Text.isSuffixOf "%"
-
 imageHtml :: URI -> [Inline] -> Attrib Html
 imageHtml uri caption = do
   uri <- lift $ transformUri uri ""
@@ -306,17 +303,6 @@ iframeHtml uri caption = do
       iframeAttr <- takeSizeIf (not . isPercent) >> takeData >> extractAttr
       let iframeTag = mkIframeTag (URI.render uri) iframeAttr
       return $ mkFigureTag iframeTag captionHtml figureAttr
-
-mediaFragment :: Attrib Text
-mediaFragment = do
-  (result, (id, cs, kvs)) <- get
-  let start = fromMaybe "" $ List.lookup "start" kvs
-      stop = fromMaybe "" $ List.lookup "stop" kvs
-  put (result, (id, cs, rmKey "start" $ rmKey "stop" kvs))
-  return $
-    if Text.null start && Text.null stop
-      then ""
-      else "t=" <> start <> "," <> stop
 
 videoHtml :: URI -> [Inline] -> Attrib Html
 videoHtml uri caption = do

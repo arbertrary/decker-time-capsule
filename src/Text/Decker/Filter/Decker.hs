@@ -8,7 +8,7 @@
 -- All decker specific meta data is embedded into the document meta data under
 -- the `decker` key. Information gathered during the filter run is appended
 -- under the `decker` key in the meta data of the resulting document.
-module Text.Decker.Filter.Decker where
+module Text.Decker.Filter.Decker (runFilter, mediaFilter) where
 
 import Relude
 import Text.Decker.Filter.Header
@@ -125,14 +125,3 @@ runFilter dispo options filter pandoc@(Pandoc meta _) = do
   (Pandoc _ blocks, FilterState _ meta dispo) <-
     runStateT (walkM filter pandoc) (FilterState options meta dispo)
   return $ Pandoc meta blocks
-
--- Runs a filter on any Walkable structure. Does not carry transformed meta
--- data over if chained. Mainly for writing tests.
-runFilter' ::
-  Walkable a b => Disposition -> WriterOptions -> Meta -> (a -> Filter a) -> b -> IO b
-runFilter' dispo options meta filter x =
-  evalStateT (walkM filter x) (FilterState options meta dispo)
-
-extIn :: Maybe Text -> [Text] -> Bool
-extIn (Just ext) list = ext `elem` list
-extIn Nothing _ = False

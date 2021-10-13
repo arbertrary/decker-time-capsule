@@ -12,7 +12,6 @@ import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
 import Text.Decker.Filter.Attrib
 import Text.Decker.Filter.Local
-import Text.Decker.Filter.Macro
 import Text.Decker.Internal.Exception
 import Text.Decker.Internal.URI
 import Text.Pandoc
@@ -121,21 +120,6 @@ vimeoFlags =
     "transparent"
   ]
 
--- TODO this is just an adapter for the old stuff
-streamHtml :: URI -> [Inline] -> Attrib Html
-streamHtml uri caption = do
-  let scheme = uriScheme uri
-  width <- srcAttribute "width"
-  height <- srcAttribute "height"
-  let args = maybe [] (\w -> maybe [w] (\h -> [w, h]) height) width
-  attr <- src
-  streamId <-
-    case URI.uriAuthority uri of
-      Right (URI.Authority _ host _) -> pure $ URI.unRText host
-      _ -> return $ uriPath uri
-  return $
-    toHtml $ embedWebVideosHtml (fromMaybe "" scheme) args attr (streamId, "")
-
 streamHtml' :: URI -> [Inline] -> Attrib Html
 streamHtml' uri caption = do
   let scheme = uriScheme uri
@@ -168,6 +152,7 @@ takeWrapperAttr = do
   injectStyle ("padding-top", "25px")
   injectStyle ("padding-bottom", aspect)
   injectStyle ("height", "0")
+  injectClass "video"
 
 takeIframeAttr :: Attrib ()
 takeIframeAttr = do
@@ -183,7 +168,7 @@ mkYoutubeUri :: Text -> Attrib URI
 mkYoutubeUri streamId = do
   flags <- cutClasses youtubeFlags
   params <- enableLoop flags <$> cutAttribs youtubeParams
-  uri <- URI.mkURI $ "https://www.youtube.com/embed/" <> streamId
+  uri <- URI.mkURI $ "https://www.youtube-nocookie.com/embed/" <> streamId
   setQuery [] (merge [params, map (,"1") flags, youtubeDefaults]) uri
   where
     enableLoop flags params =

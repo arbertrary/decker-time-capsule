@@ -53,6 +53,11 @@ src = do
   (_, s) <- get
   return s
 
+dst :: Attrib Attr
+dst = do
+  (d, _) <- get
+  return d
+
 srcAttributes :: Attrib [(Text, Text)]
 srcAttributes = do
   (_, (_, _, kvs)) <- get
@@ -106,6 +111,9 @@ injectStyle (key, value) = modify transform
     transform ((id', cs', kvs'), attr) =
       ((id', cs', addStyle (key, value) kvs'), attr)
 
+injectStyles :: [(Text, Text)] -> Attrib ()
+injectStyles = mapM_ injectStyle
+
 injectAttribute :: (Text, Text) -> Attrib ()
 injectAttribute (k, v) = modify transform
   where
@@ -116,6 +124,11 @@ injectClass :: Text -> Attrib ()
 injectClass cls = modify transform
   where
     transform ((id', cs', kvs'), attr) = ((id', cls : cs', kvs'), attr)
+
+injectId :: Text -> Attrib ()
+injectId id = modify transform
+  where
+    transform ((id', cs', kvs'), attr) = ((id, cs', kvs'), attr)
 
 injectClasses :: [Text] -> Attrib ()
 injectClasses cs = modify transform
@@ -134,28 +147,30 @@ pushAttribute (key, value) = modify transform
 -- |  Removes the attribute key from the source attribute map and adds it as a
 --  CSS style value to the target style attribute. Mainly used to translate
 --  witdth an height attributes into CSS style setting.
-takeStyle :: Text -> Attrib ()
+takeStyle :: Text -> Attrib Bool
 takeStyle = takeStyleIf (const True)
 
 -- |  Transfers an attribute to the targets if it exists and the value satisfies
 --  the predicate.
-takeStyleIf :: (Text -> Bool) -> Text -> Attrib ()
-takeStyleIf p key = modify transform
+takeStyleIf :: (Text -> Bool) -> Text -> Attrib Bool
+takeStyleIf p key = do
+  (_, _, kvs) <- src
+  case List.lookup key kvs of
+    Just value | p value -> modify (move value) >> return True
+    _ -> return False
   where
-    transform state@((id', cs', kvs'), (id, cs, kvs)) =
-      case List.lookup key kvs of
-        Just value
-          | p value ->
-            ((id', cs', addStyle (key, value) kvs'), (id, cs, rmKey key kvs))
-        _ -> state
+    move value state@((id', cs', kvs'), (id, cs, kvs)) =
+      ((id', cs', addStyle (key, value) kvs'), (id, cs, rmKey key kvs))
 
 -- | Translates width and height attributes into CSS style values if they
 -- exist.
-takeSizeIf :: (Text -> Bool) -> Attrib ()
+takeSizeIf :: (Text -> Bool) -> Attrib Bool
 takeSizeIf p = do
-  takeStyleIf p "width"
-  takeStyleIf p "height"
+  w <- takeStyleIf p "width"
+  h <- takeStyleIf p "height"
+  return (w || h)
 
+takeSize :: Attrib Bool
 takeSize = takeSizeIf (const True)
 
 takeId :: Attrib ()
@@ -215,13 +230,14 @@ takeAllClasses = modify transform
     transform state@((id', cs', kvs'), (id, cs, kvs)) =
       ((id', cs <> cs', kvs'), (id, [], kvs))
 
+injectBorder :: Attrib ()
 injectBorder = do
   border <- lookupMetaOrElse False "decker.filter.border" <$> lift (gets meta)
   when border $ injectStyle ("border", "2px solid magenta")
 
 updateStreaming :: Attrib ()
 updateStreaming = do
-  dropAttribute "start" 
+  dropAttribute "start"
   injectClass "streaming"
 
 takeVideoClasses :: Attrib ()
@@ -281,6 +297,7 @@ takeAutoplay = do
     injectAttribute ("data-autoplay", "1")
     injectAttribute ("allow", "autoplay")
 
+takeUsual :: Attrib ()
 takeUsual = do
   takeId
   takeAllClasses
@@ -299,3 +316,24 @@ adjustAttribPaths keys kvs = do
     adjustAttrib :: (Text, Text) -> Filter (Text, Text)
     adjustAttrib (k, v) = do
       (k,) <$> (URI.render <$> transformUrl v "")
+
+isPercent :: Text -> Bool
+isPercent = Text.isSuffixOf "%"
+
+ifAttrib :: Text -> (Text -> Attrib ()) -> Attrib ()
+ifAttrib key action =
+  cutAttrib key >>= mapM_ action
+
+mediaFragment :: Attrib Text
+mediaFragment = do
+  (result, (id, cs, kvs)) <- get
+  let start = fromMaybe "" $ List.lookup "start" kvs
+      stop = fromMaybe "" $ List.lookup "stop" kvs
+  put (result, (id, cs, rmKey "start" $ rmKey "stop" kvs))
+  return $
+    if Text.null start && Text.null stop
+      then ""
+      else "t=" <> start <> "," <> stop
+
+addClass :: Text -> Attr -> Attr
+addClass c (id, cs, kvs) = (id, List.nub (c : cs), kvs)

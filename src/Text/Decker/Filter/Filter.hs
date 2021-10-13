@@ -15,10 +15,12 @@ import Control.Lens
 import Control.Monad.Loops as Loop
 import Control.Monad.State
 import Data.Default ()
+import qualified Data.List as List
 import Data.List.Split
 import qualified Data.Text as Text
 import Development.Shake (Action)
 import Text.Decker.Filter.Layout
+import Text.Decker.Filter.Layout2
 import Text.Decker.Filter.MarioCols
 import Text.Decker.Filter.Slide
 import Text.Decker.Internal.Common
@@ -40,10 +42,10 @@ processPandoc transform base disp prov pandoc =
 
 -- | Split join columns with CSS3. Must be performed after `wrapBoxes`.
 splitJoinColumns :: Slide -> Decker Slide
-splitJoinColumns slide@(Slide header body) = do
+splitJoinColumns slide@(Slide header body dir) = do
   disp <- gets disposition
   case disp of
-    Disposition Deck Html -> return $ Slide header $ concatMap wrapRow rowBlocks
+    Disposition Deck Html -> return $ Slide header (concatMap wrapRow rowBlocks) dir
       where
         rowBlocks =
           split (keepDelimsL $ whenElt (hasAnyClass ["split", "join"])) body
@@ -51,7 +53,7 @@ splitJoinColumns slide@(Slide header body) = do
           | hasClass "split" first = [Div ("", ["css-columns"], []) row]
         wrapRow row = row
     Disposition Handout Html ->
-      return $ Slide header $ concatMap wrapRow rowBlocks
+      return $ Slide header (concatMap wrapRow rowBlocks) dir
       where
         rowBlocks =
           split (keepDelimsL $ whenElt (hasAnyClass ["split", "join"])) body
@@ -82,23 +84,25 @@ deFragment = filter (`notElem` fragmentRelated)
 
 -- | Wrap DIVs around top-level H2 headers and the following content. All
 -- attributes are promoted from the H2 header to the enclosing DIV.
---
--- Since Pandoc 2.9 the class "column" needs to be added to boxes to prevent
--- sectioning by the Pandoc writer (see `Text.Pandoc.Shared.makeSections`).
 wrapBoxes :: Slide -> Decker Slide
-wrapBoxes slide@(Slide header body) = do
+wrapBoxes slide@(Slide header body dir) = do
   disp <- gets disposition
   case disp of
-    Disposition _ Html -> return $ Slide header $ concatMap wrap boxes
+    Disposition _ Html -> return $ Slide header (concatMap wrap boxes) dir
     Disposition _ _ -> return slide
   where
     boxes = split (keepDelimsL $ whenElt isBoxDelim) body
+    wrap [] = []
     wrap ((Header 2 (id_, cls, kvs) text) : blocks) =
       [ Div
-          ("", ["box", "columns"] ++ cls, kvs)
+          ("", ["box", "block"] ++ cls, mangle kvs)
           (Header 2 (id_, deFragment cls, kvs) text : blocks)
       ]
-    wrap box = box
+    wrap blocks = [Div ("", ["box", "block"], []) blocks]
+    mangle kvs =
+      case List.lookup "width" kvs of
+        Just w -> ("style", "width:" <> w <> ";") : List.filter ((/=) "width" . fst) kvs
+        Nothing -> kvs
 
 -- | Map over all active slides in a deck.
 mapSlides :: (Slide -> Decker Slide) -> Pandoc -> Decker Pandoc
@@ -134,8 +138,9 @@ wrapSlidesinDivs (Pandoc meta blocks) =
   Pandoc meta $ fromSlidesWrapped $ toSlides blocks
 
 selectActiveSlideContent :: Slide -> Decker Slide
-selectActiveSlideContent (Slide header body) =
-  Slide header <$> selectActiveContent body
+selectActiveSlideContent (Slide header body dir) = do
+  body <- selectActiveContent body
+  return $ Slide header body dir
 
 -- Splice all the Divs back into the stream of Blocks
 deDiv :: [Block] -> [Block]
@@ -146,16 +151,25 @@ deDiv = foldr flatten []
 
 -- | Slide specific processing.
 processSlides :: Pandoc -> Decker Pandoc
-processSlides pandoc = mapSlides (concatM actions) pandoc
+processSlides pandoc@(Pandoc meta _) = mapSlides (concatM actions) pandoc
   where
     actions :: [Slide -> Decker Slide]
     actions =
-      [ marioCols,
-        wrapBoxes,
-        selectActiveSlideContent,
-        splitJoinColumns,
-        layoutSlide
-      ]
+      if lookupMetaOrElse False "experiment.slide-layout" meta
+        then
+          [ marioCols,
+            wrapBoxes,
+            selectActiveSlideContent,
+            splitJoinColumns,
+            layoutSlide2
+          ]
+        else
+          [ marioCols,
+            wrapBoxes,
+            selectActiveSlideContent,
+            splitJoinColumns,
+            layoutSlide
+          ]
 
 selectActiveContent :: HasAttr a => [a] -> Decker [a]
 selectActiveContent fragments = do

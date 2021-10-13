@@ -8,18 +8,18 @@ const deckHash = location.hash;
 // is the user generating a PDF?
 const printMode = /print-pdf/gi.test(window.location.search);
 
-// Fix some decker-specific things after Reveal
-// has been initialized
-function deckerStart() {
+// Fix some decker-specific things when slides are loaded
+function onStart() {
   fixAutoplayWithStart();
   fixLinks();
   currentDate();
   prepareTaskLists();
   prepareFullscreenIframes();
   prepareCodeHighlighting();
-  if (Reveal.getConfig().verticalSlides) {
-    setupVerticalSlides();
-  }
+}
+
+// Fix some decker-specific things when Reveal is initilized
+function onReady() {
   if (!printMode) {
     setTimeout(continueWhereYouLeftOff, 500);
   }
@@ -180,41 +180,6 @@ function prepareCodeHighlighting() {
   }
 }
 
-function setupVerticalSlides() {
-  const subsections = Array.from(document.getElementsByClassName("sub")).filter(
-    (s) => s.nodeName === "SECTION"
-  );
-  const subsection_bundles = [];
-  for (let i = 0; i < subsections.length; i++) {
-    const subsection = subsections[i];
-    const bundle = [subsection];
-    var subtemp = subsection;
-    while (
-      i + 1 < subsections.length &&
-      subtemp.nextElementSibling === subsections[i + 1]
-    ) {
-      i += 1;
-      bundle.push(subsections[i]);
-      subtemp = subtemp.nextElementSibling;
-    }
-    subsection_bundles.push(bundle);
-  }
-
-  for (let bundle of subsection_bundles) {
-    const supersection = document.createElement("section");
-    supersection.classList.add("slide");
-    supersection.classList.add("level1");
-    const section = bundle[0].previousElementSibling;
-    section.parentNode.insertBefore(supersection, section);
-    supersection.appendChild(section);
-    for (let subsection of bundle) {
-      supersection.appendChild(subsection);
-    }
-  }
-  Reveal.sync();
-  Reveal.setState(Reveal.getState());
-}
-
 function createElement({
   type,
   id,
@@ -320,7 +285,8 @@ const Plugin = {
   init: (deck) => {
     Reveal = deck;
     return new Promise(function (resolve) {
-      Reveal.addEventListener("ready", deckerStart);
+      onStart();
+      Reveal.addEventListener("ready", onReady);
       resolve();
     });
   },
