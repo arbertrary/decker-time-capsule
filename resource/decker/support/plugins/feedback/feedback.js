@@ -395,8 +395,6 @@ function refresh_comment_list(menuCounter, buttonBadge, listContainer, textareaI
   }
 }
 
-import createElement from "../common/generators.js";
-
 // Builds the panel and sets up event handlers.
 function buildInterface() {
   let button_string = String.raw
