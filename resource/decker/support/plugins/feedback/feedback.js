@@ -63,249 +63,119 @@ function prepareEngine() {
     });
 }
 
-function buildElement(type, attributes, classes, callback, tooltip) {
-  let element = document.createElement(type);
-  attributes.forEach((attribute) => {
-    element.setAttribute(attribute.name, attribute.value);
-  });
-  classes.forEach((cls) => {
-    element.classList.add(cls);
-  });
-  
-  return element;
+function initializeUsertoken(token_input, token_lock, menu, login_panel) {
+  let localToken = window.localStorage.getItem("feedback-user-token");
+  if(engine && engine.token && engine.token.authorized) {
+    token_input.value = engine.token.authorized;
+    token_input.setAttribute("disabled", true);
+    token_input.type = "password";
+    token_input.classList.add("hidden");
+    token_lock.classList.add("checked");
+    token_lock.classList.add("hidden");
+    menu.classList.add("authorized");
+    login_panel.classList.add("admin");
+  } else if(localToken) {
+    token_input.value = localToken;
+    token_input.setAttribute("disabled", true);
+    token_input.type = "password";
+    token_lock.classList.add("checked");
+  } else {
+    token_input.value = engine.token.random;
+    token_input.removeAttribute("disabled");
+    token_input.type = "text";
+    token_lock.classList.remove("checked");
+  }
 }
 
-// Builds the panel and sets up event handlers.
-function buildInterface() {
-  let open = document.createElement("button");
-  let badge = document.createElement("div");
-
-  let panel = document.createElement("div");
-  let header = document.createElement("div");
-  let title = document.createElement("div");
-  let counter = document.createElement("div");
-  let user = document.createElement("input");
-  let check = document.createElement("button");
-  let close = document.createElement("button");
-  let container = document.createElement("div");
-  let input = document.createElement("div");
-  let text = document.createElement("textarea");
-  let footer = document.createElement("div");
-  let login = document.createElement("div");
-  let credentials = document.createElement("div");
-  let username = document.createElement("input");
-  let password = document.createElement("input");
-
-  let cross = document.createElement("i");
-  cross.classList.add("fas", "fa-times-circle");
-  cross.setAttribute("title", "Close panel");
-
-  let lock = document.createElement("i");
-  lock.classList.add("fas", "fa-lock", "lock");
-  lock.setAttribute("title", "Lock Usertoken");
-
-  let unlock = document.createElement("i");
-  unlock.classList.add("fas", "fa-unlock", "unlock");
-  unlock.setAttribute("title", "Unlock Usertoken");
-
-  let gear = document.createElement("button");
-  gear.classList.add("fas", "fa-cog", "gears");
-  gear.setAttribute("title", "Login as admin");
-
-  let signin = document.createElement("button");
-  signin.classList.add("fas", "fa-sign-in-alt", "gears");
-  signin.setAttribute("title", "Login as admin");
-
-  let signout = document.createElement("button");
-  signout.classList.add("fas", "fa-sign-out-alt", "gears");
-  signout.setAttribute("title", "Logout admin");
-
-  let qmark = document.createElement("i");
-  qmark.classList.add("fas", "fa-question-circle");
-
-  panel.classList.add("q-panel");
-  open.appendChild(qmark);
-  open.appendChild(badge);
-  open.classList.add("open-button");
-  open.setAttribute("title", "Open Viewer Questions Panel");
-  open.setAttribute("aria-label", "Open Viewer Questions Panel");
-  badge.classList.add("open-badge", "badge");
-
-  header.classList.add("q-header");
-  title.textContent = "Questions";
-  title.classList.add("q-title");
-  counter.textContent = "0";
-  counter.classList.add("counter", "badge");
-  user.setAttribute("type", "text");
-  user.setAttribute("placeholder", "Enter user token");
-  check.setAttribute("title", "Store user token (session)");
-  check.classList.add("q-check");
-  check.appendChild(lock);
-  check.appendChild(unlock);
-  header.appendChild(counter);
-  header.appendChild(title);
-  header.appendChild(user);
-  header.appendChild(check);
-  header.appendChild(close);
-  close.classList.add("q-close");
-  close.appendChild(cross);
-
-  container.classList.add("q-list");
-
-  input.classList.add("q-input");
-  input.appendChild(text);
-  text.setAttribute("wrap", "hard");
-  text.placeholder =
-    "Type question, ⇧⏎ (Shift-Return) to enter. Use Markdown for formatting.";
-
-  // prevent propagating keypress up to Reveal, since otherwise '?'
-  // triggers the help dialog.
-  text.addEventListener("keypress", (e) => {
-    e.stopPropagation();
-  });
-
-  footer.classList.add("q-footer");
-  username.setAttribute("placeholder", "Login");
-  password.setAttribute("placeholder", "Password");
-  password.type = "password";
-
-  login.appendChild(signin);
-  login.classList.add("q-login");
-
-  footer.appendChild(login);
-  footer.appendChild(credentials);
-  credentials.appendChild(username);
-  credentials.appendChild(password);
-  credentials.classList.add("credentials");
-
-  panel.appendChild(header);
-  panel.appendChild(container);
-  panel.appendChild(input);
-  panel.appendChild(footer);
-
-  check.tabIndex = -1;
-  close.tabIndex = -1;
-  text.tabIndex = -1;
-  signin.tabIndex = -1;
-
-  //HACK because this is the only plugin that awaits Reveal.ready so if we want the tab order to be clean top to bottom we need to do this right now
-  let whiteboard = document.getElementById("whiteboardButtons");
-
-  whiteboard.parentElement.insertBefore(panel, whiteboard);
-  whiteboard.parentElement.insertBefore(open, whiteboard);
-
-  function initUser() {
-    let localToken = window.localStorage.getItem("token");
-    if (engine && engine.token && engine.token.authorized) {
-      // Some higher power has authorized this user. Lock token in.
-      user.value = engine.token.authorized;
-      user.setAttribute("disabled", true);
-      check.classList.add("checked");
-      user.type = "password";
-      check.classList.add("hidden");
-      user.classList.add("hidden");
-      panel.classList.add("authorized");
-      login.classList.add("admin");
-    } else if (localToken) {
-      user.value = localToken;
-      user.setAttribute("disabled", true);
-      check.classList.add("checked");
-      user.type = "password";
-    } else {
-//      user.value = engine.token.random;
-      user.removeAttribute("disabled");
-      check.classList.remove("checked");
-      user.type = "text";
-    }
+function clear_after_submit(input, placeholder) {
+  return function () {
+    refresh_comments_and_menu();
+    input.value = "";
+    input.commentId = null;
+    input.removeAttribute("answer");
+    input.placeholder = placeholder;
   }
+}
 
-  function updateComments() {
+/* Returns a function that has the parameter values bound and accessible */
+function refresh_comments(counter, badge, container, text, token) {
+  return function() {
     let slideId = Reveal.getCurrentSlide().id;
     engine.api
-      .getComments(engine.deckId, slideId, engine.token.admin || user.value)
-      .then(renderList)
+      .getComments(engine.deckId, slideId, engine.token.admin || token)
+      .then(refresh_comment_list(counter, badge, container, text, token))
       .catch(console.log);
   }
+}
 
-  function renderSubmit() {
-    updateCommentsAndMenu();
-    text.value = "";
-    text.commentId = null;
-    text.removeAttribute("answer");
-    text.placeholder =
-      "Type question, ⇧⏎ (Shift-Return) to enter. Use Markdown for formatting.";
-  }
+function refresh_slide_menu() {
+  engine.api
+  .getComments(engine.deckId)
+  .then(refresh_slide_menu_items)
+  .catch(console.log);
+}
 
-  // given the list of questions, update question counter of menu items
-  function updateMenuItems(list) {
-    document
-      .querySelectorAll("ul.slide-menu-items > li.slide-menu-item")
-      .forEach((li) => {
-        li.removeAttribute("data-questions");
-        li.removeAttribute("data-answered");
-      });
+function refresh_slide_menu_items(list) {
+  document.querySelectorAll("ul.slide-list > li.slide-list-item").forEach((li) => {
+    li.removeAttribute("data-questions");
+    li.removeAttribute("data-answered");
+  });
+  for (let comment of list) {
+    // get slide info
+    const slideID = comment.slide;
+    const slide = document.getElementById(slideID);
+    if (slide) {
+      const indices = Reveal.getIndices(slide);
 
-    for (let comment of list) {
-      // get slide info
-      const slideID = comment.slide;
-      const slide = document.getElementById(slideID);
-      if (slide) {
-        const indices = Reveal.getIndices(slide);
+      // build query string, get menu item
+      let query = ".slide-list-item";
+      if (indices.h) query += '[data-slide-h="' + indices.h + '"]';
+      if (indices.v) query += '[data-slide-v="' + indices.v + '"]';
+      let li = document.querySelector(query);
 
-        // build query string, get menu item
-        let query = "ul.slide-menu-items > li.slide-menu-item";
-        if (indices.h) query += '[data-slide-h="' + indices.h + '"]';
-        if (indices.v) query += '[data-slide-v="' + indices.v + '"]';
-        let li = document.querySelector(query);
+      // update question counter
+      if (li) {
+        let questions = li.hasAttribute("data-questions")
+          ? parseInt(li.getAttribute("data-questions"))
+          : 0;
+        let answered = li.hasAttribute("data-answered")
+          ? li.getAttribute("data-answered") === "true"
+          : true;
 
-        // update question counter
-        if (li) {
-          let questions = li.hasAttribute("data-questions")
-            ? parseInt(li.getAttribute("data-questions"))
-            : 0;
-          let answered = li.hasAttribute("data-answered")
-            ? li.getAttribute("data-answered") === "true"
-            : true;
+        questions = questions + 1;
+        answered = answered && comment.answers.length > 0;
 
-          questions = questions + 1;
-          answered = answered && comment.answers.length > 0;
-
-          li.setAttribute("data-questions", questions);
-          li.setAttribute("data-answered", answered);
-        }
-      } else {
-        // slide not found. should not happen. user probably used wrong (duplicate) deckID.
-        console.warn("Could not find slide " + slideID);
+        li.setAttribute("data-questions", questions);
+        li.setAttribute("data-answered", answered);
       }
+    } else {
+      // slide not found. should not happen. user probably used wrong (duplicate) deckID.
+      console.warn("Could not find slide " + slideID);
     }
   }
+}
 
-  // query list of questions, then update menu items
-  function updateMenu() {
-    engine.api
-      .getComments(engine.deckId)
-      .then(updateMenuItems)
-      .catch(console.log);
-  }
+function refresh_comments_and_menu(menuCounter, buttonBadge, listContainer, textareaInput, usertoken) {
+  refresh_comments(menuCounter, buttonBadge, listContainer, textareaInput, usertoken)();
+  refresh_slide_menu();
+}
 
-  function updateCommentsAndMenu() {
-    updateComments();
-    updateMenu();
-  }
+//Can the be part of the engine code? These feel more like methods than functions
+function isAdmin() {
+  return engine.token.admin !== null;
+}
 
-  function isAdmin() {
-    return engine.token.admin !== null;
-  }
+function isAuthor(comment, usertoken) {
+  return comment.author === usertoken;
+}
 
-  function isAuthor(comment) {
-    return comment.author === user.value;
-  }
+function canDelete(comment, usertoken) {
+  return isAdmin() || (isAuthor(comment, usertoken) && comment.answers.length == 0);
+}
 
-  function canDelete(comment) {
-    return isAdmin() || (isAuthor(comment) && comment.answers.length == 0);
-  }
-
-  function renderList(list) {
+function refresh_comment_list(menuCounter, buttonBadge, listContainer, textareaInput, usertoken) {
+  return function(list) {
+    console.log("refreshing comment list");
     // have all questions been answered?
     let allAnswered = true;
     for (let comment of list) {
@@ -317,21 +187,21 @@ function buildInterface() {
     }
 
     // counter badge
-    counter.textContent = list.length;
-    counter.setAttribute("data-count", list.length);
-    badge.textContent = list.length;
-    badge.setAttribute("data-count", list.length);
+    menuCounter.textContent = list.length;
+    menuCounter.setAttribute("data-count", list.length);
+    buttonBadge.textContent = list.length;
+    buttonBadge.setAttribute("data-count", list.length);
     if (allAnswered) {
-      counter.classList.add("answered");
-      badge.classList.add("answered");
+      menuCounter.classList.add("answered");
+      buttonBadge.classList.add("answered");
     } else {
-      counter.classList.remove("answered");
-      badge.classList.remove("answered");
+      menuCounter.classList.remove("answered");
+      buttonBadge.classList.remove("answered");
     }
 
     // clear question container
-    while (container.firstChild) {
-      container.removeChild(container.lastChild);
+    while (listContainer.firstChild) {
+      listContainer.removeChild(listContainer.lastChild);
     }
 
     // re-fill question container
@@ -367,7 +237,7 @@ function buildInterface() {
         vote.title = "Up-vote question";
       }
       vote.classList.add("vote");
-      if (!isAuthor(comment)) {
+      if (!isAuthor(comment, usertoken)) {
         vote.classList.add("canvote");
         if (comment.didvote) {
           vote.classList.add("didvote");
@@ -375,9 +245,9 @@ function buildInterface() {
         vote.addEventListener("click", (_) => {
           let vote = {
             comment: comment.id,
-            voter: user.value,
+            voter: usertoken,
           };
-          engine.api.voteComment(vote).then(updateComments);
+          engine.api.voteComment(vote).then(refresh_comments(menuCounter, buttonBadge, listContainer, textareaInput, usertoken));
         });
       } else {
         vote.classList.add("cantvote");
@@ -390,12 +260,12 @@ function buildInterface() {
         mod.className = "fas fa-edit";
         mod.title = "Edit question";
         mod.addEventListener("click", (_) => {
-          text.value = comment.markdown;
-          text.commentId = comment.id;
-          text.removeAttribute("answer");
-          text.placeholder =
+          textareaInput.value = comment.markdown;
+          textareaInput.commentId = comment.id;
+          textareaInput.removeAttribute("answer");
+          textareaInput.placeholder =
             "Type question, ⇧⏎ (Shift-Return) to enter. Use Markdown for formatting.";
-          text.focus();
+          textareaInput.focus();
         });
         box.appendChild(mod);
 
@@ -405,8 +275,8 @@ function buildInterface() {
         del.title = "Delete question";
         del.addEventListener("click", (_) => {
           engine.api
-            .deleteComment(comment.id, engine.token.admin || user.value)
-            .then(updateCommentsAndMenu);
+            .deleteComment(comment.id, engine.token.admin || usertoken)
+            .then(refresh_comments_and_menu);
         });
         box.appendChild(del);
       }
@@ -416,12 +286,12 @@ function buildInterface() {
         add.className = "far fa-plus-square";
         add.title = "Add answer";
         add.addEventListener("click", (_) => {
-          text.value = "";
-          text.commentId = comment.id;
-          text.setAttribute("answer", "true");
-          text.placeholder =
+          textareaInput.value = "";
+          textareaInput.commentId = comment.id;
+          textareaInput.setAttribute("answer", "true");
+          textareaInput.placeholder =
             "Type answer, ⇧⏎ (Shift-Return) to enter. Use Markdown for formatting.";
-          text.focus();
+          textareaInput.focus();
         });
 
         box.appendChild(add);
@@ -444,7 +314,7 @@ function buildInterface() {
                 engine.api.deleteAnswer(answer.id, engine.token.admin)
               );
             }
-            chain.then(updateCommentsAndMenu);
+            chain.then(refresh_comments_and_menu);
           });
         }
       } else {
@@ -456,7 +326,7 @@ function buildInterface() {
           answeredButton.addEventListener("click", (_) => {
             engine.api
               .postAnswer(comment.id, engine.token.admin)
-              .then(updateCommentsAndMenu);
+              .then(refresh_comments_and_menu);
           });
         }
       }
@@ -464,7 +334,7 @@ function buildInterface() {
       box.appendChild(answeredButton);
 
       // add question to container
-      container.appendChild(item);
+      listContainer.appendChild(item);
       MathJax.typeset([item]);
 
       // add answers after the question
@@ -486,7 +356,7 @@ function buildInterface() {
           del.addEventListener("click", (_) => {
             engine.api
               .deleteAnswer(answer.id, engine.token.admin)
-              .then(updateCommentsAndMenu);
+              .then(refresh_comments_and_menu);
           });
           abox.appendChild(del);
         }
@@ -499,7 +369,7 @@ function buildInterface() {
                 <a href="${url}" target="_blank">
                   <i class="fas fa-external-link-alt"></i>
                 </a>
-               </div>`
+              </div>`
             );
           } catch (_) {}
         }
@@ -509,136 +379,204 @@ function buildInterface() {
             `<div class="description">${answer.html}</div>`
           );
         }
-        container.appendChild(answerBlock);
+        listContainer.appendChild(answerBlock);
         MathJax.typeset([answerBlock]);
       }
     }
 
-    container.scrollTop = 0;
+    listContainer.scrollTop = 0;
 
-    if (localStorage.getItem("question-panel") == "open") {
+    //HAUER: I do not know why this is here and it makes the signature of this function even larger, so I will just remove it
+/*    if (localStorage.getItem("question-panel") == "open") {
       open.classList.add("checked");
+      panel.inert = false;
       panel.classList.add("open");
-    }
+    } */
   }
+}
 
-  close.addEventListener("click", (_) => {
-    open.classList.remove("checked");
-    panel.classList.remove("open");
-    check.tabIndex = -1;
-    close.tabIndex = -1;
-    text.tabIndex = -1;
-    signin.tabIndex = -1;
+// Builds the panel and sets up event handlers.
+function buildInterface() {
+  let button_string = String.raw
+  `<button class="open-button decker-button" title="Open Feedback Menu" aria-label="Open Feedback Menu">
+    <i class="fas fa-question-circle"></i>
+    <div class="open-badge badge"></div>
+  </button>`
+
+  let menu_string = String.raw
+  `<div class="feedback-menu" inert>
+    <div class="feedback-header">
+      <div class="counter badge">0</div>
+      <div class="feedback-title">Questions</div>
+      <input class="feedback-token-input" type="password" placeholder="User Token" disabled="true"></input>
+      <button class="feedback-lock" title="Store user token (session)">
+        <i class="fas fa-lock lock" title="Unlock Token"></i>
+        <i class="fas fa-unlock unlock" title="Lock Token"></i>
+      </button>
+      <button class="feedback-close" title="Close Feedback Menu">
+        <i class="fas fa-times-circle"></i>
+      </button>
+    </div>
+    <div class="feedback-list"></div>
+    <div class="feedback-question-input">
+      <textarea wrap="hard" placeholder="Type question, ⇧⏎ (Shift-Return) to enter. Use Markdown for formatting." tabindex="0"></textarea> 
+    </div>
+    <div class="feedback-footer">
+      <div class="feedback-login">
+        <button id="feedback-login-button" class="fas fa-sign-in-alt" title="Login as admin"></button>
+      </div>
+      <div class="feedback-credentials">
+        <input id="feedback-username" placeholder="Login">
+        <input id="feedback-password" placeholder="Password" type="password">
+      </div>
+    </div>
+  </div>`
+
+  let button_template = document.createElement("template");
+  let menu_template = document.createElement("template");
+  button_template.innerHTML = button_string;
+  menu_template.innerHTML = menu_string;
+  let button = button_template.content.firstChild;
+  let menu = menu_template.content.firstChild;
+
+  let openButton = button;
+  let menuPanel = menu;
+
+  let textareaInput = menu.querySelector(".feedback-question-input textarea");
+  let menuCounter = menu.querySelector(".counter");
+  let buttonBadge = button.querySelector(".badge");
+  let listContainer = menu.querySelector(".feedback-list");
+  let usertokenInput = menu.querySelector(".feedback-token-input");
+  let lockTokenButton = menu.querySelector(".feedback-lock");
+  let closeButton = menu.querySelector(".feedback-close");
+  let loginArea = menu.querySelector(".feedback-login");
+  let loginUsernameInput = menu.querySelector("#feedback-username");
+  let loginPasswordInput = menu.querySelector("#feedback-password");
+  let credentialsArea = menu.querySelector(".feedback-credentials");
+
+  textareaInput.addEventListener("keypress", (e) => {
+    e.stopPropagation();
+  });
+
+  if(Reveal.hasPlugin("decker-plugins")) {
+    let manager = Reveal.getPlugin("decker-plugins");
+    manager.registerPlugin({decker_button: button, decker_anchor: "TOP_RIGHT"});
+  }
+  let reveal_element = document.querySelector(".reveal");
+  reveal_element.appendChild(menu);
+
+  closeButton.addEventListener("click", (_) => {
+    openButton.classList.remove("checked");
+    menuPanel.classList.remove("open");
+    menuPanel.inert = true;
+    openButton.focus();
     localStorage.removeItem("question-panel");
   });
 
-  open.addEventListener("click", (_) => {
-    open.classList.add("checked");
-    panel.classList.add("open");
-    check.tabIndex = 0;
-    close.tabIndex = 0;
-    text.tabIndex = 0;
-    signin.tabIndex = 0;
-    updateComments();
-    document.activeElement.blur();
+  openButton.addEventListener("click", (_) => {
+    openButton.classList.add("checked");
+    menuPanel.classList.add("open");
+    menuPanel.inert = false;
+    lockTokenButton.focus();
+    refresh_comments(menuCounter, buttonBadge, listContainer, textareaInput, usertokenInput.value)();
     localStorage.setItem("question-panel", "open");
   });
 
-  login.addEventListener("click", (_) => {
-    if (login.classList.contains("admin")) {
+  loginArea.addEventListener("click", (_) => {
+    if (loginArea.classList.contains("admin")) {
       engine.token.admin = null;
-      username.value = "";
-      password.value = "";
-      login.classList.remove("admin");
-      credentials.classList.remove("visible");
-      updateComments();
+      loginUsernameInput.value = "";
+      loginPasswordInput.value = "";
+      loginArea.classList.remove("admin");
+      credentialsArea.classList.remove("visible");
+      refresh_comments(menuCounter, buttonBadge, listContainer, textareaInput, usertokenInput.value)();
     } else {
-      if (credentials.classList.contains("visible")) {
-        credentials.classList.remove("visible");
+      if (credentialsArea.classList.contains("visible")) {
+        credentialsArea.classList.remove("visible");
       } else {
-        credentials.classList.add("visible");
-        username.focus();
+        credentialsArea.classList.add("visible");
+        loginUsernameInput.focus();
       }
     }
   });
 
-  password.addEventListener("keydown", (e) => {
+  loginPasswordInput.addEventListener("keydown", (e) => {
     if (e.key !== "Enter") return;
 
-    if (login.classList.contains("admin")) {
+    if (loginArea.classList.contains("admin")) {
       engine.token.admin = null;
-      username.value = "";
-      password.value = "";
-      login.classList.remove("admin");
-      credentials.classList.remove("visible");
-      updateComments();
+      loginUsernameInput.value = "";
+      loginPasswordInput.value = "";
+      loginArea.classList.remove("admin");
+      credentialsArea.classList.remove("visible");
+      refresh_comments(menuCounter, buttonBadge, listContainer, textareaInput, usertokenInput.value)();
     } else {
       engine.api
         .getLogin({
-          login: username.value,
-          password: password.value,
+          login: loginUsernameInput.value,
+          password: loginPasswordInput.value,
           deck: engine.deckId,
         })
         .then((token) => {
           engine.token.admin = token.admin;
-          login.classList.add("admin");
-          username.value = "";
-          password.value = "";
-          credentials.classList.remove("visible");
-          updateComments();
+          loginArea.classList.add("admin");
+          loginUsernameInput.value = "";
+          loginPasswordInput.value = "";
+          credentialsArea.classList.remove("visible");
+          refresh_comments(menuCounter, buttonBadge, listContainer, textareaInput, usertokenInput.value)();
         })
         .catch((_) => {
-          password.value = "";
+          loginPasswordInput.value = "";
         });
     }
   });
 
   if (engine.token && !engine.token.authorized) {
-    user.addEventListener("keydown", (e) => {
+    usertokenInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
-        updateComments();
+        refresh_comments(menuCounter, buttonBadge, listContainer, textareaInput, usertokenInput.value)();
         e.stopPropagation();
         document.activeElement.blur();
       }
     });
 
-    check.addEventListener("click", (_) => {
-      if (check.classList.contains("checked")) {
-        check.classList.remove("checked");
+    lockTokenButton.addEventListener("click", (_) => {
+      if (lockTokenButton.classList.contains("checked")) {
+        lockTokenButton.classList.remove("checked");
         window.localStorage.removeItem("token");
-        user.removeAttribute("disabled");
-        user.type = "text";
+        usertokenInput.removeAttribute("disabled");
+        usertokenInput.type = "text";
       } else {
-        if (user.value) {
-          check.classList.add("checked");
-          window.localStorage.setItem("token", user.value);
-          user.setAttribute("disabled", true);
-          user.type = "password";
+        if (usertokenInput.value) {
+          lockTokenButton.classList.add("checked");
+          window.localStorage.setItem("token", usertokenInput.value);
+          usertokenInput.setAttribute("disabled", true);
+          usertokenInput.type = "password";
         }
       }
-      updateComments();
+      refresh_comments(menuCounter, buttonBadge, listContainer, textareaInput, usertokenInput.value)();
     });
   }
 
-  text.addEventListener("keydown", (e) => {
+  textareaInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && e.shiftKey) {
       let slideId = Reveal.getCurrentSlide().id;
-      if (text.hasAttribute("answer")) {
+      if (textareaInput.hasAttribute("answer")) {
         engine.api
-          .postAnswer(text.commentId, engine.token.admin, text.value, null)
-          .then(renderSubmit)
+          .postAnswer(textareaInput.commentId, engine.token.admin, textareaInput.value, null)
+          .then(clear_after_submit(textareaInput, "Type question, ⇧⏎ (Shift-Return) to enter. Use Markdown for formatting."))
           .catch(console.log);
       } else {
         engine.api
           .submitComment(
             engine.deckId,
             slideId,
-            engine.token.admin || user.value,
-            text.value,
-            text.commentId,
+            engine.token.admin || usertokenInput.value,
+            textareaInput.value,
+            textareaInput.commentId,
             window.location.toString()
           )
-          .then(renderSubmit)
+          .then(clear_after_submit(textareaInput, "Type question, ⇧⏎ (Shift-Return) to enter. Use Markdown for formatting."))
           .catch(console.log);
       }
       e.stopPropagation();
@@ -647,10 +585,10 @@ function buildInterface() {
     }
   });
 
-  Reveal.addEventListener("slidechanged", updateCommentsAndMenu);
+  Reveal.addEventListener("slidechanged", () => refresh_comments_and_menu(menuCounter, buttonBadge, listContainer, textareaInput, usertokenInput.value));
 
-  initUser();
-  updateCommentsAndMenu();
+  initializeUsertoken(usertokenInput, lockTokenButton, menu, loginArea);
+  refresh_comments_and_menu(menuCounter, buttonBadge, listContainer, textareaInput, usertokenInput.value);
 }
 
 const Plugin = {
