@@ -1,15 +1,11 @@
 button.explain {
-  font-size: var(--whiteboard-icon-size);
-  margin: 0.3em;
-  padding: 0.4em;
+  font-size: 24px;
   border: none;
-  outline: none;
   background: none;
 }
 
 button.explain:focus,
 button.explain::-moz-focus-inner {
-  outline: none;
   border: 0;
 }
 
@@ -20,11 +16,6 @@ button[data-uistate="PLAYING"].explain#explain-play {
 
 button.explain#explain-play {
   display: none;
-  position: fixed;
-  right: calc(var(--whiteboard-icon-size) * 1.75);
-  top: calc(var(--whiteboard-icon-size) * 0.25);
-  z-index: 40;
-  color: var(--whiteboard-inactive-color);
 
   /* padding: 10px; */
   border-radius: 999px;
@@ -123,7 +114,6 @@ div#record-panel:hover {
   height: 15px;
   text-align: center;
   border: none;
-  outline: none;
   background: none;
   font-family: "Font Awesome 5 Free";
   color: var(--whiteboard-inactive-color);
@@ -219,7 +209,6 @@ span.capture-size {
   height: 100%;
   background-color: white;
   box-sizing: border-box;
-  outline: none;
   object-fit: contain;
 }
 
