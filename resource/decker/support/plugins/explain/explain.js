@@ -1,3 +1,9 @@
+// speech recog
+
+var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition
+var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList
+var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent
+
 // reference to Reveal deck
 let Reveal;
 
@@ -16,6 +22,7 @@ let recordPanel, recordIndicator, voiceIndicator, desktopIndicator;
 let recordButton, pauseButton, stopButton;
 let voiceGainSlider, desktopGainSlider;
 let cameraPanel, cameraVideo, cameraCanvas;
+let transcriptionRow, transcriptionArea, transcriptionButton;
 
 // recording stuff
 let blobs;
@@ -214,7 +221,7 @@ function play() {
   return true;
 }
 
-// Manages recording tim stamps of Reval slide changes. For each slide shown
+// Manages recording time stamps of Reval slide changes. For each slide shown
 // the time interval is stored. Slides can appear many times in a video.
 // Navigation can be random.
 class Timing {
@@ -428,6 +435,153 @@ function mergeStreams() {
   });
 }
 
+let module_speechRecognition;
+let module_transcript;
+let module_transcription_start_time;
+let module_transcription_begin_time;
+let module_restart_on_end;
+let module_recognising_state;
+let module_timing;
+
+function setupSpeechRecognition() {
+  console.log("setting up speech recog");
+  let speechRecognition = new SpeechRecognition();
+  console.log("recog initiated");
+  if(!module_transcript) module_transcript = [];
+  speechRecognition.continuous = true;
+  speechRecognition.interimResults = true;
+  module_transcription_begin_time = new Date();
+  speechRecognition.onstart = onTranscriptionStart;
+  speechRecognition.onresult = onTranscriptResult;
+  speechRecognition.onerror = onTranscriptError;
+  speechRecognition.onend = onTranscriptEnd;
+  module_speechRecognition = speechRecognition;
+}
+
+function addToTranscript(text) {
+  if(text) {
+    var curTime = new Date();
+    module_transcript.push({ "startTime": module_transcription_begin_time, "endTime": curTime, "text": text });
+    module_transcription_begin_time = curTime;
+  }
+}
+
+function onTranscriptionStart() {
+  module_recognising_state = "LISTENING";
+  console.log("recog starting");  
+}
+
+function onTranscriptResult(event) {
+  for(var i = event.resultIndex; i < event.results.length; i++) {
+//    console.log("transcript result: ", event.results[i][0]);
+    if(event.results[i][0].confidence > 0.4) {
+      if(event.results[i].isFinal) {
+        addToTranscript(event.results[i][0].transcript);
+      }
+    }
+  }
+}
+
+function onTranscriptError(event) {
+  console.log("[SPEECH RECOGNITION]: ", event.message ? event.message : event.error);
+  if((event.error == "no-speech") || (event.error == "audio-capture") || (event.error == "network") || (event.error == "bad-grammar")) {
+    retryTranscription();
+  }
+}
+
+function retryTranscription() {
+  module_restart_on_end = true;
+}
+
+function onTranscriptEnd() {
+  console.log("transcript end");
+  if(module_restart_on_end || uiState.is("RECORDING")) {
+    module_restart_on_end = false;
+    module_speechRecognition.start();
+  }
+}
+
+function writeTranscription() {
+  console.log(module_transcript);
+  transcriptionArea.value = formatTranscriptTimeStamped(module_transcript, module_transcription_start_time, "webVTT");
+}
+
+//Taken from https://github.com/MidCamp/live-captioning
+function formatElapsedTime(timeString, startTimeString, format){
+  var time = new Date(timeString);
+  var startTime = new Date(startTimeString);
+
+  var elapsedTime = time - startTime;
+
+  var seconds = Math.floor(elapsedTime/1000);
+  var milliseconds = elapsedTime - (seconds * 1000);
+  var minutes = Math.floor(seconds/60);
+  var hours = Math.floor(minutes/60);
+  var days = Math.floor(hours/24);
+  var millisecondsSeparator = ".";
+
+  hours = hours-(days*24);
+  minutes = minutes-(days*24*60)-(hours*60);
+  seconds = seconds-(days*24*60*60)-(hours*60*60)-(minutes*60);
+
+  if (format === "srt") {
+    millisecondsSeparator = ",";
+  }
+  return ((hours < 10) ? '0' : '') + hours + 
+          ((minutes < 10) ? ':0' : ':') + minutes  + 
+          ((seconds < 10) ? ':0' : ':') + seconds + 
+          millisecondsSeparator + String(milliseconds).padStart(3,'0');
+}
+
+//Taken from https://github.com/MidCamp/live-captioning
+function formatTranscriptTimeStamped(transcript, startTime, format){
+  if(transcript) {
+    var output = "";
+    if (format === "webVTT") {
+      output += "WEBVTT\n\n";
+    }
+    for (var i = 0; i < transcript.length; ++i) {
+      output += i+1 + "\n";
+      output += formatElapsedTime(transcript[i].startTime, startTime, format) + " --> " + formatElapsedTime(transcript[i].endTime, startTime, format) + "\n";
+      output += transcript[i].text + "\n\n";
+    }
+    return output;
+  } else {
+    return "No transcript available";
+  }
+}
+
+function loadFromLocalStorage(key) {
+  var savedJSON;
+
+  if (localStorage) {
+    try {
+      savedJSON = JSON.parse(localStorage.getItem(key));
+    } catch(e) {}
+  }
+
+  if (typeof savedJSON !== 'undefined') {
+    return savedJSON;
+  }
+}
+
+/**
+* Save the data to localStorage
+*
+* @param key  - local storage key to save the data under
+* @param data - the data to save
+*/
+function saveToLocalStorage(key, data) {
+  if (data && localStorage) {
+    if (typeof data === "object"){
+      localStorage.setItem(key, JSON.stringify(data));
+    } else  {
+      localStorage.setItem(key, data);
+    }
+  }
+}
+
+
 async function setupRecorder() {
   try {
     stream = null;
@@ -440,6 +594,8 @@ async function setupRecorder() {
 
     // merge desktop and microphone streams into one stream to be recorded
     mergeStreams();
+
+    setupSpeechRecognition();
 
     // setup shaders for greenscreen (has to be done before captureCamera())
     if (useGreenScreen) {
@@ -456,7 +612,7 @@ async function setupRecorder() {
     return true;
   } catch (e) {
     alert(
-      "Recording setup failed.\n\nRecording only works on Chrome. Also, the deck must be accessed via a URL that starts with either of \n\n- http://localhost\n- https://"
+      `Recording setup failed.\n${e.message}\nRecording only works on Chrome. Also, the deck must be accessed via a URL that starts with either of \n\n- http://localhost\n- https://`
     );
   }
 }
@@ -490,6 +646,12 @@ function startRecording() {
     Reveal.slide(0);
     recorder.timing = new Timing();
     recorder.timing.start();
+    module_transcription_start_time = new Date();
+    module_transcription_begin_time = module_transcription_start_time;
+    module_transcript = [];
+    if(module_speechRecognition) {
+      module_speechRecognition.start();
+    }
     Reveal.addEventListener("slidechanged", recordSlideChange);
 
     updateRecordIndicator();
@@ -540,6 +702,8 @@ function startRecording() {
     recorder = null;
     stream = null;
 
+    saveToLocalStorage("transcript", module_transcript);
+    saveToLocalStorage("start_time", module_transcription_start_time);
     updateRecordIndicator();
   };
 
@@ -557,7 +721,6 @@ function startRecording() {
     alert("VideoRecording Error: " + evt.name);
     uiState.transition("cancel");
   };
-
   recorder.start();
   recordButton.disabled = true;
   pauseButton.disabled = undefined;
@@ -568,6 +731,9 @@ function startRecording() {
 }
 
 function pauseRecording() {
+  if(module_speechRecognition) {
+    module_speechRecognition.stop();
+  }
   recorder.pause();
   recordButton.disabled = true;
   pauseButton.disabled = undefined;
@@ -576,6 +742,9 @@ function pauseRecording() {
 }
 
 function resumeRecording() {
+  if(module_speechRecognition) {
+    module_speechRecognition.start();
+  }
   recorder.resume();
   recordButton.disabled = true;
   pauseButton.disabled = undefined;
@@ -584,6 +753,9 @@ function resumeRecording() {
 }
 
 function stopRecording() {
+  if(module_speechRecognition) {
+    module_speechRecognition.stop();
+  }
   recorder.stop();
   stream.getTracks().forEach((s) => s.stop());
   recordButton.disabled = undefined;
@@ -670,11 +842,17 @@ function createPlayerGUI() {
   playButton = createElement({
     type: "button",
     id: "explain-play",
-    classes: "explain fas fa-play",
+    classes: "fas fa-play decker-button explain",
     title: "Play video recording",
-    parent: document.body,
     onclick: transition("play"),
   });
+
+  if(Reveal.hasPlugin("decker-plugins")) {
+    let manager = Reveal.getPlugin("decker-plugins");
+    manager.registerPlugin({decker_button: playButton, decker_anchor: "TOP_RIGHT"});
+  } else {
+    document.body.appendChild(playButton);
+  }
 
   let video = createElement({
     type: "video",
@@ -1078,6 +1256,31 @@ async function createRecordingGUI() {
     parent: row,
     onclick: transition("stop"),
   });
+
+  transcriptionRow = createElement({
+    type: "div",
+    classes: "controls-row",
+    parent: recordPanel,
+  });
+
+  transcriptionArea = createElement({
+    type: "textarea",
+    classes: "explain transcriptarea",
+    parent: transcriptionRow,
+  });
+  transcriptionArea.disabled = true;
+  module_transcript = loadFromLocalStorage("transcript");
+  module_transcription_start_time = loadFromLocalStorage("start_time");
+  writeTranscription();
+
+  transcriptionButton = createElement({
+    type: "button",
+    classes: "explain transcribe-button fas fa-sync",
+    title: "Reload transcription",
+    parent: transcriptionRow,
+    onclick: () => writeTranscription(),
+  })
+
 }
 
 function setupGainSlider(gain, slider) {
