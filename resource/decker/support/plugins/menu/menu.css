@@ -1,19 +1,14 @@
-.decker-menu {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 33%;
+[inert] > * {
+    opacity: 0.5;
+}
 
-    transition: transform 0.5s;
+.decker-menu {
+    display: flex;
+    flex-direction: column;
     z-index: 256;
 
     background: white;
     border-right: 2px solid #639A00;
-}
-
-.decker-menu[inert] {
-    transform: translate(-100%);
 }
 
 div.tile-grid {
@@ -39,16 +34,14 @@ button.tile > p {
     font-weight: bold;
 }
 
-button.tile:hover {
-    background: grey;
+button.tile:hover , button.tile:focus {
+    color: white;
+    background: #639A00;
 }
 
 button.tile:active {
-    background: darkgrey;
-}
-
-[inert] > * {
-    opacity: 0.5;
+    color: white;
+    background: #82ae32;
 }
 
 ul.slide-list {
@@ -73,10 +66,16 @@ ul.slide-list > li {
     display: flex;
 }
 
+ul.slide-list > li[data-slide-v] {
+    margin-left: 2em;
+}
+
 ul.slide-list > li > a {
     display: flex;
     width: calc(100% - 4px);
     color: black;
+    font-family: Arial, Helvetica, sans-serif;
+    text-decoration: none;
 }
 
 ul.slide-list > li:hover {
@@ -87,15 +86,12 @@ ul.slide-list > li:hover > a {
     color: white;
 }
 
-ul.slide-list > li::before {
-    content: attr(data-slide-h) ".";
-    margin-right: 4px;
-}
-
 ul.slide-list > li::marker {
     content: none;
 }
 
+/* This needs to be commented in or handled separately at some point because hidden slides are not hidden,
+ * yet slides with the hidden attribute are for some reason every slide not the current one ...
 [hidden] {
     display: none;
 }
@@ -103,3 +99,4 @@ ul.slide-list > li::marker {
 [hidden] * {
     display: none;
 }
+*/
