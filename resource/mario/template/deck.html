@@ -24,18 +24,20 @@ $endif$
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
   
+  <link rel="stylesheet" href="$decker-support-dir$/components/components.css">
   <link rel="stylesheet" href="$decker-support-dir$/vendor/reveal/dist/reset.css">
   <link rel="stylesheet" href="$decker-support-dir$/vendor/reveal/dist/reveal.css">
   <link rel="stylesheet" href="$decker-support-dir$/plugins/decker/plugins.css">
   <link rel="stylesheet" href="$decker-support-dir$/plugins/whiteboard/whiteboard.css">
-  <!--link rel="stylesheet" href="$decker-support-dir$/plugins/menu/menu.css"-->
-  <link rel="stylesheet" href="$decker-support-dir$/plugins/new-menu/menu.css">
+  <link rel="stylesheet" href="$decker-support-dir$/plugins/menu/menu.css">
   <link rel="stylesheet" href="$decker-support-dir$/plugins/feedback/feedback.css">
   <!-- <link rel="stylesheet" href="$decker-support-dir$/examiner/examiner.css"> -->
   <link rel="stylesheet" href="$decker-support-dir$/plugins/explain/explain.css">
   <link rel="stylesheet" href="$decker-support-dir$/vendor/videojs/video-js.min.css">
   <link rel="stylesheet" href="$decker-support-dir$/vendor/css/$highlightjs$.css">
-  <link rel="stylesheet" href="$decker-support-dir$/css/deck.css">
+  <link rel="stylesheet" href="$decker-support-dir$/css/mario.css">
+  <link rel="stylesheet" href="$decker-support-dir$/plugins/live-captioning/live-captioning.css">
+
 
 $for(template.css)$
   <link rel="stylesheet" href="$template.css$"/>
@@ -138,11 +140,11 @@ $body$
     import quizWuePlugin from './$decker-support-dir$/plugins/quiz-wue/quiz-wue.js';
     import explainPlugin from './$decker-support-dir$/plugins/explain/explain.js';
     import chartsPlugin from './$decker-support-dir$/plugins/charts/charts.js';
-    //import menuPlugin from './$decker-support-dir$/plugins/menu/menu.js';
-    import menuPlugin from './$decker-support-dir$/plugins/new-menu/menu.js';
+    import menuPlugin from './$decker-support-dir$/plugins/menu/menu.js';
     import feedbackPlugin from './$decker-support-dir$/plugins/feedback/feedback.js';
     import highlightPlugin from './$decker-support-dir$/vendor/reveal/plugin/highlight/highlight.esm.js';
     import notesPlugin from './$decker-support-dir$/vendor/reveal/plugin/notes/notes.esm.js';
+    import captionPlugin from './$decker-support-dir$/plugins/live-captioning/live-captioning.js';
 
     let revealConfig = { 
       // reveal configuration (see https://revealjs.com/config/)
@@ -158,15 +160,11 @@ $body$
 
       // list of plugins
       plugins: [
-<<<<<<< HEAD
-         deckerPlugin, //put plugins with UI elements here in tab order
+         deckerPlugin,
+         deckerPluginManager,
          menuPlugin,
          feedbackPlugin,
          whiteboardPlugin,
-=======
-         deckerPlugin,
-         deckerPluginManager,
->>>>>>> a11y-manager
          mathPlugin,
          chartsPlugin,
          sagePlugin,
@@ -177,7 +175,9 @@ $body$
          quizWuePlugin,
          explainPlugin,
          highlightPlugin,
-         notesPlugin
+         notesPlugin,
+         statusPlugin,
+         captionPlugin,
       ]
     };
 
