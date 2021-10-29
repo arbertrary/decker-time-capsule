@@ -8,7 +8,7 @@ class SlideMenu {
   slide_list;
 
   constructor(anchor) {
-    this.id = "newmenu";
+    this.id = "decker-menu";
     this.reveal = undefined;
     this.config = undefined;
     this.decker_button = undefined;
@@ -45,6 +45,10 @@ class SlideMenu {
       }
     }
     return undefined;
+  }
+
+  getSlideList() {
+    return this.menu.slide_list.childNodes;
   }
 
   toggleMenu(event) {
@@ -104,6 +108,10 @@ class SlideMenu {
     }
   }
 
+  /**
+   * TODO: Test if this is actually necessary.
+   * @param {*} text 
+   */
   announceStatus(text) {
     if(this.reveal.hasPlugin("a11y-status")) {
       let status = this.reveal.getPlugin("a11y-status");
@@ -285,19 +293,19 @@ class SlideMenu {
     template.innerHTML = String.raw
     `<div class="decker-menu slide-in-left" id="decker-menu" inert>
       <div class="tile-grid">
-        <button class="tile" id="decker-menu-search-button">
+        <button class="tile" id="decker-menu-search-button" title="Toggle Searchbar" aria-label="Toggle Searchbar">
           <i class="fas fa-search"></i>
           <p>Toggle Search Bar</p>
         </button>
-        <button class="tile" id="decker-menu-print-button">
+        <button class="tile" id="decker-menu-print-button" title="Print PDF" aria-label="Print PDF">
           <i class="fas fa-print"></i>
           <p>Print as PDF</p>
         </button>
-        <button class="switch tile" id="decker-menu-animation-button">
+        <button class="switch tile" id="decker-menu-animation-button" title="Toggle fragmented slides" aria-label="Toggle fragmented slides">
           <i class="far ${toggle_icon}"></i>
           <p>Toggle Animations</p>
         </button>
-        <button class="close tile" id="decker-menu-close-button">
+        <button class="close tile" id="decker-menu-close-button" title="Close Menu" aria-label="Close Menu">
           <i class="fas fa-times"></i>
           <p>Close Menu</p>
         </button>
