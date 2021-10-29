@@ -1,0 +1,51 @@
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+
+        <title>reveal.js - Live Captioning</title>
+
+        <style>
+            html,
+            body {
+                width: 100%;
+                height: 100%;
+                background: black;
+                color: white;
+                font-family: Tahoma, Verdana, Segoe, sans-serif;
+                font-size: 2rem; 
+            }
+        </style>
+    </head>
+    <body>
+        <div class="area">
+
+        </div>
+    </body>
+    <script>
+        (function() {
+            let currentSpan = undefined;
+            let area = document.querySelector(".area");
+
+            window.addEventListener( 'message', function( event ) {
+                console.log(event);
+                let data = JSON.parse( event.data );
+                if(data.type === "update") {
+                    if(!currentSpan) createSpan();
+                    currentSpan.textContent = data.text;
+                } else if(data.type === "final") {
+                    if(!currentSpan) createSpan();
+                    currentSpan.textContent = data.text;
+                    currentSpan = undefined;
+                }
+                area.scrollTo(0, area.scrollHeight);
+            });
+
+            function createSpan() {
+                currentSpan = document.createElement("span");
+                area.appendChild(currentSpan);
+            }
+
+            document.body.requestFullscreen();
+        })();
+    </script>
+</html>

@@ -156,10 +156,36 @@ button.explain[disabled] {
 
 button.record-button,
 button.pause-button,
-button.stop-button {
+button.stop-button{
   color: red;
   opacity: 1;
   font-size: 25px;
+}
+
+button.record-button:hover,
+button.pause-button:hover,
+button.stop-button:hover{
+  color:tomato;
+}
+
+button.record-button:active,
+button.pause-button:active,
+button.stop-button:active{
+  color:orangered;
+}
+
+button.test-button {
+  color: red;
+  opacity: 1;
+  font-size: 25px;
+}
+
+button.test-button:hover {
+  color: tomato;
+}
+
+button.test-button:active {
+  color:orangered;
 }
 
 .gain-slider {

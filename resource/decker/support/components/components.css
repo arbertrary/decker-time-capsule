@@ -1,0 +1,21 @@
+:root {
+    --awesome-button-background: none;
+    --awesome-button-color: #4d4d4d;
+
+    --awesome-button-hover-color: #639A00;
+    --awesome-button-active-color: #91b84c;
+
+    --awesome-button-hover-background: none;
+    --awesome-button-active-background: none;
+
+    --awesome-button-toggled-color: red;
+    --awesome-button-toggled-background: none;
+
+    --awesome-button-font-size: 24px;
+
+    --awesome-button-border: none;
+    --awesome-button-border-radius: 4px;
+
+    --awesome-button-padding: 8px;
+
+}
