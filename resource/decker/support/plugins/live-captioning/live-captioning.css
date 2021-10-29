@@ -1,0 +1,34 @@
+.caption-area {
+    font-family: "Lato", sans-serif;
+    font-size: 32px;
+    background: black;
+    color: white;
+    max-height: 64px;
+    z-index: 256;
+}
+  
+.caption-area:not(.show) {
+    display: none;
+}
+  
+.pinned {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    overflow: hidden;
+}
+
+.caption-options-menu {
+    z-index: 256;
+    background: white;
+    border-right: 1px solid #639A00;
+    display: flex;
+}
+
+button.captioning {
+    color: red;
+}
+
+.caption-options-menu {
+
+}
