@@ -1,7 +1,3 @@
-[inert] > * {
-    opacity: 0.5;
-}
-
 .decker-menu {
     display: flex;
     flex-direction: column;
@@ -88,12 +84,4 @@ ul.slide-list > li:hover > a {
 
 ul.slide-list > li::marker {
     content: none;
-}
-
-[hidden] {
-    display: none;
-}
-
-[hidden] * {
-    display: none;
 }

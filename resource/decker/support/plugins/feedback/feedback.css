@@ -213,7 +213,7 @@ div.feedback-menu div.feedback-list {
   overflow-y: scroll;
 }
 
-div.feedback-menu div.feedback-list div.item {
+div.feedback-menu div.feedback-list div.feedback-item {
   background-color: rgba(255, 255, 255, 0.9);
   font-family: "Roboto", Helvetica, sans-serif;
   line-height: 125%;
@@ -227,7 +227,7 @@ div.feedback-menu div.feedback-list div.item {
   align-items: center;
 }
 
-div.feedback-menu div.feedback-list div.item div.content {
+div.feedback-menu div.feedback-list div.feedback-item div.feedback-content {
   flex: 1 1;
   margin: 0;
   padding: 0;
@@ -236,26 +236,18 @@ div.feedback-menu div.feedback-list div.item div.content {
   overflow: hidden;
 }
 
-div.feedback-menu div.feedback-list div.item.answer {
+div.feedback-menu div.feedback-list div.feedback-item.answer {
   display: block;
   background-color: rgba(230, 230, 230, 0.9);
   margin-left: 4ex;
   font-size: 80%;
 }
 
-div.item.answer > div.link {
+div.feedback-item.answer > div.link {
   float: right;
 }
 
-div.item.answer > div.description {
-}
-
-div.feedback-menu div.answer div.controls {
-  float: right;
-  margin-left: 0.5em;
-}
-
-div.feedback-menu div.content div.controls {
+div.feedback-menu div.feedback-controls {
   float: right;
   margin-left: 0.5em;
 }
@@ -291,7 +283,7 @@ div.feedback-menu button.cantvote:hover {
   color: lightgray;
 }
 
-div.feedback-menu div.feedback-list div.item button {
+div.feedback-menu div.feedback-list div.feedback-item button {
   flex: 0 1 content;
 }
 
@@ -380,56 +372,56 @@ div.feedback-menu div.feedback-footer div.feedback-login:hover {
   color: var(--whiteboard-active-color);
 }
 
-div.feedback-menu div.item {
+div.feedback-menu div.feedback-item {
   font-size: 1em;
 }
 
-div.feedback-menu div.item em {
+div.feedback-menu div.feedback-item em {
   font-style: italic;
 }
 
-div.feedback-menu div.item strong {
+div.feedback-menu div.feedback-item strong {
   font-weight: bold;
 }
 
-div.feedback-menu div.item a {
+div.feedback-menu div.feedback-item a {
   color: darkblue;
 }
 
-div.feedback-menu div.item p,
+div.feedback-menu div.feedback-item p,
 div.feedback-menu ul,
 div.feedback-menu ol {
   padding-bottom: 0.3em;
 }
 
-div.feedback-menu div.item p:last-child,
-div.feedback-menu div.item ul:last-child,
-div.feedback-menu div.item ol:last-child {
+div.feedback-menu div.feedback-item p:last-child,
+div.feedback-menu div.feedback-item ul:last-child,
+div.feedback-menu div.feedback-item ol:last-child {
   padding-bottom: 0;
 }
 
-div.feedback-menu div.item ol {
+div.feedback-menu div.feedback-item ol {
   list-style-type: lower-alpha;
   list-style-position: inside;
 }
 
-div.feedback-menu div.item ul {
+div.feedback-menu div.feedback-item ul {
   list-style-type: disc;
   list-style-position: inside;
 }
 
-div.feedback-menu div.item code {
+div.feedback-menu div.feedback-item code {
   font-family: Consolas, Monaco, monospace;
   font-size: 0.9em;
 }
 
-div.feedback-menu div.item pre {
+div.feedback-menu div.feedback-item pre {
   padding: 0.2em;
   background-color: #eee;
   white-space: pre-wrap;
 }
 
-div.feedback-menu div.item h1 {
+div.feedback-menu div.feedback-item h1 {
   font-size: 1.2em;
   font-weight: bold;
   padding-bottom: 0.2em;
@@ -437,7 +429,7 @@ div.feedback-menu div.item h1 {
   color: #333;
 }
 
-div.feedback-menu div.item h2 {
+div.feedback-menu div.feedback-item h2 {
   font-size: 1.1em;
   font-weight: bold;
   padding-bottom: 0.2em;
@@ -445,7 +437,7 @@ div.feedback-menu div.item h2 {
   color: #333;
 }
 
-div.feedback-menu div.item img {
+div.feedback-menu div.feedback-item img {
   width: 100%;
   image-rendering: pixelated;
 }
