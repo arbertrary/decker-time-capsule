@@ -1,8 +1,14 @@
 // speech recog
 
-var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition
-var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList
-var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent
+var SpeechRecognition = undefined;
+var SpeechGrammarList = undefined;
+var SpeechRecognitionEvent = undefined;
+
+if(window.chrome) {
+  SpeechRecognition = SpeechRecognition || webkitSpeechRecognition
+  SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList
+  SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent
+}
 
 // reference to Reveal deck
 let Reveal;
@@ -441,24 +447,26 @@ function mergeStreams() {
   });
 }
 
-let module_speechRecognition;
-let module_transcript;
-let module_restart_on_end;
-let module_transcription_start_time;
+let module_speechRecognition = undefined;
+let module_transcript = undefined;
+let module_restart_on_end = undefined;
+let module_transcription_start_time = undefined;
 
 /**
  * Instantiates the speech recognition module and sets its parameters.
  */
 function setupSpeechRecognition() {
-  let speechRecognition = new SpeechRecognition();
-  if(!module_transcript) module_transcript = [];
-  speechRecognition.continuous = true;
-  speechRecognition.interimResults = true;
-  speechRecognition.onstart = onTranscriptionStart;
-  speechRecognition.onresult = onTranscriptResult;
-  speechRecognition.onerror = onTranscriptError;
-  speechRecognition.onend = onTranscriptEnd;
-  module_speechRecognition = speechRecognition;
+  if(SpeechRecognition) {
+    let speechRecognition = new SpeechRecognition();
+    if(!module_transcript) module_transcript = [];
+    speechRecognition.continuous = true;
+    speechRecognition.interimResults = true;
+    speechRecognition.onstart = onTranscriptionStart;
+    speechRecognition.onresult = onTranscriptResult;
+    speechRecognition.onerror = onTranscriptError;
+    speechRecognition.onend = onTranscriptEnd;
+    module_speechRecognition = speechRecognition;
+  }
 }
 
 /**
