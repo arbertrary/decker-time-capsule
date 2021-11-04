@@ -61,8 +61,8 @@
      };
  
      /* Attributes Decker Plugin Manager */
-     this.decker_button = button_template.content.cloneNode(true).firstElementChild;
-     this.decker_anchor = "TOP_LEFT";
+     this.record_button = button_template.content.cloneNode(true).firstElementChild;
+     this.position = "TOP_LEFT";
  
      /* Filling Menu (currently unused) */
      this.menu.container = menu_template.content.cloneNode(true).firstElementChild;
@@ -74,7 +74,7 @@
      this.currentSpan = undefined;
  
  //    this.decker_button.addEventListener("click", () => this.openMenu());
-     this.decker_button.addEventListener("click", () => this.toggleCaptioning());
+     this.record_button.addEventListener("click", () => this.toggleCaptioning());
      this.menu.cc_button.addEventListener("click", () => this.toggleCaptioning());
      this.menu.close_button.addEventListener("click", () => this.closeMenu());
  
@@ -133,10 +133,10 @@
      }
      this.captioning = true;
  //    this.decker_button.classList.add("captioning");
-     this.decker_button.toggle();
-     this.decker_button.icon = "fa-circle";
-     this.decker_button.title = "Deactivate Live Captioning";
-     this.decker_button.setAttribute("aria-label", "Deactivate Live Captioning");
+     this.record_button.toggle();
+     this.record_button.icon = "fa-circle";
+     this.record_button.title = "Deactivate Live Captioning";
+     this.record_button.setAttribute("aria-label", "Deactivate Live Captioning");
    }
  
    /**
@@ -152,10 +152,10 @@
        this.popup = undefined;
      }
  //    this.decker_button.classList.remove("captioning");
-     this.decker_button.toggle();
-     this.decker_button.icon = "fa-closed-captioning";
-     this.decker_button.title = "Activate Live Captioning";
-     this.decker_button.setAttribute("aria-label", "Activate Live Captioning");
+     this.record_button.toggle();
+     this.record_button.icon = "fa-closed-captioning";
+     this.record_button.title = "Activate Live Captioning";
+     this.record_button.setAttribute("aria-label", "Activate Live Captioning");
    }
  
    toggleCaptioning() {
@@ -270,7 +270,7 @@
      document.body.appendChild(this.menu.container);
      document.body.appendChild(this.area);
      let manager = this.reveal.getPlugin("decker-plugins");
-     manager.registerPlugin(this);
+     manager.placeButton( this.record_button, this.position );
  
      if('getScreens' in window) {
        navigator.permissions.query({ name: 'window-placement'})

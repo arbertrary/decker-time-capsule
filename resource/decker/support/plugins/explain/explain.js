@@ -24,12 +24,12 @@ let gsSpill;
 
 // GUI elements
 let playPanel, playButton, player;
-let recordPanel, recordIndicator, voiceIndicator, desktopIndicator;
+let recordPanel, recordIndicator, microphoneIndicator, captionIndicator, voiceIndicator, desktopIndicator;
 let recordButton, pauseButton, stopButton;
+let muteMicButton, captionToggleButton;
 let voiceGainSlider, desktopGainSlider;
 let cameraPanel, cameraVideo, cameraCanvas;
-let transcriptionRow, transcriptionArea, transcriptionButton, captionToggleButton, downloadTranscriptionButton;
-let fullscreenCaptionEnabled, primaryScreen, secondaryScreen, captionArea;
+let transcriptionRow, transcriptionArea, transcriptionButton, downloadTranscriptionButton;
 
 // recording stuff
 let blobs;
@@ -126,6 +126,7 @@ function createElement({ type, id, classes, title, parent, onclick = null }) {
   if (id) e.id = id;
   if (classes) e.className = classes;
   if (title) e.title = title;
+  if (title) e.setAttribute("aria-label", title);
   if (parent) parent.appendChild(e);
   if (onclick) e.addEventListener("click", onclick);
   return e;
@@ -447,10 +448,33 @@ function mergeStreams() {
   });
 }
 
+let module_should_caption = false;
 let module_speechRecognition = undefined;
 let module_transcript = undefined;
 let module_restart_on_end = undefined;
+let module_gracefulStop = false;
 let module_transcription_start_time = undefined;
+
+function toggleCaptioning() {
+  module_should_caption = !module_should_caption;
+  updateCaptionButton();
+  updateCaptionIndicatior();
+}
+
+function updateCaptionIndicatior() {
+  if(module_should_caption) {
+    captionIndicator.dataset.state = "captioning";
+  } else {
+    captionIndicator.dataset.state = "";
+  }
+}
+
+function updateCaptionButton() {
+  captionToggleButton.classList.remove("captioning");
+  if(module_should_caption) {
+    captionToggleButton.classList.add("captioning");
+  }
+}
 
 /**
  * Instantiates the speech recognition module and sets its parameters.
@@ -485,7 +509,7 @@ function addToTranscript(text) {
  * SpeechRecognition callback.
  */
 function onTranscriptionStart() {
-  //No functionality
+  console.log("started a new transcription session");
 }
 
 /**
@@ -494,7 +518,6 @@ function onTranscriptionStart() {
  */
 function onTranscriptResult(event) {
   for(var i = event.resultIndex; i < event.results.length; i++) {
-//    console.log("transcript result: ", event.results[i][0]);
     if(event.results[i][0].confidence > 0.4) {
       if(event.results[i].isFinal) {
         addToTranscript(event.results[i][0].transcript);
@@ -509,7 +532,7 @@ function onTranscriptResult(event) {
  * @param {*} event 
  */
 function onTranscriptError(event) {
-  console.log("[SPEECH RECOGNITION]: ", event.message ? event.message : event.error);
+  console.error("[SPEECH RECOGNITION]: ", event.message ? event.message : event.error);
   if((event.error == "no-speech") || (event.error == "audio-capture") || (event.error == "network") || (event.error == "bad-grammar")) {
     // Was part of thttps://github.com/MidCamp/live-captioning but doesn't matter for us.
     // Leaving this here.
@@ -521,7 +544,10 @@ function onTranscriptError(event) {
  * the speech recognition.
  */
 function onTranscriptEnd() {
-  console.log("transcript end");
+  if(module_gracefulStop) { //If we WANT it to end while still recording.
+    module_gracefulStop = false;
+    return;
+  }
   if(module_restart_on_end || uiState.is("RECORDING")) {
     module_restart_on_end = false;
     module_speechRecognition.start();
@@ -566,7 +592,7 @@ function formatTranscriptTimeStamped(transcript, format){
       output += "WEBVTT\n\n";
     }
     for (var i = 0; i < transcript.length; ++i) {
-      output += i+1 + "\n";
+      output += i+1 + "\n"; // This is not neccessary and might make editing the result more difficult.
       output += formatTimeString(transcript[i].startTime) + " --> " + formatTimeString(transcript[i].endTime) + "\n";
       output += transcript[i].text + "\n\n";
     }
@@ -642,6 +668,7 @@ async function setupRecorder() {
 
     return true;
   } catch (e) {
+    console.error(e);
     alert(
       `Recording setup failed.\n${e.message}\nRecording only works on Chrome. Also, the deck must be accessed via a URL that starts with either of \n\n- http://localhost\n- https://`
     );
@@ -675,11 +702,14 @@ function startRecording() {
   recorder.onstart = () => {
     console.log("[] recorder started");
     Reveal.slide(0);
+    captionToggleButton.disabled = true;
     recorder.timing = new Timing();
     recorder.timing.start();
     module_transcript = [];
-    module_transcription_start_time = recorder.timing.timeStamp();
-    if(module_speechRecognition) {
+    if(module_should_caption) {
+      module_transcription_start_time = recorder.timing.timeStamp();
+    }
+    if(module_speechRecognition && module_should_caption) {
       module_speechRecognition.start();
     }
     Reveal.addEventListener("slidechanged", recordSlideChange);
@@ -703,8 +733,13 @@ function startRecording() {
 
   recorder.onstop = async () => {
     console.log("[] recorder stopped");
+    captionToggleButton.disabled = false;
     let vblob = new Blob(blobs, { type: "video/webm" });
     let tblob = recorder.timing.finish();
+    if(module_should_caption && module_speechRecognition) {
+      module_gracefulStop = true;
+      module_speechRecognition.stop();
+    }
     writeTranscription();
     let text = transcriptionArea.value;
     var vttblob = new Blob([text], { type: "vtt" });
@@ -715,7 +750,7 @@ function startRecording() {
         await upload(
           { data: vblob, filename: deckUrlBase() + "-recording.webm" },
           { data: tblob, filename: deckTimesUrl() },
-          { data: vttblob, filename: deckTranscriptUrl() }
+          { data: vttblob, filename: deckUrlBase() + "-recording.vtt" }
         );
       }
     } catch (e) {
@@ -743,11 +778,18 @@ function startRecording() {
 
   recorder.onpause = () => {
     recorder.timing.pause();
+    if(module_should_caption && module_speechRecognition) {
+      module_gracefulStop = true;
+      module_speechRecognition.stop();
+    }
     updateRecordIndicator();
   };
 
   recorder.onresume = () => {
     recorder.timing.resume();
+    if(module_should_caption && module_speechRecognition) {
+      module_speechRecognition.start();
+    }
     updateRecordIndicator();
   };
 
@@ -883,7 +925,7 @@ function createPlayerGUI() {
 
   if(Reveal.hasPlugin("decker-plugins")) {
     let manager = Reveal.getPlugin("decker-plugins");
-    manager.registerPlugin({decker_button: playButton, decker_anchor: "TOP_RIGHT"});
+    manager.placeButton({button: playButton, position: "TOP_RIGHT"});
   } else {
     document.body.appendChild(playButton);
   }
@@ -1069,9 +1111,23 @@ async function createRecordingGUI() {
     parent: recordPanel,
   });
 
+  captionIndicator = createElement({
+    type: "i",
+    id: "caption-indicator",
+    classes: "indicator",
+    parent: row,
+  });
+
   recordIndicator = createElement({
     type: "i",
     id: "record-indicator",
+    classes: "indicator",
+    parent: row,
+  });
+
+  microphoneIndicator = createElement({
+    type: "i",
+    id: "microphone-indicator",
     classes: "indicator",
     parent: row,
   });
@@ -1112,7 +1168,6 @@ async function createRecordingGUI() {
     title: "Microphone Audio Gain",
     parent: row,
   });
-  setupGainSlider(voiceGain, voiceGainSlider);
 
   row = createElement({
     type: "div",
@@ -1261,6 +1316,28 @@ async function createRecordingGUI() {
     console.log("cannot list microphones and cameras:" + e);
   }
 
+  let toggleRow = createElement({
+    type: "div",
+    classes: "controls-row",
+    parent: recordPanel,
+  })
+
+  muteMicButton = createElement({
+    type: "button",
+    classes: "explain mute-button fas fa-microphone",
+    title: "Mute microphone (M)",
+    parent: toggleRow,
+    onclick: toggleMicrophone,
+  })
+
+  captionToggleButton = createElement({
+    type: "button",
+    classes: "explain caption-button fas fa-closed-captioning",
+    title: "Create Captions while recording",
+    parent: toggleRow,
+    onclick: toggleCaptioning,
+  })
+
   row = createElement({
     type: "div",
     classes: "controls-row",
@@ -1333,6 +1410,17 @@ async function createRecordingGUI() {
       setTimeout(function() { URL.revokeObjectURL(a.href); }, 1500);
     }
   })
+
+  Reveal.addKeyBinding(
+    { keyCode: 77, key: "M", description: "Toggle/Mute Microphone" },
+    toggleMicrophone
+  )
+
+  updateCaptionButton();
+  updateCaptionIndicatior();
+
+  setupGainSlider(voiceGain, voiceGainSlider);
+
 }
 
 function setupGainSlider(gain, slider) {
@@ -1354,8 +1442,36 @@ function setupGainSlider(gain, slider) {
     if (this.gain) this.gain.gain.value = this.value;
     this.output.innerHTML = this.value;
     localStorage.setItem(this.storage, this.value);
+    if(this.value === "0") {
+      toggleMicButton(false);
+      if(module_should_caption && module_speechRecognition && uiState.is("RECORDING")) {
+        module_gracefulStop = true;
+        module_speechRecognition.stop();
+      }
+    } else {
+      toggleMicButton(true);
+      if(module_should_caption && module_speechRecognition && uiState.is("RECORDING")) {
+        module_speechRecognition.start();
+      }
+    }
   };
   slider.oninput(); // call once to set output
+}
+
+function toggleMicButton(enabled) {
+  if(!muteMicButton) return; //Because this gets called once before it is initialized
+  if(!microphoneIndicator) return;
+  muteMicButton.classList.remove("off");
+  muteMicButton.classList.remove("fa-microphone");
+  muteMicButton.classList.remove("fa-microphone-slash");
+  microphoneIndicator.dataset.state = "";
+  if(!enabled) {
+    muteMicButton.classList.add("off");
+    muteMicButton.classList.add("fa-microphone-slash");
+    microphoneIndicator.dataset.state = "mute";
+  } else {
+    muteMicButton.classList.add("fa-microphone")
+  }
 }
 
 function updateRecordIndicator() {
