@@ -106,7 +106,7 @@ runHttpServer context state port bind = do
             ("/", method PUT $ uploadResource ["-annot.json", "-times.json", "-recording.mp4", "-recording.webm"]),
             ("/", method GET $ serveDirectoryNoCaching state publicDir),
             ("/", method HEAD $ headDirectory publicDir),
-            ("/upload", method POST $ uploadFiles ["-annot.json", "-times.json", "-recording.mp4", "-recording.webm"])
+            ("/upload", method POST $ uploadFiles ["-annot.json", "-times.json", "-recording.mp4", "-recording.webm", "-recording.vtt"])
           ]
   startUpdater state
   catch
@@ -170,7 +170,7 @@ uploadFiles suffixes = do
                   then do
                     renameFile tmp destination
                     putStrLn $ "# upload received: " <> destination
-                  else throwM $ InternalException "Illegal upload path suffix"
+                  else throwM $ InternalException ("Illegal upload path suffix" ++ toString path)
             )
             ( \e@(SomeException se) -> do
                 putStrLn $ "# upload FAILED: " <> show se
