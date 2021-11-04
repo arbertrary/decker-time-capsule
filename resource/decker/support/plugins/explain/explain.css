@@ -149,6 +149,18 @@ div#record-panel:hover {
   color: red;
 }
 
+#microphone-indicator[data-state="mute"]::before {
+  content:"\f131";
+  font-weight: 900;
+  color: red;
+}
+
+#caption-indicator[data-state="captioning"]::before {
+  content: "\f20a";
+  font-weight: 900;
+  color: red;
+}
+
 button.explain[disabled] {
   color: gray;
   opacity: 0.5;
@@ -156,7 +168,9 @@ button.explain[disabled] {
 
 button.record-button,
 button.pause-button,
-button.stop-button{
+button.stop-button,
+button.caption-button,
+button.mute-button {
   color: red;
   opacity: 1;
   font-size: 25px;
@@ -164,27 +178,17 @@ button.stop-button{
 
 button.record-button:hover,
 button.pause-button:hover,
-button.stop-button:hover{
+button.stop-button:hover,
+button.caption-button:hover,
+button.mute-button:hover{
   color:tomato;
 }
 
 button.record-button:active,
 button.pause-button:active,
-button.stop-button:active{
-  color:orangered;
-}
-
-button.test-button {
-  color: red;
-  opacity: 1;
-  font-size: 25px;
-}
-
-button.test-button:hover {
-  color: tomato;
-}
-
-button.test-button:active {
+button.stop-button:active,
+button.caption-button:active,
+button.mute-button:active{
   color:orangered;
 }
 
@@ -287,4 +291,16 @@ span.capture-size {
 #camera-canvas[data-has-background=false] {
   border: none;
   border-radius: 0px;
+}
+
+.mute-button {
+  color: red;
+}
+
+.mute-button.off {
+  color: grey;
+}
+
+.caption-button:not(.captioning) {
+  color: grey;
 }
