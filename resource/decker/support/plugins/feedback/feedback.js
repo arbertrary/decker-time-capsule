@@ -2,11 +2,11 @@
  * Plugin that adds a menu for viewers of the slides to give feedback and ask
  * questions.
  * 
- * @author Henrik
+ * @author Henrik Tramberend
  * @author Sebastian Hauer (rewrite)
  */
 
-class Feedback {
+ class Feedback {
   timeout = 500;
 
   id = "feedback";
@@ -20,10 +20,10 @@ class Feedback {
     token: undefined
   };
 
-  decker_button = undefined;
+  open_button = undefined;
   button_badge = undefined;
 
-  decker_anchor = undefined;
+  position = undefined;
 
   menu = {
     container: undefined,
@@ -42,8 +42,8 @@ class Feedback {
     }
   }
 
-  constructor(anchor) {
-    this.decker_anchor = anchor;
+  constructor(position) {
+    this.position = position;
   }
 
   /**
@@ -116,7 +116,7 @@ class Feedback {
    */
   openMenu() {
     this.menu.container.inert = false;
-    this.decker_button.classList.add("checked");
+    this.open_button.classList.add("checked");
     this.menu.container.classList.add("open");
     this.menu.token_lock.focus();
     this.requestMenuContent();
@@ -128,9 +128,9 @@ class Feedback {
    */
   closeMenu() {
     this.menu.container.inert = true;
-    this.decker_button.classList.remove("checked");
+    this.open_button.classList.remove("checked");
     this.menu.container.classList.remove("open");
-    this.decker_button.focus();
+    this.open_button.focus();
     localStorage.removeItem("feedback-state");
   }
 
@@ -632,7 +632,7 @@ class Feedback {
   
     /* Setup references */
 
-    this.decker_button = button;
+    this.open_button = button;
     this.menu.container = menu;
   
     this.button_badge = button.querySelector(".badge");
@@ -651,7 +651,7 @@ class Feedback {
 
     /* Add EventListeners */
 
-    this.decker_button.addEventListener("click", () => this.openMenu());
+    this.open_button.addEventListener("click", () => this.openMenu());
 
     this.menu.feedback_input.addEventListener("keypress", (e) => e.stopPropagation());
     this.menu.close_button.addEventListener("click", (event) => this.closeMenu());
@@ -662,11 +662,11 @@ class Feedback {
     this.reveal.addEventListener("slidechanged", () => this.requestMenuContent());
     this.reveal.addEventListener("slidechanged", () => this.requestSlideMenuUpdate());
 
-    /* Register plugin */
+    /* Place Button in UI */
 
     if(this.reveal.hasPlugin("decker-plugins")) {
       let manager = this.reveal.getPlugin("decker-plugins");
-      manager.registerPlugin(this);
+      manager.placeButton( this.open_button, this.position );
     }
     let reveal_element = document.querySelector(".reveal");
     reveal_element.appendChild(this.menu.container);
