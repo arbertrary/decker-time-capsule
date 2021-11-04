@@ -423,7 +423,7 @@
       return;
     }
     let manager = this.reveal.getPlugin("decker-plugins");
-    manager.placeButton({button: this.open_button, position: this.position });
+    manager.placeButton(this.open_button, this.position);
   }
 }
 
