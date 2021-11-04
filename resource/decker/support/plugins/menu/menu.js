@@ -1,17 +1,26 @@
-class SlideMenu {
+/**
+ * A rewrite of the Slide Menu, inspired by the Reveal.js Slide Menu Plugin
+ * made by Greg Denehy but leaving out a lot of configuration options and adding
+ * accessibility features like using the inate polyfill, focus management and 
+ * proper aria-labels.
+ * 
+ * @author Sebastian Hauer 
+ */
+
+ class SlideMenu {
   id;
   reveal;
   config;
-  decker_button;
-  decker_anchor;
+  open_button;
+  position;
   menu;
   slide_list;
 
-  constructor(anchor) {
+  constructor(position) {
     this.id = "decker-menu";
     this.reveal = undefined;
     this.config = undefined;
-    this.decker_button = undefined;
+    this.open_button = undefined;
     this.menu = {
       container: undefined,
       search_button: undefined,
@@ -20,7 +29,7 @@ class SlideMenu {
       close_button: undefined,
       slide_list: undefined,
     }
-    this.decker_anchor = anchor;
+    this.position = position;
   }
 
   get inert() {
@@ -31,6 +40,12 @@ class SlideMenu {
     this.menu.container.inert = !!value; //force cast to boolean
   }
 
+  /**
+   * Exposes the list items for other plugins.
+   * @param {*} h 
+   * @param {*} v 
+   * @returns 
+   */
   getListItem(h, v) {
     let childNodes = this.menu.slide_list.childNodes;
     for(let i = 0; i < childNodes.length; i++) {
@@ -47,10 +62,18 @@ class SlideMenu {
     return undefined;
   }
 
+  /**
+   * Exposes the slide list for other plugins.
+   * @returns 
+   */
   getSlideList() {
     return this.menu.slide_list.childNodes;
   }
 
+  /**
+   * Toggles the inert attribute of the menu on or off.
+   * @param {*} event 
+   */
   toggleMenu(event) {
     console.log("toggle menu called");
     if(this.inert) {
@@ -60,6 +83,10 @@ class SlideMenu {
     }
   }
 
+  /**
+   * Opens the menu by removing inert.
+   * @param {*} event 
+   */
   openMenu(event) {
     if(this.inert) {
       this.inert = false;
@@ -69,6 +96,10 @@ class SlideMenu {
     }
   }
 
+  /**
+   * Closes the menu by adding inert.
+   * @param {*} event 
+   */
   closeMenu(event) {
     if(!this.inert) {
       this.inert = true;
@@ -78,10 +109,16 @@ class SlideMenu {
     }
   }
 
+  /**
+   * Toggles the searchbar of the searchbar plugin.
+   */
   toggleSearchbar() {
     if (this.reveal.hasPlugin("search")) this.reveal.getPlugin("search").toggle();
   }
 
+  /**
+   * Reopens the tab with ?print-pdf to allow PDF printing.
+   */
   printPDF() {
     if (window.electronApp) {
       let url = location.protocol + "//" + location.host + location.pathname;
@@ -94,6 +131,9 @@ class SlideMenu {
     }
   }
 
+  /**
+   * Enables or disables the fragmentation of slides.
+   */
   toggleFragments() {
     let animations = this.reveal.getConfig().fragments;
     this.reveal.configure({ fragments: !animations });
@@ -109,6 +149,8 @@ class SlideMenu {
   }
 
   /**
+   * If there is a status field to announce changes to the GUI then use that to announce
+   * changes.
    * TODO: Test if this is actually necessary.
    * @param {*} text 
    */
@@ -183,6 +225,9 @@ class SlideMenu {
     }
   }
 
+  /**
+   * Instantiates the ui button that opens the menu.
+   */
   initializeButton() {
     let template = document.createElement("template");
     let reader_text = "Open Navigation Menu"; //TODO: LOCALIZATION
@@ -193,9 +238,12 @@ class SlideMenu {
 
     let button = template.content.firstElementChild;
     button.addEventListener("click", (event) => this.toggleMenu(event));
-    this.decker_button = button;
+    this.open_button = button;
   }
 
+  /**
+   * Instantiates the menu.
+   */
   initializeSlideList() {
     let template = document.createElement("template");
     template.innerHTML = String.raw
@@ -221,6 +269,13 @@ class SlideMenu {
     this.menu.slide_list = list;
   }
 
+  /**
+   * Creates a single list item for the slide list.
+   * @param {*} slide 
+   * @param {*} h 
+   * @param {*} v 
+   * @returns 
+   */
   createListItem(slide, h, v) {
     let template = document.createElement("template");
     let title = this.getTitle(slide, "h1, h2, h3, h4, h5");
@@ -235,6 +290,12 @@ class SlideMenu {
     return item;
   }
 
+  /**
+   * Tries to retrieve the title of a slide by various means.
+   * @param {*} section 
+   * @param {*} selector 
+   * @returns 
+   */
   getTitle(section, selector) {
     let title = this.getTitleFromAttributesOrChildren(section, selector);
     if(!title) {
@@ -246,7 +307,15 @@ class SlideMenu {
     return title;
   }
 
-  //Taken from Greg Denehy's Menu Plugin
+  /**
+   * Taken from Greg Denehy's Menu Plugin. Tries to find a title by going through
+   * data-menu-title attribute of the given section, finding any element with the
+   * class .menu-title or checking if there is an element with the custom selector
+   * in the slide. If there is none, returns undefined.
+   * @param {*} section 
+   * @param {*} selector 
+   * @returns The title of a slide or undefined.
+   */
   getTitleFromAttributesOrChildren(section, selector) {
     let title = section.getAttribute("data-menu-title");
     if(!title) {
@@ -264,7 +333,12 @@ class SlideMenu {
     return title;
   }
 
-  //Taken from Greg Denehy's Menu Plugin
+  /**
+   * Taken from Greg Denehy's Menu Plugin.
+   * Searches the content of a slide for any text and uses that as a title.
+   * @param {*} section 
+   * @returns 
+   */
   getTitleFromSectionContent(section) {
     let title = section.textContent.trim();
     if (title) {
@@ -286,6 +360,9 @@ class SlideMenu {
     return title;
   }
 
+  /**
+   * Instantiates the whole menu and adds it to the DOM.
+   */
   initializeMenu() {
     let template = document.createElement("template");
     let animations = this.reveal.getConfig().fragments;
@@ -346,7 +423,7 @@ class SlideMenu {
       return;
     }
     let manager = this.reveal.getPlugin("decker-plugins");
-    manager.registerPlugin(this);
+    manager.placeButton({button: this.open_button, position: this.position });
   }
 }
 
