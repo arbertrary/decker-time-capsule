@@ -925,7 +925,7 @@ function createPlayerGUI() {
 
   if(Reveal.hasPlugin("decker-plugins")) {
     let manager = Reveal.getPlugin("decker-plugins");
-    manager.placeButton({button: playButton, position: "TOP_RIGHT"});
+    manager.placeButton(playButton, "TOP_RIGHT");
   } else {
     document.body.appendChild(playButton);
   }
