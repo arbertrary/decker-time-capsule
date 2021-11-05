@@ -202,21 +202,25 @@
   /**
    * Tries to perfom a login with the entered credentials.
    */
-  sendLogin() {
-    this.engine.api.getLogin({
-      login: this.menu.feedback_credentials.username_input.value,
-      password: this.menu.feedback_credentials.password_input.value,
-      deck: this.engine.deckId
-    }).then((token) => {
-      this.engine.token.admin = token.admin;
-      this.menu.feedback_login_area.add("admin");
-      this.menu.feedback_credentials.username_input.value = "";
-      this.menu.feedback_credentials.password_input.value = "";
-      this.menu.feedback_credentials.container.classList.remove("visible");
-      this.requestMenuContent();
-    }).catch((error) => {
-      this.menu.feedback_credentials.password_input.value = "";
-    })
+  sendLogin(event) {
+    if(event.key === "Enter"){
+      let credentials = {
+        login: this.menu.feedback_credentials.username_input.value,
+        password: this.menu.feedback_credentials.password_input.value,
+        deck: this.engine.deckId
+      };
+      this.engine.api.getLogin(credentials).then((token) => {
+        this.engine.token.admin = token.admin;
+        this.menu.feedback_login_area.classList.add("admin");
+        this.menu.feedback_credentials.username_input.value = "";
+        this.menu.feedback_credentials.password_input.value = "";
+        this.menu.feedback_credentials.container.classList.remove("visible");
+        this.requestMenuContent();
+      }).catch((error) => {
+        console.error(error);
+        this.menu.feedback_credentials.password_input.value = "";
+      })
+    }
   }
 
   /**
@@ -227,7 +231,7 @@
     if(event.key === "Enter" && event.shiftKey) {
       let slideId = this.reveal.getCurrentSlide().id;
       if(this.menu.feedback_input.hasAttribute("answer")) {
-        this.engine.api.postAnswer(this.menu.feedback_input.commentId, engine.token.admin, this.menu.feedback_input.value, null)
+        this.engine.api.postAnswer(this.menu.feedback_input.commentId, this.engine.token.admin, this.menu.feedback_input.value, null)
         .then(() => this.clearTextArea())
         .then(() => this.requestMenuContent())
         .then(() => this.requestSlideMenuUpdate())
@@ -345,7 +349,7 @@
   resetAnswers(comment) {
     let chain = Promise.resolve();
     for(let answer of comment.answers) {
-      chain.then(() => engine.api.deleteAnswer(answer.id, engine.token.admin));
+      chain.then(() => this.engine.api.deleteAnswer(answer.id, this.engine.token.admin));
     }
     chain.then(() => this.requestMenuContent());
   }
@@ -355,7 +359,7 @@
    * @param {*} answer 
    */
   deleteAnswer(answer) {
-    this.engine.api.deleteAnswer(answer.id, engine.token.admin)
+    this.engine.api.deleteAnswer(answer.id, this.engine.token.admin)
       .then(() => this.requestMenuContent());
   }
 
@@ -364,7 +368,7 @@
    * @param {*} comment 
    */
   markQuestion(comment) {
-    this.engine.api.postAnswer(comment.id, engine.token.admin)
+    this.engine.api.postAnswer(comment.id, this.engine.token.admin)
       .then(() => this.requestMenuContent());
   }
 
@@ -466,14 +470,15 @@
     let template = document.createElement("template");
     template.innerHTML = String.raw
 `<div class="feedback-item answer">
+    <div class="feedback-content">
+    ${isAdmin ? `<div class="feedback-controls"><button class="fas fa-trash-alt feedback-delete-answer-button" \
+    title="${text.delete}" aria-label="${text.delete}"></div>` : ""}
     ${url ? `<div class="link"><a href="${url}" target="_blank"><i class="fas fa-external-link-alt"></i></a></div>` : ""}
     ${html ? `<div class="description">${html}</div>` : ""}
-    ${isAdmin ? `<div class="feedback-controls"><button class="fas fa-trash-alt feedback-delete-answer-button" \
-        title="${text.delete}" aria-label="${text.delete}"></div>` : ""}
 </div>`
     let item = template.content.firstChild;
     if(isAdmin) {
-      let deleteButton = item.querySelector("feedback-delete-answer-button");
+      let deleteButton = item.querySelector(".feedback-delete-answer-button");
       deleteButton.addEventListener("click", () => this.deleteAnswer(answer));
     }
     MathJax.typeset([item]);
@@ -518,7 +523,7 @@
   initializeUsertoken() {
     let localToken = window.localStorage.getItem("feedback-user-token");
     if(this.engine && this.engine.token && this.engine.token.authorized) {
-      this.menu.token_input.value = engine.token.authorized;
+      this.menu.token_input.value = this.engine.token.authorized;
       this.menu.container.classList.add("authorized");
       this.menu.login_panel.classList.add("admin");
       this.hideTokenInput();
@@ -658,6 +663,8 @@
     this.menu.feedback_login_button.addEventListener("click", (event) => this.toggleLoginArea());
     this.menu.token_lock.addEventListener("click", (event) => this.toggleTokenInput());
     this.menu.feedback_input.addEventListener("keydown", (event) => this.sendComment(event));
+
+    this.menu.feedback_credentials.password_input.addEventListener("keydown", (event) => this.sendLogin(event));
 
     this.reveal.addEventListener("slidechanged", () => this.requestMenuContent());
     this.reveal.addEventListener("slidechanged", () => this.requestSlideMenuUpdate());
