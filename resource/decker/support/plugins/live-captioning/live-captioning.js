@@ -121,7 +121,7 @@
      } else {
        this.popup = window.open("about:blank", "reveal.js - Captioning", "width=1920,height=1080");
        try {
-         let response = await fetch("/support/plugins/live-captioning/live-captioning.html");
+         let response = await fetch("./support/plugins/live-captioning/live-captioning.html");
          let html = await response.text();
          this.popup.document.write(html);
        } catch (error) {
