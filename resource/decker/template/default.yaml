@@ -82,7 +82,7 @@ math:
 # default settings for whiteboard buttons
 whiteboard-active-color: rgb(42,157,223)
 whiteboard-background-color: rgb(250,250,250)
-whiteboard-icon-size: 2vmin
+whiteboard-icon-size: 0.75em
 whiteboard-inactive-color: lightgrey
 
 # Language dictionary. Currently for quiz elements
