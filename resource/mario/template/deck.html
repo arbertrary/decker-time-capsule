@@ -106,7 +106,10 @@ $body$
 
     </div>
   </div>
-
+  <script>
+        /* Store JSON encoded Pandoc meta data in a global variable. */
+        window.Decker = {meta: $decker-meta$};
+  </script>
   <script src="$decker-support-dir$/vendor/videojs/video.min.js"></script>
   <script src="$decker-support-dir$/js/decker.js"></script>
 
@@ -117,9 +120,6 @@ $body$
   </script> -->
 
   <script type="module">
-    /* Store JSON encoded Pandoc meta data in a global variable. */
-    window.Decker = {meta: $decker-meta$};
-
     // import Reveal and all plugins
     import Reveal from './$decker-support-dir$/vendor/reveal/dist/reveal.esm.js';
     import deckerPlugin from './$decker-support-dir$/plugins/decker/decker.js';
