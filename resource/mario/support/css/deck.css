@@ -1146,14 +1146,19 @@ body.print-pdf div.open-button {
     font-size:        1.5rem;
 }
 
+/* if element get the keyboard focus */
+.reveal .quiz ul li:focus {
+  box-shadow: 0px 0px 15px var(--emphColor);
+}
+
 /* once clicked, wrong answers are red */
-.reveal .quiz ul li.show-wrong {
+.reveal .quiz ul li.wrong.show-answer {
     background-color: #ffaaaa;
     border:           3px solid red;
 }
 
 /* once clicked, correct answers are green */
-.reveal .quiz ul li.show-right {
+.reveal .quiz ul li.right.show-answer {
     background-color: #aaffaa;
     border:           3px solid green;
 }
