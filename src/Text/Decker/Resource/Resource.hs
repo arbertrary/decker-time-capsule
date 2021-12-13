@@ -18,6 +18,7 @@ module Text.Decker.Resource.Resource
     readResource,
     publicSupportFiles,
     needResource,
+    fileList,
     Source (..),
     Resources (..),
   )
@@ -123,7 +124,7 @@ readResource path (LocalDir baseDir) = do
   tryRead $ Just <$> BS.readFile (baseDir </> path)
 readResource path None = return Nothing
 
--- | Don't let exceptions escape here. 
+-- |  Don't let exceptions escape here.
 tryRead :: IO (Maybe ByteString) -> IO (Maybe ByteString)
 tryRead = handle $ \(SomeException e) -> do
   -- putStrLn $ "# cannot read: " <> show e
@@ -150,7 +151,7 @@ fileList None _ = return []
 
 subEntries :: FilePath -> [FilePath] -> [FilePath]
 subEntries dir pathes =
-  let dirS = splitDirectories dir
+  let dirS = splitDirectories (normalise dir)
    in map (joinPath . drop (length dirS)) $ filter (isPrefixOf dirS) $ map splitDirectories pathes
 
 -- | Calculates a map of all support file pathes to their source location. Make
@@ -173,7 +174,7 @@ publicSupportFiles meta = do
 parseSourceURI :: URI -> Maybe Source
 parseSourceURI uri =
   let scheme = uriScheme uri
-      path = uriPath uri
+      path = normalise $ uriPath uri
       ext = map toLower $ takeExtension path
    in if
           | scheme == "exe:" -> Just $ DeckerExecutable path

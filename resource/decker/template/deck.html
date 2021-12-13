@@ -135,7 +135,8 @@ $endif$
          printPlugin,
          quizWuePlugin,
          explainPlugin,
-         menuPlugin,
+// TODO Find why this crashes
+//       menuPlugin,
          feedbackPlugin,
 $if(highlightjs)$
          highlightPlugin,
@@ -145,7 +146,7 @@ $endif$
       ]
     };
 
-    console.log(revealConfig)
+    // console.log(revealConfig)
     Reveal.initialize(revealConfig);
   </script>
 

@@ -146,6 +146,17 @@ let buttonPen;
 let buttonEraser;
 let buttonLaser;
 let colorPicker;
+let hoverTimer;
+
+function hidePanel() {
+  buttons.classList.remove("visible");
+  hideColorPicker();
+}
+
+function showPanel() {
+  buttons.classList.add("visible");
+  clearInterval(hoverTimer);
+}
 
 // function to generate a button
 function createButton(classes, callback, active = false, tooltip) {
@@ -164,6 +175,14 @@ function createGUI() {
   buttons = document.createElement("nav");
   buttons.id = "whiteboardButtons";
 //  reveal.appendChild(buttons);
+
+  // handle hover visibility of panel
+  buttons.onmouseenter = (evt) => {
+    clearInterval(hoverTimer);
+  };
+  buttons.onmouseleave = (evt) => {
+    hoverTimer = setInterval(hidePanel, 1000);
+  };
 
   buttonWhiteboard = createButton(
     "whiteboard decker-button fas fa-edit checkbox",
@@ -206,11 +225,14 @@ function createGUI() {
   buttonPen = createButton(
     "whiteboard fas fa-pen radiobutton",
     () => {
+      if (!buttons.classList.contains("visible")) {
+        showPanel();
+        return;
+      }
       if (tool != PEN) {
         selectTool(PEN);
       } else {
-        if (colorPicker.style.visibility == "visible") hideColorPicker();
-        else showColorPicker();
+        colorPicker.classList.toggle("active");
       }
     },
     false,
@@ -221,6 +243,10 @@ function createGUI() {
   buttonEraser = createButton(
     "whiteboard fas fa-eraser radiobutton",
     () => {
+      if (!buttons.classList.contains("visible")) {
+        buttons.classList.add("visible");
+        return;
+      }
       selectTool(ERASER);
     },
     false,
@@ -231,6 +257,10 @@ function createGUI() {
   buttonLaser = createButton(
     "whiteboard fas fa-magic radiobutton",
     () => {
+      if (!buttons.classList.contains("visible")) {
+        buttons.classList.add("visible");
+        return;
+      }
       selectTool(LASER);
     },
     false,
@@ -241,7 +271,7 @@ function createGUI() {
   // generate color picker container
   colorPicker = document.createElement("div");
   colorPicker.id = "whiteboardColorPicker";
-  reveal.appendChild(colorPicker);
+  buttons.appendChild(colorPicker);
 
   // color buttons
   penColors.forEach((color) => {
@@ -255,7 +285,6 @@ function createGUI() {
     b.style.color = color;
     colorPicker.appendChild(b);
   });
-
   // pen radius buttons
   for (let r = 2; r < 15; r += 2) {
     const slideScale = Reveal.getScale();
@@ -523,6 +552,8 @@ function selectTool(newTool) {
       selectCursor(laserCursor);
       break;
   }
+
+  hideColorPicker();
 }
 
 /*
@@ -534,11 +565,11 @@ function toggleLaser() {
 }
 
 function showColorPicker() {
-  colorPicker.style.visibility = "visible";
+  colorPicker.classList.add("active");
 }
 
 function hideColorPicker() {
-  colorPicker.style.visibility = "hidden";
+  colorPicker.classList.remove("active");
 }
 
 function selectPenColor(col) {
@@ -561,10 +592,10 @@ function toggleWhiteboard(state) {
 
   if (!whiteboardActive) {
     // hide scrollbar
-    slides.classList.remove("whiteboardActive");
+    slides.classList.remove("active");
 
     // hide buttons
-    buttons.classList.remove("whiteboardActive");
+    buttons.classList.remove("active");
     buttonWhiteboard.dataset.active = false;
     buttonWhiteboard.setAttribute("aria-checked", "false")
     hideColorPicker();
@@ -582,10 +613,10 @@ function toggleWhiteboard(state) {
     if (userShouldBeWarned && !userHasBeenWarned) warnUser();
 
     // show scrollbar
-    slides.classList.add("whiteboardActive");
+    slides.classList.add("active");
 
     // show buttons
-    buttons.classList.add("whiteboardActive");
+    buttons.classList.add("active");
     buttonWhiteboard.dataset.active = true;
     buttonWhiteboard.setAttribute("aria-checked", "true")
 
@@ -625,7 +656,7 @@ function adjustWhiteboardHeight() {
   // height of current board (w/o grid)
   let bbox = svg.getBBox();
   let scribbleHeight = bbox.y + bbox.height;
-  console.log("scribble height " + scribbleHeight);
+  // console.log("scribble height " + scribbleHeight);
 
   // show grid again
   if (rect) rect.style.display = display;
@@ -821,7 +852,7 @@ function loadAnnotationsFromURL() {
     // determine scribble filename
     let filename = annotationURL();
 
-    console.log("whiteboard load " + filename);
+    // console.log("whiteboard load " + filename);
     let xhr = new XMLHttpRequest();
 
     xhr.onloadend = function () {
@@ -832,9 +863,11 @@ function loadAnnotationsFromURL() {
         } catch (err) {
           console.error("Cannot parse " + filename + ": " + err);
         }
-      } else {
-        console.warn("Failed to get file " + filename);
       }
+      // Don't dwell on it. 'Failed to load resource' is always shown anyways.
+      // } else {
+      //   console.warn("Failed to get file " + filename);
+      // }
 
       resolve();
     };
@@ -887,7 +920,7 @@ function parseAnnotations(storage) {
         }
       }
     });
-    console.log("whiteboard loaded");
+    // console.log("whiteboard loaded");
   }
 
   // fix inconsistency for centered slides
@@ -1584,7 +1617,7 @@ const Plugin = {
   id: "whiteboard",
 
   init: (deck) => {
-    console.log("initialize whiteboard");
+    // console.log("initialize whiteboard");
 
     // store reference to Reveal deck
     Reveal = deck;
