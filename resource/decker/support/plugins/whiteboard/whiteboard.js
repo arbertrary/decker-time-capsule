@@ -172,6 +172,7 @@ function createButton(classes, callback, active = false, tooltip) {
 
 // setup all GUI elements
 function createGUI() {
+
   buttons = document.createElement("nav");
   buttons.id = "whiteboardButtons";
 //  reveal.appendChild(buttons);
@@ -211,6 +212,7 @@ function createGUI() {
     false,
     "Toggle Grid"
   );
+
   buttonGrid.setAttribute("role", "switch");
 
   buttonAdd = createButton(
@@ -238,6 +240,7 @@ function createGUI() {
     false,
     "Change Pen"
   );
+
   buttonPen.setAttribute("role", "switch");
 
   buttonEraser = createButton(
@@ -252,6 +255,7 @@ function createGUI() {
     false,
     "Pick Eraser"
   );
+
   buttonEraser.setAttribute("role", "switch");
 
   buttonLaser = createButton(

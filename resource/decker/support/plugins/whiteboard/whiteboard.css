@@ -103,20 +103,11 @@
 .reveal button.whiteboard {
   display: inline-block;
   position: relative;
-<<<<<<< HEAD
   font-size: var(--icon-size);
   width: calc(var(--icon-size) * 2);
   height: calc(var(--icon-size) * 2);
   padding: calc(var(--icon-size) * 0.1);
   margin: calc(var(--icon-size) * 0.2);
-=======
-  font-size: var(--whiteboard-icon-size);
-  width: calc(var(--whiteboard-icon-size) * 2);
-  height: calc(var(--whiteboard-icon-size) * 2);
-  padding: calc(var(--whiteboard-icon-size) * 0.1);
-  margin: calc(var(--whiteboard-icon-size) * 0.2);
-  outline: none;
->>>>>>> a11y-manager
   background: none;
   font-family: "Font Awesome 5 Free";
   border: 2px solid transparent;
@@ -155,17 +146,10 @@
   right: auto;
   padding: 0;
   margin: 0;
-<<<<<<< HEAD
   z-index: 256;
   border-radius: calc(var(--whiteboard-icon-size) * 0.5);
   border: 1px solid transparent;
   background: none;
-=======
-  z-index: 40;
-  border-radius: calc(var(--whiteboard-icon-size) * 0.5);
-  border: 1px solid transparent;
-  background: white;
->>>>>>> a11y-manager
   left: calc(var(--whiteboard-icon-size) * 0.25);
   bottom: calc(var(--whiteboard-icon-size) * 0.25);
   display: flex;
@@ -188,7 +172,6 @@ body.print-pdf #whiteboardButtons {
 /* ... or when its the active tool button */
 #whiteboardButtons.active > button.radiobutton[data-active="true"] {
   display: inline-block;
-<<<<<<< HEAD
   opacity: 0.5;
 }
 #whiteboardButtons > #whiteboardButton[data-active="false"] {
@@ -203,8 +186,6 @@ body.print-pdf #whiteboardButtons {
   display: inline-block;
   color: var(--whiteboard-active-color);
   opacity: 1;
-=======
->>>>>>> a11y-manager
 }
 
 /* container for color picker */
@@ -218,14 +199,10 @@ body.print-pdf #whiteboardButtons {
   border: 1px solid #eeeeee;
   border-radius: calc(var(--whiteboard-icon-size) * 0.5);
   background: var(--whiteboard-background-color);
-<<<<<<< HEAD
+
   left: calc(var(--whiteboard-icon-size) * 3);
   bottom: calc(var(--whiteboard-icon-size) * 14);
   display: block;
-=======
-  left: calc(var(--whiteboard-icon-size) * 2.5);
-  bottom: calc(var(--whiteboard-icon-size) * 4);
->>>>>>> a11y-manager
   visibility: hidden;
   display: grid;
   grid-template-columns: repeat(7, 1fr);
