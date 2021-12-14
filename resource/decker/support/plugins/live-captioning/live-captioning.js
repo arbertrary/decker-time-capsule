@@ -62,7 +62,7 @@
  
      /* Attributes Decker Plugin Manager */
      this.record_button = button_template.content.cloneNode(true).firstElementChild;
-     this.position = "TOP_LEFT";
+     this.position = "TOP_RIGHT";
  
      /* Filling Menu (currently unused) */
      this.menu.container = menu_template.content.cloneNode(true).firstElementChild;
