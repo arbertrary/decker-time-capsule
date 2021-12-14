@@ -104,7 +104,7 @@
     if(!this.inert) {
       this.inert = true;
       if(event && event.detail === 0) {
-        this.menu.decker_button.focus();
+        this.open_button.focus();
       }
     }
   }
