@@ -150,30 +150,16 @@ function slideChanged() {
     ballotState = "not_init";
     numAnswers = 0;
 
+          
     // is this a quiz slide? -> find answers (new version)
-    let answers = Reveal.getCurrentSlide().querySelectorAll(
-      '.reveal .quiz ul>li>input[type="checkbox"]'
-    );
-    if (answers.length) {
-      numAnswers = answers.length;
-
-      // hide answers' right/wrong classification
-      for (let i = 0; i < answers.length; i++) {
-        let li = answers[i].parentElement;
-        li.classList.remove("show-right");
-        li.classList.remove("show-wrong");
-        li.addEventListener(
-          "click",
-          function () {
-            let correct = this.querySelector("input:checked");
-            this.classList.add(correct ? "show-right" : "show-wrong");
-          },
-          false
-        );
-      }
-    }
+    Reveal.getCurrentSlide()
+      .querySelectorAll('.reveal .quiz ul>li>input[type="checkbox"]')
+      .forEach((input) => {
+      input.parentElement.classList.remove("show-answer");
+    });
   }
 }
+
 
 // ballot stuff (needs authentication) -----------------------------------
 
