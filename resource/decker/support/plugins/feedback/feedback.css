@@ -3,47 +3,6 @@ div.feedback-menu {
   --border-radius: 0.2em;
 }
 
-/* The one button with the question mark */
-/*button.open-button.checked {
-  visibility: hidden;
-}
-
-button.open-button:not(.checked) {
-  visibility: visible;
-  transition-delay: 0.4s;
-}
-
-button.open-button {
-  position: fixed;
-  left: auto;
-  right: calc(var(--whiteboard-icon-size) * 0.25);
-  top: calc(var(--whiteboard-icon-size) * 0.25);
-  bottom: auto;
-  margin: calc(var(--whiteboard-icon-size) * 0.5);
-  padding: 0.2em;
-  z-index: 40;
-  background: none;
-  font-size: var(--whiteboard-icon-size);
-  color: var(--whiteboard-inactive-color);
-
-  border: none;
-
-  transition-property: visibility;
-}
-
-button.open-button.i {
-  opacity: 0.5;
-}
-
-button.open-button:hover {
-  opacity: 1;
-  color: var(--whiteboard-active-color);
-}*/
-
-.open-button {
-  position: relative;
-}
-
 .feedback-menu {
   position: fixed;
   top: 0;
@@ -110,12 +69,20 @@ div.feedback-menu.authorized div.feedback-footer {
   display: none;
 }
 
+div.feedback-footer button {
+  font-size: 1em;
+  color: gray;
+  border: none;
+  background:rgb(0, 0, 0, 0);
+}
+
 div.feedback-menu div.feedback-header {
   flex: 0 1 content;
 
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
+  justify-content: space-between;
 
   background-color: rgba(0, 0, 0, 0.1);
   padding: 0.3em;
@@ -157,12 +124,21 @@ div.feedback-menu div.feedback-header input[type="password"] {
   margin: 0;
 }
 
-div.feedback-menu div.feedback-header button {
-  padding-left: 0.4em;
+div.feedback-header-buttons {
+  flex: 0 1;
+  display: flex;
+  flex-flow: row nowrap;
+}
+
+div.feedback-header-buttons button {
+  font-size: 1em;
+  margin-left: 0.4em;
 }
 
 div.feedback-menu div.feedback-header button.feedback-lock {
   flex: 0 1;
+  display: flex;
+  flex-direction: column;
 
   color: gray;
   background-color: rgba(0, 0, 0, 0);
@@ -171,28 +147,19 @@ div.feedback-menu div.feedback-header button.feedback-lock {
   border-radius: var(--border-radius);
 }
 
+div.feedback-menu div.feedback-header button span {
+  font-size: 0.5em;
+  display: none;
+}
+
 div.feedback-menu div.feedback-header button.feedback-lock:hover {
   color: var(--whiteboard-active-color);
 }
 
-div.feedback-menu div.feedback-header button.feedback-lock.checked .lock {
-  display: inline;
-}
-
-div.feedback-menu div.feedback-header button.feedback-lock.checked .unlock {
-  display: none;
-}
-
-div.feedback-menu div.feedback-header button.feedback-lock:not(.checked) .lock {
-  display: none;
-}
-
-div.feedback-menu div.feedback-header button.feedback-lock:not(.checked) .unlock {
-  display: inline;
-}
-
 div.feedback-menu div.feedback-header button.feedback-close {
   flex: 0 1;
+  display: flex;
+  flex-direction: column;
 
   color: gray;
   background-color: rgba(0, 0, 0, 0);
@@ -224,16 +191,17 @@ div.feedback-menu div.feedback-list div.feedback-item {
 
   display: flex;
   flex-flow: row nowrap;
-  align-items: center;
+/*  align-items: center; */
+  justify-content: space-between;
 }
 
 div.feedback-menu div.feedback-list div.feedback-item div.feedback-content {
-  flex: 1 1;
   margin: 0;
   padding: 0;
   padding-right: 0.1em;
   background-color: rgb(0, 0, 0, 0);
   overflow: hidden;
+  line-height: 32px;
 }
 
 div.feedback-menu div.feedback-list div.feedback-item.answer {
@@ -252,13 +220,18 @@ div.feedback-menu div.feedback-controls {
   margin-left: 0.5em;
 }
 
-div.feedback-menu button {
+div.feedback-controls-wrapper {
+  position: relative;
+  top: 50%;
+  transform: translate(0, -50%);
+}
+
+div.feedback-list button {
   color: gray;
   background-color: rgba(0, 0, 0, 0);
   border: none;
   margin: 0;
   padding: 0;
-  margin-left: 0.2em;
 
   font-size: 1em;
 }

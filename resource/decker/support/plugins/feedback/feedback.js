@@ -39,6 +39,8 @@
     badge: undefined,
     token_input: undefined,
     token_lock: undefined,
+    token_icon: undefined,
+    lock_label: undefined,
     close_button: undefined,
     feedback_list: undefined,
     feedback_input: undefined,
@@ -147,7 +149,7 @@
    * Disables or enables the token_input field.
    */
   toggleTokenInput() {
-    if(this.menu.token_lock.classList.contains("checked")) {
+    if(this.menu.token_lock.getAttribute("aria-checked") === "true") {
       this.unlockTokenInput();
     } else {
       if(this.menu.token_input.value) { //disallow empty token
@@ -162,24 +164,34 @@
   lockTokenInput() {
     this.menu.token_input.setAttribute("disabled", true);
     this.menu.token_input.type = "password";
-    this.menu.token_lock.classList.add("checked");
+    this.menu.token_lock.setAttribute("title", this.localization.interface.unlock_token);
+    this.menu.token_lock.setAttribute("aria-label", this.localization.interface.unlock_token);
+    this.menu.token_lock.setAttribute("aria-checked", "true");
+    this.menu.token_icon.classList.remove("fa-unlock");
+    this.menu.token_icon.classList.add("fa-lock");
+    this.menu.lock_label.textContent = this.localization.interface.unlock_token;
     window.localStorage.setItem("feedback-user-token", this.menu.token_input.value);
   }
 
   /**
-   * Enables input on the token input field and delets the token from the local
+   * Enables input on the token input field and deletes the token from the local
    * storage until it is locked again.
    */
   unlockTokenInput() {
     this.menu.token_input.removeAttribute("disabled");
     this.menu.token_input.type = "text";
     this.menu.token_input.classList.remove("hidden");
-    this.menu.token_lock.classList.remove("checked");
+    this.menu.token_lock.setAttribute("title", this.localization.interface.lock_token);
+    this.menu.token_lock.setAttribute("aria-label", this.localization.interface.lock_token);
+    this.menu.token_lock.setAttribute("aria-checked", "false");
+    this.menu.token_icon.classList.remove("fa-lock");
+    this.menu.token_icon.classList.add("fa-unlock");
+    this.menu.lock_label.textContent = this.localization.interface.lock_token;
     window.localStorage.removeItem("feedback-user-token");
   }
 
   /**
-   * Completely hides the token input if. Called if you are the admin.
+   * Completely hides the token input. Called if you are the admin.
    */
   hideTokenInput() {
     this.lockTokenInput();
@@ -304,10 +316,11 @@
 
   /**
    * Sends an async request to the engine to get the questions of the current slide.
+   * @returns A promise that resolves when the update is finished
    */
   requestMenuContent() {
     let slideId = this.reveal.getCurrentSlide().id;
-    this.engine.api
+    return this.engine.api
       .getComments(this.engine.deckId, slideId, this.engine.token.admin || this.menu.token_input.value)
       .then((list) => this.updateMenuContent(list))
       .catch(console.log);
@@ -406,21 +419,23 @@
     template.innerHTML = String.raw
 `<div class="feedback-item">
   <div class="feedback-content">
-    <div class="feedback-controls">
+    ${comment.html}
+  </div>
+  <div class="feedback-controls">
+    <div class="feedback-controls-wrapper">
       <span class="votes">${comment.votes > 0 ? comment.votes : ""}</span>
       <button class="${comment.didvote ? "fas" : "far"} fa-thumbs-up vote ${!isAuthor ? "canvote" : "cantvote"} ${comment.didvote ? "didvote" : ""}"
         title="${comment.didvote ? text.downvote : text.upvote}"
         aria-label="${comment.didvote ? text.downvote : text.upvote}">
       </button>
       ${isDeletable ? `<button class="fas fa-edit feedback-edit-question-button" title="${text.edit}" aria-label="${text.edit}"></button>` : ""}
-      ${isDeletable ? `<button class="fas fa-trash-alt feedback-delete-question-button" title=${text.delete} aria-label="${text.delete}"></button>` : ""}
+      ${isDeletable ? `<button class="fas fa-trash-alt feedback-delete-question-button" title="${text.delete}" aria-label="${text.delete}"></button>` : ""}
       ${isAdmin ? `<button class="far fa-plus-square feedback-answer-question-button" title="${text.add}" aria-label="${text.add}">` : ""}
       ${isAnswered ? 
-      `<button class="far fa-check-circle answered feedback-reset-answers-button" title="${isDeletable ? text.reset : text.answered}" ${!isDeletable ? "disabled" : ""}></button>`
+      `<button class="far fa-check-circle answered feedback-reset-answers-button" title="${isDeletable ? text.reset : text.answered}" aria-label="${isDeletable ? text.reset : text.answered}" ${!isDeletable ? "disabled" : ""}></button>`
         :
-      `<button class="far fa-circle notanswered feedback-mark-answered-button" title="${isDeletable ? text.mark : text.notanswered}" ${!isDeletable ? "disabled" : ""}></button>`}
+      `<button class="far fa-circle notanswered feedback-mark-answered-button" title="${isDeletable ? text.mark : text.notanswered}" aria-label="${isDeletable ? text.reset : text.answered}" ${!isDeletable ? "disabled" : ""}></button>`}
     </div>
-    ${comment.html}
   </div>
 </div>`
     let question = template.content.firstElementChild;
@@ -531,9 +546,10 @@
 
   /**
    * Requests the api to send a list of questions to update the main slide menu.
+   * @returns Promise that resolves when the update is finished
    */
   requestSlideMenuUpdate() {
-    this.engine.api
+    return this.engine.api
     .getComments(this.engine.deckId)
     .then((list) => this.updateSlideMenu(list))
     .catch(console.log);
@@ -599,13 +615,16 @@
         <div class="counter badge">0</div>
         <div class="feedback-title">${text.menu_title}</div>
         <input class="feedback-token-input" type="password" placeholder="${text.token_placeholder}" disabled="true"></input>
-        <button class="feedback-lock" title="${text.token_store}">
-          <i class="fas fa-lock lock" title="${text.token_unlock}"></i>
-          <i class="fas fa-unlock unlock" title="${text.token_lock}"></i>
-        </button>
-        <button class="feedback-close" title="${text.menu_close}">
-          <i class="fas fa-times-circle"></i>
-        </button>
+        <div class="feedback-header-buttons">
+          <button class="feedback-lock" role="switch" aria-checked="true" title="${text.unlock_token}" aria-label="${text.unlock_token}">
+            <i class="fas fa-lock lock-icon"></i>
+            <span class="lock-label">${text.unlock_token}</span>
+          </button>
+          <button class="feedback-close" title="${text.menu_close}" aria-label="${text.menu_close}">
+            <i class="fas fa-times-circle"></i>
+            <span>${text.menu_close}</span>
+          </button>
+        </div>
       </div>
       <div class="feedback-list"></div>
       <div class="feedback-question-input">
@@ -613,7 +632,7 @@
       </div>
       <div class="feedback-footer">
         <div class="feedback-login">
-          <button id="feedback-login-button" class="fas fa-sign-in-alt" title="${text.login_as_admin}"></button>
+          <button id="feedback-login-button" class="fas fa-sign-in-alt" title="${text.login_as_admin}" aria-label="${text.login_as_admin}"></button>
         </div>
         <div class="feedback-credentials">
           <input id="feedback-username" placeholder="${text.username_placeholder}">
@@ -641,6 +660,8 @@
     this.menu.feedback_list = menu.querySelector(".feedback-list");
     this.menu.token_input = menu.querySelector(".feedback-token-input");
     this.menu.token_lock = menu.querySelector(".feedback-lock");
+    this.menu.token_icon = menu.querySelector(".lock-icon");
+    this.menu.lock_label = menu.querySelector(".lock-label");
     this.menu.close_button = menu.querySelector(".feedback-close");
     this.menu.feedback_login_area = menu.querySelector(".feedback-login");
     this.menu.feedback_login_button = menu.querySelector("#feedback-login-button");
@@ -676,8 +697,15 @@
 
     this.initializeUsertoken();
 
-    this.requestMenuContent();
-    this.requestSlideMenuUpdate();
+    this.requestMenuContent()
+    .then(() => this.requestSlideMenuUpdate())
+    .then(() => {
+    /* Open menu again if it was previously opened */
+    const previous_state = localStorage.getItem("feedback-state");
+    if(previous_state === "open") {
+      this.openMenu();
+    }
+    })
   }
 
   /**
@@ -699,9 +727,8 @@
         open_label: "Open Feedback Menu",
         menu_title: "Questions",
         token_placeholder: "Usertoken",
-        token_store: "Store Token",
-        token_unlock: "Unlock Token",
-        token_lock: "Lock Token",
+        unlock_token: "Unlock Token",
+        lock_token: "Lock Token",
         menu_close: "Close Feedback Menu",
         login_as_admin: "Login as Admin",
         username_placeholder: "Username",
@@ -731,9 +758,8 @@
           open_label: "Fragemenu öffnen",
           menu_title: "Fragen",
           token_placeholder: "Nutzertoken",
-          token_store: "Tokenspeicher",
-          token_unlock: "Token entsprren",
-          token_lock: "Token sperren",
+          lock_token: "Token entsprren",
+          unlock_token: "Token sperren",
           menu_close: "Fragemenu schließen",
           login_as_admin: "Als Administrator einloggen",
           username_placeholder: "Benutzername",
@@ -741,7 +767,7 @@
         },
         question_container: {
           upvote: "Frage unterstützen",
-          downvote: "Frage ablehnen",
+          downvote: "Unterstützung zurücknehmen",
           edit: "Frage bearbeiten",
           delete: "Frage löschen",
           add: "Antwort hinzufügen",
