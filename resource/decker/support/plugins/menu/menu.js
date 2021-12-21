@@ -104,7 +104,7 @@
     if(!this.inert) {
       this.inert = true;
       if(event && event.detail === 0) {
-        this.menu.decker_button.focus();
+        this.open_button.focus();
       }
     }
   }
@@ -141,10 +141,12 @@
       this.menu.fragments_button.classList.add("checked");
       this.menu.fragments_button.querySelector("i").classList.remove("fa-circle");
       this.menu.fragments_button.querySelector("i").classList.add("fa-check-circle");
+      this.menu.fragments_button.setAttribute("aria-checked", "true");
     } else {
       this.menu.fragments_button.classList.remove("checked");
       this.menu.fragments_button.querySelector("i").classList.remove("fa-check-circle");
       this.menu.fragments_button.querySelector("i").classList.add("fa-circle");
+      this.menu.fragments_button.setAttribute("aria-checked", "false");
     }
   }
 
@@ -228,11 +230,10 @@
   /**
    * Instantiates the ui button that opens the menu.
    */
-  initializeButton() {
+  initializeButton(localization) {
     let template = document.createElement("template");
-    let reader_text = "Open Navigation Menu"; //TODO: LOCALIZATION
     template.innerHTML = String.raw
-    `<button class="decker-button" id="decker-menu-button" title="${reader_text}" aria-label="${reader_text}">
+    `<button class="decker-button" id="decker-menu-button" title="${localization.open_button_label}" aria-label="${localization.open_button_label}">
       <i class="fas fa-bars"></i>
     </button>`;
 
@@ -363,28 +364,28 @@
   /**
    * Instantiates the whole menu and adds it to the DOM.
    */
-  initializeMenu() {
+  initializeMenu(localization) {
     let template = document.createElement("template");
     let animations = this.reveal.getConfig().fragments;
     let toggle_icon = animations ? "fa-check-circle" : "fa-circle";
     template.innerHTML = String.raw
     `<div class="decker-menu slide-in-left" id="decker-menu" inert>
       <div class="tile-grid">
-        <button class="tile" id="decker-menu-search-button" title="Toggle Searchbar" aria-label="Toggle Searchbar">
+        <button class="tile" id="decker-menu-search-button" title="${localization.search_button_label}" aria-label="${localization.search_button_label}">
           <i class="fas fa-search"></i>
-          <p>Toggle Search Bar</p>
+          <p>${localization.search_button_label}</p>
         </button>
-        <button class="tile" id="decker-menu-print-button" title="Print PDF" aria-label="Print PDF">
+        <button class="tile" id="decker-menu-print-button" title="${localization.print_pdf_label}" aria-label="${localization.print_pdf_label}">
           <i class="fas fa-print"></i>
-          <p>Print as PDF</p>
+          <p>${localization.print_pdf_label}</p>
         </button>
-        <button class="switch tile" id="decker-menu-animation-button" title="Toggle fragmented slides" aria-label="Toggle fragmented slides">
+        <button class="switch tile" id="decker-menu-animation-button" role="switch" aria-checked="${animations}" title="${localization.toggle_fragments_label}" aria-label="${localization.toggle_fragments_label}">
           <i class="far ${toggle_icon}"></i>
-          <p>Toggle Animations</p>
+          <p>${localization.toggle_fragments_label}</p>
         </button>
-        <button class="close tile" id="decker-menu-close-button" title="Close Menu" aria-label="Close Menu">
+        <button class="close tile" id="decker-menu-close-button" title="${localization.close_label}" aria-label="${localization.close_label}">
           <i class="fas fa-times"></i>
-          <p>Close Menu</p>
+          <p>${localization.close_label}</p>
         </button>
       </div>
      </div>`
@@ -413,8 +414,28 @@
     this.reveal = reveal;
     this.config = reveal.getConfig();
 
-    this.initializeButton();
-    this.initializeMenu();
+    let localization = {
+      open_button_label: "Open Navigation Menu",
+      search_button_label: "Toggle Searchbar",
+      print_pdf_label: "Print PDF",
+      toggle_fragments_label: "Show Slide Fragments",
+      close_label: "Close Navigation Menu"
+    };
+
+    let lang = navigator.language;
+
+    if(lang === "de") {
+      localization = {
+        open_button_label: "Navigationsmenu öffnen",
+        search_button_label: "Suchleiste umschalten",
+        print_pdf_label: "Als PDF drucken",
+        toggle_fragments_label: "Folienfragmente anzeigen",
+        close_label: "Navigationsmenu schließen"
+      }
+    }
+
+    this.initializeButton(localization);
+    this.initializeMenu(localization);
 
     document.body.appendChild(this.menu.container);
 
