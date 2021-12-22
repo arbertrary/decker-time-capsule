@@ -1,7 +1,5 @@
 let Reveal;
 
-// import "./qrcode.min.js"
-
 const server = "polls.hci.informatik.uni-wuerzburg.de";
 var socket = null; var poll = null; var timer = null;
 var canvas, email, error, lgn, loggedIn, pollTimer, pwd, results;
@@ -141,14 +139,14 @@ function buildCode(pollID) {
     i.addEventListener("click", () => { lgnDiv.classList.add("active"); });
 
     const size = parseInt(qrdiv.style.width, 10) || 600;
-    // new QRCode(qrdiv, {
-    //     text: pollAddr,
-    //     width: size,
-    //     height: size,
-    //     colorDark: "#000000",
-    //     colorLight: "#ffffff",
-    //     correctLevel: QRCode.CorrectLevel.H,
-    // });
+    new QRCode(qrdiv, {
+        text: pollAddr,
+        width: size,
+        height: size,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H,
+    });
 }
 
 // 'a' to start / stop poll - also stopped when timer ends
@@ -188,9 +186,10 @@ function updateSlide() {
     if (sl.classList.contains("poll")) {
         canvas = sl.querySelector("canvas");
         results = sl.querySelector(".poll_results");
-        Array.from(sl.querySelectorAll('.choice_ltr')).sort().forEach(
-            (c,i) => { c.innerText = alphabet[i] + "."; }
-        );
+        Array.from(sl.querySelectorAll('.choice_ltr')).sort().forEach((c,i) => { 
+            let cin = c.innerText;
+            c.innerHTML = "<span>" + alphabet[i] + ".  </span>" + cin; 
+        });
         poll = sl;
     }
 }
@@ -218,8 +217,8 @@ function startPoll() {
     timer = poll.querySelector(".countdown");
     startTimer();
 
-    poll.querySelectorAll("ul.choices li").forEach((choice) => {
-        choices.push(choice.firstChild.innerText);
+    poll.querySelectorAll(".choice_ltr span").forEach((choice) => {
+        choices.push(choice.innerText);
     });
     socket.send(JSON.stringify({ tag: "Start", choices: choices }));
 }

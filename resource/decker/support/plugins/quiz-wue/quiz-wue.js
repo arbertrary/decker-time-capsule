@@ -3,14 +3,17 @@ let Reveal;
 
 function quizMC() {
   for (let question of document.querySelectorAll(
-    ".qmc,.quiz-mc,.quiz-multiple-choice"
+    "div.qmc,div.quiz-mc,div.quiz-multiple-choice"
   )) {
     for (let answer of question.getElementsByTagName("li")) {
       // remove tooltip if empty to avoid grey dot
       const tip = answer.querySelector(".tooltip");
-      if (tip.childElementCount === 0) {
-        tip.remove();
+      if (tip !== null) {
+        if (tip.childElementCount === 0) {
+          tip.remove();
+        }
       }
+      
       answer.addEventListener("click", function () {
         const correct = this.classList.contains("correct");
         // toggle answer on click
@@ -25,25 +28,17 @@ function quizMC() {
 }
 
 function quizFT() {
-  for (let question of document.querySelectorAll(
-    ".qft,.quiz-ft,.quiz-free-text"
-  )) {
+  for (let question of document.querySelectorAll("div.qft,div.quiz-ft,div.quiz-free-text")) {
     const solutions = question.querySelector(".solutionList");
     const input = question.querySelector("input");
 
     // Listen for enter, delete, backspace in input field
     var buffer = [];
-    input.addEventListener("keydown", (e) => {
+    input.addEventListener("keydown", e => {
       buffer.push(e.key.toLowerCase());
-      if (buffer[buffer.length - 1] === buffer[buffer.length - 2]) {
-        return;
-      }
-      if (e.code === "Enter") {
-        checkInput();
-      }
-      if (e.code === "Backspace" || e.code === "Delete") {
-        resetQuestion();
-      }
+      if (buffer[buffer.length - 1] === buffer[buffer.length - 2]) { return; }
+      if (e.code === "Enter") { checkInput(); }
+      if (e.code === "Backspace" || e.code === "Delete") { resetQuestion(); }
     });
 
     // Check value of input field against solutions
@@ -128,7 +123,7 @@ function quizFT() {
 
 function quizIC() {
   const icQuestions = document.querySelectorAll(
-    ".qic,.quiz-ic,.quiz-insert-optList"
+    "div.qic,div.quiz-ic,div.quiz-insert-choices"
   );
 
   for (let question of icQuestions) {
@@ -157,7 +152,7 @@ function quizIC() {
           const tip = answers
             .item(sel.selectedIndex - 1)
             .querySelector(".tooltip");
-          if (tip.innerHTML !== "") {
+          if (tip.innerHTML.trim() !== "") {
             const cln = tip.cloneNode(true);
             tipDiv.appendChild(cln);
           }
@@ -174,7 +169,7 @@ function quizIC() {
 
 function quizMI() {
   const miQuestions = document.querySelectorAll(
-    ".qmi,.quiz-mi,.quiz-match-items"
+    "div.qmi,div.quiz-mi,div.quiz-match-items"
   );
   for (let question of miQuestions) {
     shuffleMatchItems(question);
@@ -205,10 +200,7 @@ function checkAnswer(solutionList, answer) {
   for (let s of solutions) {
     const is_right = s.classList.contains("correct");
     // Get only the solution text and not the tooltip div
-    const solution = s.innerHTML
-      .replace(/(<div)(.|[\r\n])*(<\/div>)/, "")
-      .toLowerCase()
-      .trim();
+    const solution = s.children[0].innerText.toLowerCase().trim();
     if (answer == solution) {
       s.classList.add("solved");
       return { correct: is_right ? true : false, predef: true };
@@ -335,10 +327,7 @@ function buildPlainMatch(question) {
   [matchItems, buckets].forEach((el) => matchDiv.appendChild(el));
   question.insertBefore(matchDiv, solutionButton);
 
-  const choices = buildSelect(
-    buckets,
-    matchItems.querySelectorAll(".matchItem")
-  );
+  const choices = buildSelect(buckets,matchItems.querySelectorAll(".matchItem"));
 
   let allBuckets = buckets.querySelectorAll(".bucket");
   for (let i = 0; i < allBuckets.length; i++) {
@@ -348,18 +337,14 @@ function buildPlainMatch(question) {
     matchItems.appendChild(matchQuestion);
 
     const lab = document.createElement("label");
-    lab.setAttribute(
-      "data-bucketId",
-      allBuckets[i].classList.contains("distractor")
-        ? ""
-        : allBuckets[i].getAttribute("data-bucketId")
-    );
+    lab.setAttribute("data-bucketid",
+      allBuckets[i].classList.contains("distractor") ? "" : allBuckets[i].getAttribute("data-bucketid"));
     lab.innerHTML = allBuckets[i].innerHTML;
 
     const blank = document.createElement("p");
     blank.innerText = "...";
     blank.classList.add("selected", "blank", "option");
-    blank.setAttribute("data-bucketId", lab.getAttribute("data-bucketId"));
+    blank.setAttribute("data-bucketid", lab.getAttribute("data-bucketid"));
     blank.addEventListener("click", function () {
       showList(this.parentElement.nextElementSibling);
     });
@@ -390,12 +375,9 @@ function buildPlainMatch(question) {
     document.addEventListener("click", hideList);
   }
   function makeSelection() {
-    let ol = this.parentElement.previousElementSibling;
     this.classList.remove("correct", "incorrect", "correct-notSelected"); // allow multiple attempts to solve
-    this.parentElement.previousElementSibling.classList.remove(
-      "correct",
-      "incorrect"
-    );
+    let ol = this.parentElement.previousElementSibling;
+    ol.classList.remove("correct","incorrect");
     this.classList.toggle("selected");
     if (this.classList.contains("selected")) {
       let cl = this.cloneNode(true);
@@ -426,14 +408,14 @@ function buildPlainMatch(question) {
     const matches = matchItems.querySelectorAll(".matchQuestion");
     for (let mq of matches) {
       let list = mq.querySelector(".optList");
-      let correct = list.previousElementSibling.getAttribute("data-bucketId");
+      let correct = list.previousElementSibling.getAttribute("data-bucketid");
       let allCorrect = [];
       let allSelected = [];
 
       for (let l of list.children) {
         allSelected.push(l.textContent);
         l.classList.add(
-          l.getAttribute("data-bucketId") === correct ? "correct" : "incorrect"
+          l.getAttribute("data-bucketid") === correct ? "correct" : "incorrect"
         );
       }
       allSelected.shift(); // remove blank response
@@ -441,7 +423,7 @@ function buildPlainMatch(question) {
       let opts = list.nextElementSibling;
       for (let o of opts.children) {
         // o.removeEventListener('click', makeSelection);
-        if (o.getAttribute("data-bucketId") === correct) {
+        if (o.getAttribute("data-bucketid") === correct) {
           allCorrect.push(o.textContent);
           o.classList.add(
             o.classList.contains("selected") ? "correct" : "correct-notSelected"
@@ -478,10 +460,7 @@ function buildSelect(buckets, answers) {
     const opt = document.createElement("p");
     opt.classList.add("option");
     opt.innerHTML = String.fromCharCode(i + 65) + ".";
-    opt.setAttribute(
-      "data-bucketId",
-      answers[i].getAttribute("data-bucketId") || "0"
-    );
+    opt.setAttribute("data-bucketid",answers[i].getAttribute("data-bucketid") || "0");
     optList.appendChild(opt);
     buckets.appendChild(answers[i]);
   }

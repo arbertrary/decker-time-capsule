@@ -21,14 +21,12 @@ zoom: false
 - Press `c` to toggle the QR code
 - Click the arrow icon to login to save poll results.
 - Press `a` to toggle the poll state opened/closed
-- Timed polls will automatically close
 - Press `t` to toggle poll results. 
 - Drag results box to new location if needed.
 
 ## Dashboard
 
-- Open the QR code on the slide deck and click the arrow to login. Poll results will then be saved to your account.
-- Access `https://polls.hci.informatik.uni-wuerzburg.de/dash.html` to view poll results.
+- Open the QR code on the slide deck and click the arrow to login. Poll results will then be saved to your account. View results at: `https://polls.hci.informatik.uni-wuerzburg.de/dash.html`
 
 
 
@@ -52,7 +50,7 @@ zoom: false
 - [x] Sharp
 - [ ] Rusty
 
-```yaml
+```yaml 
 color: "#080"
 timed: True
 seconds: 15

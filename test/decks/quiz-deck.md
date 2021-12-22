@@ -18,7 +18,7 @@ lang: de
 - Insert: `.qic, .quiz-ic, .quiz-insert-choices`  
 - Free-text: `.qft, .quiz-ft, .quiz-free-text`  
 
-## Styling
+# Styling
 
 To switch all questions to plain style, add to metadata:
 
@@ -27,9 +27,10 @@ quiz:
   style: plain
 ```
 
+##
+
 Or to style individual questions, add `{.plain}`
 
-# Multiple Choice
 
 # Mutliple Choice 1 - Fancy
 
@@ -47,13 +48,6 @@ All choices get an optional comment to be potentially shown with the result.
 - [ ] c
     - So auch nicht
 
-```yaml
-Points: 5
-LectureId: cg1
-TopicId: yeah
-Difficulty: Easy
-```
-
 # Mutliple Choice 2 - Plain
 
 ## {.quiz-mc .plain}
@@ -70,16 +64,10 @@ Choices appear in a column. Click the circle to the left of the choice to select
 - [ ] c
     - So auch nicht
 
-```yaml
-Points: 5
-LectureId: cg1
-TopicId: yeah
-Difficulty: Easy
-```
 
 # Multiple Choice 3 - Fancy
 
-## What is the result of the following term? {.qmc .x-small}
+## What is the result of the following term? {.qmc}
 
 \begin{equation*}
 \begin{bmatrix}
@@ -118,13 +106,6 @@ Difficulty: Easy
 \end{bmatrix}$
    - As we will see, the first matrix describes a translattion. Combined with the second one, which describes a rotation, the translational part (right column) would not be altered.
 
-
-```yaml
-Points: 5
-LectureId: cg1
-TopicId: yeah
-Difficulty: Easy
-```
 
 # Mutliple Choice 4 - Plain, Inline
 
@@ -170,16 +151,6 @@ Choices are displayed in a row.
    - As we will see, the first matrix describes a translattion. Combined with the second one, which describes a rotation, the translational part (right column) would not be altered.
 
 
-```yaml
-Points: 5
-LectureId: cg1
-TopicId: yeah
-Difficulty: Easy
-```
-
-
-# Matching
-
 # Matching 1 - Fancy
 
 ## {.qmi}
@@ -199,9 +170,6 @@ Inertia
 Springs
 : $-k \, \left( \norm{\vec{x}_0 - \vec{x}_1} - L \right) \, \frac{ \vec{x}_0 - \vec{x}_1 }{\norm{\vec{x}_0 - \vec{x}_1}}$
 
-```yaml
-lang: en
-```
 
 # Matching 2 - Plain
 
@@ -228,9 +196,6 @@ Inertia
 Springs
 : $-k \, \left( \norm{\vec{x}_0 - \vec{x}_1} - L \right) \, \frac{ \vec{x}_0 - \vec{x}_1 }{\norm{\vec{x}_0 - \vec{x}_1}}$
 
-```yaml
-lang: en
-```
 
 # Matching 3 - Fancy
 
@@ -263,12 +228,6 @@ Empty
 !
 : Distractor B
 
-```yaml
-score: 5
-category: CG
-lectureId: cg1
-topic: yeah
-```
 
 # Matching 4 - Plain
 
@@ -301,12 +260,6 @@ Empty
 !
 : Distractor B
 
-```yaml
-score: 5
-category: CG
-lectureId: cg1
-topic: yeah
-```
 
 
 # Matching 5 - Plain
@@ -374,10 +327,6 @@ and builds upon the tool
 
 .
 
-```yaml
-Points: 5
-```
-
 # Insert 2 - Plain
 
 Questions are corrected immediately, displaying red or green based on correctness. Retry is allowed. Hover over the select box to display the tooltip below the question.
@@ -405,11 +354,6 @@ and builds upon the tool
 
 .
 
-```yaml
-Points: 5
-```
-
-
 # Free Text
 
 These questions now include multiple versions of correct answers with additional optional comments (as before). Hence the Syntax is slightly different in its compact representation. 
@@ -429,9 +373,6 @@ Das Ergebnis von $2*2=~?$ ist?
 - fier
     - RTL? 
 
-```yaml
-Points: 5
-```
 
 # Free Text 2 - Plain
 
@@ -455,10 +396,6 @@ What's the fourth letter?
 - [X] D
     - The letter "D" has retained the fourth place in the alphabet from the earliest point at which it appears in history. It corresponds to Semitic daleth and Greek delta (Δ). The form is thought to derive from an early pictograph, possibly Egyptian, indicating the folding door of a tent.
 
-```yaml
-Points: 5
-```
-
 # Free text alternative
 
 This alternate forms allows you to define free-text questions as lists without brackets. All answers are correct.
@@ -479,9 +416,6 @@ Das Ergebnis von $2*2=~?$ ist?
 - fier
     - RTL, no not really?
 
-```yaml
-Points: 5
-```
 
 # Free Text Alternative 2 - Plain
 
@@ -498,9 +432,6 @@ Das Ergebnis von $2*2=~?$ ist?
 - fier
     - RTL, no not really?
 
-```yaml
-Points:
-```
 
 # fenced divs syntax
 

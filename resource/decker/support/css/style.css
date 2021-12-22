@@ -416,7 +416,7 @@ section.slide:is(.inverse, .black) {
 .qmc li,
 .quiz-mc li,
 .quiz-multiple-choice li {
-  display: inline-block;
+  display: flex;
   position: relative;
   text-align: var(--align-global);
   margin: 20px;
@@ -467,7 +467,7 @@ section.slide:is(.inverse, .black) {
   border: none;
   position: absolute;
   z-index: 1;
-  font-size: var(--font-size-small);
+  font-size: 0.5em;
 }
 
 .qmc [class*="show-"]:hover .tooltip,
@@ -479,10 +479,8 @@ section.slide:is(.inverse, .black) {
 .qmc.plain li,
 .quiz-mc.plain li,
 .quiz-multiple-choice.plain li {
-  margin: 0;
   padding: 0.1em 0 0.1em 0.7em;
   border: none;
-  display: block;
 }
 
 .qmc.plain li::before,
@@ -511,7 +509,7 @@ section.slide:is(.inverse, .black) {
 .quiz-mc.plain.inline li,
 .quiz-multiple-choice.plain.inline li {
   padding: 0.1em 0.7em 0.1em 0;
-  display: inline;
+  display: inline-block;
 }
 
 .qft,
@@ -529,7 +527,8 @@ section.slide:is(.inverse, .black) {
 [class*="quiz-f"] .solutionDiv {
   background-color: var(--gray);
   color: #555;
-  padding: 0.5em;
+  padding: 0.7em;
+  border: var(--border);
   border-radius: 6px;
   display: block;
   visibility: hidden;
@@ -657,7 +656,8 @@ section.slide:is(.inverse, .black) {
 .qic .tooltip-div.solved .tooltip,
 [class*="quiz-i"] .tooltip-div.solved .tooltip {
   background-color: var(--gray);
-  padding-left: 0.5em;
+  padding: 0.2em 0.5em;
+  border-radius: 10px;
 }
 
 .qic.plain .tooltip-div.solved,
@@ -807,6 +807,8 @@ section.slide:is(.inverse, .black) {
   border-radius: 7px;
   border: 1px solid var(--gray);
   justify-content: space-between;
+  height: 40vh;
+  overflow: scroll;
 }
 
 .qmi.plain .matchDiv,
@@ -829,7 +831,8 @@ section.slide:is(.inverse, .black) {
   max-width: max-content;
 }
 
-.qmi.plain .matchItems::before, .qmi.plain .matchItems::after,
+.qmi.plain .matchItems::before, 
+.qmi.plain .matchItems::after,
 .quiz-mi.plain .matchItems::before,
 .quiz-mi.plain .matchItems::after,
 .quiz-match-items.plain .matchItems::before,
@@ -852,6 +855,7 @@ section.slide:is(.inverse, .black) {
 .quiz-match-items.plain .matchItem {
   border: none;
   padding: 0 0 0.3em 0;
+  font-size: 0.7em;
 }
 
 .qmi.plain .matchItem::before,
@@ -872,7 +876,7 @@ section.slide:is(.inverse, .black) {
 .qmi.plain .matchQuestion,
 .quiz-mi.plain .matchQuestion,
 .quiz-match-items.plain .matchQuestion {
-  margin-bottom: 1em;
+  margin-bottom: 0.5em;
 }
 
 .qmi.plain .optList,
@@ -881,36 +885,12 @@ section.slide:is(.inverse, .black) {
 .quiz-mi.plain .options,
 .quiz-match-items.plain .optList,
 .quiz-match-items.plain .options {
-  width: 7vw;
+  width: 25vw;
   margin-left: 1em;
   border: var(--border);
   padding: 0 0.1em;
   background-color: var(--lt-gray);
   text-align: center;
-}
-
-.qmi.plain .optList p::before, .qmi.plain .optList p::after,
-.qmi.plain .options p::before,
-.qmi.plain .options p::after,
-.quiz-mi.plain .optList p::before,
-.quiz-mi.plain .optList p::after,
-.quiz-mi.plain .options p::before,
-.quiz-mi.plain .options p::after,
-.quiz-match-items.plain .optList p::before,
-.quiz-match-items.plain .optList p::after,
-.quiz-match-items.plain .options p::before,
-.quiz-match-items.plain .options p::after {
-  content: "✓ ";
-  font-weight: bolder;
-}
-
-.qmi.plain .optList p::after,
-.qmi.plain .options p::after,
-.quiz-mi.plain .optList p::after,
-.quiz-mi.plain .options p::after,
-.quiz-match-items.plain .optList p::after,
-.quiz-match-items.plain .options p::after {
-  color: var(--lt-gray);
 }
 
 .qmi.plain .optList,
@@ -919,13 +899,50 @@ section.slide:is(.inverse, .black) {
   float: right;
 }
 
+.qmi.plain .optList p,
+.quiz-mi.plain .optList p,
+.quiz-match-items.plain .optList p {
+  display: none;
+  margin: 0;
+}
+
+.qmi.plain .optList p::before,
+.qmi.plain .optList p::after,
+.quiz-mi.plain .optList p::before,
+.quiz-mi.plain .optList p::after,
+.quiz-match-items.plain .optList p::before 
+.quiz-match-items.plain .optList p::after {
+  content: "✓ ";
+  font-weight: bolder;
+  opacity: 0%;
+}
+
+.qmi.plain .optList p::after,
+.quiz-mi.plain .optList p::after,
+.quiz-match-items.plain .optList p::after {
+  color: var(--lt-gray);
+}
+
+.qmi.plain .optList p:first-child::before,
+.quiz-mi.plain .optList p:first-child::before,
+.quiz-match-items.plain .optList p:first-child::before {
+  color: var(--lt-gray);
+}
+
+.qmi.plain .optList p:last-child,
+.quiz-mi.plain .optList p:last-child,
+.quiz-match-items.plain .optList p:last-child {
+  display: block;
+}
+
 .qmi.plain .optList.correct,
 .quiz-mi.plain .optList.correct,
 .quiz-match-items.plain .optList.correct {
   background-color: var(--quiz-success);
 }
 
-.qmi.plain .optList.correct p:first-child::before, .qmi.plain .optList.correct p::after,
+.qmi.plain .optList.correct p:first-child::before, 
+.qmi.plain .optList.correct p::after,
 .quiz-mi.plain .optList.correct p:first-child::before,
 .quiz-mi.plain .optList.correct p::after,
 .quiz-match-items.plain .optList.correct p:first-child::before,
@@ -951,7 +968,8 @@ section.slide:is(.inverse, .black) {
   color: initial;
 }
 
-.qmi.plain .optList.incorrect p.blank.correct::before, .qmi.plain .optList.incorrect p::after,
+.qmi.plain .optList.incorrect p.blank.correct::before, 
+.qmi.plain .optList.incorrect p::after,
 .quiz-mi.plain .optList.incorrect p.blank.correct::before,
 .quiz-mi.plain .optList.incorrect p::after,
 .quiz-match-items.plain .optList.incorrect p.blank.correct::before,
@@ -965,37 +983,12 @@ section.slide:is(.inverse, .black) {
   color: initial;
 }
 
-.qmi.plain .optList p,
-.quiz-mi.plain .optList p,
-.quiz-match-items.plain .optList p {
-  display: none;
-  margin: 0;
-}
-
-.qmi.plain .optList p::before,
-.quiz-mi.plain .optList p::before,
-.quiz-match-items.plain .optList p::before {
-  color: inherit;
-}
-
-.qmi.plain .optList p:first-child::before,
-.quiz-mi.plain .optList p:first-child::before,
-.quiz-match-items.plain .optList p:first-child::before {
-  color: var(--lt-gray);
-}
-
-.qmi.plain .optList p:last-child,
-.quiz-mi.plain .optList p:last-child,
-.quiz-match-items.plain .optList p:last-child {
-  display: block;
-}
-
 .qmi.plain .options,
 .quiz-mi.plain .options,
 .quiz-match-items.plain .options {
   display: none;
   position: absolute;
-  right: 0.66em;
+  right: 0.4em;
 }
 
 .qmi.plain .options.shown,
@@ -1005,28 +998,32 @@ section.slide:is(.inverse, .black) {
 }
 
 .qmi.plain .options p::before,
+.qmi.plain .options p::after,
 .quiz-mi.plain .options p::before,
-.quiz-match-items.plain .options p::before {
+.quiz-mi.plain .options p::after,  
+.quiz-match-items.plain .options p::before,
+.quiz-match-items.plain .options p::after {
+  content: "✓ ";
+  font-weight: bolder;
+  opacity: 0%;
   color: var(--lt-gray);
 }
 
-.qmi.plain .options p.selected::before, .qmi.plain .options p.selected.correct::before, .qmi.plain .options p.selected.incorrect::before,
+
+.qmi.plain .options p.selected::before,
+.qmi.plain .options p.selected.correct::before, 
+.qmi.plain .options p.selected.incorrect::before,
 .quiz-mi.plain .options p.selected::before,
 .quiz-mi.plain .options p.selected.correct::before,
 .quiz-mi.plain .options p.selected.incorrect::before,
 .quiz-match-items.plain .options p.selected::before,
 .quiz-match-items.plain .options p.selected.correct::before,
 .quiz-match-items.plain .options p.selected.incorrect::before {
-  color: inherit;
+  color: #000;
 }
 
-.qmi.plain .options p.correct-notSelected::before,
-.quiz-mi.plain .options p.correct-notSelected::before,
-.quiz-match-items.plain .options p.correct-notSelected::before {
-  color: var(--quiz-success);
-}
-
-.qmi.plain .options p.correct, .qmi.plain .options p.correct-notSelected,
+.qmi.plain .options p.correct, 
+.qmi.plain .options p.correct-notSelected,
 .quiz-mi.plain .options p.correct,
 .quiz-mi.plain .options p.correct-notSelected,
 .quiz-match-items.plain .options p.correct,
@@ -1035,10 +1032,14 @@ section.slide:is(.inverse, .black) {
   border: var(--border-dotted);
 }
 
-.qmi.plain .options p.correct::after, .qmi.plain .options p.correct-notSelected::after,
+.qmi.plain .options p.correct::after, 
+.qmi.plain .options p.correct-notSelected::before,
+.qmi.plain .options p.correct-notSelected::after,
 .quiz-mi.plain .options p.correct::after,
+.quiz-mi.plain .options p.correct-notSelected::before,
 .quiz-mi.plain .options p.correct-notSelected::after,
 .quiz-match-items.plain .options p.correct::after,
+.quiz-match-items.plain .options p.correct-notSelected::before,
 .quiz-match-items.plain .options p.correct-notSelected::after {
   color: var(--quiz-success);
 }
@@ -1065,7 +1066,8 @@ section.slide:is(.inverse, .black) {
   width: auto;
 }
 
-.qmi.plain .buckets::before, .qmi.plain .buckets::after,
+.qmi.plain .buckets::before, 
+.qmi.plain .buckets::after,
 .quiz-mi.plain .buckets::before,
 .quiz-mi.plain .buckets::after,
 .quiz-match-items.plain .buckets::before,
@@ -1092,18 +1094,18 @@ section.slide:is(.inverse, .black) {
   /* Edge adjustments */
   @supports (-ms-ime-align: auto) {
     .qmi.plain .options,
-.quiz-mi.plain .options,
-.quiz-match-items.plain .options {
+    .quiz-mi.plain .options,
+    .quiz-match-items.plain .options {
       right: 0.5vw;
     }
     .qmi.plain .matchQuestion,
-.quiz-mi.plain .matchQuestion,
-.quiz-match-items.plain .matchQuestion {
+    .quiz-mi.plain .matchQuestion,
+    .quiz-match-items.plain .matchQuestion {
       margin: 1em 0;
     }
     .qmi.plain .matchQuestion:first-of-type,
-.quiz-mi.plain .matchQuestion:first-of-type,
-.quiz-match-items.plain .matchQuestion:first-of-type {
+    .quiz-mi.plain .matchQuestion:first-of-type,
+    .quiz-match-items.plain .matchQuestion:first-of-type {
       margin-top: 0;
     }
   }
@@ -1185,7 +1187,8 @@ _.plain:-ms-lang(x) .options,
   }
   .qmi.plain .matchQuestion,
   .plain[class*="quiz-"] .matchQuestion {
-    font-size: var(--font-size-small) !important;
+    margin-bottom: 1em;
+    font-size: 0.7em;
   }
   .qmi.plain .matchQuestion .optList,
   .plain[class*="quiz-"] .matchQuestion .optList {
@@ -1260,9 +1263,6 @@ _.plain:-ms-lang(x) .options,
   height: 70%;
 }
 
-
-
-
 #login-div {
   display: none;
   flex-direction: column;
@@ -1296,7 +1296,6 @@ _.plain:-ms-lang(x) .options,
   margin-top: 2em;
 }
 
-/* Checked */
 .poll .countdown {
   display: none;
   position: absolute;
@@ -1328,6 +1327,8 @@ _.plain:-ms-lang(x) .options,
   display: block;
 }
 
+.poll div.sourceCode .yaml { display: none; }
+
 .poll ul.choices {
   list-style-type: upper-alpha;
 }
@@ -1351,14 +1352,14 @@ _.plain:-ms-lang(x) .options,
   visibility: hidden;
 }
 
-.poll .poll_results {
+.poll_results {
   display: none;
   position: absolute;
   right: -10.5vw;
   bottom: 11vh;
   z-index: 41;
   width: 60%;
-  height: 40%;
+  height: 55%;
   object-fit: contain;
   border-radius: 10px;
   border: 1px solid #2a9ddf;
@@ -1368,7 +1369,7 @@ _.plain:-ms-lang(x) .options,
   background-color: #fff;
 }
 
-.poll .poll_results.active {
+.poll_results.active {
   display: block;
 }
 
@@ -1381,7 +1382,7 @@ _.plain:-ms-lang(x) .options,
 @-webkit-keyframes blinks {
   70% {
     visibility: hidden;
-  }
+  } 
 }
 
 /*********************************************

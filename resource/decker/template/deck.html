@@ -47,6 +47,10 @@ $endif$
 $for(template.css)$
   <link rel="stylesheet" href="$template.css$"/>
 $endfor$
+$if(poll)$
+  <script src="$decker-support-dir$/plugins/poll/qrcode.min.js" type="text/javascript"></script>
+$endif$
+
 
   <style>
     :root {
@@ -80,6 +84,7 @@ $if(toc)$
     </section>
 $endif$
 
+
 <!-- Keep left aligned -->
 $body$
 
@@ -103,7 +108,9 @@ $body$
     // import jinglesPlugin from './$decker-support-dir$/plugins/jingles/jingles.js';
     // import quizPlugin from './$decker-support-dir$/plugins/quiz/quiz.js';
     import quizWuePlugin from './$decker-support-dir$/plugins/quiz-wue/quiz-wue.js';
+$if(poll)$
     import pollPlugin from './$decker-support-dir$/plugins/poll/poll.js';
+$endif$
     import explainPlugin from './$decker-support-dir$/plugins/explain/explain.js';
     import chartsPlugin from './$decker-support-dir$/plugins/charts/charts.js';
     import menuPlugin from './$decker-support-dir$/plugins/menu/menu.js';
@@ -134,7 +141,9 @@ $endif$
          searchPlugin,
          printPlugin,
          quizWuePlugin,
+$if(poll)$
          pollPlugin,
+$endif$
          explainPlugin,
 // TODO Find why this crashes
 //       menuPlugin,
