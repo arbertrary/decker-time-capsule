@@ -127,8 +127,6 @@
    */
   openMenu() {
     this.menu.container.inert = false;
-    this.open_button.classList.add("checked");
-    this.menu.container.classList.add("open");
     this.menu.token_lock.focus();
     this.requestMenuContent();
     localStorage.setItem("feedback-state", "open");
@@ -139,8 +137,6 @@
    */
   closeMenu() {
     this.menu.container.inert = true;
-    this.open_button.classList.remove("checked");
-    this.menu.container.classList.remove("open");
     this.open_button.focus();
     localStorage.removeItem("feedback-state");
   }
@@ -423,7 +419,7 @@
   </div>
   <div class="feedback-controls">
     <div class="feedback-controls-wrapper">
-      <span class="votes">${comment.votes > 0 ? comment.votes : ""}</span>
+      <span class="votes" title="${text.votes}" aria-label="${text.votes}">${comment.votes > 0 ? comment.votes : ""}</span>
       <button class="${comment.didvote ? "fas" : "far"} fa-thumbs-up vote ${!isAuthor ? "canvote" : "cantvote"} ${comment.didvote ? "didvote" : ""}"
         title="${comment.didvote ? text.downvote : text.upvote}"
         aria-label="${comment.didvote ? text.downvote : text.upvote}">
@@ -434,7 +430,7 @@
       ${isAnswered ? 
       `<button class="far fa-check-circle answered feedback-reset-answers-button" title="${isDeletable ? text.reset : text.answered}" aria-label="${isDeletable ? text.reset : text.answered}" ${!isDeletable ? "disabled" : ""}></button>`
         :
-      `<button class="far fa-circle notanswered feedback-mark-answered-button" title="${isDeletable ? text.mark : text.notanswered}" aria-label="${isDeletable ? text.reset : text.answered}" ${!isDeletable ? "disabled" : ""}></button>`}
+      `<button class="far fa-circle notanswered feedback-mark-answered-button" title="${isDeletable ? text.mark : text.notanswered}" aria-label="${isDeletable ? text.mark : text.notanswered}" ${!isDeletable ? "disabled" : ""}></button>`}
     </div>
   </div>
 </div>`
@@ -463,6 +459,17 @@
     }
     MathJax.typeset([question]);
     return question;
+  }
+
+  createQuestionControls() {
+    let text = this.localization.question_container;
+    let voteTemplate = document.createElement("template");
+    let editTemplate = document.createElement("template");
+    let deleteTemplate = document.createElement("template");
+    let addAnswerTemplate = document.createElement("template");
+    let checkTemplate = document.createElement("template");
+    voteTemplate.innerHTML = String.raw
+``
   }
 
   /**
@@ -606,13 +613,13 @@
     let button_string = String.raw
     `<button class="open-button decker-button" title="${text.open_label}" aria-label="${text.open_label}">
       <i class="fas fa-question-circle"></i>
-      <div class="open-badge badge"></div>
+      <div class="feedback-badge"></div>
     </button>`
   
     let menu_string = String.raw
     `<div class="feedback-menu" inert>
       <div class="feedback-header">
-        <div class="counter badge">0</div>
+        <div class="counter">0</div>
         <div class="feedback-title">${text.menu_title}</div>
         <input class="feedback-token-input" type="password" placeholder="${text.token_placeholder}" disabled="true"></input>
         <div class="feedback-header-buttons">
@@ -653,7 +660,7 @@
     this.open_button = button;
     this.menu.container = menu;
   
-    this.button_badge = button.querySelector(".badge");
+    this.button_badge = button.querySelector(".feedback-badge");
 
     this.menu.feedback_input = menu.querySelector(".feedback-question-input textarea");
     this.menu.badge = menu.querySelector(".counter");
@@ -744,6 +751,7 @@
         reset: "Mark as not answered",
         answered: "Question has been answered",
         notanswered: "Question has not been answered",
+        votes: "Up-Votes",
       },
       answer_container: {
         delete: "Delete answer",
@@ -775,6 +783,7 @@
           reset: "Als unbeantwortet markieren",
           answered: "Frage wurde beantwortet",
           notanswered: "Frage wurde noch nicht beantwortet",
+          votes: "Stimmen"
         },
         answer_container: {
           delete: "Antwort löschen",

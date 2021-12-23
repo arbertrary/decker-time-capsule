@@ -1,7 +1,40 @@
-/* Variables just for the menu */
-div.feedback-menu {
+:root {
+  --primary-color: #639A00;
+  --lighter-color: #84b819;
+  --darker-color: #4a7400;
+  --menu-border-color: rgba(0,0,0,0);
   --border-radius: 0.2em;
+  --header-background: var(--lighter-color);
+  --header-color: white;
+  --header-button-color: white;
+  --list-background: var(--primary-color);
+  --list-color: black;
+  --list-button-color: gray;
+  --footer-background: var(--lighter-color);
+  --footer-color: white;
+  --footer-button-color: white;
 }
+
+/* Auskommentieren um Beispiel für TU-Style zu erhalten --- diese Variablen können und sollten woanders definiert werden */
+
+:root {
+  --primary-color: rgba(0,0,0,0.5);
+  --lighter-color: rgba(255,255,255,0.5);
+  --darker-color: rgba(0,0,0,0.5);
+  --menu-border-color: rgba(0,0,0,0);
+  --border-radius: 0.2em;
+  --header-background: var(--lighter-color);
+  --header-color: white;
+  --header-button-color: white;
+  --list-background: var(--primary-color);
+  --list-color: black;
+  --list-button-color: gray;
+  --footer-background: var(--lighter-color);
+  --footer-color: white;
+  --footer-button-color: white;
+}
+
+/* Menu */
 
 .feedback-menu {
   position: fixed;
@@ -15,13 +48,15 @@ div.feedback-menu {
   transition: transform 0.5s;
   z-index: 256;
   
-  background: white;
-  border-left: 2px solid #639A00;
+  background: var(--primary-color);
+  border-left: 2px solid var(--menu-border-color);
 }
 
 .feedback-menu[inert] {
   transform: translateX(100%);
 }
+
+/* Badges */
 
 .feedback-badge {
   position: absolute;
@@ -34,21 +69,11 @@ div.feedback-menu {
   visibility: hidden;
 }
 
-/* Badge for the open button*/
-div.open-badge[data-count="0"] {
-  visibility: hidden;
-}
-
-div.open-badge {
-  position: absolute;
-  top: 0;
-  right: 0;
-  color: white;
-  /* Scale the badge here, if desired */
+.open-button .feedback-badge {
   font-size: 40%;
 }
 
-div.badge {
+.feedback-badge, .counter {
   font-family: sans-serif;
   font-weight: bold;
   line-height: 1;
@@ -61,22 +86,17 @@ div.badge {
   color: white;
 }
 
-div.badge.answered {
+.feedback-badge.answered, .counter.answered {
   background-color: green;
 }
+
+/* Menu Parts */
 
 div.feedback-menu.authorized div.feedback-footer {
   display: none;
 }
 
-div.feedback-footer button {
-  font-size: 1em;
-  color: gray;
-  border: none;
-  background:rgb(0, 0, 0, 0);
-}
-
-div.feedback-menu div.feedback-header {
+div.feedback-header {
   flex: 0 1 content;
 
   display: flex;
@@ -84,26 +104,27 @@ div.feedback-menu div.feedback-header {
   align-items: center;
   justify-content: space-between;
 
-  background-color: rgba(0, 0, 0, 0.1);
   padding: 0.3em;
+  background: var(--header-background);
+  color: var(--header-color);
 }
 
-div.feedback-menu div.feedback-header div.feedback-title {
+div.feedback-title {
   flex: 0 1;
   margin-right: 1em;
 }
 
-div.feedback-menu div.feedback-header div.counter[data-count="0"] {
+div.counter[data-count="0"] {
   visibility: hidden;
 }
 
-div.feedback-menu div.feedback-header div.counter {
+div.counter {
   flex: 0 1;
   margin-right: 1em;
   font-size: 0.9em;
 }
 
-div.feedback-menu div.feedback-header .hidden {
+.hidden {
   visibility: hidden;
 }
 
@@ -112,8 +133,8 @@ div.feedback-menu div.feedback-header input {
   font-size: 0.8em;
 }
 
-div.feedback-menu div.feedback-header input[type="text"],
-div.feedback-menu div.feedback-header input[type="password"] {
+div.feedback-header input[type="text"],
+div.feedback-header input[type="password"] {
   flex: 1 1;
   min-width: 2em;
   max-width: 100em;
@@ -131,50 +152,45 @@ div.feedback-header-buttons {
 }
 
 div.feedback-header-buttons button {
-  font-size: 1em;
-  margin-left: 0.4em;
+  color: var(--header-button-color);
 }
 
-div.feedback-menu div.feedback-header button.feedback-lock {
+div.feedback-footer button {
+  color: var(--footer-button-color);
+}
+
+div.feedback-header-buttons button,
+div.feedback-footer button {
+  font-size: 1em;
+  margin-left: 0.4em;
+
   flex: 0 1;
   display: flex;
   flex-direction: column;
-
-  color: gray;
-  background-color: rgba(0, 0, 0, 0);
-
-  border: none;
-  border-radius: var(--border-radius);
+  background-color: rgba(0,0,0,0);
 }
 
-div.feedback-menu div.feedback-header button span {
+div.feedback-menu button {
+  border: none;
+  background-color: rgba(0,0,0,0);
+}
+
+div.feedback-menu button:hover {
+  color: var(--darker-color);
+}
+
+div.feedback-menu button:active {
+  color: var(--lighter-color);
+}
+
+div.feedback-header button > span {
   font-size: 0.5em;
   display: none;
 }
 
-div.feedback-menu div.feedback-header button.feedback-lock:hover {
-  color: var(--whiteboard-active-color);
-}
-
-div.feedback-menu div.feedback-header button.feedback-close {
-  flex: 0 1;
-  display: flex;
-  flex-direction: column;
-
-  color: gray;
-  background-color: rgba(0, 0, 0, 0);
-
-  border: none;
-  border-radius: var(--border-radius);
-}
-
-div.feedback-menu div.feedback-header button.feedback-close:hover {
-  color: var(--whiteboard-active-color);
-}
-
 div.feedback-menu div.feedback-list {
   flex: 1 1;
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: var(--list-background);
   padding: 0.3em;
   font-size: 0.8em;
   overflow-y: scroll;
@@ -195,16 +211,15 @@ div.feedback-menu div.feedback-list div.feedback-item {
   justify-content: space-between;
 }
 
-div.feedback-menu div.feedback-list div.feedback-item div.feedback-content {
+div.feedback-content {
   margin: 0;
   padding: 0;
   padding-right: 0.1em;
   background-color: rgb(0, 0, 0, 0);
   overflow: hidden;
-  line-height: 32px;
 }
 
-div.feedback-menu div.feedback-list div.feedback-item.answer {
+div.feedback-item.answer {
   display: block;
   background-color: rgba(230, 230, 230, 0.9);
   margin-left: 4ex;
@@ -216,7 +231,6 @@ div.feedback-item.answer > div.link {
 }
 
 div.feedback-menu div.feedback-controls {
-  float: right;
   margin-left: 0.5em;
 }
 
@@ -227,17 +241,12 @@ div.feedback-controls-wrapper {
 }
 
 div.feedback-list button {
-  color: gray;
-  background-color: rgba(0, 0, 0, 0);
+  color: var(--list-button-color);
   border: none;
   margin: 0;
   padding: 0;
 
   font-size: 1em;
-}
-
-div.feedback-menu button:hover {
-  color: var(--whiteboard-active-color);
 }
 
 div.feedback-menu button.answered {
@@ -256,30 +265,29 @@ div.feedback-menu button.cantvote:hover {
   color: lightgray;
 }
 
-div.feedback-menu div.feedback-list div.feedback-item button {
+div.feedback-item button {
   flex: 0 1 content;
 }
 
 div.feedback-menu div.feedback-question-input {
   flex: 0 1;
-  background-color: rgba(0, 0, 0, 0.2);
   padding: 0.3em;
+
+  background: var(--list-background);
 }
 
-div.feedback-menu div.feedback-question-input textarea {
+div.feedback-question-input textarea {
   resize: none;
-  background-color: rgba(255, 255, 255, 0.9);
   padding: 0.3em;
   height: 6em;
   width: calc(100% - 0.6em);
 
   border: none;
   border-radius: var(--border-radius);
-
   font-size: 0.8em;
 }
 
-div.feedback-menu div.feedback-question-input textarea[answer] {
+div.feedback-question-input textarea[answer] {
   background-color: #efe;
   border: solid 1px #cfc;
 }
@@ -291,26 +299,26 @@ div.feedback-menu div.feedback-footer {
   flex-flow: row nowrap;
   align-items: center;
 
-  background-color: rgba(0, 0, 0, 0.1);
   padding: 0.3em;
+  background: var(--footer-background);
 }
 
-div.feedback-menu div.feedback-footer div.feedback-credentials {
+div.feedback-credentials {
   display: flex;
   flex: 1 0;
 }
 
-div.feedback-menu div.feedback-footer div.feedback-credentials.visible {
+div.feedback-credentials.visible {
   visibility: visible;
 }
 
-div.feedback-menu div.feedback-footer div.feedback-credentials:not(.visible) {
+div.feedback-credentials:not(.visible) {
   visibility: hidden;
 }
 
-div.feedback-menu div.feedback-footer div.feedback-credentials input {
+div.feedback-credentials input {
   flex: 1 0;
-  color: grey;
+  color: black;
   margin: 0;
   margin-left: 0.5em;
   padding: 0.3em;
@@ -322,7 +330,7 @@ div.feedback-menu div.feedback-footer div.feedback-credentials input {
   font-size: 0.8em;
 }
 
-div.feedback-menu div.feedback-footer div.feedback-login {
+div.feedback-login {
   flex: 0 1;
 
   color: gray;
@@ -330,20 +338,29 @@ div.feedback-menu div.feedback-footer div.feedback-login {
   font-size: 1em;
 }
 
-div.feedback-menu div.feedback-footer div.feedback-login:not(.admin) {
+div.feedback-login:not(.admin) {
   opacity: 1;
   color: lightgray;
 }
 
-div.feedback-menu div.feedback-footer div.feedback-login.admin {
+div.feedback-login.admin {
   opacity: 1;
   color: red;
 }
 
-div.feedback-menu div.feedback-footer div.feedback-login:hover {
-  opacity: 1;
-  color: var(--whiteboard-active-color);
+div.feedback-menu div.feedback-item p,
+div.feedback-menu ul,
+div.feedback-menu ol {
+  padding-bottom: 0.3em;
 }
+
+div.feedback-menu div.feedback-item p:last-child,
+div.feedback-menu div.feedback-item ul:last-child,
+div.feedback-menu div.feedback-item ol:last-child {
+  padding-bottom: 0;
+}
+
+/* Markdown Styling of questions and answers */
 
 div.feedback-menu div.feedback-item {
   font-size: 1em;
@@ -359,18 +376,6 @@ div.feedback-menu div.feedback-item strong {
 
 div.feedback-menu div.feedback-item a {
   color: darkblue;
-}
-
-div.feedback-menu div.feedback-item p,
-div.feedback-menu ul,
-div.feedback-menu ol {
-  padding-bottom: 0.3em;
-}
-
-div.feedback-menu div.feedback-item p:last-child,
-div.feedback-menu div.feedback-item ul:last-child,
-div.feedback-menu div.feedback-item ol:last-child {
-  padding-bottom: 0;
 }
 
 div.feedback-menu div.feedback-item ol {
@@ -415,31 +420,7 @@ div.feedback-menu div.feedback-item img {
   image-rendering: pixelated;
 }
 
-section#questions-overview div.scroll-y {
-  height: 500px;
-  overflow-y: scroll;
-}
-
-section#questions-overview table {
-  font-size: 70%;
-}
-
-section#questions-overview table h1 {
-  font-weight: bold;
-  font-size: 120%;
-}
-
-section#questions-overview table h2 {
-  font-weight: bold;
-  font-size: 110%;
-}
-
-section#questions-overview table tr td:first-child {
-  max-width: 6em;
-  overflow-x: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+/* Slide Menu Badges */
 
 li.slide-list-item[data-questions]::after {
   content: attr(data-questions);
@@ -460,29 +441,7 @@ li.slide-list-item[data-questions]::after {
   border-radius: 0.4em;
   padding: 0.2em 0.4em;
 }
+
 li.slide-list-item[data-questions][data-answered="true"]::after {
-  background-color: green;
-}
-
-li.slide-menu-item[data-questions]::after {
-  content: attr(data-questions);
-  margin-left: 1em;
-  font-size: 0.9em;
-
-  /* from class counter */
-  background-color: red;
-  color: white;
-
-  /* from class badge */
-  font-family: sans-serif;
-  font-weight: bold;
-  line-height: 1;
-  text-align: center;
-  vertical-align: baseline;
-  white-space: nowrap;
-  border-radius: 0.4em;
-  padding: 0.2em 0.4em;
-}
-li.slide-menu-item[data-questions][data-answered="true"]::after {
   background-color: green;
 }
