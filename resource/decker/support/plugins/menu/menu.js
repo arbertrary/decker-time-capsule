@@ -439,12 +439,12 @@
 
     document.body.appendChild(this.menu.container);
 
-    if(!this.reveal.hasPlugin('decker-plugins')) {
-      console.log("no decker plugin manager loaded");
+    if(!this.reveal.hasPlugin('ui-anchors')) {
+      console.log("no decker ui anchor plugin loaded");
       return;
     }
-    let manager = this.reveal.getPlugin("decker-plugins");
-    manager.placeButton(this.open_button, this.position);
+    let anchors = this.reveal.getPlugin("ui-anchors");
+    anchors.placeButton(this.open_button, this.position);
   }
 }
 
