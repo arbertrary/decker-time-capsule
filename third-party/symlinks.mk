@@ -3,7 +3,7 @@ SHELL := $(shell which bash)
 support := ../resource/decker/support/vendor
 third := $(shell realpath .)
 
-all: mathjax reveal.js highlight.js fontawesome videojs d3 inert flyingfocus
+all: mathjax reveal.js highlight.js fontawesome videojs d3 inert
 
 d3:
 	@cp d3.v6.min.js $(support)
@@ -38,10 +38,6 @@ inert: inert.js/dist/inert.min.js
 	@cp $(third)/inert.js/dist/inert.min.js $(support)/inert/
 	@cp $(third)/inert.js/dist/inert.min.js.map $(support)/inert/
 
-flyingfocus:
-	@mkdir -p $(support)/flying-focus
-	@cp $(third)/flying-focus.js/standalone/flying-focus.js $(support)/flying-focus/
-	
 inert.js/dist/inert.min.js:
 	(cd inert.js && npm install && npm run build)
 
