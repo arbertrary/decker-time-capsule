@@ -1,4 +1,6 @@
-@import url("../../css/deck.css");
+@import url("../../css/style.css");
+@import url("../../css/custom-style.css");
+@import url("./custom-menu.css");
 
 .decker-menu {
     display: flex;
@@ -17,7 +19,7 @@ div.tile-grid {
 button.tile {
     display: block;
     flex-grow: 1;
-    border: 2px solid var(--icon-active-color);
+    border: 2px solid var(--tile-border-color);
     background: white;
     font-size: 24px;
     padding: 0;
@@ -32,12 +34,12 @@ button.tile > p {
 
 button.tile:hover , button.tile:focus {
     color: white;
-    background: var(--icon-hover-color);
+    background: var(--tile-hover-color);
 }
 
 button.tile:active {
     color: white;
-    background: var(--icon-active-color);
+    background: var(--tile-active-color);
 }
 
 ul.slide-list {
