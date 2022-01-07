@@ -6,6 +6,13 @@
   --secondary-color: orange;
   --hover-color: #30b3ff;
   --code-background-color: rgb(240, 240, 240);
+  /* Defaults for menu colors */
+  --tile-border-color: var(--primary-color);
+  --tile-idle-color: white;
+  --tile-hover-color: var(--hover-color);
+  --tile-active-color: var(--icon-active-color);
+  /* From mario.css, this needs to be set everywhere so the flying focus has its color */
+  --emphColor: var(--primary-color);
 }
 
 /* Inline code */
