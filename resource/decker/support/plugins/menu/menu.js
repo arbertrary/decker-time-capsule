@@ -75,7 +75,6 @@
    * @param {*} event 
    */
   toggleMenu(event) {
-    console.log("toggle menu called");
     if(this.inert) {
       this.openMenu(event);
     } else {
@@ -90,6 +89,8 @@
   openMenu(event) {
     if(this.inert) {
       this.inert = false;
+      this.reveal.getRevealElement().inert = true;
+      this.disableKeybinds();
       if(event && event.detail === 0) {
         this.menu.search_button.focus();
       }
@@ -103,6 +104,8 @@
   closeMenu(event) {
     if(!this.inert) {
       this.inert = true;
+      this.reveal.getRevealElement().inert = false;
+      this.enableKeybinds();
       if(event && event.detail === 0) {
         this.open_button.focus();
       }
@@ -129,6 +132,14 @@
         window.open(url, "_self");
       }
     }
+  }
+
+  disableKeybinds() {
+    this.reveal.configure({keyboard: false});
+  }
+
+  enableKeybinds() {
+    this.reveal.configure({keyboard: true});
   }
 
   /**
@@ -183,17 +194,17 @@
     if(!this.inert) {
       switch(event.code) {
           case "Escape":
-              event.stopImmediatePropagation();
+//              event.stopImmediatePropagation();
               this.closeMenu();
               break;
           case "ArrowUp":
               if(document.activeElement && document.activeElement.classList.contains("tile")) {
                 event.preventDefault();
-                event.stopImmediatePropagation();
-                this.menu.slide_list.firstElementChild.firstElementChild.focus();
+//                event.stopImmediatePropagation();
+                this.menu.slide_list.lastElementChild.firstElementChild.focus();
               }
               if(document.activeElement && document.activeElement.classList.contains("slide-link")) {
-                  event.stopImmediatePropagation();
+//                  event.stopImmediatePropagation();
                   let parent = document.activeElement.parentElement;
                   let target = undefined;
                   if(parent.previousElementSibling) { //target the a inside the previous list item
@@ -207,11 +218,11 @@
         case "ArrowDown":
           if(document.activeElement && document.activeElement.classList.contains("tile")) {
             event.preventDefault();
-            event.stopImmediatePropagation();
-            this.menu.slide_list.lastElementChild.firstElementChild.focus();
+//            event.stopImmediatePropagation();
+            this.menu.slide_list.firstElementChild.firstElementChild.focus();
           }
           if(document.activeElement && document.activeElement.classList.contains("slide-link")) {
-              event.stopImmediatePropagation();
+//              event.stopImmediatePropagation();
               let parent = document.activeElement.parentElement;
               let target = undefined;
               if(parent.nextElementSibling) { //target the a inside the previous list item
@@ -248,8 +259,8 @@
   initializeSlideList() {
     let template = document.createElement("template");
     template.innerHTML = String.raw
-    `<div class="slide-list-wrapper">
-      <ul class="slide-list"></ul>
+    `<div class="slide-list-wrapper" tabindex="-1">
+      <ul class="slide-list" tabindex="-1"></ul>
     </div>`
     let wrapper = template.content.firstElementChild;
     let list = wrapper.firstElementChild;
