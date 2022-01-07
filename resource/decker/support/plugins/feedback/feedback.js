@@ -693,9 +693,9 @@
 
     /* Place Button in UI */
 
-    if(this.reveal.hasPlugin("decker-plugins")) {
-      let manager = this.reveal.getPlugin("decker-plugins");
-      manager.placeButton( this.open_button, this.position );
+    if(this.reveal.hasPlugin("ui-anchors")) {
+      let anchors = this.reveal.getPlugin("ui-anchors");
+      anchors.placeButton( this.open_button, this.position );
     }
     let reveal_element = document.querySelector(".reveal");
     reveal_element.appendChild(this.menu.container);
