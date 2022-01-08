@@ -918,14 +918,14 @@ function createPlayerGUI() {
   playButton = createElement({
     type: "button",
     id: "explain-play",
-    classes: "fas fa-play decker-button explain",
+    classes: "fas fa-play explain",
     title: "Play video recording",
     onclick: transition("play"),
   });
 
-  if(Reveal.hasPlugin("decker-plugins")) {
-    let manager = Reveal.getPlugin("decker-plugins");
-    manager.placeButton(playButton, "TOP_RIGHT");
+  if(Reveal.hasPlugin("ui-anchors")) {
+    let anchors = Reveal.getPlugin("ui-anchors");
+    anchors.placeButton(playButton, "TOP_RIGHT");
   } else {
     document.body.appendChild(playButton);
   }

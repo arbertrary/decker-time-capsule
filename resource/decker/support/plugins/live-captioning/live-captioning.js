@@ -25,6 +25,8 @@
    </button>
  </div>`
  
+ // Using the custom web component here is optional and can be replaced by something less
+ // bleeding edge
  let button_template = document.createElement("template");
  button_template.innerHTML = String.raw
  `<awesome-button icon="fa-closed-captioning" icon-style="fas" label=""
@@ -269,8 +271,8 @@
      this.reveal = reveal;
      document.body.appendChild(this.menu.container);
      document.body.appendChild(this.area);
-     let manager = this.reveal.getPlugin("decker-plugins");
-     manager.placeButton( this.record_button, this.position );
+     let anchors = this.reveal.getPlugin("ui-anchors");
+     anchors.placeButton( this.record_button, this.position );
  
      if('getScreens' in window) {
        navigator.permissions.query({ name: 'window-placement'})
