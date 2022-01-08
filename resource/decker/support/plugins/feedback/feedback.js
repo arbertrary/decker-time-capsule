@@ -11,6 +11,15 @@
 
   id = "feedback";
 
+  lang = "en";
+  localization = {
+    question_placeholder: "",
+    answer_placeholder: "",
+    interface: undefined,
+    question_container: undefined,
+    answer_container: undefined,
+  };
+
   reveal = undefined;
   config = undefined;
 
@@ -30,6 +39,8 @@
     badge: undefined,
     token_input: undefined,
     token_lock: undefined,
+    token_icon: undefined,
+    lock_label: undefined,
     close_button: undefined,
     feedback_list: undefined,
     feedback_input: undefined,
@@ -116,8 +127,6 @@
    */
   openMenu() {
     this.menu.container.inert = false;
-    this.open_button.classList.add("checked");
-    this.menu.container.classList.add("open");
     this.menu.token_lock.focus();
     this.requestMenuContent();
     localStorage.setItem("feedback-state", "open");
@@ -128,8 +137,6 @@
    */
   closeMenu() {
     this.menu.container.inert = true;
-    this.open_button.classList.remove("checked");
-    this.menu.container.classList.remove("open");
     this.open_button.focus();
     localStorage.removeItem("feedback-state");
   }
@@ -138,7 +145,7 @@
    * Disables or enables the token_input field.
    */
   toggleTokenInput() {
-    if(this.menu.token_lock.classList.contains("checked")) {
+    if(this.menu.token_lock.getAttribute("aria-checked") === "true") {
       this.unlockTokenInput();
     } else {
       if(this.menu.token_input.value) { //disallow empty token
@@ -153,24 +160,34 @@
   lockTokenInput() {
     this.menu.token_input.setAttribute("disabled", true);
     this.menu.token_input.type = "password";
-    this.menu.token_lock.classList.add("checked");
+    this.menu.token_lock.setAttribute("title", this.localization.interface.unlock_token);
+    this.menu.token_lock.setAttribute("aria-label", this.localization.interface.unlock_token);
+    this.menu.token_lock.setAttribute("aria-checked", "true");
+    this.menu.token_icon.classList.remove("fa-unlock");
+    this.menu.token_icon.classList.add("fa-lock");
+    this.menu.lock_label.textContent = this.localization.interface.unlock_token;
     window.localStorage.setItem("feedback-user-token", this.menu.token_input.value);
   }
 
   /**
-   * Enables input on the token input field and delets the token from the local
+   * Enables input on the token input field and deletes the token from the local
    * storage until it is locked again.
    */
   unlockTokenInput() {
-    this.menu.token_input.setAttribute("disabled", false);
+    this.menu.token_input.removeAttribute("disabled");
     this.menu.token_input.type = "text";
     this.menu.token_input.classList.remove("hidden");
-    this.menu.token_lock.classList.remove("checked");
+    this.menu.token_lock.setAttribute("title", this.localization.interface.lock_token);
+    this.menu.token_lock.setAttribute("aria-label", this.localization.interface.lock_token);
+    this.menu.token_lock.setAttribute("aria-checked", "false");
+    this.menu.token_icon.classList.remove("fa-lock");
+    this.menu.token_icon.classList.add("fa-unlock");
+    this.menu.lock_label.textContent = this.localization.interface.lock_token;
     window.localStorage.removeItem("feedback-user-token");
   }
 
   /**
-   * Completely hides the token input if. Called if you are the admin.
+   * Completely hides the token input. Called if you are the admin.
    */
   hideTokenInput() {
     this.lockTokenInput();
@@ -260,7 +277,7 @@
    */
   clearTextArea() {
     this.menu.feedback_input.value = "";
-    this.menu.feedback_input.placeholder = "Type question, ⇧⏎ (Shift-Return) to enter. Use Markdown for formatting.";
+    this.menu.feedback_input.placeholder = this.localization.question_placeholder;
     this.menu.feedback_input.commentId = null;
     this.menu.feedback_input.removeAttribute("answer");
   }
@@ -295,10 +312,11 @@
 
   /**
    * Sends an async request to the engine to get the questions of the current slide.
+   * @returns A promise that resolves when the update is finished
    */
   requestMenuContent() {
     let slideId = this.reveal.getCurrentSlide().id;
-    this.engine.api
+    return this.engine.api
       .getComments(this.engine.deckId, slideId, this.engine.token.admin || this.menu.token_input.value)
       .then((list) => this.updateMenuContent(list))
       .catch(console.log);
@@ -309,13 +327,10 @@
    * @param {*} comment 
    */
   answerQuestion(comment) {
-    let text = {
-      placeholder: "Type answer, ⇧⏎ (Shift-Return) to enter. Use Markdown for formatting.",
-    }
     this.menu.feedback_input.value = "";
     this.menu.feedback_input.commentId = comment.id;
     this.menu.feedback_input.setAttribute("answer", true);
-    this.menu.feedback_input.placeholder = text.placeholder;
+    this.menu.feedback_input.placeholder = this.localization.answer_placeholder;
     this.menu.feedback_input.focus();
   }
 
@@ -327,8 +342,7 @@
     this.menu.feedback_input.value = comment.markdown;
     this.menu.feedback_input.commentId = comment.id;
     this.menu.feedback_input.removeAttribute("answer");
-    this.menu.feedback_input.placeholder =
-      "Type question, ⇧⏎ (Shift-Return) to enter. Use Markdown for formatting.";
+    this.menu.feedback_input.placeholder = this.localization.question_placeholder;
       this.menu.feedback_input.focus();
   }
 
@@ -390,17 +404,7 @@
    * @returns 
    */
   createQuestionContainer(comment) {
-    let text = {
-      upvote: "Up-vote question",
-      downvote: "Down-vote question",
-      edit: "Edit question",
-      delete: "Delete question",
-      add: "Add answer",
-      mark: "Mark as answered",
-      reset: "Mark as not answered",
-      answered: "Question has been answered",
-      notanswered: "Question has not been answered",
-    }
+    let text = this.localization.question_container;
 
     let isAdmin = this.engine.token.admin != null;
     let isAuthor = comment.author === this.menu.token_input.value;
@@ -411,21 +415,23 @@
     template.innerHTML = String.raw
 `<div class="feedback-item">
   <div class="feedback-content">
-    <div class="feedback-controls">
-      <span class="votes">${comment.votes > 0 ? comment.votes : ""}</span>
+    ${comment.html}
+  </div>
+  <div class="feedback-controls">
+    <div class="feedback-controls-wrapper">
+      <span class="votes" title="${text.votes}" aria-label="${text.votes}">${comment.votes > 0 ? comment.votes : ""}</span>
       <button class="${comment.didvote ? "fas" : "far"} fa-thumbs-up vote ${!isAuthor ? "canvote" : "cantvote"} ${comment.didvote ? "didvote" : ""}"
         title="${comment.didvote ? text.downvote : text.upvote}"
         aria-label="${comment.didvote ? text.downvote : text.upvote}">
       </button>
       ${isDeletable ? `<button class="fas fa-edit feedback-edit-question-button" title="${text.edit}" aria-label="${text.edit}"></button>` : ""}
-      ${isDeletable ? `<button class="fas fa-trash-alt feedback-delete-question-button" title=${text.delete} aria-label="${text.delete}"></button>` : ""}
+      ${isDeletable ? `<button class="fas fa-trash-alt feedback-delete-question-button" title="${text.delete}" aria-label="${text.delete}"></button>` : ""}
       ${isAdmin ? `<button class="far fa-plus-square feedback-answer-question-button" title="${text.add}" aria-label="${text.add}">` : ""}
       ${isAnswered ? 
-      `<button class="far fa-check-circle answered feedback-reset-answers-button" title="${isDeletable ? text.reset : text.answered}" ${!isDeletable ? "disabled" : ""}></button>`
+      `<button class="far fa-check-circle answered feedback-reset-answers-button" title="${isDeletable ? text.reset : text.answered}" aria-label="${isDeletable ? text.reset : text.answered}" ${!isDeletable ? "disabled" : ""}></button>`
         :
-      `<button class="far fa-circle notanswered feedback-mark-answered-button" title="${isDeletable ? text.mark : text.notanswered}" ${!isDeletable ? "disabled" : ""}></button>`}
+      `<button class="far fa-circle notanswered feedback-mark-answered-button" title="${isDeletable ? text.mark : text.notanswered}" aria-label="${isDeletable ? text.mark : text.notanswered}" ${!isDeletable ? "disabled" : ""}></button>`}
     </div>
-    ${comment.html}
   </div>
 </div>`
     let question = template.content.firstElementChild;
@@ -455,6 +461,17 @@
     return question;
   }
 
+  createQuestionControls() {
+    let text = this.localization.question_container;
+    let voteTemplate = document.createElement("template");
+    let editTemplate = document.createElement("template");
+    let deleteTemplate = document.createElement("template");
+    let addAnswerTemplate = document.createElement("template");
+    let checkTemplate = document.createElement("template");
+    voteTemplate.innerHTML = String.raw
+``
+  }
+
   /**
    * Creates a question list item that represents an answer.
    * @param {*} answer 
@@ -462,9 +479,7 @@
    */
   createAnswerContainer(answer) {
     let isAdmin = this.engine.token.admin != null;
-    let text = {
-      delete: "Delete answer.",
-    };
+    let text = this.localization.answer_container;
     let url = answer.link ? new URL(answer.link) : undefined;
     let html = answer.html ? answer.html : undefined;
     let template = document.createElement("template");
@@ -538,9 +553,10 @@
 
   /**
    * Requests the api to send a list of questions to update the main slide menu.
+   * @returns Promise that resolves when the update is finished
    */
   requestSlideMenuUpdate() {
-    this.engine.api
+    return this.engine.api
     .getComments(this.engine.deckId)
     .then((list) => this.updateSlideMenu(list))
     .catch(console.log);
@@ -593,37 +609,41 @@
    * Sets up the whole interface: Button and the right hidden question menu.
    */
   createInterface() {
+    let text = this.localization.interface;
     let button_string = String.raw
-    `<button class="open-button decker-button" title="Open Feedback Menu" aria-label="Open Feedback Menu">
+    `<button class="open-button decker-button" title="${text.open_label}" aria-label="${text.open_label}">
       <i class="fas fa-question-circle"></i>
-      <div class="open-badge badge"></div>
+      <div class="feedback-badge"></div>
     </button>`
   
     let menu_string = String.raw
     `<div class="feedback-menu" inert>
       <div class="feedback-header">
-        <div class="counter badge">0</div>
-        <div class="feedback-title">Questions</div>
-        <input class="feedback-token-input" type="password" placeholder="User Token" disabled="true"></input>
-        <button class="feedback-lock" title="Store user token (session)">
-          <i class="fas fa-lock lock" title="Unlock Token"></i>
-          <i class="fas fa-unlock unlock" title="Lock Token"></i>
-        </button>
-        <button class="feedback-close" title="Close Feedback Menu">
-          <i class="fas fa-times-circle"></i>
-        </button>
+        <div class="counter">0</div>
+        <div class="feedback-title">${text.menu_title}</div>
+        <input class="feedback-token-input" type="password" placeholder="${text.token_placeholder}" disabled="true"></input>
+        <div class="feedback-header-buttons">
+          <button class="feedback-lock" role="switch" aria-checked="true" title="${text.unlock_token}" aria-label="${text.unlock_token}">
+            <i class="fas fa-lock lock-icon"></i>
+            <span class="lock-label">${text.unlock_token}</span>
+          </button>
+          <button class="feedback-close" title="${text.menu_close}" aria-label="${text.menu_close}">
+            <i class="fas fa-times-circle"></i>
+            <span>${text.menu_close}</span>
+          </button>
+        </div>
       </div>
       <div class="feedback-list"></div>
       <div class="feedback-question-input">
-        <textarea wrap="hard" placeholder="Type question, ⇧⏎ (Shift-Return) to enter. Use Markdown for formatting." tabindex="0"></textarea> 
+        <textarea wrap="hard" placeholder="${this.localization.question_placeholder}" tabindex="0"></textarea> 
       </div>
       <div class="feedback-footer">
         <div class="feedback-login">
-          <button id="feedback-login-button" class="fas fa-sign-in-alt" title="Login as admin"></button>
+          <button id="feedback-login-button" class="fas fa-sign-in-alt" title="${text.login_as_admin}" aria-label="${text.login_as_admin}"></button>
         </div>
         <div class="feedback-credentials">
-          <input id="feedback-username" placeholder="Login">
-          <input id="feedback-password" placeholder="Password" type="password">
+          <input id="feedback-username" placeholder="${text.username_placeholder}">
+          <input id="feedback-password" placeholder="${text.password_placeholder}" type="password">
         </div>
       </div>
     </div>`
@@ -640,13 +660,15 @@
     this.open_button = button;
     this.menu.container = menu;
   
-    this.button_badge = button.querySelector(".badge");
+    this.button_badge = button.querySelector(".feedback-badge");
 
     this.menu.feedback_input = menu.querySelector(".feedback-question-input textarea");
     this.menu.badge = menu.querySelector(".counter");
     this.menu.feedback_list = menu.querySelector(".feedback-list");
     this.menu.token_input = menu.querySelector(".feedback-token-input");
     this.menu.token_lock = menu.querySelector(".feedback-lock");
+    this.menu.token_icon = menu.querySelector(".lock-icon");
+    this.menu.lock_label = menu.querySelector(".lock-label");
     this.menu.close_button = menu.querySelector(".feedback-close");
     this.menu.feedback_login_area = menu.querySelector(".feedback-login");
     this.menu.feedback_login_button = menu.querySelector("#feedback-login-button");
@@ -671,9 +693,9 @@
 
     /* Place Button in UI */
 
-    if(this.reveal.hasPlugin("decker-plugins")) {
-      let manager = this.reveal.getPlugin("decker-plugins");
-      manager.placeButton( this.open_button, this.position );
+    if(this.reveal.hasPlugin("ui-anchors")) {
+      let anchors = this.reveal.getPlugin("ui-anchors");
+      anchors.placeButton( this.open_button, this.position );
     }
     let reveal_element = document.querySelector(".reveal");
     reveal_element.appendChild(this.menu.container);
@@ -682,8 +704,15 @@
 
     this.initializeUsertoken();
 
-    this.requestMenuContent();
-    this.requestSlideMenuUpdate();
+    this.requestMenuContent()
+    .then(() => this.requestSlideMenuUpdate())
+    .then(() => {
+    /* Open menu again if it was previously opened */
+    const previous_state = localStorage.getItem("feedback-state");
+    if(previous_state === "open") {
+      this.openMenu();
+    }
+    })
   }
 
   /**
@@ -693,6 +722,75 @@
   init(reveal) {
     this.reveal = reveal;
     this.config = reveal.getConfig().feedback;
+
+    this.lang = navigator.language;
+
+    //TODO Get this from external sources
+
+    this.localization = {
+      question_placeholder: "Type question, ⇧⏎ (Shift-Return) to enter. Use Markdown for formatting.",
+      answer_placeholder: "Type answer, ⇧⏎ (Shift-Return) to enter. Use Markdown for formatting.",
+      interface: {
+        open_label: "Open Feedback Menu",
+        menu_title: "Questions",
+        token_placeholder: "Usertoken",
+        unlock_token: "Unlock Token",
+        lock_token: "Lock Token",
+        menu_close: "Close Feedback Menu",
+        login_as_admin: "Login as Admin",
+        username_placeholder: "Username",
+        password_placeholder: "Password"
+      },
+      question_container: {
+        upvote: "Up-vote question",
+        downvote: "Down-vote question",
+        edit: "Edit question",
+        delete: "Delete question",
+        add: "Add answer",
+        mark: "Mark as answered",
+        reset: "Mark as not answered",
+        answered: "Question has been answered",
+        notanswered: "Question has not been answered",
+        votes: "Up-Votes",
+      },
+      answer_container: {
+        delete: "Delete answer",
+      }
+    }
+
+    if(this.lang === "de") {
+      this.localization = {
+        question_placeholder: "Frage hier eingeben und mit ⇧⏎ (Umschalt-Eingabe) absenden. Markdown kann zur Formatierung genutzt werden.",
+        answer_placeholder: "Antwort hier eingeben und mit ⇧⏎ (Umschalt-Eingabe) absenden. Markdown kann zur Formatierung genutzt werden.",
+        interface: {
+          open_label: "Fragemenu öffnen",
+          menu_title: "Fragen",
+          token_placeholder: "Nutzertoken",
+          lock_token: "Token entsprren",
+          unlock_token: "Token sperren",
+          menu_close: "Fragemenu schließen",
+          login_as_admin: "Als Administrator einloggen",
+          username_placeholder: "Benutzername",
+          password_placeholder: "Passwort"
+        },
+        question_container: {
+          upvote: "Frage unterstützen",
+          downvote: "Unterstützung zurücknehmen",
+          edit: "Frage bearbeiten",
+          delete: "Frage löschen",
+          add: "Antwort hinzufügen",
+          mark: "Als beantwortet markieren",
+          reset: "Als unbeantwortet markieren",
+          answered: "Frage wurde beantwortet",
+          notanswered: "Frage wurde noch nicht beantwortet",
+          votes: "Stimmen"
+        },
+        answer_container: {
+          delete: "Antwort löschen",
+        }
+      }
+    }
+
     let url = this.config?.server || this.config?.["base-url"];
     let id = this.config?.deckID || this.config?.["deck-id"];
     console.log("feedback", url, id);
