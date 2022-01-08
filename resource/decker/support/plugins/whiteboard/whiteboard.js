@@ -172,10 +172,8 @@ function createButton(classes, callback, active = false, tooltip) {
 
 // setup all GUI elements
 function createGUI() {
-
-  buttons = document.createElement("nav");
+  buttons = document.createElement("div");
   buttons.id = "whiteboardButtons";
-//  reveal.appendChild(buttons);
 
   // handle hover visibility of panel
   buttons.onmouseenter = (evt) => {
@@ -185,17 +183,19 @@ function createGUI() {
     hoverTimer = setInterval(hidePanel, 1000);
   };
 
+  /* As this is no longer the default button the only thing this button now does is exiting
+   * the whiteboard mode. */
   buttonWhiteboard = createButton(
-    "whiteboard decker-button fas fa-edit checkbox",
+    "whiteboard fas fa-edit",
     toggleWhiteboard,
     false,
-    "Whiteboard Menu"
+    "Toggle Whiteboard Mode"
   );
   buttonWhiteboard.id = "whiteboardButton";
 
-  if(Reveal.hasPlugin("decker-plugins")) {
-    let manager = Reveal.getPlugin("decker-plugins");
-    manager.placeButton(buttons, "BOTTOM_LEFT");
+  if(Reveal.hasPlugin("ui-anchors")) {
+    let anchors = Reveal.getPlugin("ui-anchors");
+    anchors.placeButton(buttons, "BOTTOM_LEFT");
   }
 
   buttonSave = createButton(
@@ -212,7 +212,6 @@ function createGUI() {
     false,
     "Toggle Grid"
   );
-
   buttonGrid.setAttribute("role", "switch");
 
   buttonAdd = createButton(
@@ -229,25 +228,26 @@ function createGUI() {
     () => {
       if (!buttons.classList.contains("visible")) {
         showPanel();
+        buttonPen.focus();
         return;
       }
       if (tool != PEN) {
         selectTool(PEN);
       } else {
-        colorPicker.classList.toggle("active");
+        toggleColorPicker();
       }
     },
     false,
-    "Change Pen"
+    "Select or change Pen"
   );
-
   buttonPen.setAttribute("role", "switch");
 
   buttonEraser = createButton(
     "whiteboard fas fa-eraser radiobutton",
     () => {
       if (!buttons.classList.contains("visible")) {
-        buttons.classList.add("visible");
+        showPanel();
+        buttonEraser.focus();
         return;
       }
       selectTool(ERASER);
@@ -255,14 +255,14 @@ function createGUI() {
     false,
     "Pick Eraser"
   );
-
   buttonEraser.setAttribute("role", "switch");
 
   buttonLaser = createButton(
     "whiteboard fas fa-magic radiobutton",
     () => {
       if (!buttons.classList.contains("visible")) {
-        buttons.classList.add("visible");
+        showPanel();
+        buttonLaser.focus();
         return;
       }
       selectTool(LASER);
@@ -294,8 +294,11 @@ function createGUI() {
     const slideScale = Reveal.getScale();
     const radius = r * slideScale + "px";
     let b = document.createElement("button");
-    b.className = "whiteboard fas fa-circle";
-    b.style.fontSize = radius;
+    let s = document.createElement("span");
+    s.style.fontSize = radius;
+    s.className = "fas fa-circle";
+    b.className = "whiteboard";
+    b.appendChild(s);
     b.onclick = () => {
       selectPenRadius(r);
     };
@@ -568,8 +571,8 @@ function toggleLaser() {
   else selectTool(LASER);
 }
 
-function showColorPicker() {
-  colorPicker.classList.add("active");
+function toggleColorPicker() {
+  colorPicker.classList.toggle("active");
 }
 
 function hideColorPicker() {
@@ -613,8 +616,10 @@ function toggleWhiteboard(state) {
     // reset cursor
     clearTimeout(hideCursorTimeout);
     slides.style.cursor = "";
+    
   } else {
     if (userShouldBeWarned && !userHasBeenWarned) warnUser();
+    showPanel();
 
     // show scrollbar
     slides.classList.add("active");
