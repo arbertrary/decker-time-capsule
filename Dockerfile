@@ -6,7 +6,7 @@ RUN apt-get update &&	apt-get install -y \
     sassc
 
 # Package manager currently supplies 10.19, but 16.xx is need. New package source added:
-RUN curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -  && sudo apt-get install -y nodejs
+RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && apt-get update && apt-get install -y nodejs
 
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
     echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
