@@ -211,8 +211,8 @@
                       target = parent.previousElementSibling.firstElementChild;  
                   } else { // wrap around
                       target = parent.parentElement.lastElementChild.firstElementChild;
-                  }    
-                  target.focus();
+                  }
+                  setTimeout(() => target.focus());
               }
               break;
         case "ArrowDown":
@@ -230,7 +230,7 @@
               } else { // wrap around
                   target = parent.parentElement.firstElementChild.firstElementChild;
               }
-              target.focus();
+              setTimeout(() => target.focus());
           }
           break;
         default:
@@ -244,7 +244,7 @@
   initializeButton(localization) {
     let template = document.createElement("template");
     template.innerHTML = String.raw
-    `<button class="decker-button" id="decker-menu-button" title="${localization.open_button_label}" aria-label="${localization.open_button_label}">
+    `<button id="decker-menu-button" title="${localization.open_button_label}" aria-label="${localization.open_button_label}">
       <i class="fas fa-bars"></i>
     </button>`;
 
@@ -271,7 +271,7 @@
       let subslides = slide.querySelectorAll("section");
       if(subslides.length > 0) {
         subslides.forEach((subslide, v) => {
-          let subitem = this.createListItem(slide, h, v);
+          let subitem = this.createListItem(subslide, h, v);
           list.appendChild(subitem);
         });
       }
@@ -430,7 +430,8 @@
       search_button_label: "Toggle Searchbar",
       print_pdf_label: "Print PDF",
       toggle_fragments_label: "Show Slide Fragments",
-      close_label: "Close Navigation Menu"
+      close_label: "Close Navigation Menu",
+      no_title: "No Title"
     };
 
     let lang = navigator.language;
@@ -441,7 +442,8 @@
         search_button_label: "Suchleiste umschalten",
         print_pdf_label: "Als PDF drucken",
         toggle_fragments_label: "Folienfragmente anzeigen",
-        close_label: "Navigationsmenu schließen"
+        close_label: "Navigationsmenu schließen",
+        no_title: "Kein Titel"
       }
     }
 
