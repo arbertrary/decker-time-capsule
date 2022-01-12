@@ -266,15 +266,16 @@
     let list = wrapper.firstElementChild;
     let slides = document.querySelectorAll(".slides > section");
     slides.forEach((slide, h) => {
-      var item = this.createListItem(slide, h);
-      list.appendChild(item);
       let subslides = slide.querySelectorAll("section");
       if(subslides.length > 0) {
         subslides.forEach((subslide, v) => {
           let subitem = this.createListItem(subslide, h, v);
           list.appendChild(subitem);
         });
+        return;
       }
+      var item = this.createListItem(slide, h);
+      list.appendChild(item);
     });
     wrapper.addEventListener("keydown", (event) => this.ignoreTraversalKeys(event));
     this.menu.container.appendChild(wrapper);
