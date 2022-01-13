@@ -274,7 +274,7 @@
         });
         return;
       }
-      var item = this.createListItem(slide, h);
+      var item = this.createListItem(slide, h, undefined);
       list.appendChild(item);
     });
     wrapper.addEventListener("keydown", (event) => this.ignoreTraversalKeys(event));
@@ -292,10 +292,10 @@
   createListItem(slide, h, v) {
     let template = document.createElement("template");
     let title = this.getTitle(slide, "h1, h2, h3, h4, h5");
-    title = `${h+1}.${v ? v : ""} ${title}`;
+    title = `${h+1}.${v !== undefined ? v+1 : ""} ${title}`;
     template.innerHTML = String.raw
-    `<li class="slide-list-item" data-slide-h="${h}" ${v ? "data-slide-v=\""+v+"\"" : ""}>
-      <a class="slide-link" href="#/${h}/${v ? "/"+v : ""}" target="_self">${title}</a>
+    `<li class="slide-list-item" data-slide-h="${h}" ${v !== undefined ? "data-slide-v=\""+v+"\"" : ""}>
+      <a class="slide-link" href="#/${h}/${v !== undefined ? "/"+v : ""}" target="_self">${title}</a>
     </li>`
     let item = template.content.firstElementChild;
     let link = item.firstElementChild;
