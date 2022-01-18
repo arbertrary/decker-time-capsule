@@ -114,6 +114,7 @@ $if(highlightjs)$
 $endif$
     import notesPlugin from './$decker-support-dir$/vendor/reveal/plugin/notes/notes.esm.js';
     import captionPlugin from './$decker-support-dir$/plugins/live-captioning/live-captioning.js';
+    import a11yPlugin from './$decker-support-dir$/plugins/a11y/a11y.js';
 
     let revealConfig = { 
       // reveal configuration (see https://revealjs.com/config/)
@@ -145,13 +146,11 @@ $if(highlightjs)$
 $endif$
          notesPlugin,
          captionPlugin,
+         a11yPlugin
       ]
     };
 
     Reveal.initialize(revealConfig);
-
-    import setupFlyingFocus from './$decker-support-dir$/flyingFocus/flying-focus.js';
-    setupFlyingFocus();
   </script>
 
 </body>
