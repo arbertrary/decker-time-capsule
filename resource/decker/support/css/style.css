@@ -791,11 +791,7 @@ ul.choices [class*="show-"]:hover .quiz-tooltip {
   height: 100%;
   width: 100%;
   display: none;
-  /* position: absolute; */
   z-index: 1;
-  /* left: 0;
-  top: 0;
-  background-color: #fff; */
   overflow-x: hidden;
   transition: 0.5s;
   text-align: center;
@@ -810,19 +806,13 @@ ul.choices [class*="show-"]:hover .quiz-tooltip {
   left: 0;
 }
 
-#poll-overlay.active {
-  display: block;
-}
-
 #poll-overlay a {
-  /* text-decoration: none; */
   color: #000;
   font-size: 3vw;
 }
 
 #poll-overlay i {
   position: absolute;
-  /* top: 1em; */
   right: 4em;
   color: #eaeaea;
   font-size: 0.7em;
@@ -893,10 +883,6 @@ ul.choices [class*="show-"]:hover .quiz-tooltip {
   -webkit-animation: blinks 1s step-end infinite;
 }
 
-.poll .active {
-  display: block;
-}
-
 .poll div.sourceCode .yaml { display: none; }
 
 .poll ul.choices {
@@ -928,7 +914,7 @@ ul.choices [class*="show-"]:hover .quiz-tooltip {
   right: -10.5vw;
   bottom: 11vh;
   z-index: 41;
-  width: 60%;
+  width: 50%;
   height: 55%;
   object-fit: contain;
   border-radius: 10px;
@@ -939,6 +925,8 @@ ul.choices [class*="show-"]:hover .quiz-tooltip {
   background-color: #fff;
 }
 
+#poll-overlay.active,
+.poll .active,
 .poll_results.active {
   display: block;
 }
