@@ -18,7 +18,8 @@ lang: de
 - Insert: `.qic, .quiz-ic, .quiz-insert-choices`  
 - Free-text: `.qft, .quiz-ft, .quiz-free-text`  
 
-# Styling
+
+# Styling  
 
 To switch all questions to plain style, add to metadata:
 
@@ -32,23 +33,22 @@ quiz:
 Or to style individual questions, add `{.plain}`
 
 
-# Mutliple Choice 1 - Fancy
+# Multiple Choice 1 - Fancy
 
 ## {.quiz-mc}
 
 All choices get an optional comment to be potentially shown with the result. 
 
-
 - [X] a
     - So ist das. 
-    - test
+    - A second tooltip.
 - [ ] b
     - So nicht. 
     - Tooltip2
 - [ ] c
     - So auch nicht
 
-# Mutliple Choice 2 - Plain
+# Multiple Choice 2 - Plain
 
 ## {.quiz-mc .plain}
 
@@ -57,7 +57,7 @@ Choices appear in a column. Click the circle to the left of the choice to select
 
 - [X] a
     - So ist das. 
-    - test
+    - A second tooltip.
 - [ ] b
     - So nicht. 
     - Tooltip2
@@ -70,6 +70,7 @@ Choices appear in a column. Click the circle to the left of the choice to select
 ## What is the result of the following term? {.qmc}
 
 \begin{equation*}
+\small
 \begin{bmatrix}
 1&0&0&1\\
 0&1&0&1\\
@@ -84,36 +85,39 @@ Choices appear in a column. Click the circle to the left of the choice to select
 \end{bmatrix}
 \end{equation*}
 
-- [ ] $\begin{bmatrix}
+- [ ] $\small
+\begin{bmatrix}
 0&1&0&1\\
 -1&0&0&1\\
 0&0&1&0\\
 0&0&0&1
 \end{bmatrix}$
-   - As we will see, the second matrix describes a rotation. Combined with the first one, which describes a translation, the rotational part (upper left $3\times3$) would not be altered.
-- [X] $\begin{bmatrix}
+   - The rotational part (upper left $3\times3$) would not be altered.
+- [X] $\small
+\begin{bmatrix}
 0&-1&0&1\\
 1&0&0&1\\
 0&0&1&0\\
 0&0&0&1
 \end{bmatrix}$
    - Yes, that is correct.
-- [ ] $\begin{bmatrix}
+- [ ] $\small
+\begin{bmatrix}
 0&-1&0&0\\
 1&0&0&1\\
 0&0&1&0\\
 0&0&0&1
 \end{bmatrix}$
-   - As we will see, the first matrix describes a translattion. Combined with the second one, which describes a rotation, the translational part (right column) would not be altered.
+   - The translational part (right column) would not be altered.
 
-
-# Mutliple Choice 4 - Plain, Inline
+# Multiple Choice 4 - Plain, Inline
 
 Choices are displayed in a row. 
 
-## What is the result of the following term? {.qmc .plain .inline .small }
+## What is the result of the following term? {.qmc .plain .inline .x-small }
 
 \begin{equation*}
+\small
 \begin{bmatrix}
 1&0&0&1\\
 0&1&0&1\\
@@ -128,27 +132,30 @@ Choices are displayed in a row.
 \end{bmatrix}
 \end{equation*}
 
-- [ ] $\begin{bmatrix}
+- [ ] $\tiny
+\begin{bmatrix}
 0&1&0&1\\
 -1&0&0&1\\
 0&0&1&0\\
 0&0&0&1
 \end{bmatrix}$
-   - As we will see, the second matrix describes a rotation. Combined with the first one, which describes a translation, the rotational part (upper left $3\times3$) would not be altered.
-- [X] $\begin{bmatrix}
+   - The rotational part (upper left $3\times3$) would not be altered.
+- [X] $\tiny
+\begin{bmatrix}
 0&-1&0&1\\
 1&0&0&1\\
 0&0&1&0\\
 0&0&0&1
 \end{bmatrix}$
    - Yes, that is correct.
-- [ ] $\begin{bmatrix}
+- [ ] $\tiny
+\begin{bmatrix}
 0&-1&0&0\\
 1&0&0&1\\
 0&0&1&0\\
 0&0&0&1
 \end{bmatrix}$
-   - As we will see, the first matrix describes a translattion. Combined with the second one, which describes a rotation, the translational part (right column) would not be altered.
+   - The translational part (right column) would not be altered.
 
 
 # Matching 1 - Fancy
@@ -181,6 +188,8 @@ A grey box surrounds the matching questions and responses to ensure that all are
 
 ## {.qmi .plain}
 
+Click the drop-down to select the correct answer.
+
 Gravity
 : $(0, -k\,m, 0)\T$
 
@@ -200,8 +209,6 @@ Springs
 # Matching 3 - Fancy
 
 ## {.quiz-mi} 
-
-Drag the elements to create correct pairings
 
 A
 : drag to A
@@ -298,6 +305,7 @@ Bild 5
 Bild 6
 : ! 
 
+
 # Blanktext/Inserting MC
 
 Like multiple-choice, however, the choices are shown as drop-down lists embedded inside the text. Hence, beware of the whitespaces below. 
@@ -311,6 +319,7 @@ Decker is a software built using
 
 - [ ] Scala
     - Unfortunately not.
+    - A second tooltip.
 - [X] Haskell
     - Due to Pandoc.
 - [ ] Java
@@ -323,6 +332,7 @@ and builds upon the tool
 
 - [X] Pandoc
   - See previous tooltip.
+  - A second tooltip.
 - [ ] PowerPoint
 
 .
@@ -338,6 +348,7 @@ Decker is a software built using
 
 - [ ] Scala
     - Unfortunately not.
+    - A second tooltip.
 - [X] Haskell
     - Due to Pandoc.
 - [ ] Java
@@ -366,6 +377,7 @@ Das Ergebnis von $2*2=~?$ ist?
 
 - 4
     - Die perfekte Lösung 
+    - A second tooltip.
 - vier
     - Auch ok 
 - four
@@ -384,6 +396,8 @@ What's the first letter in the alphabet?
 
 - [X] A
   - The modern form of the capital letter A evolved from a the Latin script, a transformation of Greek script, which is in turn a transformation of the Phoenician script.
+  - A second tooltip.
+- [X] α
 - [ ] B
   - The letter B isn't used in any numbers until billion.
 
@@ -409,6 +423,7 @@ Das Ergebnis von $2*2=~?$ ist?
 
 - 4
     - Die perfekte Lösung 
+    - A second tooltip.
 - vier
     - Auch ok 
 - four
@@ -425,6 +440,7 @@ Das Ergebnis von $2*2=~?$ ist?
 
 - 4
     - Die perfekte Lösung 
+    - A second tooltip.
 - vier
     - Auch ok 
 - four
@@ -442,6 +458,7 @@ Das Ergebnis von $2*2=~?$ ist?
 
 - [X] 4
     - Die perfekte Lösung 
+    - A second tooltip.
 - [X] vier
     - Auch ok 
 - [X] four
@@ -462,6 +479,7 @@ Decker is a software built using
 
 - [ ] Scala
     - Unfortunately not.
+    - A second tooltip.
 - [X] Haskell
     - Due to Pandoc.
 - [ ] Java

@@ -241,7 +241,7 @@ setQuizMeta q meta = set quizMeta (setMetaForEach meta (q ^. quizMeta)) q
 -- | A simple Html button
 quizButton :: T.Text -> T.Text -> Meta -> Inline 
 quizButton cls dict meta = 
-  tag "button" $ Span ("", [cls], []) [Str $ lookupInDictionary dict meta]
+  tag "button" $ Span ("", [cls, "quiz-button"], []) [Str $ lookupInDictionary dict meta]
 
 renderMultipleChoice :: Meta -> Quiz -> Block
 renderMultipleChoice meta quiz@(MultipleChoice title tgs qm q ch) =
@@ -265,27 +265,12 @@ choiceList t choices = tag "ul" $ Div ("", [t], []) $ map handleChoices choices
     handleChoices (Choice c text comment) = 
       tag "li" $ 
       Div ("", [cls c], []) $ 
-      Div ("", ["choice_ltr"], []) [Plain text] : [Div ("", ["tooltip"], []) (reduceTooltip comment)]
-      -- Span ("", ["choice_ltr"], []) text : [Span ("", ["tooltip"], []) (concatMap (map parseTips) comment)]
+      Div ("", ["choice_ltr"], []) [Plain text] : [Div ("", ["quiz-tooltip"], []) (reduceTooltip comment)]
     cls cor = if cor then "correct" else "wrong"
     reduceTooltip :: [Block] -> [Block]
     reduceTooltip [BulletList blocks] = concatMap (\x -> x ++ [Plain [LineBreak]]) blocks
     reduceTooltip bs = bs
-    -- parseComment :: Block -> Inline
-    -- parseComment (BulletList list) = map parseTips list
-    -- parseComment a = Str "Sam"
-    -- parseTips :: [Block] -> Inline
-    -- parseTips [Plain tips] = Str $ T.pack $ concatMap cleanTip tips
-    -- parseTips [Para a] = Str "Got a paragraph"
-    -- parseTips [BulletList a] = Str "Got a bulletList"
-    -- parseTips [Div a b] = Str "Got a div"
-    -- parseTips b = Str "Got something else" 
-    -- cleanTip :: Inline -> String
-    -- cleanTip t = case t of
-    --     Str a -> T.unpack a
-    --     Space -> " "
-    --     Math t ma -> "need to parse math"
-    --     a -> ""
+
 
 renderInsertChoices :: Meta -> Quiz -> Block
 renderInsertChoices meta quiz@(InsertChoices title tgs qm q) =
@@ -297,13 +282,11 @@ renderInsertChoices meta quiz@(InsertChoices title tgs qm q) =
         [] -> []
         _ -> [Header 2 ("", [], []) title]
     buildQuestions :: [([Block], [Choice])] -> [Block]
-    buildQuestions qu = concatMap questionBlocks qu
+    buildQuestions = concatMap questionBlocks
     questionBlocks :: ([Block], [Choice]) -> [Block]
-    questionBlocks ([], chs) = Plain [select chs] : [choiceList "solutionList" chs]
-    -- questionBlocks ([], chs) = [Plain $ select chs : [choiceList "solutionList" chs]]
+    questionBlocks ([], chs) = Plain [select chs] : [choiceList "quiz-hidden" chs]
     questionBlocks (bs, []) = map reduceBlock bs
-    questionBlocks (bs, chs) = map reduceBlock bs ++ Plain [select chs] : [choiceList "solutionList" chs]
-    -- questionBlocks (bs, chs) = map reduceBlock bs ++ [Plain $ select chs : [choiceList "solutionList" chs]]
+    questionBlocks (bs, chs) = map reduceBlock bs ++ Plain [select chs] : [choiceList "quiz-hidden" chs]
     reduceBlock :: Block -> Block
     reduceBlock (Para is) = Plain ([Str " "] ++ is ++ [Str " "])
     reduceBlock p = p
@@ -352,20 +335,19 @@ renderMatching meta q =
 
 renderFreeText :: Meta -> Quiz -> Block
 renderFreeText meta quiz@(FreeText title tgs qm q ch) =
-  Div ("", cls, []) $ header ++ q ++ [input] ++ [Plain (sButton : rButton : [sol])]
+  Div ("", cls, []) $ header ++ q ++ [input] ++ [Plain (sButton : [rButton] )]
   where
     cls = tgs ++ [view style qm] ++ [view solution qm]
     header =
       case title of
         [] -> []
         _ -> [Header 2 ("", [], []) title]
-    input = tag "input" $ Div ("", [], [("placeholder", placeholderText)]) [choiceList "solutionList" ch]
-    -- input = tag "input" $ Div ("", [], [("placeholder", placeholderText)]) [Plain [choiceList "solutionList" ch]]
+    input = tag "input" $ Div ("", ["quiz-ftinput"], [("placeholder", placeholderText)]) [choiceList "qft-solutions" ch]
     placeholderText :: T.Text
     placeholderText = lookupInDictionary "quiz.input-placeholder" newMeta
     sButton = quizButton "solutionButton" "quiz.solution" newMeta 
     rButton = quizButton "resetButton" "quiz.reset-button" newMeta
     newMeta = setMetaValue "lang" (view lang qm) meta
-    sol = tag "ul" $ Span ("", ["solutionDiv"], []) [Str ""]
+    -- sol = tag "ul" $ Span ("", ["solutionDiv"], []) [Str ""]
 renderFreeText meta q =
   Div ("", [], []) [Para [Str "ERROR NO FREETEXT QUIZ"]]

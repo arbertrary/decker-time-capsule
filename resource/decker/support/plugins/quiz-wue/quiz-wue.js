@@ -7,7 +7,7 @@ function quizMC() {
   )) {
     for (let answer of question.getElementsByTagName("li")) {
       // remove tooltip if empty to avoid grey dot
-      const tip = answer.querySelector(".tooltip");
+      const tip = answer.querySelector(".quiz-tooltip");
       if (tip !== null) {
         if (tip.childElementCount === 0) {
           tip.remove();
@@ -29,8 +29,8 @@ function quizMC() {
 
 function quizFT() {
   for (let question of document.querySelectorAll("div.qft,div.quiz-ft,div.quiz-free-text")) {
-    const solutions = question.querySelector(".solutionList");
-    const input = question.querySelector("input");
+    const solutions = question.querySelector(".qft-solutions");
+    const input = question.querySelector(".quiz-ftinput");
 
     // Listen for enter, delete, backspace in input field
     var buffer = [];
@@ -46,16 +46,13 @@ function quizFT() {
       const checked = checkAnswer(solutions, input.value.toLowerCase().trim());
       input.classList.remove("show-right", "show-wrong");
       input.classList.add(checked.correct ? "show-right" : "show-wrong");
+      resetButton.classList.remove('quiz-disabled');
 
       // Display the tooltip/solution box for any expected answer, correct or incorrect
       input.addEventListener("mouseover", () => {
-        if (checked.predef) {
-          solutions.classList.add("solved");
-        }
+        if (checked.predef) { solutions.classList.add("solved"); }
       });
-      input.addEventListener("mouseout", () => {
-        solutions.classList.remove("solved");
-      });
+      input.addEventListener("mouseout", () => { solutions.classList.remove("solved"); });
     }
 
     // Add click listeners to solution, reset buttons
@@ -66,36 +63,18 @@ function quizFT() {
     const resetButton = question.querySelector(".resetButton");
     if (resetButton) {
       resetButton.addEventListener("click", resetQuestion);
-      resetButton.classList.add(plain ? "disabled" : "hidden");
+      resetButton.classList.add(plain ? "quiz-disabled" : "quiz-hidden");
     }
 
     const optList = solutions.getElementsByTagName("li");
-    const solutionDiv = question.querySelector(".solutionDiv");
-
-    if (solutionDiv) {
-      // Populate solutionDiv to reserve space - hide if fancy style
-      for (let c of optList) {
-        if (c.classList.contains("correct")) {
-          solutionDiv.appendChild(c.cloneNode(true));
-        }
-      }
-      if (!plain) {
-        solutionDiv.classList.add("hidden");
-      }
-    }
 
     // Handle click of solution button
     function showSolution() {
-      if (plain) {
-        solutionDiv.classList.add("solved");
-        this.classList.add("disabled");
-        resetButton.classList.remove("disabled");
-      } else {
-        solutions.classList.add("solved");
-        for (let c of optList) {
-          if (c.classList.contains("correct")) {
-            c.classList.add("solved");
-          }
+      resetButton.classList.remove('quiz-disabled');
+      solutions.classList.add("solved");
+      for (let c of optList) {
+        if (c.classList.contains("correct")) {
+          c.classList.add("solved");
         }
         // Hide tooltip box after 3 seconds
         setTimeout(() => {
@@ -103,20 +82,17 @@ function quizFT() {
           Array.from(solutions.getElementsByTagName("li")).map((x) => {
             x.classList.remove("solved");
           });
-        }, 3000);
+        }, 2000);
       }
     }
 
     // Return to original state
     function resetQuestion() {
-      for (let c of optList) {
-        c.classList.remove("solved");
-      }
-      solutionDiv.classList.remove("solved");
+      for (let c of optList) { c.classList.remove("solved"); }
       input.classList.remove("show-right", "show-wrong");
       input.value = "";
-      solutionButton.classList.remove("disabled");
-      resetButton.classList.add("disabled");
+      solutionButton.classList.remove("quiz-disabled");
+      resetButton.classList.add("quiz-disabled");
     }
   }
 }
@@ -151,7 +127,7 @@ function quizIC() {
           const answers = solutionList.getElementsByTagName("li");
           const tip = answers
             .item(sel.selectedIndex - 1)
-            .querySelector(".tooltip");
+            .querySelector(".quiz-tooltip");
           if (tip.innerHTML.trim() !== "") {
             const cln = tip.cloneNode(true);
             tipDiv.appendChild(cln);
@@ -327,7 +303,7 @@ function buildPlainMatch(question) {
   [matchItems, buckets].forEach((el) => matchDiv.appendChild(el));
   question.insertBefore(matchDiv, solutionButton);
 
-  const choices = buildSelect(buckets,matchItems.querySelectorAll(".matchItem"));
+  const choices = buildSelect(buckets, matchItems.querySelectorAll(".matchItem"));
 
   let allBuckets = buckets.querySelectorAll(".bucket");
   for (let i = 0; i < allBuckets.length; i++) {
@@ -337,6 +313,7 @@ function buildPlainMatch(question) {
     matchItems.appendChild(matchQuestion);
 
     const lab = document.createElement("label");
+    
     lab.setAttribute("data-bucketid",
       allBuckets[i].classList.contains("distractor") ? "" : allBuckets[i].getAttribute("data-bucketid"));
     lab.innerHTML = allBuckets[i].innerHTML;
@@ -350,7 +327,7 @@ function buildPlainMatch(question) {
     });
 
     const optList = document.createElement("div");
-    optList.classList.add("optList");
+    optList.classList.add("quiz-optList");
     optList.addEventListener("click", function () {
       showList(this.nextElementSibling);
     });
@@ -396,7 +373,7 @@ function buildPlainMatch(question) {
   function hideList(event) {
     let parentCL = event.target.parentElement.classList;
     if (
-      !parentCL.contains("optList") &&
+      !parentCL.contains("quiz-optList") &&
       !parentCL.contains("shown") &&
       !event.target.classList.contains("shown")
     ) {
@@ -407,7 +384,7 @@ function buildPlainMatch(question) {
   solutionButton.addEventListener("click", () => {
     const matches = matchItems.querySelectorAll(".matchQuestion");
     for (let mq of matches) {
-      let list = mq.querySelector(".optList");
+      let list = mq.querySelector(".quiz-optList");
       let correct = list.previousElementSibling.getAttribute("data-bucketid");
       let allCorrect = [];
       let allSelected = [];
@@ -451,7 +428,7 @@ function buildPlainMatch(question) {
  */
 function buildSelect(buckets, answers) {
   const optList = document.createElement("div");
-  optList.classList.add("options");
+  optList.classList.add("quiz-options");
   const blank = document.createElement("p");
   blank.classList.add("option");
   blank.innerText = "...";
