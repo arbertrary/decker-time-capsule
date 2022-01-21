@@ -5,6 +5,7 @@
  * @author Henrik Tramberend
  * @author Sebastian Hauer (rewrite)
  */
+ import client from "./api-client.js";
 
  class Feedback {
   timeout = 500;
@@ -76,16 +77,10 @@
    * @param {*} base A URL.
    * @param {*} deckId A unique id from deck.yaml or the deck markdown.
    */
-  contactEngine(base, deckId) {
+  createEngine(base, deckId) {
     this.engine.deckId = deckId || this.deckURL;
-    import(base + "/decker-util.js")
-    .then((util) => {
-      console.log("Decker engine contacted at: ", base);
-      this.engine.api = util.buildApi(base);
-      this.prepareEngine();
-    }).catch((e) => {
-      console.log("Can't contact decker engine: " + e);
-    });
+    this.engine.api = new client(base);
+    this.prepareEngine();
   }
 
   /**
@@ -461,17 +456,6 @@
     return question;
   }
 
-  createQuestionControls() {
-    let text = this.localization.question_container;
-    let voteTemplate = document.createElement("template");
-    let editTemplate = document.createElement("template");
-    let deleteTemplate = document.createElement("template");
-    let addAnswerTemplate = document.createElement("template");
-    let checkTemplate = document.createElement("template");
-    voteTemplate.innerHTML = String.raw
-``
-  }
-
   /**
    * Creates a question list item that represents an answer.
    * @param {*} answer 
@@ -793,8 +777,7 @@
 
     let url = this.config?.server || this.config?.["base-url"];
     let id = this.config?.deckID || this.config?.["deck-id"];
-    console.log("feedback", url, id);
-    if(url) this.contactEngine(url, id);
+    if(url) this.createEngine(url, id);
   }
 }
 
