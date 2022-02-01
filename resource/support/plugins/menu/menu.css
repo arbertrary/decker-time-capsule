@@ -343,3 +343,15 @@ body.print-pdf .slide-menu-wrapper .slide-menu-overlay
 {
 	display: none;
 }
+
+
+/*********************************************
+ * MARIO: style sections slides in menu
+ *********************************************/
+
+li.slide-menu-item.section {
+	background-color: #444;
+}
+li.slide-menu-item.section>span {
+	font-weight: bold;
+}
