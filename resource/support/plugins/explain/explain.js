@@ -777,7 +777,7 @@ let ExplainPlugin = (function () {
         durationDisplay: false,
         remainingTimeDisplay: true,
         playbackRateMenuButton: true,
-        fullscreenToggle: false,
+        fullscreenToggle: true,
         pictureInPictureToggle: false,
       },
       userActions: {
