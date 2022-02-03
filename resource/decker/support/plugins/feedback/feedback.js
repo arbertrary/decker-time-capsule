@@ -120,10 +120,11 @@
   /**
    * Opens the menu and updates its content. Also focuses the first button in the menu.
    */
-  openMenu() {
+   openMenu() {
     this.menu.container.inert = false;
     this.menu.token_lock.focus();
     this.requestMenuContent();
+    this.reveal.getRevealElement().inert = true;
     localStorage.setItem("feedback-state", "open");
   }
 
@@ -133,6 +134,7 @@
   closeMenu() {
     this.menu.container.inert = true;
     this.open_button.focus();
+    this.reveal.getRevealElement().inert = false;
     localStorage.removeItem("feedback-state");
   }
 
@@ -681,8 +683,7 @@
       let anchors = this.reveal.getPlugin("ui-anchors");
       anchors.placeButton( this.open_button, this.position );
     }
-    let reveal_element = document.querySelector(".reveal");
-    reveal_element.appendChild(this.menu.container);
+    document.body.appendChild(this.menu.container);
 
     /* Finish setup before presentation */
 

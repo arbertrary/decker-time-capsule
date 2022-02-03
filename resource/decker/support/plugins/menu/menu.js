@@ -29,6 +29,7 @@
       close_button: undefined,
       slide_list: undefined,
     }
+    this.glass = undefined;
     this.position = position;
   }
 
@@ -91,6 +92,7 @@
       this.inert = false;
       this.reveal.getRevealElement().inert = true;
       this.disableKeybinds();
+      this.glass.classList.add("show");
       if(event && event.detail === 0) {
         this.menu.search_button.focus();
       }
@@ -106,6 +108,7 @@
       this.inert = true;
       this.reveal.getRevealElement().inert = false;
       this.enableKeybinds();
+      this.glass.classList.remove("show");
       if(event && event.detail === 0) {
         this.open_button.focus();
       }
@@ -382,6 +385,14 @@
     let toggle_icon = animations ? "fa-check-circle" : "fa-circle";
     template.innerHTML = String.raw
     `<div class="decker-menu slide-in-left" id="decker-menu" inert>
+      <div class="menu-header">
+        <button id="decker-menu-close-button" class="close" title="${localization.close_label}" aria-label="${localization.close_label}">
+          <i class="fas fa-times-circle"></i>
+        </button>
+        <div id="decker-menu-title">
+          <span>${localization.title}</span>
+        </div>
+      </div>
       <div class="tile-grid">
         <button class="tile" id="decker-menu-search-button" title="${localization.search_button_label}" aria-label="${localization.search_button_label}">
           <i class="fas fa-search"></i>
@@ -394,10 +405,6 @@
         <button class="switch tile" id="decker-menu-animation-button" role="switch" aria-checked="${animations}" title="${localization.toggle_fragments_label}" aria-label="${localization.toggle_fragments_label}">
           <i class="far ${toggle_icon}"></i>
           <p>${localization.toggle_fragments_label}</p>
-        </button>
-        <button class="close tile" id="decker-menu-close-button" title="${localization.close_label}" aria-label="${localization.close_label}">
-          <i class="fas fa-times"></i>
-          <p>${localization.close_label}</p>
         </button>
       </div>
      </div>`
@@ -420,6 +427,12 @@
 
     this.initializeSlideList();
     this.menu.container.addEventListener("keydown", (event) => this.traverseList(event));
+
+    /* Temporary Solution */
+    this.glass = document.createElement("div");
+    this.glass.className = "glass";
+    this.glass.addEventListener("click", (event) => this.closeMenu(event));
+    document.body.appendChild(this.glass);
   }
 
   init(reveal) {
@@ -432,7 +445,8 @@
       print_pdf_label: "Print PDF",
       toggle_fragments_label: "Show Slide Fragments",
       close_label: "Close Navigation Menu",
-      no_title: "No Title"
+      no_title: "No Title",
+      title: "Navigation"
     };
 
     let lang = navigator.language;
@@ -444,7 +458,8 @@
         print_pdf_label: "Als PDF drucken",
         toggle_fragments_label: "Folienfragmente anzeigen",
         close_label: "Navigationsmenu schließen",
-        no_title: "Kein Titel"
+        no_title: "Kein Titel",
+        title: "Navigation"
       }
     }
 

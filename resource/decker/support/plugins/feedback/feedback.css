@@ -1,39 +1,3 @@
-:root {
-  --primary-color: #639A00;
-  --lighter-color: #84b819;
-  --darker-color: #4a7400;
-  --menu-border-color: rgba(0,0,0,0);
-  --border-radius: 0.2em;
-  --header-background: var(--lighter-color);
-  --header-color: white;
-  --header-button-color: white;
-  --list-background: var(--primary-color);
-  --list-color: black;
-  --list-button-color: gray;
-  --footer-background: var(--lighter-color);
-  --footer-color: white;
-  --footer-button-color: white;
-}
-
-/* Auskommentieren um Beispiel für TU-Style zu erhalten --- diese Variablen können und sollten woanders definiert werden */
-
-:root {
-  --primary-color: rgba(0,0,0,0.5);
-  --lighter-color: rgba(255,255,255,0.5);
-  --darker-color: rgba(0,0,0,0.5);
-  --menu-border-color: rgba(0,0,0,0);
-  --border-radius: 0.2em;
-  --header-background: var(--lighter-color);
-  --header-color: white;
-  --header-button-color: white;
-  --list-background: var(--primary-color);
-  --list-color: black;
-  --list-button-color: gray;
-  --footer-background: var(--lighter-color);
-  --footer-color: white;
-  --footer-button-color: white;
-}
-
 /* Menu */
 
 .feedback-menu {
@@ -48,12 +12,12 @@
   transition: transform 0.5s;
   z-index: 256;
   
-  background: var(--primary-color);
+  background: var(--menu-background-color);
   border-left: 2px solid var(--menu-border-color);
 }
 
 .feedback-menu[inert] {
-  transform: translateX(100%);
+  transform: translateX(200%);
 }
 
 /* Badges */
@@ -62,7 +26,7 @@
   position: absolute;
   top: 0;
   right: 0;
-  color: white;
+  color: var(--base00);
 }
 
 .feedback-badge[data-count="0"] {
@@ -82,12 +46,12 @@
   white-space: nowrap;
   border-radius: 0.4em;
   padding: 0.2em 0.4em;
-  background-color: red;
+  background-color: var(--base08);
   color: white;
 }
 
 .feedback-badge.answered, .counter.answered {
-  background-color: green;
+  background-color: var(--base0B);
 }
 
 /* Menu Parts */
@@ -105,8 +69,8 @@ div.feedback-header {
   justify-content: space-between;
 
   padding: 0.3em;
-  background: var(--header-background);
-  color: var(--header-color);
+  background: var(--menu-header-background-color);
+  color: var(--foreground-color);
 }
 
 div.feedback-title {
@@ -138,9 +102,9 @@ div.feedback-header input[type="password"] {
   flex: 1 1;
   min-width: 2em;
   max-width: 100em;
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: var(--feedback-input-background-color);
   border: none;
-  border-radius: var(--border-radius);
+  border-radius: var(--feedback-element-border-radius);
   padding: 0.3em;
   margin: 0;
 }
@@ -152,11 +116,11 @@ div.feedback-header-buttons {
 }
 
 div.feedback-header-buttons button {
-  color: var(--header-button-color);
+  color: var(--menu-background-color);
 }
 
 div.feedback-footer button {
-  color: var(--footer-button-color);
+  color: var(--menu-background-color);
 }
 
 div.feedback-header-buttons button,
@@ -167,20 +131,20 @@ div.feedback-footer button {
   flex: 0 1;
   display: flex;
   flex-direction: column;
-  background-color: rgba(0,0,0,0);
 }
 
 div.feedback-menu button {
+  cursor: pointer;
   border: none;
-  background-color: rgba(0,0,0,0);
+  background-color: var(--icon-background-color);
 }
 
 div.feedback-menu button:hover {
-  color: var(--darker-color);
+  color: var(--icon-hover-color);
 }
 
 div.feedback-menu button:active {
-  color: var(--lighter-color);
+  color: var(--icon-active-color);
 }
 
 div.feedback-header button > span {
@@ -197,11 +161,11 @@ div.feedback-menu div.feedback-list {
 }
 
 div.feedback-menu div.feedback-list div.feedback-item {
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: var(--base00);
   font-family: "Roboto", Helvetica, sans-serif;
   line-height: 125%;
   border: none;
-  border-radius: var(--border-radius);
+  border-radius: var(--feedback-element-border-radius);
   margin-bottom: 0.5em;
   padding: 0.3em;
 
@@ -241,7 +205,7 @@ div.feedback-controls-wrapper {
 }
 
 div.feedback-list button {
-  color: var(--list-button-color);
+  color: var(--icon-inactive-color);
   border: none;
   margin: 0;
   padding: 0;
@@ -250,19 +214,20 @@ div.feedback-list button {
 }
 
 div.feedback-menu button.answered {
-  color: green;
+  color: var(--base0B);
 }
 
 div.feedback-menu button.notanswered {
-  color: red;
+  color: var(--base08);
 }
 
 div.feedback-menu button.cantvote {
-  color: lightgray;
+  cursor: default;
+  color: var(--base02);
 }
 
 div.feedback-menu button.cantvote:hover {
-  color: lightgray;
+  color: var(--base02);
 }
 
 div.feedback-item button {
@@ -273,7 +238,7 @@ div.feedback-menu div.feedback-question-input {
   flex: 0 1;
   padding: 0.3em;
 
-  background: var(--list-background);
+  background: var(--feedback-list-background-color);
 }
 
 div.feedback-question-input textarea {
@@ -282,14 +247,16 @@ div.feedback-question-input textarea {
   height: 6em;
   width: calc(100% - 0.6em);
 
+  background-color: var(--feedback-input-background-color);
+
   border: none;
-  border-radius: var(--border-radius);
+  border-radius: var(--feedback-element-border-radius);
   font-size: 0.8em;
 }
 
 div.feedback-question-input textarea[answer] {
-  background-color: #efe;
-  border: solid 1px #cfc;
+  background-color: var(--base0B-bbg);
+  border: solid 1px var(--base0C-bbg);
 }
 
 div.feedback-menu div.feedback-footer {
@@ -300,7 +267,8 @@ div.feedback-menu div.feedback-footer {
   align-items: center;
 
   padding: 0.3em;
-  background: var(--footer-background);
+  color: var(--feedback-footer-text-color);
+  background: var(--feedback-footer-background-color);
 }
 
 div.feedback-credentials {
@@ -318,14 +286,16 @@ div.feedback-credentials:not(.visible) {
 
 div.feedback-credentials input {
   flex: 1 0;
-  color: black;
+  color: var(--foreground-color);
   margin: 0;
   margin-left: 0.5em;
   padding: 0.3em;
   width: 40%;
 
+  background-color: var(--feedback-input-background-color);
+
   border: none;
-  border-radius: var(--border-radius);
+  border-radius: var(--feedback-element-border-radius);
 
   font-size: 0.8em;
 }
@@ -333,19 +303,19 @@ div.feedback-credentials input {
 div.feedback-login {
   flex: 0 1;
 
-  color: gray;
+  color: var(--feedback-footer-text-color);
   background-color: rgba(0, 0, 0, 0);
   font-size: 1em;
 }
 
 div.feedback-login:not(.admin) {
   opacity: 1;
-  color: lightgray;
+  color: var(--feedback-footer-text-color);
 }
 
 div.feedback-login.admin {
   opacity: 1;
-  color: red;
+  color: var(--base08);
 }
 
 div.feedback-menu div.feedback-item p,
@@ -375,7 +345,7 @@ div.feedback-menu div.feedback-item strong {
 }
 
 div.feedback-menu div.feedback-item a {
-  color: darkblue;
+  color: var(--base0D-fg);
 }
 
 div.feedback-menu div.feedback-item ol {
@@ -395,7 +365,7 @@ div.feedback-menu div.feedback-item code {
 
 div.feedback-menu div.feedback-item pre {
   padding: 0.2em;
-  background-color: #eee;
+  background-color: var(--code-background-color);
   white-space: pre-wrap;
 }
 
@@ -428,8 +398,8 @@ li.slide-list-item[data-questions]::after {
   font-size: 0.9em;
 
   /* from class counter */
-  background-color: red;
-  color: white;
+  background-color: var(--base08);
+  color: var(--menu-background-color);
 
   /* from class badge */
   font-family: sans-serif;
@@ -443,5 +413,5 @@ li.slide-list-item[data-questions]::after {
 }
 
 li.slide-list-item[data-questions][data-answered="true"]::after {
-  background-color: green;
+  background-color: var(--base0B);
 }
