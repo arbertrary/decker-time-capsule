@@ -26,23 +26,6 @@
     cursor: pointer;
 }
 
-.glass {
-    display: none;
-    z-index: 128;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0,0,0, 0.5);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-}
-
-.glass.show {
-    display: block;
-}
-
 .menu-header button:hover {
     color: var(--icon-hover-color);
 }
@@ -139,4 +122,21 @@ ul.slide-list > li:hover > a {
 
 ul.slide-list > li::marker {
     content: none;
+}
+
+.glass {
+    display: none;
+    z-index: 128;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.glass.show {
+    display: block;
 }
