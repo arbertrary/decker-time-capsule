@@ -96,7 +96,7 @@ div#record-panel:hover {
   border-bottom-right-radius: 5px;
   border: 1px solid var(--inactive-color);
   border-top: none;
-  background-color: var(--background-color);
+  background-color: var(--shade1);
 }
 
 .controls-row {
@@ -159,6 +159,19 @@ div#record-panel:hover {
   color: red;
 }
 
+#microphone-indicator[data-state="mute"]::before {
+  content:"\f131";
+  font-weight: 900;
+  color: red;
+}
+
+#caption-indicator[data-state="captioning"]::before {
+  content: "\f20a";
+  font-weight: 900;
+  color: red;
+}
+
+
 button.explain[disabled] {
   color: gray;
   opacity: 0.5;
@@ -172,6 +185,23 @@ button.stop-button {
   font-size: 25px;
 }
 
+button.record-button:hover,
+button.pause-button:hover,
+button.stop-button:hover,
+button.caption-button:hover,
+button.mute-button:hover {
+  color: tomato;
+}
+
+button.record-button:active,
+button.pause-button:active,
+button.stop-button:active,
+button.caption-button:active,
+button.mute-button:active {
+  color: orangered;
+}
+
+
 .gain-slider {
   display: block;
   min-width: 200px;
@@ -184,6 +214,18 @@ button.stop-button {
   height: 15px;
   width: 20px;
   text-align: right;
+}
+
+.mute-button {
+  color: red;
+}
+
+.mute-button.off {
+  color: grey;
+}
+
+.caption-button:not(.captioning) {
+  color: grey;
 }
 
 .controls-row select {
