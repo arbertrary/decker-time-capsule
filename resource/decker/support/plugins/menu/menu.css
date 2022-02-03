@@ -3,43 +3,79 @@
     flex-direction: column;
     z-index: 256;
 
-    background: white;
+    background: var(--menu-background-color);
     border-right: 2px solid var(--menu-border-color);
+}
+
+.menu-header {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0.3em;
+    background: var(--menu-header-background-color);
+    color: var(--foreground-color);
+}
+
+.menu-header button {
+    font-size: 38px; /* This is not calculated correctly right now, probably because the menu is not part of the reveal element in order for inert to work */
+    border: none;
+    background: var(--icon-background-color);
+    color: var(--menu-background-color);
+    cursor: pointer;
+}
+
+.menu-header button:hover {
+    color: var(--icon-hover-color);
+}
+
+.menu-header button:active {
+    color: var(--icon-active-color);
 }
 
 div.tile-grid {
     display: flex;
-    height: 72px;
+    height: 3em;
 }
 
 button.tile {
+    cursor: pointer;
     display: block;
     flex-grow: 1;
-    border: 2px solid var(--primary-color);
-    background: white;
-    font-size: 24px;
+    border: none;
+    border-radius: var(--icon-border-radius);
+
+    background: var(--icon-background-color);
+    font-size: 1.5em;
     padding: 0;
     margin: 0;
     border-radius: 0;
 }
 
 button.tile > p {
-    font-size: 16px;
+    font-size: 0.25em;
     font-weight: bold;
 }
 
+@media screen and (max-width: 960px) {
+    button.tile > p {
+        display: none;
+    }
+}
+
 button.tile:hover , button.tile:focus {
-    color: white;
+    color: var(--menu-background-color);
     background: var(--icon-hover-color);
 }
 
 button.tile:active {
-    color: white;
+    color: var(--menu-background-color);
     background: var(--icon-active-color);
 }
 
 ul.slide-list {
-    font-size: 20px;
+    font-size: 0.8em;
     list-style: none;
 
     width: 100%;
@@ -64,6 +100,10 @@ ul.slide-list > li[data-slide-v] {
     margin-left: 2em;
 }
 
+ul.slide-list >li[data-slide-v="0"] {
+    margin-left: 0;
+}
+
 ul.slide-list > li > a {
     display: flex;
     width: calc(100% - 4px);
@@ -77,9 +117,26 @@ ul.slide-list > li:hover {
 }
 
 ul.slide-list > li:hover > a {
-    color: white;
+    color: var(--menu-background-color);
 }
 
 ul.slide-list > li::marker {
     content: none;
+}
+
+.glass {
+    display: none;
+    z-index: 128;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.glass.show {
+    display: block;
 }
