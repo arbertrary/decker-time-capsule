@@ -29,4 +29,9 @@
 
   --highlight-color: var(--accent5-bg);
   --flying-focus-color: var(--highlight-color);
+
+  --menu-background-color: var(--shade1);
+  --menu-border-color: var(--shade2);
+
+  --menu-header-background-color: var(--shade2);
 }
