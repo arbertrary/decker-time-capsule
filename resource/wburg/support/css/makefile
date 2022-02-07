@@ -1,11 +1,11 @@
 includes = $(wildcard _*.scss)
 
-css: decker.css page.css handout.css
+css: deck.css page.css handout.css
 
 watch: css
 	ls *.scss | entr make css
 
-decker.css: $(includes)
+deck.css: $(includes)
 page.css: $(includes)
 handout.css: $(includes)
 

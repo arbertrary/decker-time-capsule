@@ -211,11 +211,11 @@ Caption: Block Caption $e=mc^2$
 
 ## `{width=50%}`
 
-![Overwriting Block Caption $e=mc^2$](include/06-metal.png){width="50%"}
+![Overwriting Block Caption $e=mc^2$](include/06-metal.png){width="1000px" height="2000px"}
 
 # Local Image
 
-## `{height=200px align=right}`
+## `{height=200px  align=right}`
 
 ![Overwriting Block Caption $e=mc^2$](include/06-metal.png){align="right"
 height="200px"}

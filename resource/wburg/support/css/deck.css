@@ -1,0 +1,1313 @@
+/* The main CSS for decks. This includes structure.css which contains CSS that
+is important for slide and embedded media structure.
+
+Margins, colors, fonts and stuff should be defined here. */
+
+@import url("../vendor/fontawesome/css/all.css");
+@import url("./structure.css");
+@import url("./style.css");
+/* @import url("../fonts/roboto.css"); */
+@import url("../fonts/source-code-pro.css");
+
+
+:root {
+  /* Icon settings */
+  --icon-active-color: var(--primary-color);
+  --icon-inactive-color: lightgrey;
+  --icon-size: 2vmin;
+}
+
+/* 
+  Try this for block elements that stack vertically:
+
+    - Only ever add a bottom margin
+    - The bottom margin is always the same
+    - Do not add a bottom margin to the last child
+*/
+:root {
+  --vertical-margin: 0.1em;
+}
+
+/* Text */
+body {
+  font-family: sans-serif;
+  font-size: 38px;
+  color: black;
+}
+
+/* Override whatever reveal sets here. */
+.reveal-viewport {
+  line-height: 1.2;
+}
+
+h1.title {
+  padding: 0;
+}
+
+/* Menu icon in top left corner */
+.reveal .slide-menu-button {
+  position: fixed;
+  left: var(--controls-gap);
+  top: var(--controls-gap);
+  bottom: auto;
+  right: auto;
+  padding: calc(var(--icon-size) * 0.5);
+  margin: auto;
+  z-index: 40;
+  background: none;
+  font-size: var(--icon-size);
+  opacity: 0.5;
+  color: var(--icon-inactive-color);
+}
+.reveal .slide-menu-button:hover {
+  opacity: 1;
+  color: var(--icon-active-color);
+}
+.reveal .slide-menu-button a {
+  color: inherit;
+}
+
+/* slide number and control arrows */
+
+/* Trying hard to center the slide number in the controls. This is hopeless with
+viewport relative sizing and/or vertical slides. It should probably not be the
+default.*/
+
+:root {
+  --controls-gap: 1vmin;
+  --controls-size: 1vmin;
+}
+
+.reveal .controls {
+  font-size: var(--controls-size);
+  bottom: var(--controls-gap);
+  right: var(--controls-gap);
+}
+
+/* Blocks can popup somewhere on the slide. */
+div.block[popup] {
+  /* Positioned relative the div.alignment element. */
+  position: absolute;
+  box-shadow: 0 0 30px 15px rgba(0, 0, 0, 0.4);
+}
+
+/* A centered block. This is very clever. */
+div.block[popup="center"] {
+  /* Percentages here are relative to the enclosing `position: relative`
+  element. */
+  top: 50%;
+  left: 50%;
+  /* Percentages here are relative to the transformed element. */
+  transform: translate(-50%, -50%) scale(1.5);
+  transform-origin: center;
+}
+
+/* A centered box that is also tilted up. */
+div.block[popup="center-up"] {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-23deg) scale(1.5);
+}
+
+/* A centered box that is also tilted down. */
+div.block[popup="center-down"] {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(23deg) scale(1.5);
+}
+
+/* Giving up. Centering this at the bottom. */
+.reveal .slide-number {
+  font-size: 0.6rem;
+  margin: 0;
+  text-align: center;
+
+  left: 50%;
+  bottom: var(--controls-gap);
+  transform: translate(-50%, 0);
+  width: 10em;
+
+  background-color: rgba(0, 0, 0, 0);
+  opacity: 0.5;
+  color: var(--icon-inactive-color);
+}
+
+.reveal .slide-number:hover {
+  opacity: 1;
+  color: var(--icon-active-color);
+}
+
+/* Trying to robustly center this to the controls is hopeless.
+.reveal .slide-number {
+  font-size: calc(2 * var(--controls-size));
+  width: calc(9 * var(--controls-size));
+  height: calc(9 * var(--controls-size));
+  line-height: calc(9 * var(--controls-size));
+  right: var(--controls-gap);
+  bottom: var(--controls-gap);
+  text-align: center;
+  background-color: rgba(0, 0, 0, 0);
+} */
+
+.reveal .controls-arrow {
+  color: var(--icon-inactive-color);
+}
+.reveal .controls-arrow:hover {
+  color: var(--icon-active-color);
+}
+.reveal .slide-number a,
+.reveal .slide-number a:hover {
+  color: black;
+}
+
+/* links */
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--hover-color);
+  text-shadow: none;
+  border: none;
+}
+
+/*******************
+ * TITLE SLIDE
+ *******************/
+
+.white-on-blue {
+  color: #ffffff;
+  background-color: #003366;
+}
+
+.reveal .title-page .banner img {
+  margin: 0px 0px 10px 0px;
+  width: 100%;
+  object-fit: contain;
+}
+ 
+.reveal .title-page .title {
+  margin: 0px;
+  width: 100%;
+  display: block;
+  padding: 0px;
+  font-size: var(--font-size-x-large);
+  text-align: center;
+}
+
+.reveal .title-page .subtitle {
+  width: 100%;
+  margin: 0px;
+  padding: 0px;
+  font-weight: normal;
+  font-size: var(--font-size-normal);
+  text-align: center;
+} 
+
+.reveal .title-page .teaser-img {
+  margin: 20px auto;
+  height: 10%;
+  width: auto;
+  display: block;
+}
+
+.reveal .title-page .teaser-img img {
+  margin: 0px;
+  display: block;
+  margin: auto;
+  object-fit: contain;
+  max-height: 250px;
+  width: auto;
+}
+
+.reveal .title-page .date {
+  text-align: center;
+}
+
+.reveal .title-page .author {
+  margin: 0px;
+  font-weight: normal;
+  font-style: normal;
+  font-size: var(--font-size-normal);
+  text-align: center;
+}
+
+.reveal .title-page .affiliation-logo img {
+  margin: 0px 0 0 0;
+  height: 70px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.reveal .title-page .affiliation {
+  margin: 0px 0 0 0;
+  font-weight: normal;
+  font-style: normal;
+  font-size: var(--font-size-normal);
+  text-align: center;
+}
+
+.reveal .title-page .valign-block {
+  text-align: center;
+}
+
+.reveal .title-page .valign-block:before {
+  content: '';
+  display: inline-block;
+  height: 100%;
+  vertical-align: middle;
+}
+
+.reveal .title-page .valigned {
+  display: inline-block;
+  vertical-align: middle;
+} 
+
+/*******************
+ * FONT SIZES
+ *******************/
+
+.reveal .medium,
+.reveal .font-medium,
+.reveal .font-size-medium,
+.reveal .normal,
+.reveal .font-normal,
+.reveal .font-size-normal {
+  font-size: var(--font-size-medium);
+}
+
+.reveal .xx-small,
+.reveal .font-xx-small,
+.reveal .font-size-xx-small {
+  font-size: var(--font-size-xx-small);
+}
+
+.reveal .x-small,
+.reveal .font-x-small,
+.reveal .font-size-x-small {
+  font-size: var(--font-size-x-small);
+}
+
+.reveal .small,
+.reveal .font-small,
+.reveal .font-size-small {
+  font-size: var(--font-size-small);
+}
+
+.reveal .large,
+.reveal .font-large,
+.reveal .font-size-large {
+  font-size: var(--font-size-large);
+}
+
+.reveal .x-large,
+.reveal .font-x-large,
+.reveal .font-size-x-large {
+  font-size: var(--font-size-x-large);
+}
+
+.reveal .xx-large,
+.reveal .font-xx-large,
+.reveal .font-size-xx-large {
+  font-size: var(--font-size-xx-large);
+}
+
+/*******************
+ * STANDARD ELEMENTS
+ *******************/
+
+.reveal h1,
+.reveal h2,
+.reveal h3,
+.reveal h4,
+.reveal h5,
+.reveal h6 {
+  color: rgba(0, 0, 0, 0.87);
+  letter-spacing: normal;
+  text-transform: none;
+  text-shadow: none;
+  word-wrap: break-word;
+  font-weight: normal;
+  text-shadow: none;
+}
+
+.reveal h1 {
+  font-size: var(--font-size-xx-large);
+}
+
+.reveal h2 {
+  font-weight: 500;
+  font-size: var(--font-size-large);
+}
+
+.reveal h3 {
+  font-size: var(--font-size-medium);
+}
+
+.reveal h4 {
+  font-size: var(--font-size-medium);
+}
+
+/* Inverse colors */
+section.slide:is(.inverse, .black) {
+  background-color: black;
+  color: white;
+}
+
+.reveal section.white, .reveal section.inverse, .reveal section.has-dark-background {
+  color: #fff;
+}
+
+.reveal section.white h1,
+.reveal section.white h2,
+.reveal section.white h3,
+.reveal section.white h4,
+.reveal section.white h5,
+.reveal section.white h6, .reveal section.inverse h1,
+.reveal section.inverse h2,
+.reveal section.inverse h3,
+.reveal section.inverse h4,
+.reveal section.inverse h5,
+.reveal section.inverse h6, .reveal section.has-dark-background h1,
+.reveal section.has-dark-background h2,
+.reveal section.has-dark-background h3,
+.reveal section.has-dark-background h4,
+.reveal section.has-dark-background h5,
+.reveal section.has-dark-background h6 {
+  color: #eee;
+}
+
+.reveal p {
+  line-height: 1.3;
+}
+
+.reveal strong,
+.reveal b {
+  font-weight: bold;
+}
+
+.reveal em {
+  font-style: italic;
+}
+
+.reveal p,
+.reveal ul,
+.reveal ol,
+.reveal dl,
+.reveal blockquote,
+.reveal table,
+.reveal h1,
+.reveal h2,
+.reveal h3, 
+.reveal h4 {
+  margin-left: var(--border-decoration-width);
+  padding-left: var(--border-decoration-padding);
+  margin-right: var(--border-decoration-width);
+  padding-right: var(--border-decoration-padding);
+}
+
+.reveal section > figure:first-of-type {
+  margin-left: var(--border-decoration-width);
+  padding-left: var(--border-decoration-padding);
+}
+
+.reveal section > figure:last-of-type {
+  margin-right: var(--border-decoration-width);
+  padding-right: var(--border-decoration-padding);
+}
+
+.reveal div.exa-quest {
+  margin-left: var(--border-decoration-width);
+  padding-left: var(--border-decoration-padding);
+  margin-right: var(--border-decoration-width);
+  padding-right: var(--border-decoration-padding);
+}
+
+.reveal ol,
+.reveal dl,
+.reveal ul {
+  display: inline-block;
+  text-align: left;
+  margin-bottom: 0;
+}
+
+.reveal ol li,
+.reveal dl li,
+.reveal ul li {
+  margin-bottom: 0;
+  margin-left: 40px;
+}
+
+.reveal ol {
+  list-style-type: decimal;
+}
+
+.reveal ul {
+  list-style-type: disc;
+}
+
+.reveal ul ul,
+.reveal ol ul {
+  list-style-type: circle;
+}
+
+.reveal ol ol {
+  list-style-type: lower-roman;
+}
+
+.reveal ul ul,
+.reveal ul ol,
+.reveal ol ol,
+.reveal ol ul {
+  display: block;
+  margin-top: 0.3em;
+}
+
+.reveal div.box.columns {
+  margin-left: var(--border-decoration-width);
+  padding-left: var(--border-decoration-padding);
+  margin-right: calc( var(--border-decoration-padding) + var(--border-decoration-width));
+} 
+
+.reveal div.box.columns p,
+.reveal div.box.columns ul,
+.reveal div.box.columns ol,
+.reveal div.box.columns dl,
+.reveal div.box.columns figure,
+.reveal div.box.columns blockquote,
+.reveal div.box.columns table,
+.reveal div.box.columns h1,
+.reveal div.box.columns h2,
+.reveal div.box.columns h3,
+.reveal div.box.columns h4 {
+  margin-left: 0;
+  padding-left: 0;
+  margin-right: 0;
+  padding-right: 0;
+}
+
+.reveal div.box.columns h2 {
+  margin-top: 0;
+}
+
+.reveal div.box.columns h2:last-child, .reveal div.box.columns h2:empty {
+  margin-bottom: 0;
+}
+
+div.block.question, 
+div.block.answer, 
+div.block.observation, 
+div.block.example, 
+div.block.def, 
+div.block.definition, 
+div.block.note, 
+div.block.ale, 
+div.block.alert, 
+div.block.equ, 
+div.block.equation, 
+div.block.theorem {
+  border: none;
+  border-right: calc(var(--block-border-width)) solid rgb(0,0,0,0);
+}
+div.block.ale,
+div.block.alert,
+div.block.question {
+  border-left: calc(var(--block-border-width)) solid #f00;
+}
+div.block.answer,
+div.block.def,
+div.block.definition,
+div.block.equ,
+div.block.equation,
+div.block.theorem {
+  border-left: calc(var(--block-border-width)) solid #4d4d4d;
+}
+div.block.example,
+div.block.observation {
+  border-left: calc(var(--block-border-width)) solid #00f; 
+}
+div.block.note {
+  border-left: calc(var(--block-border-width)) solid #ff9300; 
+}
+
+/* .reveal div.box.columns.question, 
+.reveal div.box.columns.answer, 
+.reveal div.box.columns.observation, 
+.reveal div.box.columns.example, 
+.reveal div.box.columns.def, 
+.reveal div.box.columns.definition, 
+.reveal div.box.columns.note, 
+.reveal div.box.columns.ale, 
+.reveal div.box.columns.alert, 
+.reveal div.box.columns.equ, 
+.reveal div.box.columns.equation, 
+.reveal div.block.theorem {
+  /* First define the enclosing box and its properties.
+        This is the current semantic: The box uses border and padding for
+        the "margin" left and right where the left "margin" is used for decoraton
+        and spacing to the encloded elements which then span the whole width without
+        any margin or padding. */
+/* margin-left: 0;
+  border-left: var(--border-decoration-width) var(--border-decoration-style) red;
+  padding-left: var(--border-decoration-padding);
+  margin-right: calc( var(--border-decoration-padding) + var(--border-decoration-width));
+}   
+
+.reveal div.box.columns.question {
+  border-color: #ff0101;
+} 
+
+.reveal div.box.columns.answer {
+  border-color: #4d4d4d;
+} 
+
+.reveal div.box.columns.observation {
+  border-color: blue;
+}
+
+.reveal div.box.columns.example {
+  border-color: blue;
+} 
+
+.reveal div.box.columns.def, .reveal div.box.columns.definition {
+  border-color: #4d4d4d;
+}
+
+.reveal div.box.columns.note {
+  border-color: #ff9300;
+}
+
+.reveal div.box.columns.ale, 
+.reveal div.box.columns.alert {
+  border-color: #fa0101;
+}
+
+.reveal div.box.columns.equ, .reveal div.box.columns.equation {
+  border-color: #4d4d4d;
+}
+
+.reveal div.box.columns.theorem {
+  border-color: #4d4d4d;
+}
+*/
+.reveal div.box.question div.sourceCode, 
+.reveal div.box.answer div.sourceCode, 
+.reveal div.box.observation div.sourceCode, 
+.reveal div.box.example div.sourceCode, 
+.reveal div.box.def div.sourceCode, 
+.reveal div.box.definition div.sourceCode, 
+.reveal div.box.note div.sourceCode, 
+.reveal div.box.ale div.sourceCode, 
+.reveal div.box.alert div.sourceCode, 
+.reveal div.box.equ div.sourceCode, 
+.reveal div.box.equation div.sourceCode, 
+.reveal div.box.theorem div.sourceCode {
+  margin: 0;
+  background: rgba(255, 255, 255, 0.4);
+  padding: calc(var(--spacing-vertical-base) * 0) calc(var(--spacing-vertical-base) * 0.2);
+}
+
+.reveal div.box.question div.sourceCode pre, .reveal div.box.answer div.sourceCode pre, 
+.reveal div.box.observation div.sourceCode pre, .reveal div.box.example div.sourceCode pre, 
+.reveal div.box.def div.sourceCode pre, .reveal div.box.definition div.sourceCode pre, 
+.reveal div.box.note div.sourceCode pre, .reveal div.box.ale div.sourceCode pre, 
+.reveal div.box.alert div.sourceCode pre, .reveal div.box.equ div.sourceCode pre, 
+.reveal div.box.equation div.sourceCode pre, .reveal div.box.theorem div.sourceCode pre {
+  margin: 0;
+}
+
+.reveal code {
+  font-family: "Source Code Pro", monospace;
+  font-size: 106%;
+  font-weight: 500;
+  text-transform: none;
+}
+
+.reveal pre {
+  display: block;
+  position: relative;
+  width: 90%;
+  margin: 20px auto;
+  text-align: left;
+  font-size: 0.55em;
+  font-family: monospace;
+  line-height: 1.2em;
+  word-wrap: break-word;
+}
+
+.reveal pre code {
+  display: block;
+  padding: 5px;
+  overflow: auto;
+  max-height: 400px;
+  word-wrap: normal;
+}
+
+.reveal div.sourceCode {
+  margin-bottom: 0.5em;
+  padding: calc(var(--spacing-vertical-base) * 0.4) calc(var(--spacing-vertical-base) * 0.7);
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 0.25em;
+  overflow: auto;
+}
+
+.reveal div.sourceCode pre {
+  display: block;
+  position: relative;
+  width: 100%;
+  text-align: left;
+  line-height: 1.5em;
+  word-wrap: break-word;
+  box-shadow: none;
+  font-size: 90%;
+  font-weight: 500;
+  margin: 0;
+}
+
+.reveal div.sourceCode pre div.language-label {
+  font-family: sans-serif;
+  position: absolute;
+  right: 0;
+  top: 0;
+  color: #666;
+  background-color: #eee;
+  padding: 0em 0.4em;
+  border-radius: 0.2em;
+}
+
+.reveal div.sourceCode pre code {
+  display: block;
+  overflow: auto;
+  max-height: 500px;
+  word-wrap: normal;
+  border: none;
+  font-family: "Source Code Pro", monospace;
+  white-space: pre;
+  position: relative;
+  color: black;
+}
+
+.reveal div.decker.image.error {
+  font-size: 20pt;
+  background-color: #fee;
+  border: 0.1em solid darkred;
+  padding: 1em;
+}
+
+.reveal div.decker.image.error .message {
+  font-style: italic;
+  margin-left: 20px;
+}
+
+.reveal div.decker.image.error pre.markup {
+  width: 100%;
+  margin-left: 20px;
+}
+
+.reveal div.decker.image.error pre.markup code.markup {
+  font-family: "Source Code Pro", monospace;
+  font-size: 18pt;
+  line-height: 1.4;
+  color: black;
+} 
+
+.reveal img.decker,
+.reveal video.decker {
+  display: inline-block;
+  object-fit: contain;
+  max-width: 100%;
+  max-height: 100%;
+  vertical-align: middle;
+  margin: auto;
+  border: 0px;
+  box-shadow: none;
+}
+
+.reveal iframe.decker {
+  border: 1px solid lightgray;
+  outline: none;
+  overflow: hidden;
+  max-width: 100%;
+  max-height: 100%;
+  vertical-align: middle;
+}
+
+.reveal figure.decker,
+.reveal div.nofigure {
+  display: inline-block;
+}
+
+.reveal figure.decker > img.decker,
+.reveal figure.decker > video.decker,
+.reveal figure.decker > iframe.decker,
+.reveal div.nofigure > img.decker,
+.reveal div.nofigure > video.decker,
+.reveal div.nofigure > iframe.decker {
+  margin: auto;
+  border: 0px;
+  box-shadow: none;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.reveal div.decker.nofigure {
+  width: 100%;
+}
+
+.reveal figure.streaming {
+  width: 100%;
+  margin: 0;
+}
+
+.reveal figure.decker figcaption.decker {
+  margin: 0px 0px 0px 0px;
+  line-height: 1.2;
+  font-style: italic;
+  text-align: center;
+}
+
+.reveal object.decker {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.reveal figure.decker > object.decker {
+  width: 100%;
+}
+
+.reveal div.image-row {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  width: 100%;
+}
+
+.reveal div.image-row div {
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: auto;
+}
+
+.reveal div.image-row img {
+  display: block;
+}
+
+.reveal div.column {
+  display: inline-block;
+  vertical-align: top;
+  width: 50%;
+}
+
+.reveal div.css-columns {
+  column-count: 2;
+  column-gap: var(--margin-columns);
+  column-rule-style: none;
+}
+
+.reveal div.box {
+  break-inside: avoid-column;
+}
+
+.reveal div.multi-column-row {
+  display: flex;
+  flex-flow: row nowrap;
+  margin-bottom: var(--margin-bottom-columns);
+}
+
+.reveal div.multi-column-row div.column {
+  position: relative;
+  flex: 1 1 0;
+  margin-left: var(--margin-columns);
+  margin-right: var(--margin-columns);
+}
+
+.reveal div.multi-column-row div.column:first-child {
+  margin-left: 0;
+  margin-right: var(--margin-columns);
+}
+
+.reveal div.multi-column-row div.column:last-child {
+  margin-left: var(--margin-columns);
+  margin-right: 0;
+}
+
+.reveal div.multi-column-row div.column .mid {
+  position: absolute;
+  top: 50%;
+  transform: translate(0, -50%);
+}
+
+.reveal div.multi-column-row div.column[data-grow="1"] {
+  flex-grow: 1;
+}
+
+.reveal div.multi-column-row div.column[data-grow="2"] {
+  flex-grow: 2;
+}
+
+.reveal div.multi-column-row div.column[data-grow="3"] {
+  flex-grow: 3;
+}
+
+.reveal div.multi-column-row div.column[data-grow="4"] {
+  flex-grow: 4;
+}
+
+.reveal div.multi-column-row div.column[data-grow="5"] {
+  flex-grow: 5;
+}
+
+.reveal div.multi-column-row div.column[data-grow="6"] {
+  flex-grow: 6;
+}
+
+.reveal div.multi-column-row div.column[data-grow="7"] {
+  flex-grow: 7;
+}
+
+.reveal div.multi-column-row div.column[data-grow="8"] {
+  flex-grow: 8;
+}
+
+.reveal div.multi-column-row div.column[data-grow="9"] {
+  flex-grow: 9;
+}
+
+.reveal div.single-column-row {
+  margin-bottom: var(--margin-bottom-columns);
+}
+
+.reveal {
+  font-size: var(--font-size-medium);
+} 
+
+::selection,
+::-moz-selection {
+  color: #fff;
+  background: #98bdef;
+  text-shadow: none;
+}
+
+.reveal .slides section,
+.reveal .slides section > section {
+  line-height: 1.3;
+  font-weight: inherit;
+  text-align: var(--align-global);
+}
+
+.reveal section[data-align="center"] > h1,
+.reveal div[data-align="center"] {
+  text-align: center;
+}
+
+.reveal section[data-align="right"] > h1,
+.reveal div[data-align="right"] {
+  text-align: right;
+}
+
+.reveal .smallcaps {
+  font-variant: small-caps;
+}
+
+.reveal .line-block {
+  white-space: pre-line;
+}
+
+.reveal .references {
+  height: 17.5em;
+  overflow-y: scroll;
+}
+
+.reveal .references div {
+  margin-bottom: var(--margin-bottom-references);
+}
+
+.reveal q,
+.reveal blockquote {
+  font-style: italic;
+}
+
+.reveal blockquote {
+  display: block;
+  position: relative;
+  width: 70%;
+  margin-bottom: var(--margin-bottom-blockquote);
+  padding: calc(var(--spacing-vertical-base) * 0.25);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+}
+
+.reveal blockquote p:first-child, .reveal blockquote p:last-child {
+  display: inline-block;
+}
+
+dt {
+  font-weight: bold;
+}
+
+dd {
+  margin-left: calc(var(--spacing-vertical-base) * 1);
+}
+
+.reveal table {
+  display: inline-block;
+  margin-bottom: var(--margin-bottom-table);
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.reveal table th {
+  font-weight: bold;
+}
+
+.reveal table th,
+.reveal table td {
+  text-align: left;
+  padding: calc(var(--spacing-vertical-base) * 0.2) calc(var(--spacing-vertical-base) * 0.5);
+  border-bottom: 1px solid;
+}
+
+.reveal table th[align="center"],
+.reveal table td[align="center"] {
+  text-align: center;
+}
+
+.reveal table th[align="right"],
+.reveal table td[align="right"] {
+  text-align: right;
+}
+
+.reveal table tbody tr:last-child th,
+.reveal table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.reveal table .slide-number {
+  color: #009;
+  background-color: rgba(255, 255, 255, 0);
+}
+
+.reveal sup {
+  vertical-align: super;
+  font-size: smaller;
+}
+
+.reveal sub {
+  vertical-align: sub;
+  font-size: smaller;
+}
+
+.reveal small {
+  display: inline-block;
+  font-size: 0.6em;
+  line-height: 1.2em;
+  vertical-align: top;
+}
+
+.reveal small * {
+  vertical-align: top;
+}  
+
+/*********************************************
+ * LINKS
+ *********************************************/
+.reveal a {
+  color: #009;
+  text-decoration: none;
+  -webkit-transition: color 0.15s ease;
+  -moz-transition: color 0.15s ease;
+  -ms-transition: color 0.15s ease;
+  -o-transition: color 0.15s ease;
+  transition: color 0.15s ease;
+}
+
+.reveal a img {
+  -webkit-transition: color 0.15s linear;
+  -moz-transition: color 0.15s linear;
+  -ms-transition: color 0.15s linear;
+  -o-transition: color 0.15s linear;
+  transition: color 0.15s linear;
+}
+
+.reveal a:hover {
+  color: #6ca0e8;
+  text-shadow: none;
+  border: none;
+}
+
+.reveal a:hover img {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  box-shadow: none;
+}
+
+.reveal .roll span:after {
+  color: #fff;
+  background: #1a53a1;
+} 
+
+/*********************************************
+ * NAVIGATION CONTROLS
+ *********************************************/
+.reveal .controls button {
+  opacity: 0;
+}
+
+.reveal .controls .enabled:active {
+  margin-top: 0;
+}
+
+.reveal .controls :focus {
+  outline: none;
+}
+
+.reveal .controls .slide-number {
+  color: #009;
+  background-color: rgba(255, 255, 255, 0);
+}  
+
+/************************
+ * PROGRESS BAR
+ ************************/
+ 
+.reveal .progress {
+  background: rgba(0, 0, 0, 0.2);
+  color: #2a76dd;
+}
+
+.reveal .progress span {
+  background: #777;
+  -webkit-transition: width 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985);
+  -moz-transition: width 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985);
+  -ms-transition: width 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985);
+  -o-transition: width 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985);
+  transition: width 800ms cubic-bezier(0.26, 0.86, 0.44, 0.985);
+}
+
+.reveal .speaker-notes h1,
+.reveal .speaker-notes h2,
+.reveal .speaker-notes h3,
+.reveal .speaker-notes h4,
+.reveal .speaker-notes h5,
+.reveal .speaker-notes h6 {
+  color: #fff;
+  font-weight: bold;
+  margin-bottom: calc(var(--spacing-vertical-base) * 0.2);
+}
+
+.reveal .speaker-notes h1 {
+  text-decoration: underline;
+  margin-bottom: calc(var(--spacing-vertical-base) * 0.4);
+}
+
+.reveal .slide-number {
+  background: transparent;
+  color: gray;
+  font-size: 0.4em;
+  position: fixed;
+  right: 50%;
+  bottom: 2vmin;
+}
+
+.reveal .resume-button {
+  visibility: hidden;
+}
+
+.reveal ::selection {
+  color: white;
+  background: rgba(0, 0, 0, 0.85);
+  text-shadow: none;
+} 
+
+/*********************************************
+ * Alignment, beware of semantics as borrowed
+ * from CSS 
+ *********************************************/
+.reveal .float-left {
+  float: left;
+}
+
+.reveal .float-right {
+  float: right;
+}
+
+.reveal .vertical-align-top,
+.reveal .align-top {
+  vertical-align: top;
+}
+
+.reveal .vertical-align-middle,
+.reveal .align-middle {
+  vertical-align: middle;
+}
+
+.reveal .vertical-align-bottom,
+.reveal .align-bottom {
+  vertical-align: bottom;
+}
+
+.reveal .align-left,
+.reveal section.align-left {
+  text-align: left;
+}
+
+.reveal .align-center,
+.reveal section.align-center {
+  text-align: center;
+}
+
+.reveal .align-right,
+.reveal section.align-right {
+  text-align: right;
+}
+
+.reveal h1 {
+  margin-bottom: var(--margin-bottom-h1);
+}
+
+.reveal h2 {
+  margin-bottom: var(--margin-bottom-h2);
+}
+
+.reveal div.box.columns {
+  margin-bottom: var(--margin-bottom-h2-block);
+}
+
+.reveal h3,
+.reveal h4 {
+  margin-bottom: var(--margin-bottom-h3);
+}
+
+.reveal p {
+  margin-bottom: var(--margin-bottom-p);
+}
+
+.reveal ol {
+  margin-bottom: var(--margin-bottom-ol);
+}
+
+.reveal ul {
+  margin-bottom: var(--margin-bottom-ul);
+}
+
+.reveal dl {
+  margin-bottom: var(--margin-bottom-dl);
+}
+
+.reveal figure {
+  margin-bottom: var(--margin-bottom-figure);
+}
+
+.reveal img {
+  margin-bottom: var(--margin-bottom-img);
+}
+
+.reveal table {
+  margin-bottom: var(--margin-bottom-table);
+}
+
+.reveal .columns {
+  margin-bottom: var(--margin-bottom-columns);
+}
+
+.reveal p:empty {
+  display: none;
+} 
+
+/*********************************************
+ * MARIO: fullscreen for iframes
+ *********************************************/
+.reveal div.fs-container {
+  margin: auto;
+  border: 0px;
+  padding: 0px;
+  position: relative;
+}
+
+.reveal div.fs-container:fullscreen {
+  overflow-x: hidden;
+  overflow-y: auto;
+  background-color: white;
+  padding: 20px;
+}
+
+*:-webkit-full-screen {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.reveal div.fs-container > iframe {
+  box-sizing: border-box;
+}
+
+.reveal div.fs-container:fullscreen > iframe {
+  border: none;
+}
+
+.reveal button.fs-button {
+  z-index: 100;
+  display: inline-block;
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  cursor: pointer;
+  outline: none;
+  font-size: 20px;
+  width: 24px;
+  height: 24px;
+  padding: 2px;
+  border: none;
+  border-radius: 4px;
+  opacity: 0.5;
+  color: var(--whiteboard-inactive-color);
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.reveal button.fs-button:hover {
+  opacity: 1;
+  color: var(--whiteboard-active-color);
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+/*********************************************
+ * MARIO: menu icon in top left corner
+ *********************************************/
+.reveal .slide-menu-button {
+  position: fixed;
+  left: calc(var(--whiteboard-icon-size) * 0.25);
+  top: calc(var(--whiteboard-icon-size) * 0.25);
+  bottom: auto;
+  right: auto;
+  padding: 0;
+  margin: auto;
+  z-index: 40;
+  background: none;
+  font-size: var(--whiteboard-icon-size);
+  padding: calc(var(--whiteboard-icon-size) * 0.5);
+  color: var(--whiteboard-inactive-color);
+}
+
+.reveal .slide-menu-button a {
+  color: var(--whiteboard-inactive-color);
+}
+
+.reveal .slide-menu-button a:hover {
+  color: var(--whiteboard-active-color);
+}
+
+.reveal .slide-menu-button:hover {
+  color: var(--whiteboard-active-color);
+} 
+
+@media print {
+  .reveal .slides {
+    transform: none !important;
+  }
+  .reveal .slides section {
+    break-after: always !important;
+  }
+} 
