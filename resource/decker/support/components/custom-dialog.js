@@ -1,3 +1,5 @@
+import bwipjs from "../js/bwip.js";
+
 /* default: en */
 let localization = {
   submit: "Submit",
@@ -97,6 +99,8 @@ class CustomDialog extends HTMLDialogElement {
         this.focusable[index].focus();
       }
     });
+
+    this.addEventListener("click", (event) => {});
   }
 
   submit(submitValue, callback) {
@@ -196,6 +200,34 @@ window.showChoice = (message, options, severity) => {
       content: null,
       options: options,
       severity: severity,
+      callback: callback,
+    });
+
+    document.body.appendChild(dialog);
+    dialog.showModal();
+    dialog.focus();
+  });
+};
+
+window.showQRCode = (message, value) => {
+  return new Promise((resolve, reject) => {
+    let callback = (value) => {
+      resolve(value);
+    };
+    let canvas = document.createElement("canvas");
+    bwipjs.toCanvas(canvas, {
+      bcid: "qrcode",
+      text: value,
+      scale: 10,
+      includetext: false,
+      textxalign: "center",
+      eclevel: "L",
+    });
+    let dialog = new CustomDialog({
+      title: message,
+      content: canvas,
+      options: [{ text: "OK", value: "confirmed" }],
+      severity: "information",
       callback: callback,
     });
 

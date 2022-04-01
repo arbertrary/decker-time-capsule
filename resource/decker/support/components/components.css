@@ -91,3 +91,8 @@
   outline-offset: 0.25rem;
   animation: ping 1s linear;
 }
+
+.multi-dialog-container canvas {
+  max-width: 25vw;
+  aspect-ratio: 1/1;
+}

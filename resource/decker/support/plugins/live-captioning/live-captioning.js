@@ -5,8 +5,6 @@
  *
  * @author Sebastian Lukas Hauer
  */
-import bwipjs from "../examiner/bwip.js";
-
 let localization;
 
 let menu_template = document.createElement("template");
@@ -137,18 +135,9 @@ class LiveCaptioning {
         if (!this.connection.server) {
           this.connection.server = url;
         }
-        let qrcode = document.createElement("canvas");
-        bwipjs.toCanvas(qrcode, {
-          bcid: "qrcode",
-          text: `${this.connection.server}/${this.connection.session}`,
-          scale: 10,
-          includetext: false,
-          textxalign: "center",
-          eclevel: "L",
-        });
-        let noop = await window.showInformation(
+        let noop = await window.showQRCode(
           localization.qrcode_message,
-          qrcode
+          `${this.connection.server}/${this.connection.session}`
         );
       }
     }

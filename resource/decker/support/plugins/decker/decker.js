@@ -30,6 +30,7 @@ function onStart(deck) {
       }
     });
   });
+  linkToQRCode();
 }
 
 function fixAutoplayWithStart() {
@@ -407,6 +408,16 @@ function preparePresenterMode(deck) {
       }
     })
   );
+}
+
+function linkToQRCode() {
+  document.addEventListener("click", (event) => {
+    if (event.target.tagName === "A" && event.shiftKey && event.ctrlKey) {
+      event.preventDefault();
+      event.stopPropagation();
+      window.showQRCode(event.target.innerText, event.target.href);
+    }
+  });
 }
 
 const Plugin = {
