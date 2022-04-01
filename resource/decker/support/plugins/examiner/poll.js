@@ -3,7 +3,7 @@ export { pollSession };
 
 // This might be overkill, but it is the only generator in a proper ES6 module i
 // could find.
-import bwipjs from "./bwip.js";
+import bwipjs from "../../js/bwip.js";
 
 var session = null;
 
@@ -121,11 +121,19 @@ function pollSession({
             break;
 
           case "Active":
-            session.ui.onActive(message.participants, message.quiz.choices, message.quiz.complete);
+            session.ui.onActive(
+              message.participants,
+              message.quiz.choices,
+              message.quiz.complete
+            );
             break;
 
           case "Finished":
-            session.ui.onFinished(message.participants, message.quiz.choices, message.quiz.complete);
+            session.ui.onFinished(
+              message.participants,
+              message.quiz.choices,
+              message.quiz.complete
+            );
             session.ui = null;
             break;
           default:
