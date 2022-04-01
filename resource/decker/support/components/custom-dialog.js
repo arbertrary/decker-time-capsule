@@ -105,9 +105,9 @@ class CustomDialog extends HTMLDialogElement {
         let bounds = this.getBoundingClientRect();
         let inbounds =
           bounds.top <= event.clientY &&
-          event.clientY <= bounds.top + bounds.height &&
+          event.clientY <= bounds.bottom &&
           bounds.left <= event.clientX &&
-          event.clientX <= bounds.left + bounds.width;
+          event.clientX <= bounds.right;
         if (!inbounds) {
           this.cancel();
         }
