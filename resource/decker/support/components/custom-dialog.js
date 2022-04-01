@@ -100,7 +100,19 @@ class CustomDialog extends HTMLDialogElement {
       }
     });
 
-    this.addEventListener("click", (event) => {});
+    this.addEventListener("click", (event) => {
+      if (event) {
+        let bounds = this.getBoundingClientRect();
+        let inbounds =
+          bounds.top <= event.clientY &&
+          event.clientY <= bounds.top + bounds.height &&
+          bounds.left <= event.clientX &&
+          event.clientX <= bounds.left + bounds.width;
+        if (!inbounds) {
+          this.cancel();
+        }
+      }
+    });
   }
 
   submit(submitValue, callback) {
