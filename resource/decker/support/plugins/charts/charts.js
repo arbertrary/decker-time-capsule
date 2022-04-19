@@ -301,7 +301,7 @@ function getColorModePreference() {
   let match = !!window.matchMedia
     ? window.matchMedia("(prefers-color-scheme: dark)").matches
     : false;
-  let system = match.matches ? "dark" : "light";
+  let system = match ? "dark" : "light";
   let storage = localStorage.getItem("color-mode");
   let choice = storage ? storage : system;
   return choice;
