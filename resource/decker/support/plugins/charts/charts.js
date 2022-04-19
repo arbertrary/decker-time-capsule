@@ -297,6 +297,16 @@ function adjustPixelRatio() {
   Chart.defaults.devicePixelRatio = pixelRatio;
 }
 
+function getColorModePreference() {
+  let match = !!window.matchMedia
+    ? window.matchMedia("(prefers-color-scheme: dark)").matches
+    : false;
+  let system = match.matches ? "dark" : "light";
+  let storage = localStorage.getItem("color-mode");
+  let choice = storage ? storage : system;
+  return choice;
+}
+
 const Plugin = {
   id: "charts",
   init: (deck) => {
@@ -313,8 +323,7 @@ const Plugin = {
 
     // MARIO: set color depending on dark/light mode
     const colors =
-      window.matchMedia &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches
+      getColorModePreference() === "dark"
         ? window.Decker.meta.palette.colors.dark
         : window.Decker.meta.palette.colors.light;
     Chart.defaults.color = colors[7];
@@ -329,6 +338,12 @@ const Plugin = {
       initializeCharts();
 
       Reveal.addEventListener("slidechanged", function () {
+        const colors =
+          getColorModePreference() === "dark"
+            ? window.Decker.meta.palette.colors.dark
+            : window.Decker.meta.palette.colors.light;
+        Chart.defaults.color = colors[7];
+        Chart.defaults.borderColor = colors[2];
         let canvases =
           Reveal.getCurrentSlide().querySelectorAll("canvas[data-chart]");
         for (let i = 0; i < canvases.length; i++) {
