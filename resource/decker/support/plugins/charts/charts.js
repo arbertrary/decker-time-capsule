@@ -273,6 +273,7 @@ let initializeCharts = function () {
 
 function recreateChart(canvas) {
   let config = canvas.chart.config;
+  config.options.scales = null;
 
   // MARIO: inject correct pixel ratio, since global setting will not be used on *recreation*
   config.options.devicePixelRatio = pixelRatio;
