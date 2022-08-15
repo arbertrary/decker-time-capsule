@@ -227,6 +227,16 @@ class Feedback {
       this.menu.feedback_credentials.password_input.value = "";
       this.menu.feedback_login_area.classList.remove("admin");
       this.menu.feedback_credentials.container.classList.remove("visible");
+      this.menu.feedback_login_button.classList.remove("fa-sign-out-alt");
+      this.menu.feedback_login_button.classList.add("fa-sign-in-alt");
+      this.menu.feedback_login_button.setAttribute(
+        "aria-label",
+        this.localization.interface.login_as_admin
+      );
+      this.menu.feedback_login_button.setAttribute(
+        "title",
+        this.localization.interface.login_as_admin
+      );
       this.requestMenuContent();
     } else {
       if (
@@ -258,6 +268,16 @@ class Feedback {
           this.menu.feedback_credentials.username_input.value = "";
           this.menu.feedback_credentials.password_input.value = "";
           this.menu.feedback_credentials.container.classList.remove("visible");
+          this.menu.feedback_login_button.classList.remove("fa-sign-in-alt");
+          this.menu.feedback_login_button.classList.add("fa-sign-out-alt");
+          this.menu.feedback_login_button.setAttribute(
+            "aria-label",
+            this.localization.interface.logout_as_admin
+          );
+          this.menu.feedback_login_button.setAttribute(
+            "title",
+            this.localization.interface.logout_as_admin
+          );
           this.requestMenuContent();
         })
         .catch((error) => {
@@ -567,18 +587,18 @@ class Feedback {
     template.innerHTML = String.raw`<div class="feedback-item answer">
     <div class="feedback-content">
     ${
-      isAdmin
-        ? `<div class="feedback-controls"><button class="fas fa-trash-alt feedback-delete-answer-button" \
-    title="${text.delete}" aria-label="${text.delete}"></div>`
-        : ""
-    }
-    ${
       url
         ? `<div class="link"><a href="${url}" target="_blank"><i class="fas fa-external-link-alt"></i></a></div>`
         : ""
     }
     ${html ? `<div class="description">${html}</div>` : ""}
-</div>`;
+    </div>
+    ${
+      isAdmin
+        ? `<div class="feedback-controls"><div class="feedback-controls-wrapper"><button class="fas fa-trash-alt feedback-delete-answer-button" \
+    title="${text.delete}" aria-label="${text.delete}"></div></div>`
+        : ""
+    }`;
     let item = template.content.firstChild;
     if (isAdmin) {
       let deleteButton = item.querySelector(".feedback-delete-answer-button");
@@ -852,6 +872,7 @@ class Feedback {
         lock_token: "Lock Token",
         menu_close: "Close Feedback Menu",
         login_as_admin: "Login as Admin",
+        logout_as_admin: "Logout as Admin",
         username_placeholder: "Username",
         password_placeholder: "Password",
       },
@@ -886,6 +907,7 @@ class Feedback {
           unlock_token: "Token sperren",
           menu_close: "Fragemenu schließen",
           login_as_admin: "Als Administrator einloggen",
+          logout_as_admin: "Als Administrator ausloggen",
           username_placeholder: "Benutzername",
           password_placeholder: "Passwort",
         },
